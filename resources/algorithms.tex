@@ -1,0 +1,359 @@
+% Define struct-like syntax for objects
+\SetKwRepeat{Node}{NodeObject \{}{\}}
+\SetKwRepeat{Split}{SplitObject \{}{\}}
+
+%keywords for local models
+\SetKwFunction{FindSplit}{FindSplit}
+\SetKwFunction{KwCombine}{combine}
+\SetKwFunction{KwPrototype}{prototype}
+\SetKwData{primaryRows}{primaryRowsEstimator}
+\SetKwData{primaryColumns}{primaryColumnsEstimator}
+\SetKwData{secondaryRows}{secondaryRowsEstimator}
+\SetKwData{secondaryColumns}{secondaryColumnsEstimator}
+\SetKwFunction{train}{train}
+\SetKwFunction{predict}{predict}
+
+
+% \newcommand{\algFindBestSplit}{
+% \begin{function}
+% \SetKwFunction{SplitQuality}{SplitQuality}
+% \SetKwFunction{BestSplit}{BestSplit}
+% \SetKwFunction{SplitDataset}{SplitDataset}
+% %\tcp{Index of the feature ($X$ column) used in the best split found}
+% Initialize \BestSplit object\;
+% \BlankLine
+% 
+% \ForAll {$j \in \mathbb{N},\;1 \le j \le n_c$}{
+%     Sort $X_a$ rows according to $X_a\el{:, j}$\;
+%     Sort $Y$ rows according to $X_a\el{:, j}$\;
+%     \BlankLine
+%     \ForAll {$i \in \mathbb{N},\;1 \le i \le n_r$}{
+%         $X_l, X_r, Y_l, Y_r \gets$ \SplitDataset{$X_a$, $Y$, $i$}\;
+%         % TODO: organize impurity funcs.
+%         $Q\gets$ \SplitQuality{$X_l$, $X_r$, $Y_l$, $Y_r$}\;
+%         \BlankLine
+%         \If{$Q >$\BestSplit.Quality}{
+%             \BestSplit $\gets$ \Split{}{
+%                 $X_l$, $X_r$, $Y_l$, $Y_r$\;
+%                 Quality $\gets Q$\; 
+%                 Index $\gets i$\; 
+%                 Feature $\gets j$\; 
+%                 Threshold $\gets \frac{1}{2}(X_a\el{i, j} + X_a\el{i+1, j})$\;
+%             }
+%         }
+%     }
+%     \BlankLine
+%     \Return \BestSplit
+% }
+% \caption{FindBestSplit($X_a$, $Y$)}
+% \label{alg:find_best_split}
+% \end{function}}
+
+\newcommand{\algFindBestSplit}{
+\begin{function}
+    \KwIn{A partition of the training data in a given node.}
+    \KwOut{The highest quality score $Q^*$ found among all splits evaluated,
+        with its corresponding feature column $f^*$ and threshold value $t^*$.}
+    \BlankLine
+    %\SetKwFunction{SplitQuality}{SplitQuality}
+    %\SetKwFunction{BestSplit}{BestSplit}
+    %\SetKwFunction{SplitDataset}{SplitDataset}
+    %\tcp{Index of the feature ($X$ column) used in the best split found}
+    %Initialize \BestSplit object\;
+    %Calculate $\savg{Y\el{i}}_i$ and $\savg{(Y\el{i})^2}_i$\;
+    Initialize $S_r$ and $S_l$ as a $|Y|_j$-sized vectors\;%\tcp{Will store sums of $Y_r$ and $Y_l$ columns}
+    \BlankLine
+    %$S_l \gets 0$ \tcp*{The same but for $Y_l$}
+    % $f^* \gets 0$ \tcp*{best split's feature}
+    % $Q^* \gets 0$ \tcp*{best split's quality}
+    % $t^* \gets 0$ \tcp*{best split's threshold}
+    $Q^*$, $f^*$, $t^* \gets \mathbf {0}$\;
+    \BlankLine
+    Draw $\tilde n_f$ columns (features) of $X$ without replacement\;
+    \BlankLine
+    
+    \ForEach {feature index $f$ of the $\tilde n_f$ drawn features}{
+        $n_l \gets 0$\tcp*{Holds $|Y_l|_i$}
+        %\tcp{$S_r$ (resp. $S_l$) will store sums for each $Y_r$ ($Y_l$) column}
+        $S_r \gets \sum_i Y\el{i\jhat}$\tcp*{Holds $\sum_i Y_r\el{i\jhat}$} \label{algline:gmo_loop1}
+        $S_l \gets \mathbf{0}$\tcp*{Holds $\sum_i Y_l\el{i\jhat}$}
+        %\ForEach {column index $\jhat$ of $Y$}{
+        %    $S_r\el \jhat \gets \sum_i Y\el{i\jhat}$\;
+        %    $S_l\el \jhat \gets 0$\;
+        %}
+        \BlankLine
+        Get the permutation $P$ that sorts $X\el{\cdot f}$\;
+        %Apply $p$ to $Y$ and $X$, yielding $Y_\text{permuted}$ and $X_\text{permuted}$\;
+        %Calculate $Y_\text{permuted}$ and $X_\text{permuted}$ by applying $p$ to $Y$'s and $X$'s rows\;
+        %$Y_\text{permuted}$, $X_\text{permuted}\gets$ Apply $p$ to $Y$ and $X$\;
+        \BlankLine
+        Apply $P$ to $Y$'s and $X\el{\cdot f}$'s rows:\\
+        \Indp $Y_P$, $X_P\gets P(Y)$, $P(X\el{\cdot f})$\;\Indm
+        \BlankLine
+        
+        % TODO: use \ihat for loop variable
+        % TODO: set inner loop as another function to include random splits?
+        \ForEach {row index $\ihat$ of $Y_P$}{
+            $n_l \gets n_l+1$\;
+            \ForEach {column index $\jhat$ of $Y_P$}{ \label{algline:gmo_loop2}
+                $S_r\el \jhat \gets S_r\el \jhat - Y_P\el{\ihat\jhat}$\;
+                $S_l\el \jhat \gets S_l\el \jhat + Y_P\el{\ihat\jhat}$\;
+            }
+            %$\savg{(\savg{Y_l\el{ij}}_i\el j)^2} \gets S_l / n_l$\;
+            %$\savg{Y_r\el{ij}}\el j \gets S_r / (|Y|_i - n_l)$\;
+            \BlankLine
+            % Calculate $Q$ with Eq. \ref{eq:quality}\;
+            Use $S_l$, $S_r$ and $n_l$ to calculate $Q$ (Eq. \ref{eq:q_optimization}).
+            Notice that other node-specific constants might be needed\;
+            %Calculate $Q$ with Eq. \ref{eq:q_optimization}\;
+            \BlankLine
+            \If{$Q > Q^*$}{
+                $Q^* \gets Q$\; 
+                $f^*\gets f$\; 
+                $t^* \gets \frac{1}{2}(X_P\el{\ihat} + X_P\el{\ihat+1})$\;
+            }
+        }
+    }
+    \BlankLine
+    \Return $Q^*$, $f^*$, $t^*$\;
+    \caption{FindSplitBest($X$, $Y$)}
+    \label{alg:find_best_split}
+\end{function}}
+
+
+\newcommand{\algFindRandomSplit}{
+\begin{function}
+    \KwIn{A partition of the training data in a given node.}
+    \KwOut{The highest quality score $Q^*$ found among all splits evaluated,
+        with its corresponding feature column $f^*$ and threshold value $t^*$.}
+    \BlankLine
+    \SetKwFunction{min}{min}
+    \SetKwFunction{max}{max}
+    %$S_l \gets 0$ \tcp*{The same but for $Y_l$}
+    % $f^* \gets 0$ \tcp*{best split's feature}
+    % $Q^* \gets 0$ \tcp*{best split's quality}
+    % $t^* \gets 0$ \tcp*{best split's threshold}
+    $Q^*$, $f^*$, $t^* \gets \mathbf {0}$\;
+    \BlankLine
+    Draw $\tilde n_f$ columns (features) of $X$ without replacement\;
+    \BlankLine
+    
+    \ForEach {feature index $f$ of the $\tilde n_f$ drawn features}{
+        Find \min{$X\el{\cdot f}$} and \max{$X\el{\cdot f}$}\;
+        Draw a random threshold value $t\in \mathbb{R}$ so that
+            \min{$X\el{\cdot f}$}$ < t < $\max{$X\el{\cdot f}$}\;
+        \BlankLine
+        % Calculate $Q$ with Eq. \ref{eq:quality}\;
+        Calculate $Q$ for the drawn $t$ (Eq. \ref{eq:q_optimization}) \tcp*{$O(|Y|)$}
+        
+        \BlankLine
+        \If{$Q > Q^*$}{
+            $Q^* \gets Q$\; 
+            $f^*\gets f$\; 
+            $t^* \gets \frac{1}{2}(X_P\el{\ihat} + X_P\el{\ihat+1})$\;
+        }
+    }
+    \BlankLine
+    \Return $Q^*$, $f^*$, $t^*$
+    \label{alg:find_random_split}
+    \caption{FindSplit$_\text{random}$($X$, $Y$)}
+\end{function}}
+
+
+\newcommand{\algBuildTree}{
+\begin{function}
+    \SetKwFunction{BuildTree}{BuildTree}
+    \SetKwFunction{DecideToStop}{DecideToStop}
+    \KwIn{The training data for the current node.}
+    \KwOut{Current node, with all information of subsequent splits.}
+    
+    $Q^*$, $f^*$, $t^*\gets$ \FindSplit($X$, $Y$, $\tilde n_f$)\;
+    \BlankLine
+    \tcp{Many stopping criteria are possible}  % refer to discussion
+    \eIf{\DecideToStop{$Q^*$, $f^*$, $t^*$, $X$, $Y$}}{
+        \Return \Node {}{
+            isLeaf $\gets$ True\\
+            $X_\text{leaf}\gets X$\\
+            $Y_\text{leaf}\gets Y$\\
+        }
+    }{
+        Get $X_l$, $Y_l$, $X_r$, $Y_r$ from $f^*$ and $t^*$ (Eq. \ref{eq:datasplit})\;
+        \BlankLine
+        \Return \Node {}{
+            isLeaf $\gets$ False\\
+            childLeft $\gets$ \BuildTree{$X_l$, $Y_l$}\\
+            childRight $\gets$ \BuildTree{$X_r$, $Y_r$}\\
+            feature $\gets$ $f^*$\\
+            threshold $\gets$ $t^*$\\
+        }
+    }
+    \caption{BuildTree($X$, $Y$): Recursively build a Decision Tree}%, $\tilde n_f$)}
+    \label{alg:buildtree}
+\end{function}}
+
+
+\newcommand{\algPredict}{
+\begin{function}
+\KwIn{A new interaction sample to be evaluated and the root node of a Decision Tree.}
+\KwOut{The Decision Tree's predicted value for the given sample attributes.}
+
+Node $\gets$ RootNode\;
+\BlankLine
+\While{Node is not a leaf}{
+    \eIf{$x\el{\text{Node.feature}}>$ Node.threshold}{
+        Node $\gets$ Node.childRight
+    }{
+        Node $\gets$ Node.childLeft
+    }
+}
+\BlankLine
+\Return \KwPrototype{Node.X, Node.Y}\label{ln:prototype}
+\caption{Predict(RootNode, $x$): Compute a Decision Tree's prediction.}
+\label{alg:predict}
+\end{function}}
+
+
+\newcommand{\algFindBipartiteSplit}{
+\begin{function}
+    \KwIn{A partition of the bipartite training data in a given node.
+        $X$ encodes one design matrix for each axis, $X_1$ and $X_2$.}
+    \KwOut{The highest quality score $Q^*$ found among all splits evaluated
+        in both row and column directions,
+        with its corresponding feature column $f^*$ and threshold value $t^*$.}
+    \SetKwData{adapter}{adapterStrategy}
+    \BlankLine
+    \eIf{\adapter is GSO}{
+        \tcp{Build $Y$ proxies $\tilde Y_1$ and $\tilde Y_2$ (Eq. \ref{eq:y_proxies})}
+        $\tilde Y_1 \gets Y\el{\cdot}\mel j$\;
+        $\tilde Y_2 \gets Y\mel i\el \cdot$\;
+        %$\tilde Y_1\el i \gets (\sum_j Y\el{ij})\el i$\;
+        %$\tilde Y_2 \el i \gets (\sum_i Y\el{ij})\el j$\;
+    }
+    {
+        \tcp{Using GMO strategy, no proxies are used}
+        $\tilde Y_1 \gets Y$\;
+        $\tilde Y_2 \gets Y^\intercal$\;
+    }
+    \BlankLine
+    %RowSplitIndex, RowSplitFeature $\gets$ \FindSplit{$X_1$, $\tilde Y_1$}\;
+    %ColumnSplitIndex, ColumnSplitFeature $\gets$ \FindSplit{$X_2$, $\tilde Y_2$}\;
+    \tcp{Generate a split in each axis. Get each split's position, feature and quality score}
+    $Q_r^*, f_r^*, t_r^*\gets$ \FindSplit{$X_1$, $\tilde Y_1$}\;
+    $Q_c^*, f_c^*, t_c^*\gets$ \FindSplit{$X_2$, $\tilde Y_2$}\;
+    \BlankLine
+    %Calculate ColumnSplitQuality and RowSplitQuality\;
+    
+    \eIf{$Q_r^* > Q_c^*$}{
+        \Return $Q_r^*$, $f_r^*$, $t_r^*$
+    }{
+        \tcp{$f_c^*$ value lets clear its $X_2$ ownership}
+        \Return $Q_c^*$, $f_c^*$, $t_c^*$
+    }
+    
+    \caption{FindBipartiteSplit($X$, $Y$)}
+    \label{alg:find_bipartite_split}
+\end{function}}
+
+\newcommand{\algSplitDataset}{
+\begin{procedure}
+$Y_l \gets Y\el{1..\ihat, 1..n_{s2}}$\;
+$Y_r \gets Y\el{\hat i..n_{s1}, 1..n_{s2}}$\;
+$X_l \gets X\el{1..\ihat,\;\cdots}$\;
+$X_r \gets X\el{\hat i..n_{s1}, 1..n_{s2}}$\;
+\Return $X_l$, $X_r$, $Y_l$, $Y_r$\;
+\caption{SplitDataset($X$, $Y$, $i$)}
+\end{procedure}
+}
+
+
+\newcommand{\algForest}{
+\begin{procedure}
+
+% TODO \tilde is already Y proxies
+Build $\tilde n_s$ bootstrap samples $\tilde X$, $\tilde Y$ from the original data.
+
+Grow 
+
+\caption{Forest($X$, $Y$)}
+\end{procedure}
+}
+
+
+
+\newcommand{\algTrainLocalModel}{
+\begin{function}
+    \KwIn{The bipartite training dataset.}
+    \KwOut{A bipartite local model.}
+    \BlankLine
+    
+    %Train multioutput primary rows estimator on $X_1$ and $Y$.\;
+    %Train multioutput primary columns estimator on $X_2$ and $Y^\intercal$.\;
+    \train{\primaryRows, $X_1$, $Y$}\;
+    \train{\primaryColumns, $X_2$, $Y^\intercal$}\;
+    \BlankLine
+    
+    \Return \primaryRows, \primaryColumns
+    
+    \caption{TrainLocalModel($X$, $Y$)}
+    \label{alg:train_local_model}
+\end{function}}
+
+
+\newcommand{\algPredictLocalModel}{
+\begin{function*}
+    \KwIn{
+        The trained primary models and the unseen sample matrices $X_\text{new}$ for both axes.
+    }
+    \KwOut{
+        $Y_\text{pred}$ predictions for each interaction provided.
+    }
+    \BlankLine
+    
+    %\tcp{Use the primary rows estimator to predict new label rows from $X_1$}
+    $Y_\text{new rows} \gets$ \predict{\primaryRows, $X_{1\text{new}}$}
+    
+    \BlankLine
+    \BlankLine
+    %\tcp{Use the primary columns estimator to predict new label columns from $X_2$}
+    $Y_\text{new cols} \gets$ \predict{\primaryColumns, $X_{2\text{new}}$}
+    \BlankLine
+    \BlankLine
+    
+    \If{Secondary estimators consider label dependencies}{
+        \tcp{Concatenate known rows and columns labels to the primary predictions}
+        $Y_\text{new cols}
+            \gets \begin{bmatrix}
+                Y^\intercal \\ Y_\text{new cols}
+            \end{bmatrix}$\;
+        $Y_\text{new rows}
+            \gets \begin{bmatrix}
+                Y \\ Y_\text{new rows}
+            \end{bmatrix}$\;
+        \tcp{Otherwise, if label columns are considered independently, this step is not necessary}
+    }
+    \BlankLine
+    \BlankLine
+    %\tcp{Train the secondary columns estimator on $X_{2\text{new}}$ and $Y_\text{new rows}^\intercal$}
+    \train{\secondaryRows, $X_1$, $Y_\text{new cols}^\intercal$}\;
+    \train{\secondaryColumns, $X_2$, $Y_\text{new rows}^\intercal$}\;
+    \BlankLine
+    \BlankLine
+    $Y_\text{pred rows}\gets$ \predict{\secondaryRows, $X_{1\text{new}}$}\;
+    $Y_\text{pred cols}\gets$ \predict{\secondaryColumns, $X_{2\text{new}}$}\;
+    %\tcp{Train the secondary rows estimator on $X_{1\text{new}}$ and $Y_\text{new cols}$}
+    
+    \BlankLine
+    \BlankLine
+    \If{Secondary estimators consider label dependencies}{
+        \tcp{Skip predictions not referring to $X_{1\text{new}}$ and $X_{2\text{new}}$}
+        $Y_\text{pred rows}\gets Y_\text{pred rows}\el{\cdot j> |X_1|_i}$\;
+        $Y_\text{pred cols}\gets Y_\text{pred cols}\el{\cdot j> |X_2|_i}$\;
+    }
+    
+    \BlankLine
+    \BlankLine
+    \Return \KwCombine{$Y_\text{pred rows}$, $Y_\text{pred cols}^\intercal$} \label{ln:combine_local_outputs}
+    
+    \caption{PredictLocalModel(primary models, $X_\text{new}$)}
+    \label{alg:predict_local_model}
+\end{function*}}
