@@ -1,0 +1,104 @@
+%% USPSC-Introducao.tex
+
+% ----------------------------------------------------------
+% Introdução (exemplo de capítulo sem numeração, mas presente no Sumário)
+% ----------------------------------------------------------
+\chapter[Introduction]{Introduction}\label{Introduction}
+
+Bipartite interaction data is a common representation for a multitude of
+phenomena. It consists of two separate groups of instances often representing
+two classes of distinct nature of objects. Each object from one group may
+interact with any of the objects from the other, so that each possible pair of
+objects from distinct groups holds a set of attributes describing their
+interaction. Examples of such grouped instances are drugs and proteins,
+microRNAs and messenger RNAs or even videos and users on a media streaming
+platform. Thus, bipartite interactions also naturally encompasses the data
+format targeted by the broadly-known recommender systems \cite{}.
+
+% DTI prediction review
+
+The interaction attributes may be of any dimensionality, and may as well be
+unknown for some (often many) instance pairs. When binary interactions are
+considered (pairs either do or do not interact in any specified way) we
+frequently find ourselves in a Positive-Unlabeled (PU) scenario \cite{}, where
+we can only confidently measure the presence of a given phenomena, not its
+absence, and hence, the instance pairs' interactions can only be said to be
+positive (actually happening) or unknown.
+
+% assumptions must be made what is bipartite, graph stuff, networks
+
+Furthermore, as the number of interactions grows with the product of the numbers
+of interacting instances in each bipartite group, taking all possible
+interactions into consideration may become unfeasible for larger datasets using
+standard machine learning algorithms. As a result, many workaround techniques
+are usually employed to generate negative interaction data, such as considering
+a random subset of unlabeled data as negative\cite{Zhang_2018, Zitnik_2018,
+Huang_2021}, selecting the most reliably-non interacting pairs (which depends on
+estimating the interaction likelihood with semi-supervised methods such as
+self-learning)\cite{} or even artificially creating new dataset instances when
+very specific factors are known to be needed for an interaction to occur (namely
+the chemical-structural characteristics of an enzyme's active site) \cite{}.
+
+Despite even using sophisticated deep learning algorithms, these approaches thus
+fail to take all possible drug-target pairs into consideration.
+
+Predictive Bi-Clustering Trees (PBCT) were proposed in 2018 by
+\cite{Pliakos_2018} to address some of these issues, introducing a new method
+for growing decision tree-based models from bipartite interaction data. With
+this method and further optimizations, millions of interactions can be
+considered in reasonable computation time.
+
+% explain decision trees TODO ID3, C4.5, CART?
+Decision Trees work by recursively partitioning the dataset in chunks with
+progressively similar labels\cite{Breiman_1984, Quinlan_1996}. They do so by
+consecutively searching for decision rules in each partition that would split
+the partition in two. For example, a specific numeric characteristic of our
+instances being less or greater than a threshold value, or if an instance has
+one of a specific set of values of a categorical variable. For this study, we
+mainly focus on numerical instance features, so that each tree node represents a
+binary split designated by an instance attribute an a threshold value.
+
+The main idea behind biclustering trees was to separately search for a split
+attribute and value on each of the two instance groups, considering all possible
+thresholds among row instances first (e.g. proteins), and only then processing
+the column instances attributes (e.g. target drugs features).  \par In 2020, the
+authors expanded on this concept, building ExtraTrees ensembles of PBCTs
+\cite{Pliakos_2020} and reporting solid boosts on prediction performance. The
+authors, however, did not explore other forms of tree ensembles, including the
+so popular Random Forests proposed by \cite{Breiman_2001}, despite the latter
+being oftentimes regarded one of the best tree ensemble
+techniques\cite{Huang_2021, Amasyali_2011, Hall_2003, Banfield_2007}. Hence, in
+this study we demonstrate how DTI prediction improvements can be achieved with
+the use of Random Forests of Predictive Bi-Clustering Trees, that we name
+Biclustering Random Forests, and provide an optimized implementation based on
+scikit-learn \cite{scikit-learn}, one the most standard libraries for machine
+learning applications using the Python\cite{python} programming language.
+%In 2020, the authors expanded on this concept, building ExtraTrees ensembles of
+%PBCTs and utilizing unsupervised neighborhood information to further improve
+%the previous results \ref{pliakos, vens, 2020}. The use of unsupervised
+%information is based upon continuity assumptions \cite{}, that is, the
+%supposition that that similar instances are more likely to interact with
+%similar targets. In other words, that interaction probability monotonically
+%increases with some similarity measure \ref{pu}.
+
+%matrix factorization approaches, previous results with unsupervised data and
+%reasoning behind it (PU paper, two steps approach).
+
+%trees can directly use unsupervised info
+
+% However, it is already known that decision tree models can directly deal with
+% unsupervised data as well.
+
+% previous results unsupervised trees
+
+% In the present work, we propose making use of both supervised and unsupervised
+% data in conjunction when growing a decision tree model, employing thus
+% semi-supervised impurity metrics to be followed when splitting data at each
+% tree node. By also employing the bi-clustering mechanism for split searching,
+% we hope to enable decision-tree learning methods, including Random Forests,
+% ExtraTrees and Gradient Boosting Machines, to fully utilize large bipartite
+% interaction datasets.
+
+% how the standard ones are used, GSO LMO
+
+% TT is a highlight of our paper
