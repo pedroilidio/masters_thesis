@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Arch Linux) (preloaded format=pdflatex 2023.8.30)  31 AUG 2023 16:09
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Arch Linux) (preloaded format=pdflatex 2023.8.30)  31 AUG 2023 18:47
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -589,40 +589,8 @@ Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
 Package: inputenc 2021/02/14 v1.3d Input encoding file
 \inpenc@prehook=\toks26
 \inpenc@posthook=\toks27
-) (/usr/share/texmf-dist/tex/latex/lm/lmodern.sty
-Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
-LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
-LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
-(Font)                  OML/cmm/m/it --> OML/lmm/m/it on input line 23.
-LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
-(Font)                  OMS/cmsy/m/n --> OMS/lmsy/m/n on input line 24.
-LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
-(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 25.
-LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 26.
-LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
-(Font)                  OML/cmm/b/it --> OML/lmm/b/it on input line 27.
-LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
-(Font)                  OMS/cmsy/b/n --> OMS/lmsy/b/n on input line 28.
-LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
-(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 29.
-LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 31.
-LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> OT1/lmss/m/n on input line 32.
-LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> OT1/lmr/m/it on input line 33.
-LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 34.
-LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
-(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 35.
-LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> OT1/lmss/bx/n on input line 36.
-LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> OT1/lmr/bx/it on input line 37.
-LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 38.
+) (/usr/share/texmf-dist/tex/latex/psnfss/times.sty
+Package: times 2020/03/25 PSNFSS-v9.3 (SPQR) 
 ) (/usr/share/texmf-dist/tex/latex/lastpage/lastpage.sty
 Package: lastpage 2023/03/07 v2.0a lastpage: 2.09 or 2e? (HMM)
  (/usr/share/texmf-dist/tex/latex/lastpage/lastpage2e.sty
@@ -1187,9 +1155,9 @@ Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
 \algocf@algoframe=\box134
 \algocf@algobox=\box135
 ) (../resources/equations.tex) (../resources/algorithms.tex) (../resources/figures.tex))
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 221.
- (/usr/share/texmf-dist/tex/latex/lm/t1lmr.fd
-File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+LaTeX Font Info:    Trying to load font information for T1+ptm on input line 221.
+ (/usr/share/texmf-dist/tex/latex/psnfss/t1ptm.fd
+File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
 ) (./USPSC-modelo-IFSCe.aux)
 \openout1 = `USPSC-modelo-IFSCe.aux'.
 
@@ -1244,32 +1212,10 @@ Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
 ))
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Trying to load font information for T1+lmss on input line 247.
- (/usr/share/texmf-dist/tex/latex/lm/t1lmss.fd
-File: t1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+LaTeX Font Info:    Trying to load font information for T1+phv on input line 247.
+ (/usr/share/texmf-dist/tex/latex/psnfss/t1phv.fd
+File: t1phv.fd 2020/03/25 scalable font definitions for T1/phv.
 )
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 247.
- (/usr/share/texmf-dist/tex/latex/lm/ot1lmr.fd
-File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 247.
- (/usr/share/texmf-dist/tex/latex/lm/omllmm.fd
-File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 247.
- (/usr/share/texmf-dist/tex/latex/lm/omslmsy.fd
-File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 247.
- (/usr/share/texmf-dist/tex/latex/lm/omxlmex.fd
-File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <17.28> on input line 247.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 247.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 247.
 LaTeX Font Info:    Trying to load font information for U+msa on input line 247.
  (/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -1279,18 +1225,9 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 247.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}] [2
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}] [2
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 263--263
-[]\T1/lmr/m/n/12 Advisor: Profa. Dra. Elisa Gonçalves
- []
-
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 263.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 263.
-
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
@@ -1345,8 +1282,6 @@ LaTeX Warning: Citation `nbr14724' on page 3 undefined on input line 4.
 
 LaTeX Warning: Reference `LastPage' on page 3 undefined on input line 11.
 
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 25.
 [3
 
 
@@ -1532,7 +1467,7 @@ LaTeX Warning: Reference `eq:avg_index_notation' on page 19 undefined on input l
 
 
 
-{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}]
+]
 ./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:96: Double superscript.
 <argument> \split@tag \begin {split} M \el {ij} ^
                                                  2 &= ((M \el {ij})^2)\el {i...
@@ -1700,11 +1635,6 @@ I treat `x^1^2' essentially like `x^1{}^2'.
 l.96     \end{split}
                     
 I treat `x^1^2' essentially like `x^1{}^2'.
-
-
-Overfull \hbox (10.00269pt too wide) in paragraph at lines 104--115
-[]\T1/lmr/m/n/12 The su-per-vised ma-chine learn-ing ap-pli-ca-tions fo-cus on mod-el-ing a func-tion $\OML/lmm/m/it/12 f [] [] \U/msb/m/n/12 R[] \OMS/lmsy/m/n/12 !
- []
 
 [20]
 
@@ -1713,21 +1643,21 @@ LaTeX Warning: Reference `pliakos2018' on page 21 undefined on input line 180.
 
 LaTeX Warning: Reference `' on page 21 undefined on input line 183.
 
+
+LaTeX Warning: Reference `' on page 21 undefined on input line 189.
+
 [21]
-
-LaTeX Warning: Reference `' on page 22 undefined on input line 189.
-
 
 LaTeX Warning: Reference `' on page 22 undefined on input line 195.
 
 
-LaTeX Warning: Reference `sec:problem_statement' on page 22 undefined on input line 204.
+LaTeX Warning: Reference `sec:problem_statement' on page 22 undefined on input line 207.
 
 
-LaTeX Warning: Citation `vert2008reconstruction' on page 22 undefined on input line 206.
+LaTeX Warning: Citation `vert2008reconstruction' on page 22 undefined on input line 209.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:208: Undefined control sequence.
-l.208 ... \emph{global} and \emph{local} by \citet
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:211: Undefined control sequence.
+l.211 ... \emph{global} and \emph{local} by \citet
                                                   {vert2008reconstruction} a...
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1735,8 +1665,8 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:208: Undefined control sequence.
-l.208 ... and later adopted and extended by \citet
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:211: Undefined control sequence.
+l.211 ... and later adopted and extended by \citet
                                                   {sschrynemackers2015}.  %T...
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1744,35 +1674,12 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-[22]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 213.
- (/usr/share/texmf-dist/tex/latex/lm/ts1lmr.fd
-File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 216.
+(/usr/share/texmf-dist/tex/latex/psnfss/ts1ptm.fd
+File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:213: Undefined control sequence.
-<recently read> \textbb 
-                        
-l.213     \item \emph{\textbb{Global}}
-                                       estimators are those aware of both in...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:214: Undefined control sequence.
-<recently read> \textbb 
-                        
-l.214     \item \emph{\textbb{Local}}
-                                      estimators are those which only have a...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:219: Undefined control sequence.
-l.219 Furthermore, to be consistent with \citet
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:222: Undefined control sequence.
+l.222 Furthermore, to be consistent with \citet
                                                {pliakos2018,pliakos2019,plia...
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1780,30 +1687,9 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:222: Undefined control sequence.
-<recently read> \textbb 
-                        
-l.222     \item \emph{\textbb{single-output}}
-                                              estimators are those which con...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:223: Undefined control sequence.
-<recently read> \textbb 
-                        
-l.223     \item \emph{\textbb{multi-output}}
-                                             estimators, on the other hand, ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:227: Undefined control sequence.
-l.227 ...ulti-output} (LMO), as proposed by \citet
+[22]
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:230: Undefined control sequence.
+l.230 ...ulti-output} (LMO), as proposed by \citet
                                                   {pliakos2018,pliakos2019,p...
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1811,8 +1697,8 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:227: Undefined control sequence.
-l.227 ...iakos2020}. We further denote them \empth
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:230: Undefined control sequence.
+l.230 ...iakos2020}. We further denote them \empth
                                                   {standard}, to clearly dis...
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1821,1331 +1707,1954 @@ spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
 
-LaTeX Warning: Reference `eq:gsodata' on page 23 undefined on input line 245.
+LaTeX Warning: Reference `eq:gsodata' on page 23 undefined on input line 248.
 
 
-LaTeX Warning: Reference `fig:sgso' on page 23 undefined on input line 247.
-
-[23{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
-
-LaTeX Warning: Reference `eq:gsodata' on page 24 undefined on input line 271.
+LaTeX Warning: Reference `fig:sgso' on page 23 undefined on input line 250.
 
 
-LaTeX Warning: Reference `' on page 24 undefined on input line 274.
+LaTeX Warning: Reference `eq:gsodata' on page 23 undefined on input line 274.
 
 
-LaTeX Warning: Reference `' on page 24 undefined on input line 274.
+LaTeX Warning: Reference `' on page 23 undefined on input line 277.
 
 
-LaTeX Warning: Reference `' on page 24 undefined on input line 274.
+LaTeX Warning: Reference `' on page 23 undefined on input line 277.
 
 
-LaTeX Warning: Reference `alg:train_local_model' on page 24 undefined on input line 284.
+LaTeX Warning: Reference `' on page 23 undefined on input line 277.
+
+[23]
+
+LaTeX Warning: Reference `alg:train_local_model' on page 24 undefined on input line 289.
 
 
-LaTeX Warning: Reference `alg:predict_local_model' on page 24 undefined on input line 284.
+LaTeX Warning: Reference `alg:predict_local_model' on page 24 undefined on input line 289.
 
 
-LaTeX Warning: Reference `fig:slmo' on page 24 undefined on input line 284.
+LaTeX Warning: Reference `fig:slmo' on page 24 undefined on input line 289.
 
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 284.
-(/usr/share/texmf-dist/tex/latex/lm/t1lmtt.fd
-File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 289.
+(/usr/share/texmf-dist/tex/latex/psnfss/t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 )
 
-LaTeX Warning: Reference `ln:combine_local_outputs' on page 24 undefined on input line 284.
+LaTeX Warning: Reference `ln:combine_local_outputs' on page 24 undefined on input line 289.
 
 
-LaTeX Warning: Reference `alg:predict_local_model' on page 24 undefined on input line 284.
+LaTeX Warning: Reference `alg:predict_local_model' on page 24 undefined on input line 289.
 
-[24] [25]
+[24]
 
-LaTeX Warning: Reference `' on page 26 undefined on input line 293.
-
-
-LaTeX Warning: Reference `alg:predict_local_model' on page 26 undefined on input line 293.
+LaTeX Warning: Reference `' on page 25 undefined on input line 298.
 
 
-LaTeX Warning: Reference `alg:predict_local_model' on page 26 undefined on input line 295.
+LaTeX Warning: Reference `alg:predict_local_model' on page 25 undefined on input line 298.
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [26]
-
-LaTeX Warning: Reference `' on page 27 undefined on input line 357.
+LaTeX Warning: Reference `alg:predict_local_model' on page 25 undefined on input line 300.
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 5924) has occurred while \output is active []
 
- [27]
+ [25] [26]
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:367: Undefined control sequence.
+l.367 ...gorithm adaptation was proposed by \citet
+                                                  {pliakos2018} to deal with...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
 
-LaTeX Warning: Reference `eq:datasplit' on page 28 undefined on input line 376.
+
+LaTeX Warning: Citation `pliakos2018global' on page 27 undefined on input line 381.
 
 
-LaTeX Warning: Reference `' on page 28 undefined on input line 388.
+LaTeX Warning: Citation `pliakos2019network' on page 27 undefined on input line 381.
 
-[28]
 
-LaTeX Warning: Reference `eq:datasplit' on page 29 undefined on input line 390.
+LaTeX Warning: Citation `pliakos2020drugtarget' on page 27 undefined on input line 381.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:390: Double superscript.
+
+LaTeX Warning: Citation `pliakos2018global' on page 27 undefined on input line 381.
+
+
+LaTeX Warning: Reference `eq:datasplit' on page 27 undefined on input line 397.
+
+[27]
+
+LaTeX Warning: Reference `' on page 28 undefined on input line 409.
+
+
+LaTeX Warning: Reference `eq:datasplit' on page 28 undefined on input line 411.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:411: Double superscript.
 \el #1->^
          {[#1]}
-l.390 ...average label ($Y_\text{leaf} \mel i\el j
+l.411 ...average label ($Y_\text{leaf} \mel i\el j
                                                   $) of each output is a com...
 I treat `x^1^2' essentially like `x^1{}^2'.
 
 
-Overfull \hbox (1.14632pt too wide) in paragraph at lines 390--391
-[]\T1/lmr/m/n/12 After build-ing a tree, the pre-dic-tion step for a new sam-ple $\OML/lmm/m/it/12 x[]$ \T1/lmr/m/n/12 con-sists of transvers-
+LaTeX Warning: Reference `fig:thresholds' on page 28 undefined on input line 414.
+
+
+LaTeX Warning: Reference `eq:datasplit' on page 28 undefined on input line 414.
+
+
+LaTeX Warning: Reference `sec:criteria' on page 28 undefined on input line 417.
+
+
+LaTeX Warning: Reference `alg:find_best_split' on page 28 undefined on input line 419.
+
+
+LaTeX Warning: Reference `alg:buildtree' on page 28 undefined on input line 419.
+
+
+LaTeX Warning: Reference `alg:predict' on page 28 undefined on input line 419.
+
+
+LaTeX Warning: Reference `alg:buildtree' on page 28 undefined on input line 419.
+
+
+LaTeX Warning: Reference `alg:find_random_split' on page 28 undefined on input line 421.
+
+
+LaTeX Warning: Reference `sec:ensembles' on page 28 undefined on input line 421.
+
+
+Overfull \hbox (2.33276pt too wide) in paragraph at lines 421--422
+[]\T1/ptm/m/n/12 An al-ter-na-tive to avoid con-sid-er-ing all par-ti-tion-ing op-tions and greatly re-duce the amount
  []
 
 
-LaTeX Warning: Reference `fig:thresholds' on page 29 undefined on input line 393.
+LaTeX Warning: Reference `eq:datasplit' on page 28 undefined on input line 441.
 
 
-LaTeX Warning: Reference `eq:datasplit' on page 29 undefined on input line 393.
-
-
-LaTeX Warning: Reference `sec:criteria' on page 29 undefined on input line 396.
-
-
-LaTeX Warning: Reference `alg:find_best_split' on page 29 undefined on input line 398.
-
-
-LaTeX Warning: Reference `alg:buildtree' on page 29 undefined on input line 398.
-
-
-LaTeX Warning: Reference `alg:predict' on page 29 undefined on input line 398.
-
-
-LaTeX Warning: Reference `alg:buildtree' on page 29 undefined on input line 398.
-
-
-LaTeX Warning: Reference `alg:find_random_split' on page 29 undefined on input line 400.
-
-
-LaTeX Warning: Reference `sec:ensembles' on page 29 undefined on input line 400.
-
-
-LaTeX Warning: Reference `eq:datasplit' on page 29 undefined on input line 420.
-
-
-LaTeX Warning: Reference `eq:quality' on page 29 undefined on input line 420.
+LaTeX Warning: Reference `eq:quality' on page 28 undefined on input line 441.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [29]
+ [28]
 
-LaTeX Warning: Reference `eq:mse' on page 30 undefined on input line 439.
+LaTeX Warning: Reference `eq:mse' on page 29 undefined on input line 460.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:444: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:465: Double superscript.
 \el #1->^
          {[#1]}
-l.444         = (Y\el{ij} - Y\mel i\el j
+l.465         = (Y\el{ij} - Y\mel i\el j
                                         )^2\mel{ij}
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:444: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:465: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.444 ...    = (Y\el{ij} - Y\mel i\el j)^2\mel{ij}
+l.465 ...    = (Y\el{ij} - Y\mel i\el j)^2\mel{ij}
                                                   
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:445: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:466: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.445         = Y^2\mel{ij}
+l.466         = Y^2\mel{ij}
                             - Y\mel i^2\mel j
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:445: Double superscript.
-l.445         = Y^2\mel{ij} - Y\mel i^
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:466: Double superscript.
+l.466         = Y^2\mel{ij} - Y\mel i^
                                       2\mel j
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:445: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:466: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.445         = Y^2\mel{ij} - Y\mel i^2\mel j
+l.466         = Y^2\mel{ij} - Y\mel i^2\mel j
                                              
 I treat `x^1^2' essentially like `x^1{}^2'.
 
 
-LaTeX Warning: Reference `eq:gini' on page 30 undefined on input line 463.
+LaTeX Warning: Reference `eq:gini' on page 29 undefined on input line 484.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:473: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:494: Double superscript.
 <argument> ...d {i}2\angled j} = (p\el j - p\el j^
                                                   2)\mel j\\ = [p\el j(1 - p...
-l.473 \end{multline}
+l.494 \end{multline}
                     
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:473: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:494: Double superscript.
 <argument> ...d {i}2\angled j} = (p\el j - p\el j^
                                                   2)\mel j\\ = [p\el j(1 - p...
-l.473 \end{multline}
+l.494 \end{multline}
                     
 I treat `x^1^2' essentially like `x^1{}^2'.
 
 
-LaTeX Warning: Reference `sec:definitions' on page 30 undefined on input line 475.
+LaTeX Warning: Reference `sec:definitions' on page 29 undefined on input line 496.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 <argument> ...}(Y_g) = Y_g^2\mel {ij} - Y_g\mel i^
                                                   2\mel j = (Y_g^\intercal )...
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 <argument> ... )^2\mel i - (Y_g^\intercal )\mel i^
                                                   2 =\\ = Y^2\mel {ij} - Y\m...
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 <argument> ...i^2 =\\ = Y^2\mel {ij} - Y\mel {ij}^
                                                   2 
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 <argument> ...}(Y_g) = Y_g^2\mel {ij} - Y_g\mel i^
                                                   2\mel j = (Y_g^\intercal )...
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 <argument> ... )^2\mel i - (Y_g^\intercal )\mel i^
                                                   2 =\\ = Y^2\mel {ij} - Y\m...
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:482: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:503: Double superscript.
 <argument> ...i^2 =\\ = Y^2\mel {ij} - Y\mel {ij}^
                                                   2 
-l.482 \end{multline*}
+l.503 \end{multline*}
                      
 I treat `x^1^2' essentially like `x^1{}^2'.
 
 
-LaTeX Warning: Reference `eq:gso_mse' on page 30 undefined on input line 483.
+LaTeX Warning: Reference `eq:gso_mse' on page 29 undefined on input line 504.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:486: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:507: Double superscript.
 \mel #1->^
           {\langle #1 \rangle }
-l.486     = Y^2\mel{ij}
+l.507     = Y^2\mel{ij}
                         - Y\mel{ij}^2
 I treat `x^1^2' essentially like `x^1{}^2'.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:486: Double superscript.
-l.486     = Y^2\mel{ij} - Y\mel{ij}^
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:507: Double superscript.
+l.507     = Y^2\mel{ij} - Y\mel{ij}^
                                     2
 I treat `x^1^2' essentially like `x^1{}^2'.
 
 
-LaTeX Warning: Reference `eq:q_optimization' on page 30 undefined on input line 495.
+LaTeX Warning: Reference `eq:q_optimization' on page 29 undefined on input line 516.
+
+[29]
+
+LaTeX Warning: Reference `eq:gso_mse' on page 30 undefined on input line 572.
+
+
+LaTeX Warning: Reference `eq:y_proxies' on page 30 undefined on input line 572.
+
+
+LaTeX Warning: Reference `' on page 30 undefined on input line 572.
+
+
+LaTeX Warning: Reference `sec:bipartite_trees' on page 30 undefined on input line 572.
+
+
+LaTeX Warning: Reference `sec:complexity_analysis' on page 30 undefined on input line 572.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:580: Double superscript.
+\mel #1->^
+          {\langle #1 \rangle }
+l.580     \end{split}
+                     
+I treat `x^1^2' essentially like `x^1{}^2'.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:580: Double superscript.
+\el #1->^
+         {[#1]}
+l.580     \end{split}
+                     
+I treat `x^1^2' essentially like `x^1{}^2'.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:580: Double superscript.
+\mel #1->^
+          {\langle #1 \rangle }
+l.580     \end{split}
+                     
+I treat `x^1^2' essentially like `x^1{}^2'.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:580: Double superscript.
+\el #1->^
+         {[#1]}
+l.580     \end{split}
+                     
+I treat `x^1^2' essentially like `x^1{}^2'.
+
+
+LaTeX Warning: Reference `' on page 30 undefined on input line 584.
+
+
+LaTeX Warning: Reference `eq:q_T_is_zero' on page 30 undefined on input line 584.
+
+
+LaTeX Warning: Reference `eq:quality' on page 30 undefined on input line 584.
+
+
+LaTeX Warning: Reference `eq:q_lmo' on page 30 undefined on input line 597.
+
+
+LaTeX Warning: Citation `Pliakos_2018' on page 30 undefined on input line 679.
+
+
+LaTeX Warning: Reference `sec:dt' on page 30 undefined on input line 679.
+
+
+LaTeX Warning: Reference `eq:q_lmo' on page 30 undefined on input line 679.
+
+
+LaTeX Warning: Reference `alg:find_bipartite_split' on page 30 undefined on input line 680.
+
+
+LaTeX Warning: Reference `alg:buildtree' on page 30 undefined on input line 680.
 
 [30]
 
-LaTeX Warning: Reference `eq:gso_mse' on page 31 undefined on input line 551.
+LaTeX Warning: Reference `sec:complexity_analysis' on page 31 undefined on input line 684.
 
 
-LaTeX Warning: Reference `eq:y_proxies' on page 31 undefined on input line 551.
+LaTeX Warning: Reference `eq:q_optimization' on page 31 undefined on input line 684.
 
-
-LaTeX Warning: Reference `' on page 31 undefined on input line 551.
-
-
-LaTeX Warning: Reference `sec:bipartite_trees' on page 31 undefined on input line 551.
-
-
-LaTeX Warning: Reference `sec:complexity_analysis' on page 31 undefined on input line 551.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:559: Double superscript.
-\mel #1->^
-          {\langle #1 \rangle }
-l.559     \end{split}
-                     
-I treat `x^1^2' essentially like `x^1{}^2'.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:559: Double superscript.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:684: Double superscript.
 \el #1->^
          {[#1]}
-l.559     \end{split}
-                     
-I treat `x^1^2' essentially like `x^1{}^2'.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:559: Double superscript.
-\mel #1->^
-          {\langle #1 \rangle }
-l.559     \end{split}
-                     
-I treat `x^1^2' essentially like `x^1{}^2'.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:559: Double superscript.
-\el #1->^
-         {[#1]}
-l.559     \end{split}
-                     
-I treat `x^1^2' essentially like `x^1{}^2'.
-
-
-LaTeX Warning: Reference `' on page 31 undefined on input line 563.
-
-
-LaTeX Warning: Reference `eq:q_T_is_zero' on page 31 undefined on input line 563.
-
-
-LaTeX Warning: Reference `eq:quality' on page 31 undefined on input line 563.
-
-
-LaTeX Warning: Reference `eq:q_lmo' on page 31 undefined on input line 576.
-
-[31]
-
-LaTeX Warning: Citation `Pliakos_2018' on page 32 undefined on input line 658.
-
-
-LaTeX Warning: Reference `sec:dt' on page 32 undefined on input line 658.
-
-
-LaTeX Warning: Reference `eq:q_lmo' on page 32 undefined on input line 658.
-
-
-LaTeX Warning: Reference `alg:find_bipartite_split' on page 32 undefined on input line 659.
-
-
-LaTeX Warning: Reference `alg:buildtree' on page 32 undefined on input line 659.
-
-
-LaTeX Warning: Reference `sec:complexity_analysis' on page 32 undefined on input line 663.
-
-
-LaTeX Warning: Reference `eq:q_optimization' on page 32 undefined on input line 663.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:663: Double superscript.
-\el #1->^
-         {[#1]}
-l.663 ... instead of column averages $Y\mel i\el j
+l.684 ... instead of column averages $Y\mel i\el j
                                                   $. Considering such metric...
 I treat `x^1^2' essentially like `x^1{}^2'.
 
 
-LaTeX Warning: Reference `eq:y_proxies' on page 32 undefined on input line 663.
+LaTeX Warning: Reference `eq:y_proxies' on page 31 undefined on input line 684.
 
 
-LaTeX Warning: Reference `alg:find_bipartite_split' on page 32 undefined on input line 663.
+LaTeX Warning: Reference `alg:find_bipartite_split' on page 31 undefined on input line 684.
 
 
-LaTeX Warning: Reference `sec:complexity_analysis' on page 32 undefined on input line 663.
+LaTeX Warning: Reference `sec:complexity_analysis' on page 31 undefined on input line 684.
 
 
-LaTeX Warning: Reference `' on page 32 undefined on input line 666.
+LaTeX Warning: Reference `' on page 31 undefined on input line 687.
 
 
-LaTeX Warning: Reference `eq:gsodata' on page 32 undefined on input line 668.
+LaTeX Warning: Reference `eq:gsodata' on page 31 undefined on input line 689.
 
 
-LaTeX Warning: Reference `eq:bipartite_gso_equivalence' on page 32 undefined on input line 668.
+LaTeX Warning: Reference `eq:bipartite_gso_equivalence' on page 31 undefined on input line 689.
 
 
-LaTeX Warning: Reference `ln:prototype' on page 32 undefined on input line 715.
+LaTeX Warning: Reference `ln:prototype' on page 31 undefined on input line 736.
 
 
-LaTeX Warning: Reference `alg:predict' on page 32 undefined on input line 715.
+LaTeX Warning: Reference `alg:predict' on page 31 undefined on input line 736.
 
 
-LaTeX Warning: Reference `eq:prototype1' on page 32 undefined on input line 715.
+LaTeX Warning: Reference `eq:prototype1' on page 31 undefined on input line 736.
+
+
+LaTeX Warning: Citation `Pliakos_2018' on page 31 undefined on input line 742.
+
+
+LaTeX Warning: Reference `eq:prototype2' on page 31 undefined on input line 742.
+
+[31]
+
+LaTeX Warning: Reference `eq:prototype3' on page 32 undefined on input line 753.
+
+
+LaTeX Warning: Reference `alg:find_best_split' on page 32 undefined on input line 834.
+
+
+LaTeX Warning: Reference `alg:find_best_split' on page 32 undefined on input line 840.
+
+
+LaTeX Warning: Reference `alg:find_best_split' on page 32 undefined on input line 840.
 
 [32]
 
-LaTeX Warning: Citation `Pliakos_2018' on page 33 undefined on input line 721.
+LaTeX Warning: Reference `eq:O_naive_gso' on page 33 undefined on input line 843.
 
 
-LaTeX Warning: Reference `eq:prototype2' on page 33 undefined on input line 721.
+LaTeX Warning: Reference `alg:find_best_split' on page 33 undefined on input line 850.
 
 
-LaTeX Warning: Reference `eq:prototype3' on page 33 undefined on input line 732.
+LaTeX Warning: Reference `alg:find_best_split' on page 33 undefined on input line 850.
 
 
-LaTeX Warning: Reference `alg:find_best_split' on page 33 undefined on input line 813.
+LaTeX Warning: Reference `alg:find_bipartite_split' on page 33 undefined on input line 852.
 
 
-LaTeX Warning: Reference `alg:find_best_split' on page 33 undefined on input line 819.
+LaTeX Warning: Reference `eq:O_gmo' on page 33 undefined on input line 852.
 
 
-LaTeX Warning: Reference `alg:find_best_split' on page 33 undefined on input line 819.
+LaTeX Warning: Reference `alg:find_bipartite_split' on page 33 undefined on input line 858.
+
+
+LaTeX Warning: Reference `alg:find_bipartite_split' on page 33 undefined on input line 858.
+
+
+LaTeX Warning: Reference `algline:gmo_loop1' on page 33 undefined on input line 860.
+
+
+LaTeX Warning: Reference `algline:gmo_loop2' on page 33 undefined on input line 860.
+
+
+LaTeX Warning: Reference `alg:find_best_split' on page 33 undefined on input line 860.
+
+
+LaTeX Warning: Reference `eq:O_gso' on page 33 undefined on input line 860.
+
+
+LaTeX Warning: Reference `alg:find_bipartite_split' on page 33 undefined on input line 866.
+
+
+LaTeX Warning: Reference `alg:find_bipartite_split' on page 33 undefined on input line 866.
+
+
+LaTeX Warning: Reference `eq:O_tree' on page 33 undefined on input line 868.
+
+
+LaTeX Warning: Reference `tab:O_comparison' on page 33 undefined on input line 868.
+
+
+LaTeX Warning: Reference `alg:buildtree' on page 33 undefined on input line 884.
+
+
+LaTeX Warning: Reference `alg:buildtree' on page 33 undefined on input line 884.
 
 [33]
 
-LaTeX Warning: Reference `eq:O_naive_gso' on page 34 undefined on input line 822.
+LaTeX Warning: Reference `alg:find_random_split' on page 34 undefined on input line 890.
 
 
-LaTeX Warning: Reference `alg:find_best_split' on page 34 undefined on input line 829.
+LaTeX Warning: Reference `alg:find_best_split' on page 34 undefined on input line 890.
 
 
-LaTeX Warning: Reference `alg:find_best_split' on page 34 undefined on input line 829.
+LaTeX Warning: Reference `alg:find_best_split' on page 34 undefined on input line 890.
 
 
-LaTeX Warning: Reference `alg:find_bipartite_split' on page 34 undefined on input line 831.
-
-
-LaTeX Warning: Reference `eq:O_gmo' on page 34 undefined on input line 831.
-
-
-LaTeX Warning: Reference `alg:find_bipartite_split' on page 34 undefined on input line 837.
-
-
-LaTeX Warning: Reference `alg:find_bipartite_split' on page 34 undefined on input line 837.
-
-
-LaTeX Warning: Reference `algline:gmo_loop1' on page 34 undefined on input line 839.
-
-
-LaTeX Warning: Reference `algline:gmo_loop2' on page 34 undefined on input line 839.
-
-
-LaTeX Warning: Reference `alg:find_best_split' on page 34 undefined on input line 839.
-
-
-LaTeX Warning: Reference `eq:O_gso' on page 34 undefined on input line 839.
-
-
-LaTeX Warning: Reference `alg:find_bipartite_split' on page 34 undefined on input line 845.
-
-
-LaTeX Warning: Reference `alg:find_bipartite_split' on page 34 undefined on input line 845.
-
-
-LaTeX Warning: Reference `eq:O_tree' on page 34 undefined on input line 847.
-
-
-LaTeX Warning: Reference `tab:O_comparison' on page 34 undefined on input line 847.
-
-
-LaTeX Warning: Reference `alg:buildtree' on page 34 undefined on input line 863.
-
-
-LaTeX Warning: Reference `alg:buildtree' on page 34 undefined on input line 863.
+LaTeX Warning: Citation `Fawagreh_2014' on page 34 undefined on input line 976.
 
 [34]
 
-LaTeX Warning: Reference `alg:find_random_split' on page 35 undefined on input line 869.
+LaTeX Warning: Citation `Breiman_2001' on page 35 undefined on input line 980.
 
 
-LaTeX Warning: Reference `alg:find_best_split' on page 35 undefined on input line 869.
+LaTeX Warning: Reference `' on page 35 undefined on input line 980.
 
 
-LaTeX Warning: Reference `alg:find_best_split' on page 35 undefined on input line 869.
+LaTeX Warning: Reference `' on page 35 undefined on input line 980.
 
 
-LaTeX Warning: `h' float specifier changed to `ht'.
+LaTeX Warning: Citation `Breiman_2001' on page 35 undefined on input line 982.
 
 
-LaTeX Warning: Citation `Fawagreh_2014' on page 35 undefined on input line 955.
-
-[35]
-
-LaTeX Warning: Citation `Breiman_2001' on page 36 undefined on input line 959.
+LaTeX Warning: Citation `Dietterich_2000' on page 35 undefined on input line 982.
 
 
-LaTeX Warning: Reference `' on page 36 undefined on input line 959.
+LaTeX Warning: Citation `Geurts_2006' on page 35 undefined on input line 984.
 
 
-LaTeX Warning: Reference `' on page 36 undefined on input line 959.
+LaTeX Warning: Citation `Pliakos_2020' on page 35 undefined on input line 988.
 
 
-LaTeX Warning: Citation `Breiman_2001' on page 36 undefined on input line 961.
+LaTeX Warning: Reference `' on page 35 undefined on input line 990.
 
 
-LaTeX Warning: Citation `Dietterich_2000' on page 36 undefined on input line 961.
-
-
-LaTeX Warning: Citation `Geurts_2006' on page 36 undefined on input line 963.
-
-[36]
-
-LaTeX Warning: Citation `Pliakos_2020' on page 37 undefined on input line 967.
-
-
-LaTeX Warning: Reference `' on page 37 undefined on input line 969.
-
-
-LaTeX Warning: Reference `' on page 37 undefined on input line 969.
-
-
-LaTeX Warning: Reference `eq:datasplit' on page 37 undefined on input line 973.
-
-
-LaTeX Warning: Reference `eq:q_optimization' on page 37 undefined on input line 976.
-
-
-LaTeX Warning: Reference `eq:q_optimization' on page 37 undefined on input line 977.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: Missing \endcsname inserted.
-<to be read again> 
-                   \protect 
-l.977 \algFindRandomSplit
-                         
-The control sequence marked <to be read again> should
-not appear between \csname and \endcsname.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: Extra \endcsname.
-<recently read> \endcsname 
-                           
-l.977 \algFindRandomSplit
-                         
-I'm ignoring this, since I wasn't doing a \csname.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: You can't use `macro parameter character #' in math mode.
-\SetKwFunction ...r \gdef \csname @#1\endcsname ##
-                                                  1{\FuncSty {#2(}\FuncArgSt...
-l.977 \algFindRandomSplit
-                         
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: Illegal parameter number in definition of \reserved@b.
-<to be read again> 
-                   }
-l.977 \algFindRandomSplit
-                         
-You meant to type ## instead of #, right?
-Or maybe a } was forgotten somewhere earlier, and things
-are all screwed up? I'm going to assume that you meant ##.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: You can't use `macro parameter character #' in restricted horizontal mode.
-<recently read> ##
-                  
-l.977 \algFindRandomSplit
-                         
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: Illegal parameter number in definition of \reserved@b.
-<to be read again> 
-                   }
-l.977 \algFindRandomSplit
-                         
-You meant to type ## instead of #, right?
-Or maybe a } was forgotten somewhere earlier, and things
-are all screwed up? I'm going to assume that you meant ##.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: You can't use `macro parameter character #' in restricted horizontal mode.
-<recently read> ##
-                  
-l.977 \algFindRandomSplit
-                         
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: Illegal parameter number in definition of \reserved@b.
-<to be read again> 
-                   }
-l.977 \algFindRandomSplit
-                         
-You meant to type ## instead of #, right?
-Or maybe a } was forgotten somewhere earlier, and things
-are all screwed up? I'm going to assume that you meant ##.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: You can't use `macro parameter character #' in restricted horizontal mode.
-<recently read> ##
-                  
-l.977 \algFindRandomSplit
-                         
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: Illegal parameter number in definition of \reserved@b.
-<to be read again> 
-                   }
-l.977 \algFindRandomSplit
-                         
-You meant to type ## instead of #, right?
-Or maybe a } was forgotten somewhere earlier, and things
-are all screwed up? I'm going to assume that you meant ##.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: You can't use `macro parameter character #' in restricted horizontal mode.
-<recently read> ##
-                  
-l.977 \algFindRandomSplit
-                         
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: Missing \endcsname inserted.
-<to be read again> 
-                   \protect 
-l.977 \algFindRandomSplit
-                         
-The control sequence marked <to be read again> should
-not appear between \csname and \endcsname.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:977: Extra \endcsname.
-\SetKwFunction ...fter \gdef \csname #1\endcsname 
-                                                  {\@ifnextchar \bgroup {\cs...
-l.977 \algFindRandomSplit
-                         
-I'm ignoring this, since I wasn't doing a \csname.
-
-
-LaTeX Warning: Reference `eq:y_proxies' on page 37 undefined on input line 978.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:978: Double superscript.
-\mel #1->^
-          {\langle #1 \rangle }
-l.978 \algFindBipartiteSplit
-                            
-I treat `x^1^2' essentially like `x^1{}^2'.
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:978: Double superscript.
-\el #1->^
-         {[#1]}
-l.978 \algFindBipartiteSplit
-                            
-I treat `x^1^2' essentially like `x^1{}^2'.
-
-
-LaTeX Warning: Citation `Fattahi2019' on page 37 undefined on input line 985.
-
-
-LaTeX Warning: Citation `Nasution2019' on page 37 undefined on input line 985.
-
-
-LaTeX Warning: Citation `Yamanishi2008' on page 37 undefined on input line 985.
+LaTeX Warning: Reference `' on page 35 undefined on input line 990.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [35]
+
+LaTeX Warning: Reference `eq:datasplit' on page 36 undefined on input line 994.
+
+
+LaTeX Warning: Reference `eq:q_optimization' on page 36 undefined on input line 997.
+
+
+LaTeX Warning: Reference `eq:q_optimization' on page 36 undefined on input line 998.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: Missing \endcsname inserted.
+<to be read again> 
+                   \protect 
+l.998 \algFindRandomSplit
+                         
+The control sequence marked <to be read again> should
+not appear between \csname and \endcsname.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: Extra \endcsname.
+<recently read> \endcsname 
+                           
+l.998 \algFindRandomSplit
+                         
+I'm ignoring this, since I wasn't doing a \csname.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: You can't use `macro parameter character #' in math mode.
+\SetKwFunction ...r \gdef \csname @#1\endcsname ##
+                                                  1{\FuncSty {#2(}\FuncArgSt...
+l.998 \algFindRandomSplit
+                         
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: Illegal parameter number in definition of \reserved@b.
+<to be read again> 
+                   }
+l.998 \algFindRandomSplit
+                         
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: You can't use `macro parameter character #' in restricted horizontal mode.
+<recently read> ##
+                  
+l.998 \algFindRandomSplit
+                         
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: Illegal parameter number in definition of \reserved@b.
+<to be read again> 
+                   }
+l.998 \algFindRandomSplit
+                         
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: You can't use `macro parameter character #' in restricted horizontal mode.
+<recently read> ##
+                  
+l.998 \algFindRandomSplit
+                         
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: Illegal parameter number in definition of \reserved@b.
+<to be read again> 
+                   }
+l.998 \algFindRandomSplit
+                         
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: You can't use `macro parameter character #' in restricted horizontal mode.
+<recently read> ##
+                  
+l.998 \algFindRandomSplit
+                         
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: Illegal parameter number in definition of \reserved@b.
+<to be read again> 
+                   }
+l.998 \algFindRandomSplit
+                         
+You meant to type ## instead of #, right?
+Or maybe a } was forgotten somewhere earlier, and things
+are all screwed up? I'm going to assume that you meant ##.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: You can't use `macro parameter character #' in restricted horizontal mode.
+<recently read> ##
+                  
+l.998 \algFindRandomSplit
+                         
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: Missing \endcsname inserted.
+<to be read again> 
+                   \protect 
+l.998 \algFindRandomSplit
+                         
+The control sequence marked <to be read again> should
+not appear between \csname and \endcsname.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:998: Extra \endcsname.
+\SetKwFunction ...fter \gdef \csname #1\endcsname 
+                                                  {\@ifnextchar \bgroup {\cs...
+l.998 \algFindRandomSplit
+                         
+I'm ignoring this, since I wasn't doing a \csname.
+
+
+LaTeX Warning: Reference `eq:y_proxies' on page 36 undefined on input line 999.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:999: Double superscript.
+\mel #1->^
+          {\langle #1 \rangle }
+l.999 \algFindBipartiteSplit
+                            
+I treat `x^1^2' essentially like `x^1{}^2'.
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:999: Double superscript.
+\el #1->^
+         {[#1]}
+l.999 \algFindBipartiteSplit
+                            
+I treat `x^1^2' essentially like `x^1{}^2'.
+
+
+LaTeX Warning: Citation `Fattahi2019' on page 36 undefined on input line 1006.
+
+
+LaTeX Warning: Citation `Nasution2019' on page 36 undefined on input line 1006.
+
+
+LaTeX Warning: Citation `Yamanishi2008' on page 36 undefined on input line 1006.
+
+
+Underfull \vbox (badness 3492) has occurred while \output is active []
+
+ [36]
+Underfull \vbox (badness 5832) has occurred while \output is active []
 
  [37]
 
-LaTeX Warning: Reference `fig:empirical_complexity' on page 38 undefined on input line 999.
+LaTeX Warning: Reference `fig:empirical_complexity' on page 38 undefined on input line 1020.
 
 
-LaTeX Warning: Reference `sec:complexity_analysis' on page 38 undefined on input line 999.
+LaTeX Warning: Reference `sec:complexity_analysis' on page 38 undefined on input line 1020.
 
 [38]
 
-LaTeX Warning: Reference `fig:empirical_complexity' on page 39 undefined on input line 1001.
+LaTeX Warning: Reference `fig:empirical_complexity' on page 39 undefined on input line 1022.
 
 
-Underfull \vbox (badness 6188) has occurred while \output is active []
-
- [39]
-
-LaTeX Warning: File ` run_experiments/empirical_complexity/time_vs_n_artificial_data.png ' not found on input line 1012.
+LaTeX Warning: File ` run_experiments/empirical_complexity/time_vs_n_artificial_data.png ' not found on input line 1033.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1012: Package pdftex.def Error: File `run_experiments/empirical_complexity/time_vs_n_artificial_data.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1033: Package pdftex.def Error: File `run_experiments/empirical_complexity/time_vs_n_artificial_data.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1012         }
+l.1033         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/empirical_complexity/time_vs_n_artificial_data_loglog.png ' not found on input line 1019.
+LaTeX Warning: File ` run_experiments/empirical_complexity/time_vs_n_artificial_data_loglog.png ' not found on input line 1040.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1019: Package pdftex.def Error: File `run_experiments/empirical_complexity/time_vs_n_artificial_data_loglog.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1040: Package pdftex.def Error: File `run_experiments/empirical_complexity/time_vs_n_artificial_data_loglog.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1019         }
+l.1040         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: Reference `sec:complexity_analysis' on page 40 undefined on input line 1026.
+LaTeX Warning: Reference `sec:complexity_analysis' on page 39 undefined on input line 1047.
 
 
-LaTeX Warning: Reference `sec:complexity_analysis' on page 40 undefined on input line 1026.
+LaTeX Warning: Reference `sec:complexity_analysis' on page 39 undefined on input line 1047.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-LaTeX Warning: Reference `' on page 40 undefined on input line 1035.
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [39]
+
+LaTeX Warning: Reference `' on page 40 undefined on input line 1056.
 
 
-LaTeX Warning: Reference `' on page 40 undefined on input line 1036.
+LaTeX Warning: Reference `' on page 40 undefined on input line 1057.
 
 
-LaTeX Warning: Reference `' on page 40 undefined on input line 1037.
+Overfull \hbox (18.68431pt too wide) in paragraph at lines 1057--1058
+[]\T1/ptm/b/n/12 ngsous\T1/ptm/m/n/12 : Naive global sin-gle out-put im-ple-men-ta-tion with un-der-sam-pling of the non-interacting
+ []
 
 
-LaTeX Warning: Reference `fig:cdd_gso_models' on page 40 undefined on input line 1040.
+LaTeX Warning: Reference `' on page 40 undefined on input line 1058.
+
+
+LaTeX Warning: Reference `fig:cdd_gso_models' on page 40 undefined on input line 1061.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_roc_auc.png ' not found on input line 1071.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1071: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1071         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_average_precision.png ' not found on input line 1077.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1077: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1077         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_matthews_corrcoef.png ' not found on input line 1083.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1083: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1083         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_roc_auc.png ' not found on input line 1090.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1090: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1090         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_average_precision.png ' not found on input line 1096.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1096: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1096         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_matthews_corrcoef.png ' not found on input line 1102.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1102: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1102         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_roc_auc.png ' not found on input line 1109.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1109: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1109         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_average_precision.png ' not found on input line 1115.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1115: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1115         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_matthews_corrcoef.png ' not found on input line 1121.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1121: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1121         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_roc_auc.png ' not found on input line 1134.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1134: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1134         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_average_precision.png ' not found on input line 1140.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1140: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1140         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png ' not found on input line 1146.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1146: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1146         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_roc_auc.png ' not found on input line 1153.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1153: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1153         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_average_precision.png ' not found on input line 1159.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1159: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1159         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png ' not found on input line 1165.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1165: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1165         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_roc_auc.png ' not found on input line 1172.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1172: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1172         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_average_precision.png ' not found on input line 1178.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1178: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1178         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png ' not found on input line 1184.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1184: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1184         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: Reference `' on page 40 undefined on input line 1192.
+
+
+LaTeX Warning: Reference `' on page 40 undefined on input line 1192.
+
+
+LaTeX Warning: Reference `' on page 40 undefined on input line 1206.
+
+
+LaTeX Warning: Reference `' on page 40 undefined on input line 1206.
 
 [40]
 
-LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_roc_auc.png ' not found on input line 1050.
+LaTeX Warning: Reference `' on page 41 undefined on input line 1208.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1050: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_roc_auc.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1050         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+LaTeX Warning: Reference `' on page 41 undefined on input line 1208.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_average_precision.png ' not found on input line 1056.
+LaTeX Warning: Reference `' on page 41 undefined on input line 1208.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1056: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_average_precision.png' not found: using draft setting.
+LaTeX Warning: Reference `' on page 41 undefined on input line 1208.
+
+
+LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_roc_auc.png ' not found on input line 1216.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1216: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_roc_auc.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1056         }
+l.1216         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_matthews_corrcoef.png ' not found on input line 1062.
+LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_average_precision.png ' not found on input line 1222.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1062: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__LT_matthews_corrcoef.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1222: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_average_precision.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1062         }
+l.1222         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_roc_auc.png ' not found on input line 1069.
+LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png ' not found on input line 1228.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1069: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_roc_auc.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1228: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1069         }
+l.1228         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_average_precision.png ' not found on input line 1075.
+LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_roc_auc.png ' not found on input line 1235.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1075: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_average_precision.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1235: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_roc_auc.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1075         }
+l.1235         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_matthews_corrcoef.png ' not found on input line 1081.
+LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_average_precision.png ' not found on input line 1241.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1081: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TL_matthews_corrcoef.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1241: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_average_precision.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1081         }
+l.1241         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_roc_auc.png ' not found on input line 1088.
+LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png ' not found on input line 1247.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1088: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_roc_auc.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1247: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1088         }
+l.1247         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_average_precision.png ' not found on input line 1094.
+LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_roc_auc.png ' not found on input line 1254.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1094: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_average_precision.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1254: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_roc_auc.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1094         }
+l.1254         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_matthews_corrcoef.png ' not found on input line 1100.
+LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_average_precision.png ' not found on input line 1260.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1100: Package pdftex.def Error: File `run_experiments/gso_optimization/figures/estimator_name/enzymes__TT_matthews_corrcoef.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1260: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_average_precision.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1100         }
+l.1260         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_roc_auc.png ' not found on input line 1113.
+LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png ' not found on input line 1266.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1113: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_roc_auc.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1266: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1113         }
+l.1266         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_average_precision.png ' not found on input line 1119.
+LaTeX Warning: Reference `' on page 41 undefined on input line 1279.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1119: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_average_precision.png' not found: using draft setting.
+LaTeX Warning: Reference `' on page 41 undefined on input line 1281.
+
+[41]
+
+LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_roc_auc.png ' not found on input line 1293.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1293: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_roc_auc.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1119         }
+l.1293         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png ' not found on input line 1125.
+LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_average_precision.png ' not found on input line 1299.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1125: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1299: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_average_precision.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1125         }
+l.1299         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_roc_auc.png ' not found on input line 1132.
+LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png ' not found on input line 1305.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1132: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_roc_auc.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1305: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1132         }
+l.1305         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_average_precision.png ' not found on input line 1138.
+LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_roc_auc.png ' not found on input line 1312.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1138: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_average_precision.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1312: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_roc_auc.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1138         }
+l.1312         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png ' not found on input line 1144.
+LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_average_precision.png ' not found on input line 1318.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1144: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1318: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_average_precision.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1144         }
+l.1318         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_roc_auc.png ' not found on input line 1151.
+LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png ' not found on input line 1324.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1151: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_roc_auc.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1324: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1151         }
+l.1324         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_average_precision.png ' not found on input line 1157.
+LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_roc_auc.png ' not found on input line 1331.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1157: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_average_precision.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1331: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_roc_auc.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1157         }
+l.1331         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png ' not found on input line 1163.
+LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_average_precision.png ' not found on input line 1337.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1163: Package pdftex.def Error: File `run_experiments/gso_optimization/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1337: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_average_precision.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1163         }
+l.1337         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: Reference `' on page 41 undefined on input line 1171.
+LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png ' not found on input line 1343.
 
 
-LaTeX Warning: Reference `' on page 41 undefined on input line 1171.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1343: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1343         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: Citation `Pliakos_2020' on page 42 undefined on input line 1351.
+
+
+LaTeX Warning: Citation `Pliakos_2020' on page 42 undefined on input line 1351.
+
+
+LaTeX Warning: Reference `fig:cdd_reconstruction' on page 42 undefined on input line 1351.
+
+
+Overfull \hbox (2.93294pt too wide) in paragraph at lines 1353--1354
+[]\T1/ptm/m/n/12 To se-lect hy-per-pa-ram-e-ters for the NRLMF al-go-rithm, we per-formed a ran-dom-ized search
+ []
+
+
+LaTeX Warning: Reference `fig:cdd_reconstruction' on page 42 undefined on input line 1355.
+
+
+LaTeX Warning: Citation `Pliakos_2020' on page 42 undefined on input line 1357.
+
+
+LaTeX Warning: Reference `' on page 42 undefined on input line 1363.
+
+[42]
+
+LaTeX Warning: Citation `Liu_2017' on page 43 undefined on input line 1365.
+
+
+LaTeX Warning: Citation `Pliakos_2020;Liu_2017' on page 43 undefined on input line 1365.
+
+
+LaTeX Warning: File ` run_experiments/y_reconstruction/figures/estimator_name/all_datasets__LT_roc_auc.png ' not found on input line 1375.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1375: Package pdftex.def Error: File `run_experiments/y_reconstruction/figures/estimator_name/all_datasets__LT_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1375         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/y_reconstruction/figures/estimator_name/all_datasets__LT_average_precision.png ' not found on input line 1381.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1381: Package pdftex.def Error: File `run_experiments/y_reconstruction/figures/estimator_name/all_datasets__LT_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1381         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/y_reconstruction/figures/estimator_name/all_datasets__LT_matthews_corrcoef.png ' not found on input line 1387.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1387: Package pdftex.def Error: File `run_experiments/y_reconstruction/figures/estimator_name/all_datasets__LT_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1387         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TL_roc_auc.png ' not found on input line 1394.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1394: Package pdftex.def Error: File `run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TL_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1394         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TL_average_precision.png ' not found on input line 1400.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1400: Package pdftex.def Error: File `run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TL_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1400         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TL_matthews_corrcoef.png ' not found on input line 1406.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1406: Package pdftex.def Error: File `run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TL_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1406         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TT_roc_auc.png ' not found on input line 1413.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1413: Package pdftex.def Error: File `run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TT_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1413         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TT_average_precision.png ' not found on input line 1419.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1419: Package pdftex.def Error: File `run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TT_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1419         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TT_matthews_corrcoef.png ' not found on input line 1425.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1425: Package pdftex.def Error: File `run_experiments/y_reconstruction/figures/estimator_name/all_datasets__TT_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1425         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: Reference `' on page 43 undefined on input line 1438.
+
+
+LaTeX Warning: Reference `fig:cdd_literature' on page 43 undefined on input line 1440.
+
+
+LaTeX Warning: Reference `' on page 43 undefined on input line 1440.
+
+
+LaTeX Warning: Citation `Liu_2017' on page 43 undefined on input line 1443.
+
+
+LaTeX Warning: Reference `tab:datasets' on page 43 undefined on input line 1452.
+
+[43]
+
+LaTeX Warning: Reference `fig:cdd_literature' on page 44 undefined on input line 1456.
+
+
+LaTeX Warning: Reference `fig:cdd_literature' on page 44 undefined on input line 1458.
+
+
+LaTeX Warning: Reference `fig:cdd_literature' on page 44 undefined on input line 1460.
+
+
+LaTeX Warning: Reference `sec:complexity_analysis' on page 44 undefined on input line 1467.
+
+
+LaTeX Warning: Reference `sec:empirical_complexity' on page 44 undefined on input line 1467.
+
+
+LaTeX Warning: Citation `Pliakos_2018' on page 44 undefined on input line 1467.
+
+
+LaTeX Warning: File ` run_experiments/literature_models/post_hoc/all_datasets__cdd__LT_roc_auc.png ' not found on input line 1475.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1475: Package pdftex.def Error: File `run_experiments/literature_models/post_hoc/all_datasets__cdd__LT_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1475         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/literature_models/post_hoc/all_datasets__cdd__LT_average_precision.png ' not found on input line 1481.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1481: Package pdftex.def Error: File `run_experiments/literature_models/post_hoc/all_datasets__cdd__LT_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1481         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/literature_models/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png ' not found on input line 1487.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1487: Package pdftex.def Error: File `run_experiments/literature_models/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1487         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/literature_models/post_hoc/all_datasets__cdd__TL_roc_auc.png ' not found on input line 1494.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1494: Package pdftex.def Error: File `run_experiments/literature_models/post_hoc/all_datasets__cdd__TL_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1494         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/literature_models/post_hoc/all_datasets__cdd__TL_average_precision.png ' not found on input line 1500.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1500: Package pdftex.def Error: File `run_experiments/literature_models/post_hoc/all_datasets__cdd__TL_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1500         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/literature_models/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png ' not found on input line 1506.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1506: Package pdftex.def Error: File `run_experiments/literature_models/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1506         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/literature_models/post_hoc/all_datasets__cdd__TT_roc_auc.png ' not found on input line 1513.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1513: Package pdftex.def Error: File `run_experiments/literature_models/post_hoc/all_datasets__cdd__TT_roc_auc.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1513         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/literature_models/post_hoc/all_datasets__cdd__TT_average_precision.png ' not found on input line 1519.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1519: Package pdftex.def Error: File `run_experiments/literature_models/post_hoc/all_datasets__cdd__TT_average_precision.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1519         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+LaTeX Warning: File ` run_experiments/literature_models/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png ' not found on input line 1525.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1525: Package pdftex.def Error: File `run_experiments/literature_models/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1525         }
+                
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [41]
+ [44]
 
-LaTeX Warning: Reference `' on page 42 undefined on input line 1185.
-
-
-LaTeX Warning: Reference `' on page 42 undefined on input line 1185.
+LaTeX Warning: Citation `Ozturk_2018' on page 45 undefined on input line 1547.
 
 
-LaTeX Warning: Reference `' on page 42 undefined on input line 1187.
+Overfull \hbox (6.94945pt too wide) in paragraph at lines 1547--1548
+[]\T1/ptm/m/n/12 deep_-dta_-raw: Uses con-vo-lu-tional lay-ers to en-code raw amino acid se-quences and SMILES
+ []
 
 
-LaTeX Warning: Reference `' on page 42 undefined on input line 1187.
+LaTeX Warning: Citation `Pliakos_2020' on page 45 undefined on input line 1551.
 
 
-LaTeX Warning: Reference `' on page 42 undefined on input line 1187.
+LaTeX Warning: Reference `fig:davis_mse' on page 45 undefined on input line 1551.
 
 
-LaTeX Warning: Reference `' on page 42 undefined on input line 1187.
+LaTeX Warning: Reference `sec:complexity_analysis' on page 45 undefined on input line 1551.
 
 
-LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_roc_auc.png ' not found on input line 1195.
+LaTeX Warning: Reference `sec:empirical_complexity' on page 45 undefined on input line 1551.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1195: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_roc_auc.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1195         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+LaTeX Warning: File ` run_experiments/neural_nets/post_hoc/davis__boxplot__LT_neg_mean_squared_error.png ' not found on input line 1563.
 
 
-LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_average_precision.png ' not found on input line 1201.
-
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1201: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_average_precision.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1563: Package pdftex.def Error: File `run_experiments/neural_nets/post_hoc/davis__boxplot__LT_neg_mean_squared_error.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1201         }
+l.1563         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png ' not found on input line 1207.
+Underfull \hbox (badness 10000) in paragraph at lines 1564--1564
+[][]|\T1/ptm/m/n/10.95 Neg-a-tive mean
+ []
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1207: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png' not found: using draft setting.
+LaTeX Warning: File ` run_experiments/neural_nets/post_hoc/davis__boxplot__TL_neg_mean_squared_error.png ' not found on input line 1570.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1570: Package pdftex.def Error: File `run_experiments/neural_nets/post_hoc/davis__boxplot__TL_neg_mean_squared_error.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1207         }
+l.1570         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_roc_auc.png ' not found on input line 1214.
+Underfull \hbox (badness 10000) in paragraph at lines 1571--1571
+[][]|\T1/ptm/m/n/10.95 Neg-a-tive mean
+ []
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1214: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_roc_auc.png' not found: using draft setting.
+LaTeX Warning: File ` run_experiments/neural_nets/post_hoc/davis__boxplot__TT_neg_mean_squared_error.png ' not found on input line 1577.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1577: Package pdftex.def Error: File `run_experiments/neural_nets/post_hoc/davis__boxplot__TT_neg_mean_squared_error.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1214         }
+l.1577         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_average_precision.png ' not found on input line 1220.
+Underfull \hbox (badness 10000) in paragraph at lines 1578--1578
+[][]|\T1/ptm/m/n/10.95 Neg-a-tive mean
+ []
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1220: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_average_precision.png' not found: using draft setting.
+LaTeX Warning: File ` run_experiments/neural_nets/post_hoc/davis__boxplot__fit_time.png ' not found on input line 1584.
+
+
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1584: Package pdftex.def Error: File `run_experiments/neural_nets/post_hoc/davis__boxplot__fit_time.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1220         }
+l.1584         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png ' not found on input line 1226.
+LaTeX Warning: File ` run_experiments/neural_nets/post_hoc/davis__boxplot__LT_r2.png ' not found on input line 1592.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1226: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1592: Package pdftex.def Error: File `run_experiments/neural_nets/post_hoc/davis__boxplot__LT_r2.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1226         }
+l.1592         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_roc_auc.png ' not found on input line 1233.
+LaTeX Warning: File ` run_experiments/neural_nets/post_hoc/davis__boxplot__TL_r2.png ' not found on input line 1599.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1233: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_roc_auc.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1599: Package pdftex.def Error: File `run_experiments/neural_nets/post_hoc/davis__boxplot__TL_r2.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1233         }
+l.1599         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_average_precision.png ' not found on input line 1239.
+LaTeX Warning: File ` run_experiments/neural_nets/post_hoc/davis__boxplot__TT_r2.png ' not found on input line 1606.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1239: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_average_precision.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1606: Package pdftex.def Error: File `run_experiments/neural_nets/post_hoc/davis__boxplot__TT_r2.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1239         }
+l.1606         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: File ` run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png ' not found on input line 1245.
+LaTeX Warning: File ` run_experiments/neural_nets/post_hoc/davis__boxplot__score_time.png ' not found on input line 1613.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1245: Package pdftex.def Error: File `run_experiments/prediction_weights/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png' not found: using draft setting.
+./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1613: Package pdftex.def Error: File `run_experiments/neural_nets/post_hoc/davis__boxplot__score_time.png' not found: using draft setting.
 
 See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.1245         }
+l.1613         }
                 
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-LaTeX Warning: Reference `' on page 42 undefined on input line 1258.
+Underfull \hbox (badness 10000) in paragraph at lines 1614--1614
+[][]|\T1/ptm/m/n/10.95 Pre-dic-tion du-ra-tion
+ []
 
-[42]
+) [45] [46] [47] [48] [49] [50] [51] [52] [53]
+\openout2 = `USPSC-TA-Textual/USPSC-Cap3-Conclusao.aux'.
 
-LaTeX Warning: Reference `' on page 43 undefined on input line 1260.
-
-
-LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_roc_auc.png ' not found on input line 1272.
-
-
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1272: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_roc_auc.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1272         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+ (./USPSC-TA-Textual/USPSC-Cap3-Conclusao.tex [54
 
 
-LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_average_precision.png ' not found on input line 1278.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1278: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_average_precision.png' not found: using draft setting.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1278         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+]) [55] (./USPSC-modelo-IFSCe.bbl [56
 
 
-LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png ' not found on input line 1284.
+
+]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\uppercase' on input line 3.
+
+bibitemlist
+) [57]
+\openout2 = `USPSC-TA-PosTextual/USPSC-Apendices.aux'.
+
+ (./USPSC-TA-PosTextual/USPSC-Apendices.tex [58
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1284: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__LT_matthews_corrcoef.png' not found: using draft setting.
+]
 
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1284         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\uppercase' on input line 9.
 
+[59
 
-LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_roc_auc.png ' not found on input line 1291.
+] [60]
+
+LaTeX Warning: Citation `nbr14724' on page 61 undefined on input line 10.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1291: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_roc_auc.png' not found: using draft setting.
+LaTeX Warning: Citation `aguia2020' on page 61 undefined on input line 12.
 
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1291         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+[61
 
+] [62
 
-LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_average_precision.png ' not found on input line 1297.
+]
 
+LaTeX Warning: Reference `tab-centralizada' on page 63 undefined on input line 15.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1297: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_average_precision.png' not found: using draft setting.
+[63] [64
 
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1297         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+]
+
+LaTeX Warning: Reference `tab-grade' on page 65 undefined on input line 37.
+
+) [65]
+\openout2 = `USPSC-TA-PosTextual/USPSC-Anexos.aux'.
+
+ (./USPSC-TA-PosTextual/USPSC-Anexos.tex [66
 
 
-LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png ' not found on input line 1303.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1303: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TL_matthews_corrcoef.png' not found: using draft setting.
+]
 
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1303         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\uppercase' on input line 9.
 
+[67
 
-LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_roc_auc.png ' not found on input line 1310.
+] [68]
 
+LaTeX Warning: Citation `nbr14724' on page 69 undefined on input line 13.
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1310: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_roc_auc.png' not found: using draft setting.
+[69
 
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1310         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+] [70
+
+]
+<USPSC-img/USPSC-AcentuacaoLaTeX.png, id=567, 225.84375pt x 353.06906pt>
+File: USPSC-img/USPSC-AcentuacaoLaTeX.png Graphic file (type png)
+<use USPSC-img/USPSC-AcentuacaoLaTeX.png>
+Package pdftex.def Info: USPSC-img/USPSC-AcentuacaoLaTeX.png  used on input line 21.
+(pdftex.def)             Requested size: 225.84319pt x 353.06819pt.
 
 
-LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_average_precision.png ' not found on input line 1316.
+LaTeX Warning: Citation `comandos' on page 71 undefined on input line 22.
+
+) [71 <./USPSC-img/USPSC-AcentuacaoLaTeX.png>]
+\openout2 = `USPSC-IndicesRemissivos.aux'.
+
+ (./USPSC-IndicesRemissivos.tex)
+No file USPSC-modelo-IFSCe.ind.
+\tf@toc=\write6
+\openout6 = `USPSC-modelo-IFSCe.toc'.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1316: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_average_precision.png' not found: using draft setting.
+enddocument/afterlastpage: lastpage setting LastPage.
+(./USPSC-modelo-IFSCe.aux (./USPSC-TA-PreTextual/USPSC-Errata.aux) (./USPSC-TA-PreTextual/USPSC-Dedicatoria.aux) (./USPSC-TA-PreTextual/USPSC-Agradecimentos.aux) (./USPSC-TA-PreTextual/USPSC-Epigrafe.aux) (./USPSC-TA-PreTextual/USPSC-Abstract.aux) (./USPSC-TA-PreTextual/USPSC-Resumo.aux) (./USPSC-TA-Textual/USPSC-Cap1-Introducao.aux) (./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.aux) (./USPSC-TA-Textual/USPSC-Cap3-Conclusao.aux) (./USPSC-TA-PosTextual/USPSC-Apendices.aux) (./USPSC-TA-PosTextual/USPSC-Anexos.aux) (./USPSC-IndicesRemissivos.aux))
 
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1316         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+LaTeX Warning: There were undefined references.
 
 
-LaTeX Warning: File ` run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png ' not found on input line 1322.
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
 
-./USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento.tex:1322: Package pdftex.def Error: File `run_experiments/bipartite_approaches/post_hoc/all_datasets__cdd__TT_matthews_corrcoef.png' not found: using draft setting.
+Package lastpage Warning: Rerun to get the references right on input line 436.
 
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1322         }
-                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+ ) 
+Here is how much of TeX's memory you used:
+ 34503 strings out of 477985
+ 785222 string characters out of 5840058
+ 1884388 words of memory out of 5000000
+ 53639 multiletter control sequences out of 15000+600000
+ 574237 words of font info for 115 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 90i,21n,90p,1507b,654s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on USPSC-modelo-IFSCe.pdf (73 pages, 436495 bytes).
+PDF statistics:
+ 890 PDF objects out of 1000 (max. 8388607)
+ 759 compressed objects within 8 object streams
+ 300 named destinations out of 1000 (max. 500000)
+ 462 words of extra memory for PDF output out of 10000 (max. 10000000)
 
-
-LaTeX Warning: Citation `Pliakos_2020' on page 43 undefined on input line 1330.
-
-
-LaTeX Warning: Citation `Pliakos_2020' on page 43 undefined on input line 1330.
-
-
-LaTeX Warning: Reference `fig:cdd_reconstruction' on page 43 undefined on input line 1330.
-
-[43]
-
-LaTeX Warning: Reference `fig:cdd_reconstruction' on page 44 undefined on input line 1334.
-
-
-L

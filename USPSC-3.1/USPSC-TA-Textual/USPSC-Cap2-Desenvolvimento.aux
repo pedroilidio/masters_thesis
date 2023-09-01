@@ -23,66 +23,72 @@
 \citation{vert2008reconstruction}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}Prediction performance metrics}{22}{subsection.2.3.2}\protected@file@percent }
 \newlabel{sec:prediction_metrics}{{\M@TitleReference {2.3.2}{Prediction performance metrics}}{22}{Prediction performance metrics}{subsection.2.3.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {2.4}Common approaches to build bipartite models}{22}{section.2.4}\protected@file@percent }
-\newlabel{sec:common_approaches}{{\M@TitleReference {2.4}{Common approaches to build bipartite models}}{22}{Common approaches to build bipartite models}{section.2.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.1}The standard global single-output (SGSO) approach}{23}{subsection.2.4.1}\protected@file@percent }
-\newlabel{sec:sgso}{{\M@TitleReference {2.4.1}{The standard global single-output (SGSO) approach}}{23}{The standard global single-output (SGSO) approach}{subsection.2.4.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}Applying monopartite estimators on bipartite data}{22}{section.2.4}\protected@file@percent }
+\newlabel{sec:common_approaches}{{\M@TitleReference {2.4}{Applying monopartite estimators on bipartite data}}{22}{Applying monopartite estimators on bipartite data}{section.2.4}{}}
 \citation{}
-\newlabel{eq:gsodata}{{\M@TitleReference {2.3}{The standard global single-output (SGSO) approach}}{24}{The standard global single-output (SGSO) approach}{equation.2.4.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.2}The standard local multi-output (SLMO) approach}{24}{subsection.2.4.2}\protected@file@percent }
-\newlabel{sec:slmo}{{\M@TitleReference {2.4.2}{The standard local multi-output (SLMO) approach}}{24}{The standard local multi-output (SLMO) approach}{subsection.2.4.2}{}}
-\citation{}
-\@writefile{loa}{\contentsline {algocf}{\numberline {-}{\ignorespaces Funci\'on\nobreakspace  TrainLocalModel($X$, $Y$)\relax }}{25}{algocffunc.TrainLocalModel}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.1}The standard global single-output adaptation}{23}{subsection.2.4.1}\protected@file@percent }
+\newlabel{sec:sgso}{{\M@TitleReference {2.4.1}{The standard global single-output adaptation}}{23}{The standard global single-output adaptation}{subsection.2.4.1}{}}
+\newlabel{eq:gsodata}{{\M@TitleReference {2.3}{The standard global single-output adaptation}}{23}{The standard global single-output adaptation}{equation.2.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.2}The standard local multi-output adaptation}{24}{subsection.2.4.2}\protected@file@percent }
+\newlabel{sec:slmo}{{\M@TitleReference {2.4.2}{The standard local multi-output adaptation}}{24}{The standard local multi-output adaptation}{subsection.2.4.2}{}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {-}{\ignorespaces Funci\'on\nobreakspace  TrainLocalModel($X$, $Y$)\relax }}{24}{algocffunc.TrainLocalModel}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{alg:train_local_model}{{\M@TitleReference {TrainLocalModel}{The standard local multi-output (SLMO) approach}}{25}{The standard local multi-output (SLMO) approach}{algocffunc.TrainLocalModel}{}}
-\newlabel{ln:combine_local_outputs}{{\M@TitleReference {15}{The standard local multi-output (SLMO) approach}}{25}{The standard local multi-output (SLMO) approach}{AlgoLine.2.15}{}}
+\newlabel{alg:train_local_model}{{\M@TitleReference {TrainLocalModel}{The standard local multi-output adaptation}}{24}{The standard local multi-output adaptation}{algocffunc.TrainLocalModel}{}}
+\citation{}
+\newlabel{ln:combine_local_outputs}{{\M@TitleReference {15}{The standard local multi-output adaptation}}{25}{The standard local multi-output adaptation}{AlgoLine.2.15}{}}
 \@writefile{loa}{\contentsline {algocf}{\numberline {-}{\ignorespaces Funci\'on\nobreakspace  PredictLocalModel(primary models, $X_\text  {new}$)\relax }}{25}{algocffunc.PredictLocalModel}\protected@file@percent }
-\newlabel{alg:predict_local_model}{{\M@TitleReference {PredictLocalModel}{The standard local multi-output (SLMO) approach}}{25}{The standard local multi-output (SLMO) approach}{algocffunc.PredictLocalModel}{}}
+\newlabel{alg:predict_local_model}{{\M@TitleReference {PredictLocalModel}{The standard local multi-output adaptation}}{25}{The standard local multi-output adaptation}{algocffunc.PredictLocalModel}{}}
+\citation{}
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}Bipartite learning algorithms}{26}{section.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.1}Interaction matrix approximation methods}{26}{subsection.2.5.1}\protected@file@percent }
 \citation{}
 \citation{}
+\citation{pliakos2018global,pliakos2019network,pliakos2020drugtarget}
+\citation{pliakos2018global}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.2}Bipartite forests}{27}{subsection.2.5.2}\protected@file@percent }
+\newlabel{sec:bipartite_forests}{{\M@TitleReference {2.5.2}{Bipartite forests}}{27}{Bipartite forests}{subsection.2.5.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.3}Monopartite decision trees}{27}{subsection.2.5.3}\protected@file@percent }
+\newlabel{sec:dt}{{\M@TitleReference {2.5.3}{Monopartite decision trees}}{27}{Monopartite decision trees}{subsection.2.5.3}{}}
 \citation{}
+\newlabel{eq:datasplit}{{\M@TitleReference {2.4}{Monopartite decision trees}}{28}{Monopartite decision trees}{equation.2.5.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.4}Split quality criteria and impurity metrics}{29}{subsection.2.5.4}\protected@file@percent }
+\newlabel{sec:criteria}{{\M@TitleReference {2.5.4}{Split quality criteria and impurity metrics}}{29}{Split quality criteria and impurity metrics}{subsection.2.5.4}{}}
+\newlabel{eq:quality}{{\M@TitleReference {2.5}{Split quality criteria and impurity metrics}}{29}{Split quality criteria and impurity metrics}{equation.2.5.5}{}}
+\newlabel{eq:mse}{{\M@TitleReference {2.6}{Split quality criteria and impurity metrics}}{29}{Split quality criteria and impurity metrics}{equation.2.5.6}{}}
+\newlabel{eq:gini}{{\M@TitleReference {2.7}{Split quality criteria and impurity metrics}}{29}{Split quality criteria and impurity metrics}{equation.2.5.7}{}}
+\newlabel{eq:gso_mse}{{\M@TitleReference {2.8}{Split quality criteria and impurity metrics}}{29}{Split quality criteria and impurity metrics}{equation.2.5.8}{}}
+\newlabel{eq:q_optimization}{{\M@TitleReference {2.9}{Split quality criteria and impurity metrics}}{29}{Split quality criteria and impurity metrics}{equation.2.5.9}{}}
 \citation{}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.3}Bipartite forests}{28}{subsection.2.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.4}Monopartite decision Trees}{28}{subsection.2.4.4}\protected@file@percent }
-\newlabel{sec:dt}{{\M@TitleReference {2.4.4}{Monopartite decision Trees}}{28}{Monopartite decision Trees}{subsection.2.4.4}{}}
-\newlabel{eq:datasplit}{{\M@TitleReference {2.4}{Monopartite decision Trees}}{28}{Monopartite decision Trees}{equation.2.4.4}{}}
-\citation{}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.5}Split quality criteria and impurity metrics}{29}{subsection.2.4.5}\protected@file@percent }
-\newlabel{sec:criteria}{{\M@TitleReference {2.4.5}{Split quality criteria and impurity metrics}}{29}{Split quality criteria and impurity metrics}{subsection.2.4.5}{}}
-\newlabel{eq:quality}{{\M@TitleReference {2.5}{Split quality criteria and impurity metrics}}{30}{Split quality criteria and impurity metrics}{equation.2.4.5}{}}
-\newlabel{eq:mse}{{\M@TitleReference {2.6}{Split quality criteria and impurity metrics}}{30}{Split quality criteria and impurity metrics}{equation.2.4.6}{}}
-\newlabel{eq:gini}{{\M@TitleReference {2.7}{Split quality criteria and impurity metrics}}{30}{Split quality criteria and impurity metrics}{equation.2.4.7}{}}
-\newlabel{eq:gso_mse}{{\M@TitleReference {2.8}{Split quality criteria and impurity metrics}}{30}{Split quality criteria and impurity metrics}{equation.2.4.8}{}}
-\newlabel{eq:q_optimization}{{\M@TitleReference {2.9}{Split quality criteria and impurity metrics}}{30}{Split quality criteria and impurity metrics}{equation.2.4.9}{}}
-\citation{}
-\newlabel{eq:y_proxies}{{\M@TitleReference {2.10}{Split quality criteria and impurity metrics}}{31}{Split quality criteria and impurity metrics}{equation.2.4.10}{}}
-\newlabel{eq:q_T_is_zero}{{\M@TitleReference {2.11}{Split quality criteria and impurity metrics}}{31}{Split quality criteria and impurity metrics}{equation.2.4.11}{}}
 \citation{Pliakos_2018}
-\newlabel{eq:q_lmo}{{\M@TitleReference {2.12}{Split quality criteria and impurity metrics}}{32}{Split quality criteria and impurity metrics}{equation.2.4.12}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.6}Predictive Bi-Clustering Trees}{32}{subsection.2.4.6}\protected@file@percent }
-\newlabel{sec:bipartite_trees}{{\M@TitleReference {2.4.6}{Predictive Bi-Clustering Trees}}{32}{Predictive Bi-Clustering Trees}{subsection.2.4.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.7}Bipartite GSO trees}{32}{subsection.2.4.7}\protected@file@percent }
-\newlabel{eq:bipartite_gso_equivalence}{{\M@TitleReference {2.13}{Bipartite GSO trees}}{32}{Bipartite GSO trees}{equation.2.4.13}{}}
+\newlabel{eq:y_proxies}{{\M@TitleReference {2.10}{Split quality criteria and impurity metrics}}{30}{Split quality criteria and impurity metrics}{equation.2.5.10}{}}
+\newlabel{eq:q_T_is_zero}{{\M@TitleReference {2.11}{Split quality criteria and impurity metrics}}{30}{Split quality criteria and impurity metrics}{equation.2.5.11}{}}
+\newlabel{eq:q_lmo}{{\M@TitleReference {2.12}{Split quality criteria and impurity metrics}}{30}{Split quality criteria and impurity metrics}{equation.2.5.12}{}}
 \citation{Pliakos_2018}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.8}Bipartite prediction strategies}{33}{subsection.2.4.8}\protected@file@percent }
-\newlabel{eq:prototype1}{{\M@TitleReference {2.14}{Bipartite prediction strategies}}{33}{Bipartite prediction strategies}{equation.2.4.14}{}}
-\newlabel{eq:prototype2}{{\M@TitleReference {2.15}{Bipartite prediction strategies}}{33}{Bipartite prediction strategies}{equation.2.4.15}{}}
-\newlabel{eq:prototype3}{{\M@TitleReference {2.16}{Bipartite prediction strategies}}{33}{Bipartite prediction strategies}{equation.2.4.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.5}Predictive Bi-Clustering Trees}{31}{subsection.2.5.5}\protected@file@percent }
+\newlabel{sec:bipartite_trees}{{\M@TitleReference {2.5.5}{Predictive Bi-Clustering Trees}}{31}{Predictive Bi-Clustering Trees}{subsection.2.5.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.6}Bipartite GSO trees}{31}{subsection.2.5.6}\protected@file@percent }
+\newlabel{eq:bipartite_gso_equivalence}{{\M@TitleReference {2.13}{Bipartite GSO trees}}{31}{Bipartite GSO trees}{equation.2.5.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.7}Bipartite prediction strategies}{31}{subsection.2.5.7}\protected@file@percent }
+\newlabel{eq:prototype1}{{\M@TitleReference {2.14}{Bipartite prediction strategies}}{31}{Bipartite prediction strategies}{equation.2.5.14}{}}
 \citation{}
+\newlabel{eq:prototype2}{{\M@TitleReference {2.15}{Bipartite prediction strategies}}{32}{Bipartite prediction strategies}{equation.2.5.15}{}}
+\newlabel{eq:prototype3}{{\M@TitleReference {2.16}{Bipartite prediction strategies}}{32}{Bipartite prediction strategies}{equation.2.5.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.8}Asymptotic complexity analysis}{32}{subsection.2.5.8}\protected@file@percent }
+\newlabel{sec:complexity_analysis}{{\M@TitleReference {2.5.8}{Asymptotic complexity analysis}}{32}{Asymptotic complexity analysis}{subsection.2.5.8}{}}
 \citation{}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.9}Asymptotic complexity analysis}{34}{subsection.2.4.9}\protected@file@percent }
-\newlabel{sec:complexity_analysis}{{\M@TitleReference {2.4.9}{Asymptotic complexity analysis}}{34}{Asymptotic complexity analysis}{subsection.2.4.9}{}}
-\newlabel{eq:O_naive_gso}{{\M@TitleReference {2.18}{Asymptotic complexity analysis}}{34}{Asymptotic complexity analysis}{equation.2.4.18}{}}
-\newlabel{eq:O_gmo}{{\M@TitleReference {2.19}{Asymptotic complexity analysis}}{34}{Asymptotic complexity analysis}{equation.2.4.19}{}}
-\newlabel{eq:O_gso}{{\M@TitleReference {2.20}{Asymptotic complexity analysis}}{34}{Asymptotic complexity analysis}{equation.2.4.20}{}}
+\newlabel{eq:O_naive_gso}{{\M@TitleReference {2.18}{Asymptotic complexity analysis}}{33}{Asymptotic complexity analysis}{equation.2.5.18}{}}
+\newlabel{eq:O_gmo}{{\M@TitleReference {2.19}{Asymptotic complexity analysis}}{33}{Asymptotic complexity analysis}{equation.2.5.19}{}}
+\newlabel{eq:O_gso}{{\M@TitleReference {2.20}{Asymptotic complexity analysis}}{33}{Asymptotic complexity analysis}{equation.2.5.20}{}}
+\newlabel{eq:O_tree}{{\M@TitleReference {2.21}{Asymptotic complexity analysis}}{33}{Asymptotic complexity analysis}{equation.2.5.21}{}}
 \citation{}
 \citation{}
 \citation{}
 \citation{}
 \citation{Fawagreh_2014}
 \citation{}
-\newlabel{eq:O_tree}{{\M@TitleReference {2.21}{Asymptotic complexity analysis}}{35}{Asymptotic complexity analysis}{equation.2.4.21}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.10}Tree ensembles}{35}{subsection.2.4.10}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces  Asymptotic time complexity comparison between the global multiple outputs and global single output approaches for Decision Tree building. $n_s$ designates the number of samples in each axis, assumed to be similar between them. $\tilde  n_f$ represents the number of features to be considered for split search in each node. The last column refers to the case where the number of features considered in each node is proportional to $n_s$ the number of row or column samples in it. This scenario could arise, for instance, if one is dealing with pairwise features and would want to consider only intrapartition similarities. \relax }}{34}{table.caption.14}\protected@file@percent }
+\newlabel{tab:O_comparison}{{\M@TitleReference {1}{ Asymptotic time complexity comparison between the global multiple outputs and global single output approaches for Decision Tree building. $n_s$ designates the number of samples in each axis, assumed to be similar between them. $\tilde  n_f$ represents the number of features to be considered for split search in each node. The last column refers to the case where the number of features considered in each node is proportional to $n_s$ the number of row or column samples in it. This scenario could arise, for instance, if one is dealing with pairwise features and would want to consider only intrapartition similarities. \relax }}{34}{Asymptotic time complexity comparison between the global multiple outputs and global single output approaches for Decision Tree building. $n_s$ designates the number of samples in each axis, assumed to be similar between them. $\tilde n_f$ represents the number of features to be considered for split search in each node. The last column refers to the case where the number of features considered in each node is proportional to $n_s$ the number of row or column samples in it. This scenario could arise, for instance, if one is dealing with pairwise features and would want to consider only intrapartition similarities. \relax }{table.caption.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.9}Tree ensembles}{34}{subsection.2.5.9}\protected@file@percent }
 \citation{Breiman_2001}
 \citation{}
 \citation{Breiman_2001}
@@ -90,13 +96,151 @@
 \citation{Dietterich_2000}
 \citation{}
 \citation{Geurts_2006}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces  Asymptotic time complexity comparison between the global multiple outputs and global single output approaches for Decision Tree building. $n_s$ designates the number of samples in each axis, assumed to be similar between them. $\tilde  n_f$ represents the number of features to be considered for split search in each node. The last column refers to the case where the number of features considered in each node is proportional to $n_s$ the number of row or column samples in it. This scenario could arise, for instance, if one is dealing with pairwise features and would want to consider only intrapartition similarities. \relax }}{36}{table.caption.14}\protected@file@percent }
-\newlabel{tab:O_comparison}{{\M@TitleReference {1}{ Asymptotic time complexity comparison between the global multiple outputs and global single output approaches for Decision Tree building. $n_s$ designates the number of samples in each axis, assumed to be similar between them. $\tilde  n_f$ represents the number of features to be considered for split search in each node. The last column refers to the case where the number of features considered in each node is proportional to $n_s$ the number of row or column samples in it. This scenario could arise, for instance, if one is dealing with pairwise features and would want to consider only intrapartition similarities. \relax }}{36}{Asymptotic time complexity comparison between the global multiple outputs and global single output approaches for Decision Tree building. $n_s$ designates the number of samples in each axis, assumed to be similar between them. $\tilde n_f$ represents the number of features to be considered for split search in each node. The last column refers to the case where the number of features considered in each node is proportional to $n_s$ the number of row or column samples in it. This scenario could arise, for instance, if one is dealing with pairwise features and would want to consider only intrapartition similarities. \relax }{table.caption.14}{}}
 \citation{Pliakos_2020}
 \citation{}
 \citation{Fattahi2019,Nasution2019}
 \citation{Yamanishi2008}
-\@writefile{loa}{\contentsline {algocf}{\numberline {-}{\ignorespaces Funci\'on\nobreakspace  BuildTree($X$, $Y$): Recursively build a Decision Tree\relax }}{37}{algocffunc.BuildTree}\protected@file@percent }
-\newlabel{alg:buildtree}{{\M@TitleReference {BuildTree}{Tree ensembles}}{37}{Tree ensembles}{algocffunc.BuildTree}{}}
-\newlabel{ln:prototype}{{\M@TitleReference {9}{Tree ensembles}}{38}{Tree ensembles}{AlgoLine.4.9}{}}
-\@writefile{loa}{\contentsline {algocf}{\numberline {-}{\ignorespaces Funci\'on\nobreakspace  Predict(RootNode, $x$): Compute 
+\@writefile{loa}{\contentsline {algocf}{\numberline {-}{\ignorespaces Funci\'on\nobreakspace  BuildTree($X$, $Y$): Recursively build a Decision Tree\relax }}{36}{algocffunc.BuildTree}\protected@file@percent }
+\newlabel{alg:buildtree}{{\M@TitleReference {BuildTree}{Tree ensembles}}{36}{Tree ensembles}{algocffunc.BuildTree}{}}
+\newlabel{ln:prototype}{{\M@TitleReference {9}{Tree ensembles}}{36}{Tree ensembles}{AlgoLine.4.9}{}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {-}{\ignorespaces Funci\'on\nobreakspace  Predict(RootNode, $x$): Compute a Decision Tree's prediction.\relax }}{36}{algocffunc.Predict}\protected@file@percent }
+\newlabel{alg:predict}{{\M@TitleReference {Predict}{Tree ensembles}}{36}{Tree ensembles}{algocffunc.Predict}{}}
+\newlabel{algline:gmo_loop1}{{\M@TitleReference {6}{Tree ensembles}}{37}{Tree ensembles}{AlgoLine.5.6}{}}
+\newlabel{algline:gmo_loop2}{{\M@TitleReference {13}{Tree ensembles}}{37}{Tree ensembles}{AlgoLine.5.13}{}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {-}{\ignorespaces Funci\'on\nobreakspace  FindSplitBest($X$, $Y$)\relax }}{37}{algocffunc.FindSplitBest}\protected@file@percent }
+\newlabel{alg:find_best_split}{{\M@TitleReference {FindSplitBest}{Tree ensembles}}{37}{Tree ensembles}{algocffunc.FindSplitBest}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.10}Implementation details}{37}{subsection.2.5.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.11}Dataset}{37}{subsection.2.5.11}\protected@file@percent }
+\newlabel{alg:find_random_split}{{\M@TitleReference {13}{Tree ensembles}}{38}{Tree ensembles}{AlgoLine.6.13}{}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {-}{\ignorespaces Funci\'on\nobreakspace  FindSplit$_\text  {random}$($X$, $Y$)\relax }}{38}{algocffunc.FindSplit$_\protect \protect \unhbox \voidb@x \hbox {random}$}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.12}Code and data availability}{38}{subsection.2.5.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.6}Results and Discussion}{38}{section.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.1}General experimental settings}{38}{subsection.2.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.2}Empirical time complexity analysis}{38}{subsection.2.6.2}\protected@file@percent }
+\newlabel{sec:empirical_complexity}{{\M@TitleReference {2.6.2}{Empirical time complexity analysis}}{38}{Empirical time complexity analysis}{subsection.2.6.2}{}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {-}{\ignorespaces Funci\'on\nobreakspace  FindBipartiteSplit($X$, $Y$)\relax }}{39}{algocffunc.FindBipartiteSplit}\protected@file@percent }
+\newlabel{alg:find_bipartite_split}{{\M@TitleReference {FindBipartiteSplit}{Tree ensembles}}{39}{Tree ensembles}{algocffunc.FindBipartiteSplit}{}}
+\citation{}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.3}Comparison between GSO models}{40}{subsection.2.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.4}Comparison between GMO prediction weights}{40}{subsection.2.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.5}Comparison between adaptation strategies}{41}{subsection.2.6.5}\protected@file@percent }
+\citation{}
+\citation{Pliakos_2020}
+\citation{Pliakos_2020}
+\citation{}
+\citation{Pliakos_2020}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.6}Effect of interaction matrix reconstruction}{42}{subsection.2.6.6}\protected@file@percent }
+\citation{Liu_2017}
+\citation{Pliakos_2020;Liu_2017}
+\citation{Liu_2017}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.7}Comparison with previous works}{43}{subsection.2.6.7}\protected@file@percent }
+\citation{}
+\citation{}
+\citation{}
+\citation{Pliakos_2018}
+\citation{Ozturk_2018}
+\citation{}
+\citation{Pliakos_2020}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.8}Drug-Target affinity prediction}{45}{subsection.2.6.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.9}Estimated impact of missing labels}{45}{subsection.2.6.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.7}Final remarks}{45}{section.2.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  Empirical time complexity estimation of the proposed bipartite tree algorithms. bxt stands for bipartite ExtraTree, bdt for a bipartite decision tree using the greedy split search procedure. Independent two sample t-tests comparing the slope estimates in (b) reveal that the time complexity of bdt\_gso is highly significantly lower than bdt\_gmo (p-value $< 10^{-37}$) and also that bxt\_gso significantly exibits lower complexity than bxt\_gmo (p-value $< 10^{-19}$). Those values corroborate the theoretical estimates from Section \ref {sec:complexity_analysis}. \relax }}{46}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:empirical_complexity}{{\M@TitleReference {1}{ Empirical time complexity estimation of the proposed bipartite tree algorithms. bxt stands for bipartite ExtraTree, bdt for a bipartite decision tree using the greedy split search procedure. Independent two sample t-tests comparing the slope estimates in (b) reveal that the time complexity of bdt\_gso is highly significantly lower than bdt\_gmo (p-value $< 10^{-37}$) and also that bxt\_gso significantly exibits lower complexity than bxt\_gmo (p-value $< 10^{-19}$). Those values corroborate the theoretical estimates from Section \ref {sec:complexity_analysis}. \relax }}{46}{Empirical time complexity estimation of the proposed bipartite tree algorithms. bxt stands for bipartite ExtraTree, bdt for a bipartite decision tree using the greedy split search procedure. Independent two sample t-tests comparing the slope estimates in (b) reveal that the time complexity of bdt\_gso is highly significantly lower than bdt\_gmo (p-value $< 10^{-37}$) and also that bxt\_gso significantly exibits lower complexity than bxt\_gmo (p-value $< 10^{-19}$). Those values corroborate the theoretical estimates from Section \ref {sec:complexity_analysis}. \relax }{figure.caption.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Comparison between GSO models on the Enzymes dataset.\relax }}{47}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:box_gso_models_enzymes}{{\M@TitleReference {2}{Comparison between GSO models on the Enzymes dataset.\relax }}{47}{Comparison between GSO models on the Enzymes dataset.\relax }{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Percentile score rankings for each global single output strategy.\relax }}{48}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:cdd_gso_models}{{\M@TitleReference {3}{Percentile score rankings for each global single output strategy.\relax }}{48}{Percentile score rankings for each global single output strategy.\relax }{figure.caption.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Percentile score rankings for each prediction weighting strategy.\relax }}{49}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:pred_weights}{{\M@TitleReference {4}{Percentile score rankings for each prediction weighting strategy.\relax }}{49}{Percentile score rankings for each prediction weighting strategy.\relax }{figure.caption.23}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Percentile score rankings for each bipartite adaptation approach.\relax }}{50}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:cdd_adapters}{{\M@TitleReference {5}{Percentile score rankings for each bipartite adaptation approach.\relax }}{50}{Percentile score rankings for each bipartite adaptation approach.\relax }{figure.caption.24}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Comparison of scores for the bipartite forests with and without output space reconstruction on the enzymes dataset.\relax }}{51}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:box_y_reconstruction}{{\M@TitleReference {6}{Comparison of scores for the bipartite forests with and without output space reconstruction on the enzymes dataset.\relax }}{51}{Comparison of scores for the bipartite forests with and without output space reconstruction on the enzymes dataset.\relax }{figure.caption.25}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Percentile score rankings for several literature models.\relax }}{52}{figure.caption.26}\protected@file@percent }
+\newlabel{fig:cdd_literature}{{\M@TitleReference {7}{Percentile score rankings for several literature models.\relax }}{52}{Percentile score rankings for several literature models.\relax }{figure.caption.26}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Model performance on the DAVIS dataset.\relax }}{53}{figure.caption.27}\protected@file@percent }
+\newlabel{fig:davis_mse}{{\M@TitleReference {8}{Model performance on the DAVIS dataset.\relax }}{53}{Model performance on the DAVIS dataset.\relax }{figure.caption.27}{}}
+\@setckpt{USPSC-TA-Textual/USPSC-Cap2-Desenvolvimento}{
+\setcounter{page}{54}
+\setcounter{equation}{21}
+\setcounter{enumi}{3}
+\setcounter{enumii}{0}
+\setcounter{enumiii}{0}
+\setcounter{enumiv}{0}
+\setcounter{footnote}{1}
+\setcounter{mpfootnote}{0}
+\setcounter{@memmarkcntra}{0}
+\setcounter{storedpagenumber}{1}
+\setcounter{book}{0}
+\setcounter{part}{0}
+\setcounter{chapter}{2}
+\setcounter{section}{7}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
+\setcounter{paragraph}{0}
+\setcounter{subparagraph}{0}
+\setcounter{@ppsavesec}{0}
+\setcounter{@ppsaveapp}{0}
+\setcounter{vslineno}{0}
+\setcounter{poemline}{0}
+\setcounter{modulo@vs}{0}
+\setcounter{memfvsline}{0}
+\setcounter{verse}{0}
+\setcounter{chrsinstr}{0}
+\setcounter{poem}{0}
+\setcounter{newflo@tctr}{8}
+\setcounter{@contsubnum}{0}
+\setcounter{maxsecnumdepth}{4}
+\setcounter{sidefootnote}{0}
+\setcounter{pagenote}{0}
+\setcounter{pagenoteshadow}{0}
+\setcounter{memfbvline}{0}
+\setcounter{bvlinectr}{0}
+\setcounter{cp@cntr}{0}
+\setcounter{ism@mctr}{0}
+\setcounter{xsm@mctr}{0}
+\setcounter{csm@mctr}{0}
+\setcounter{ksm@mctr}{0}
+\setcounter{xksm@mctr}{0}
+\setcounter{cksm@mctr}{0}
+\setcounter{msm@mctr}{0}
+\setcounter{xmsm@mctr}{0}
+\setcounter{cmsm@mctr}{0}
+\setcounter{bsm@mctr}{0}
+\setcounter{workm@mctr}{0}
+\setcounter{sheetsequence}{56}
+\setcounter{lastsheet}{0}
+\setcounter{lastpage}{0}
+\setcounter{figure}{8}
+\setcounter{lofdepth}{1}
+\setcounter{table}{1}
+\setcounter{lotdepth}{1}
+\setcounter{section@level}{1}
+\setcounter{Item}{3}
+\setcounter{Hfootnote}{1}
+\setcounter{bookmark@seq@number}{0}
+\setcounter{memhycontfloat}{0}
+\setcounter{Hpagenote}{0}
+\setcounter{abntex@bookmarkcounter}{9}
+\setcounter{quadro}{0}
+\setcounter{loqdepth}{1}
+\setcounter{alineasi}{0}
+\setcounter{alineasii}{0}
+\setcounter{subalineasi}{0}
+\setcounter{incisosi}{0}
+\setcounter{float@type}{4}
+\setcounter{AM@survey}{0}
+\setcounter{ABCIaux}{0}
+\setcounter{ABCImax}{0}
+\setcounter{LT@tables}{0}
+\setcounter{LT@chunks}{0}
+\setcounter{parentequation}{0}
+\setcounter{caption@flags}{6}
+\setcounter{continuedfloat}{0}
+\setcounter{subfigure}{8}
+\setcounter{subtable}{0}
+\setcounter{AlgoLine}{14}
+\setcounter{algocfline}{7}
+\setcounter{algocfproc}{7}
+\setcounter{algocf}{0}
+}

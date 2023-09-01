@@ -276,8 +276,10 @@ Notice that, in order to consider the interactions of all possible pairs, $X_g$ 
 As a result, naively dealing with such a large $X_g$ matrix is impeditive in many cases, both in terms of memory usage and computation time. Therefore, a commonly used workaround is to subsample the 0-labeled interactions, yielding a dataset with equal amounts of interacting (1-labeled) and unknown (0-labeled) pairs~\cite{}.
 Although unknown, the 0-labeled pairs are usually far more numerous that 1-labeled and much more likely to be truly negative interactions than false negatives (see Section \ref{}), justifying the negatives-undersampling strategy. Despite such reasoning, we demonstrate in \autoref{} that taking all negative samples into consideration instead has significant benefits, and we propose new model optimizations to enable it (\autoref{}).
 
-%cross-validation is naively done
+% TODO cross-validation is naively done
 
+\subsubsection{Previous work}
+\label{sec:sgso_previous_work}
 
 \subsection{The standard local multi-output adaptation}
 \label{sec:slmo}
@@ -316,7 +318,12 @@ Due to each monopartite model being provided with a much lower number of instanc
 % gso receives x1x2 lines
 % matrix reconstruction algs dont predict by themselves
 
-\section{Bipartite learning algorithms}
+\subsubsection{Previous work}
+\label{sec:slmo_previous_work}
+
+
+\section{Natively bipartite learning algorithms}
+\label{sec:native_bipartite_algorithms}
 
 \subsection{Interaction matrix approximation methods}
 %TODO
