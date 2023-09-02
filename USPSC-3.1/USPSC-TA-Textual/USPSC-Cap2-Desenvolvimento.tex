@@ -167,6 +167,39 @@ utilized.
 \section{Datasets}
 \label{sec:datasets}
 
+We gathered ten publicly available interaction datasets to evaluate the performance of the proposed models. Quantitative information about the datasets is presented in table 2%\ref{main:tab:datasets}%
+, and more detailed descriptions are provided below.
+
+%\subsection{DPI-E, DPI-G, DPI-I, DPI-N~\cite{yamanishi2008}}
+\subsection{DPI-E, DPI-G, DPI-I, DPI-N}
+
+These datasets comprise drug-protein interactions for four distinct classes of proteins: enzymes, GPCRs, ion channels, and nuclear receptors, respectively. Drug similarities were computed using the SIMCOMP metric, while protein similarities were computed as normalized scores of Smith-Waterman pairwise alignments~\cite{yamanishi2008}.
+
+%\subsection{ERN~\cite{faith2007} and SRN~\cite{macisaac2006, hughes2000, hu2007, chua2006, schrynemackers2015}}
+The datasets represent interactions between genes and transcription factors in \textit{E. coli} and \textit{S. cerevisiae}, respectively. Gene and TF features are initially composed of experimentally measured expression levels and, in SRN, gene motif features~\cite{brohee2011,schrynemackers2015}. We compute the RBF kernel of such values to obtain the final similarity matrices. %TODO rbf equation or cite
+
+%\subsection{DAVIS~\cite{davis2011,pahikkala2015}}
+The DAVIS dataset contains experimentally measured drug-kinase dissociation constants~\cite{davis2011}. The dataset was binarized by considering interactions with dissociation constants $\le 30 nM$ as the positive ones, as suggested by \cite{pahikkala2015}. Drug similarities were computed using the Extended Connectivity Fingerprints (ECFP4)~\cite{rogers2005, pahikkala2015} while protein similarities were taken as the normalized Smith-Waterman score~\cite{yamanishi2008,pahikkala2015}.
+
+%\subsection{KIBA~\cite{tang2014,he2017simboost,huang2020deeppurpose}}
+The KIBA dataset was initially built by \citeauthor{tang2014} and contains experimentally verified affinity scores between kinase and kinase inhibitors.
+
+\cite{he2017simboost} further processed the dataset by removing all drugs and targets with less than 10 observations. In alignment with \cite{tang2014,he2017simboost}, we consider positive interactions as those with $log_10$ KIBA-scores $\leq 3.0$ to reframe the task as binary classification.
+
+The utilized version of the dataset with corresponding amino acid sequences and SMILES representations were provided by \cite{huang2020deeppurpose}. From them, we generated the protein similarity matrix using the same procedure employed in the preprocessing of NPInter proteins. The drug similarities were computed similarly to how \cite{pahikkala2015} processed the DAVIS dataset, using the Tanimoto distances of ECFP4 fingerprints~\cite{rogers2005, pahikkala2015}. The Python library \texttt{rdkit}~\cite{rdkit} was used to this calculation.
+
+
+%\subsection{mirTarBase~\cite{hsu2011mirtarbase, huang2022mirtarbase}}
+The mirTarBase dataset contains experimentally validated microRNA-messengerRNA interactions. MicroRNA sequences were obtained from miRBase~\cite{griffiths2006mirbase} while transcript sequences were obtained from GENCODE~\cite{frankish2021gencode}. The longest transcript for each gene was selected and the 3' UTR exonic sequences were recovered from the genome and annotation files provided by GENCODE. The similarity matrices were then built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among microRNAs and among the genes' 3' UTRs. The alignments were performed using the BLASTN substitution matrix and no gap penalty, with the help of the Biopython package~\cite{cock2009biopython}.
+
+Each miRNA was required to have at least 10 interactions in the dataset, and each gene was required to have at least 100 interactions.
+
+%\subsection{NPInter~\cite{wu2006npinter, teng2020npinter}}
+Interactions between long non-coding RNAs (lncRNA) and proteins were recovered from NPInter~\cite{wu2006npinter, teng2020npinter}. The lncRNA sequences were obtained from NONCODE~\cite{zhao2016noncode} and the protein sequences were obtained from UniProt~\cite{uniprot2019}. The similarity matrices were built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among lncRNAs and among the proteins. Similarly to the preprocessing of mirTarBase, we leveraged the Biopython package~\cite{cock2009biopython} to perform the alignments. using the BLASTN and BLOSUM62 substitution matrices for the lncRNA and protein alignments, respectively, and no gap penalty in both cases.
+
+Each lncRNA was required to interact with 50 proteins or more in the dataset, and each protein was required to have at least 2 interactions.
+
+
 \section{Model evaluation protocol}
 \label{sec:evaluation_protocol}
 
@@ -373,9 +406,7 @@ themselves.
 
 A \textit{sui generis} learning algorithm adaptation was proposed by \citet{pliakos2018} to deal with bipartite data, without the need for dataset reformatting as in SGSO, or compositions of multiple estimators and secondary training steps as SLMO.
 
-Named Predictive Bi-Clustering Tree (PBCT) by the authors, it tunes the usual decision tree-growing algorithm to directly operate on bipartite interactions, building a single tree model directly on bipartite formatted datasets (using $X_1$, $X_2$ and $Y$).
-
-The proposed algorithm inherits all the benefits of tree-based estimators...%TODO
+Named Predictive Bi-Clustering Tree (PBCT) by the authors, it tunes the usual decision tree-growing algorithm to directly operate on bipartite interactions, building a single tree model directly on bipartite formatted datasets (using $X_1$, $X_2$ and $Y$). Importantly, their proposed algorithm inherits all the benefits of tree-based estimators, such as their well-known interpretability and remarkably low amount of hyperparameters~\cite().
 
 %Contrary to the other approaches, it does not involve using multiple monopartite estimators (such as LMO) or converting bipartite datasets to the monopartite format such as (GSO). 
 
@@ -385,23 +416,36 @@ The proposed algorithm inherits all the benefits of tree-based estimators...%TOD
 %
 %Although maybe a wrapper of a locally adapted trivial estimator, the tree structure generated after training has the exact same format as that of a monopartite decision tree, so that the prediction procedure does not involve any training of component models as is expected with LMO-adapted models. Hence, these bipartite data-centered tree learning algorithms seem to not fit under any of the previously described categories, and we choose to inaugurate a third group we thereafter call \emph{native bipartite models}, encompassing estimators whose basic functioning is specifically designed to deal with interaction data in its bipartite format.
 
-Intriguingly, these estimators were only explored in a scarce number of previous studies~\cite{pliakos2018global,pliakos2019network,pliakos2020drugtarget}, to the best of our knowledge. A possible explanation is that no improvement in computational complexity of training times is obtained relative to SGSO-adapted decision trees~\cite{pliakos2018global}, even if drastically less memory is used by a PBCT in comparison to a naive implementation of a SGSO tree.  %TODO more pbct papers
+Intriguingly, PBCTs were only explored in a scarce number of previous studies~\cite{pliakos2018global,pliakos2019network,pliakos2020drugtarget}, to the best of our knowledge. A possible explanation is that no improvement in computational complexity of training times is observed with respect to SGSO-adapted decision trees~\cite{pliakos2018global}, even if drastically less memory is used by a PBCT in comparison to a naive implementation of SGSO.  %TODO more pbct papers
 Furthermore, no implementations of PBCTs are provided in sufficiently accessible and extensible formats, which could also have hindered its adoption by the scientific community.
 
-We thus turn our attention onto such tree-based algorithms, proposing optimizations proven to reduce aymptotic training times of bipartite trees by a $\log |X|_i$ factor, enabling larger bipartite datasets to have all its unknown (0-labeled) interactions considered in model training, and bringing unreported scalability of trees and forest estimators on interaction prediction tasks.
+We thus turn our attention onto such tree-based algorithms, proposing optimizations proven to reduce asymptotic training times of bipartite trees by a $\log |X|_i$ factor, enabling larger bipartite datasets to have all its unknown (0-labeled) interactions considered in model training and bringing unprecedented scalability to tree and forest estimators on interaction prediction tasks.
 %Intriguingly, these estimators were only explored in a scarce number of previous studies\cite{}. We thus turn our attention onto them, proposing optimizations to enable all unknown interactions to be considered in training, so to bring unreported scalability of Random Forests in sparse problems of interaction prediction and recommendation.
 
 %TODO we made them accessible, bipartite_learn
 
-A more throughly description of traditional decision trees is now presented as a theoretical foundation for the upcoming formal definition of bipartite decision trees.
+A more thorough description of traditional decision trees is now presented, as a theoretical foundation for the upcoming formal definition of bipartite decision trees.
 
 
 \subsection{Monopartite decision trees}
 \label{sec:dt}
 %TODO describe origin and benefits of trees
 % decision tree (DT)
+% more accessible intro
 
-The procedure for building a DT consists of recursively determining features $f$ and threshold values $t$ that split the dataset in two parts, named \emph{left} ($X_l$, $Y_l$) and \emph{right} ($X_r$, $Y_r$) partitions, as defined by \ref{eq:datasplit}.
+Let's consider the scenario where a single protein of interest is selected, and we receive the task of determining which drug molecules will likely affect its physical structure or catalytic function, for example. We wish to find a systematic procedure to decide whether a given drug molecule $x_i$ will interact with our protein or not. To develop such a procedure, consider we have at our disposal a set of $n_f$ known drug molecules, whose degree of interaction with our protein of interest was previously experimentally determined. We can then describe a drug molecule $x_i$ in general by how similar it is to each of our $n_f$ known molecules, organizing this information as a vector $x_i = \begin{bmatrix}x_i\el{1} & x_i\el{2} & x_i\el{3} & \cdots & x_i\el{n_f}\end{bmatrix}$ so that $x_i\el{j}$ represents the similarity score between the drug $x_i$ and the $j$-th of our $n_f$ known drugs.
+
+The hypothetical decision procedure we intend to determine could then be structured as a path with consecutive bifurcations. We always start at the same first bifurcation, and at each forking of the path a question is asked about the drug $x_i$ in hands. The questions are in a standard format, exemplified by "Is $x_i$ more than 60\% similar to the 3rd known drug?", or $x_i\el{j} > t$, for a general known drug $j$ and similarity threshold $t$. The answer to the question in each bifurcation determines which of the two possible paths we should follow. No cycles are allowed in the path, and eventually, all routes reach final locations instead of bifurcations, where a final decision is made about the drug $x_i$'s effect on our protein of interest.
+
+Such a decision procedure, structured as a binary tree path, is what is commonly referred to as a \emph{decision tree} (DT) model, illustrated by \autoref{fig:dt}. The rules leading to each output being clearly defined along the tree structure is what results in the well-known transparency of decision trees, an attractive characteristic in fields such as drug discovery or regulatory networks inference, where insights into the underlying processes are greatly valued.
+
+This final binary-tree structure is by far the most utilized~\cite{}, being ubiquitous to all tree-based estimators in the present study. The main challenge lies in the building process of such models, in how to determine the rules that define each fork and the stopping criteria for a final decision to be yielded.
+
+%TODO connect: X is formed by x_i
+As presented by \autoref{sec:definitions}, to build the decision tree we are given a training set $X$ composed of $|X|_i$ entities (drug molecules in the previous example) so that $X\el{i\cdot} = x_i$ represents the $i$-th entity. Each entity is described by $|X|_j$ numeric descriptors (similarities to known drugs in the previous example), and to each is assigned one or more numeric labels $Y\el{i\cdot}$ describing the known target prediction results (in the last example, interaction or not with one or more proteins of interest).
+
+If we were to execute the prediction process of a decision tree for each training instance, going through the aforementioned branched path, each bifurcation would divide the training instances between those who answer the question affirmatively and those who answer otherwise.
+The procedure for building a DT thus consists of determining features $f$ and threshold values $t$ that recursively split the dataset in two parts, named \emph{left} ($X_l$, $Y_l$) and \emph{right} ($X_r$, $Y_r$) partitions, as defined by \autoref{eq:datasplit}.
 %
 \begin{equation}
     \begin{split} %TODO
@@ -413,19 +457,19 @@ The procedure for building a DT consists of recursively determining features $f$
     \label{eq:datasplit}
 \end{equation}
 
-Each node of a DT then represents one of such splits, defined by a selected feature $f$ and a threshold value $t$, and each of its two children receives one of the data partitions generated by its parent (see Figure \ref{}). Under specific pre-defined circumstances, a node stops generating descendant nodes, having no children and taking record of the dataset partition it received from its parent. Among possible stopping criteria are a maximum depth of the tree or a minimum number of samples in a node, for instance. These terminal node are called \emph{leaves}.
+Each bifurcation of a DT, more commonly referred to as a \emph{node}, then represents one of such splits, defined by a selected feature $f$ and a threshold value $t$, and each of its two children receives one of the data partitions generated by its parent (see \autoref{}). Under specific pre-defined circumstances, a node stops generating descendant nodes, having no children and taking record of the dataset partition it received from its parent. Among possible stopping criteria are a maximum depth of the tree or a minimum number of samples in a node, for instance. These terminal nodes are called \emph{leaves}.
 
-After building a tree, the prediction step for a new sample $x_\text{new}$ consists of transversing the tree from the root node until a leaf, following each node's test $x\el{f_\text{node}} > t_\text{node}$ and selecting the corresponding child node as given by the partitioning rule of Eq. \ref{eq:datasplit}. Once a leaf is reached, the tree returns a prototype value calculated over the partition of the training data corresponding to that leaf. The average label ($Y_\text{leaf} \mel i\el j$) of each output is a common choice for this prototype.
+Under these definitions, the prediction step for a new sample $x_\text{new}$ as described in the introductory example consists of transversing the tree from the first (or \emph{root}) node until a leaf, following each node's test $x\text{new}\el{f_\text{node}} > t_\text{node}$ and selecting the corresponding child node as given by the partitioning rule of \autoref{eq:datasplit}. Once a leaf is reached, the tree returns a prototype value calculated over the partition of the training data corresponding to that leaf. The average label ($Y_\text{leaf} \mel i\el j$) of each output is a common choice for this prototype.
 
-The focus of the present work is however the training procedure of a decision tree, the method to determine the $f$ and $t$ parameters of each node in order to effectively estimate the labels of new samples. Most commonly, all possible partitions are evaluated.
-This can be done by, for each feature column $X\el{\cdot f}$, sorting $X\el{\cdot f}$ and considering a threshold $t$ between each two consecutive values in it (see figure \ref{fig:thresholds}). As seen by Eq. \ref{eq:datasplit}, any threshold value between the same two consecutive $X\el{\cdot f}_\text{sorted}$ elements will result in the exactly same partitioning of the training set. The common practice is to took the average the neighbor feature values.
-%This can be done by collecting, for each column feature $f$, all pairs of $X_g\el{kf}$ values that are subsequent in the real line, and selecting a threshold value $t$ between each of them (see figure \ref{fig:thresholds}).
+%TODO
+As previously stated, the focus of the present work is however the training procedure of a decision tree, the method to determine the $f$ and $t$ parameters of each node in order to effectively estimate the labels of new samples. Most commonly, a top-down induction algorithm (from the root node to the leaves) is followed, and all possible partitions of the given training set are evaluated.
+The exhaustive evaluation of partitions in each node can be done by, for each feature column $X\el{\cdot f}$, sorting $X\el{\cdot f}$ and considering a threshold $t$ between each two consecutive values in it. As seen by \autoref{eq:datasplit} and illustrated by \autoref{fig:thresholds}, any threshold value between the same two consecutive $X\el{\cdot f}_\text{sorted}$ elements will result in the exactly same partitioning of the training set. The common practice is thus to take the average between the two neighboring feature values.
 
-A greedy procedure is then followed for the overall tree growing, selecting at each node the best $t$ and $f$ to represent the split, according to a predefined quality criteria we explain in section \ref{sec:criteria}. 
+A greedy procedure is then followed for the overall tree growing, selecting at each node the best $t$ and $f$ to represent the split, according to a predefined quality criteria we describe in \autoref{sec:criteria}. 
 
-The exhaustive split searching procedure is detailed by the Function \ref{alg:find_best_split}. The algorithm \ref{alg:buildtree} then describes its use for growing a typical decision tree, while \ref{alg:predict} explains how predictions are made given a model built by \ref{alg:buildtree} and a new data instance.
+The exhaustive split search procedure is detailed by the Function \ref{alg:find_best_split}. The algorithm \ref{alg:buildtree} then describes its use for growing a typical decision tree, while \ref{alg:predict} explains how predictions are made given a model built by \ref{alg:buildtree} and a new data instance.
 
-An alternative to avoid considering all partitioning options and greatly reduce the amount of operations is to draw a random threshold $t$ for each feature, thus evaluating only $|X|_j$ splits when choosing the best. Although degrading the performance of a single tree, this procedure, described by \ref{alg:find_random_split}, is an interesting option when building tree ensembles (Section \ref{sec:ensembles}), and were the main idea behind the ExtraTrees algorithm \cite{}.
+An alternative to avoid considering all partitioning options and greatly reduce the amount of operations is to draw a random threshold $t$ between the minimum and maximum value of each feature, thus evaluating only $|X|_j$ splits when choosing the best. Although degrading the performance of a single tree, this procedure, described by \ref{alg:find_random_split}, is an interesting option when building tree ensembles (\autoref{sec:ensembles}), being the core idea behind the extremely randomized trees algorithm~\cite{geurts2006extremely}.
 
 %Notice that the described procedure requires us to sort the $X_g$'s column corresponding to the $f$ feature ($X_g\el {:,\,f}$), so that we can apply the same permutation that sorted $X_g$ to $Y_g$, yielding $X_{\text{permuted}}$ and $Y_{\text{permuted}}$, and generate the data split according to \ref{eq:sortedsplit}, being $i^*$ the index corresponding to the chosen threshold $t$ such that $t=\frac{1}{2}(X_{\text{permuted}}\el{i^*,\,f}+X_{\text{permuted}}\el{i^*+1,\,f})$.
 %
