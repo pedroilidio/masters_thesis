@@ -222,8 +222,8 @@ Node $\gets$ RootNode\;
         with its corresponding feature column $f^*$ and threshold value $t^*$.}
     \SetKwData{adapter}{adapterStrategy}
     \BlankLine
-    \eIf{\adapter is GSO}{
-        \tcp{Build $Y$ proxies $\tilde Y_1$ and $\tilde Y_2$ (Eq. \ref{eq:y_proxies})}
+    \eIf{\adapter is GSO (\autoref{sec:bgso_trees})}{
+        \tcp{Build $Y$ proxies $\tilde Y_1$ and $\tilde Y_2$ (\autoref{eq:y_proxies})}
         $\tilde Y_1 \gets Y\el{\cdot}\mel j$\;
         $\tilde Y_2 \gets Y\mel i\el \cdot$\;
         %$\tilde Y_1\el i \gets (\sum_j Y\el{ij})\el i$\;

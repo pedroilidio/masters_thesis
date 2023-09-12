@@ -43,7 +43,7 @@ optionally enclosed by parentheses when necessary or improving readability (Eq.
 \end{equation*}
 
 When summing over all indices in a given dimension, we took the freedom of
-omitting the start and end positions (Eq. \ref{eq:sum_notation}).
+omitting the start and end positions (\autoref{eq:sum_notation}).
 %
 \begin{equation*}
     \sum_i M\el{ij} \equiv \sum_{i=1}^{|M|_i} M\el{ij}
@@ -52,7 +52,7 @@ omitting the start and end positions (Eq. \ref{eq:sum_notation}).
 
 We also made the choice of representing averages in a more concise way,
 optionally pondered by sets of $w_1$ and $w_2$ weights in each respective axis
-(Eq. \ref{eq:avg_notation}).
+(\autoref{eq:avg_notation}).
 %
 \begin{equation}
     \begin{split}
@@ -163,7 +163,7 @@ utilized.
 % j}$ characterizes the interaction occurring between the instances $X_1\el i$
 % and $X_2\el j$.
 
-% $X$ in algorithms is $X_g$ or ... all info about X
+% $X$ in algorithms is $X_\text{SGSO}$ or ... all info about X
 \section{Datasets}
 \label{sec:datasets}
 
@@ -213,7 +213,7 @@ To evaluate machine learning models, the standard procedure consists of separati
 Since bipartite interaction datasets present two distinct categories of instances and the model's input is a pair of them, one from each group, additionally to a traditional "unknown test set" there are two mixed training/test folds possible: we could test our model performance when predicting interactions between instances from $X_1$ that are present in the training set and instances from $X_2$ present in the test set, and vice-versa. Similarly to \ref{pliakos2018}, % TODO: did they invent it?
 we name those settings \emph{LT}, after "learned $X_1$, test $X_2$", and \emph{TL}, after "test $X_1$, learned $X_2$". The usual cross-validation setting with completely new test pairs is then called \emph{TT}, and the training set could alternatively be called the \emph{LL} set.
 
-In the present work, we make use of an adapted $k$-fold cross-validation procedure to evaluate our models' performance. With customary datasets formatted as $X_g$ and $Y_g$, $k$-fold cross-validation consists in equally and randomly dividing both $X_g$ and $Y_g$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, each time selecting a fold as the test set and the remaining ones as the training set (Figure \ref{}).
+In the present work, we make use of an adapted $k$-fold cross-validation procedure to evaluate our models' performance. With customary datasets formatted as $X_\text{SGSO}$ and $Y_\text{SGSO}$, $k$-fold cross-validation consists in equally and randomly dividing both $X_\text{SGSO}$ and $Y_\text{SGSO}$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, each time selecting a fold as the test set and the remaining ones as the training set (Figure \ref{}).
 
 In the interaction setting though, with a two-dimensional interaction matrix, fold division can be done in each of the two axis, corresponding to each of the two $X_a$ sample groups. Each of the $k_1$ "axis-folds" of $X_1$ can be combined with one of the $k_2$ axis-folds of $X_2$ to make up a $Y$ fold and split the dataset in the corresponding four LL, LT, TL and TT subsets. If all axis-fold combinations are explored, a $k_1$ by $k_2$ two-dimensional cross-validation naturally has a total of $k_1k_2$ folds. 
 
@@ -255,8 +255,8 @@ Aiming to enhance clarity and generalization, we further refine these categories
 Furthermore, to be consistent with \citet{pliakos2018,pliakos2019,pliakos2020}, in our current context of bipartite interactions we assume that:
 
 \begin{itemize}
-    \item \emph{\textbf{single-output}} estimators are those which consider all labels, i.e. all $Y\el{ij}$ elements, irrespectively of the column $j$ or row $i$ they are in. They are all regarded as a single type of output\footnote{Notice that the label matrix $Y$ could be still represented in two dimensions even if the model is single-output in this sense, contrary to the usual case where bidimensionality of $Y$ is a defining characteristic of a multi-output problem.}.
-    \item \emph{\textbf{multi-output}} estimators, on the other hand, are those which consider each instance, each row or column of $Y$, as a separate task, for example by defining a composite loss function formed by the combination of losses over each row or column.
+    \item \emph{\textbf{Single-output}} estimators are those which consider all labels, i.e. all $Y\el{ij}$ elements, irrespectively of the column $j$ or row $i$ they are in. They are all regarded as a single type of output\footnote{Notice that the label matrix $Y$ could be still represented in two dimensions even if the model is single-output in this sense, contrary to the usual case where bidimensionality of $Y$ is a defining characteristic of a multi-output problem.}.
+    \item \emph{\textbf{Multi-output}} estimators, on the other hand, are those which consider each instance, each row or column of $Y$, as a separate task, for example by defining a composite loss function formed by the combination of losses over each row or column.
 \end{itemize}
 %TODO another term for multi-output, please. This is too confusing with multi-output in the monopartite sense. bipartite multi-output are local models that use multi-output monopartite estimators? or 3D interaction matrices with multiple labels for each interaciton?
 
@@ -274,17 +274,17 @@ Arguably the most straightforward and commonly used strategy of formatting bipar
 The interacting pair itself is what we abstract as a sample
 in this case, with its attributes being its component objects' attributes
 combined. This is usually done by converting the two $X$ matrices and the
-interaction matrix $Y$ to a single design matrix we call $X_g$ and a column-vector
- of labels we refer to as $Y_g$.
+interaction matrix $Y$ to a single design matrix we call $X_\text{SGSO}$ and a column-vector
+ of labels we refer to as $Y_\text{SGSO}$.
 
 One way of
-doing so is by choosing indices as described by Eq. \ref{eq:gsodata}, where
+doing so is by choosing indices as described by \autoref{eq:gsodata}, where
 $\begin{bmatrix} x_1 & x_2\end{bmatrix}$ denotes concatenation and all $i_1$ and
 $i_2$ combinations are explored (see \autoref{fig:sgso}).
 %$f\colon (X_1\el{i\cdot},\; X_2\el{k\cdot}) \mapsto Y\el{ik}$.  To make use of
 %traditional learning algorithms, one would combine instances from both $X_a$
-%sets in a matrix we thereafter call $X_g$, where each row is built by
-%concatenating a row from $X_1$ followed by a row from $X_2$. $Y_g$ can then
+%sets in a matrix we thereafter call $X_\text{SGSO}$, where each row is built by
+%concatenating a row from $X_1$ followed by a row from $X_2$. $Y_\text{SGSO}$ can then
 %take the shape of a one-dimensional column vector labeling each instance pair,
 %as usual for single-output problems.
 
@@ -296,18 +296,18 @@ $i_2$ combinations are explored (see \autoref{fig:sgso}).
 \begin{equation}
     \begin{split}
     i_g &= (i_1-1)|X_2|_i+i_2-1\\
-    X_g \el{i_g\cdot} &= \begin{bmatrix} X_1 \el{i_1\cdot} & X_2\el{i_2\cdot}\end{bmatrix}\\
-    Y_g \el{i_g1} &= Y\el{i_1i_2}
-    %X_g \el{i} &= X_1 \el{\lceil i/|X_1|_j \rceil} \concat X_2\el{i \mod |X_2|_j}\\
-    %Y_g \el{i} &= Y\el{\lceil i/|X_1|_j \rceil,\; i \mod |X_2|_j}
+    X_\text{SGSO} \el{i_g\cdot} &= \begin{bmatrix} X_1 \el{i_1\cdot} & X_2\el{i_2\cdot}\end{bmatrix}\\
+    Y_\text{SGSO} \el{i_g1} &= Y\el{i_1i_2}
+    %X_\text{SGSO} \el{i} &= X_1 \el{\lceil i/|X_1|_j \rceil} \concat X_2\el{i \mod |X_2|_j}\\
+    %Y_\text{SGSO} \el{i} &= Y\el{\lceil i/|X_1|_j \rceil,\; i \mod |X_2|_j}
     \end{split}
     \label{eq:gsodata}
 \end{equation}
 
-Notice that, in order to consider the interactions of all possible pairs, $X_g$ would have $|X_1|_i|X_2|_i$ rows and $|X_1|_j+|X_2|_j$ columns, with $Y_g$ having a single column but all the same $|X_1|_i|X_2|_i$ elements as $Y$. Thus, while reformatting $Y$ has no impact in memory usage, $X_g$ as defined by \autoref{eq:gsodata} is highly redundant.
-%However, as stated in section \ref{sec:definitions}, $X_g$ would be a $|X_1|_i|X_2|_i$ by $|X_1|_j+|X_2|_j$ matrix if one intends to consider all interactions in $Y$, which
-As a result, naively dealing with such a large $X_g$ matrix is impeditive in many cases, both in terms of memory usage and computation time. Therefore, a commonly used workaround is to subsample the 0-labeled interactions, yielding a dataset with equal amounts of interacting (1-labeled) and unknown (0-labeled) pairs~\cite{}.
-Although unknown, the 0-labeled pairs are usually far more numerous that 1-labeled and much more likely to be truly negative interactions than false negatives (see Section \ref{}), justifying the negatives-undersampling strategy. Despite such reasoning, we demonstrate in \autoref{} that taking all negative samples into consideration instead has significant benefits, and we propose new model optimizations to enable it (\autoref{}).
+Notice that, in order to consider the interactions of all possible pairs, $X_\text{SGSO}$ would have $|X_1|_i|X_2|_i$ rows and $|X_1|_j+|X_2|_j$ columns, with $Y_\text{SGSO}$ having a single column but all the same $|X_1|_i|X_2|_i$ elements as $Y$. Thus, while reformatting $Y$ has no impact in memory usage, $X_\text{SGSO}$ as defined by \autoref{eq:gsodata} is highly redundant.
+%However, as stated in section \ref{sec:definitions}, $X_\text{SGSO}$ would be a $|X_1|_i|X_2|_i$ by $|X_1|_j+|X_2|_j$ matrix if one intends to consider all interactions in $Y$, which
+As a result, naively dealing with such a large $X_\text{SGSO}$ matrix is impeditive in many cases, both in terms of memory usage and computation time. Therefore, a commonly used workaround is to subsample the 0-labeled interactions, yielding a dataset with equal amounts of interacting (1-labeled) and unknown (0-labeled) pairs~\cite{}.
+Although unknown, the 0-labeled pairs are usually far more numerous than 1-labeled and much more likely to be truly negative interactions than false negatives (see Section \ref{}), justifying the negatives-undersampling strategy. Despite such reasoning, we demonstrate in \autoref{} that taking all negative samples into consideration instead has significant benefits, and we propose new model optimizations to enable it (\autoref{}).
 
 % TODO cross-validation is naively done
 
@@ -321,14 +321,14 @@ The local approaches, in contrast to global methods, propose training different 
 
 As such, multiple monopartite models need to be used in conjunction to predict interactions between new row samples and new column samples. The standard local multi-output (SLMO) approach uses four monopartite models, two for each axis, that we here refer to as \emph{primary} and \emph{secondary} rows (or columns) estimators. In general, they must be multi-output estimators, each being able to receive $X_\text{train}$ and $Y_\text{train}$ bi-dimensional matrices in the training step, receive an $X_\text{new}$ in the prediction step such that $|X_\text{new}|_j=|X_\text{train}|_j$, and outputting $Y_\text{pred}$ with $|Y_\text{pred}|_i=|X_\text{new}|_i$ newly predicted rows and $|Y_\text{pred}|_j = |Y_\text{train}|_j$ output columns.
 
-The procedure for training the estimators in an LMO setting is as simple as training only the primary estimators, the primary rows estimator being trained on $X_1$ and $Y$, and the primary columns estimator on $X_2$ and $Y^\intercal$ (Function \ref{alg:train_local_model}). The prediction step is however more complicated, involving the training of the secondary models on the newly predicted labels by the primary estimators, optionally combined with the original training data. The procedure is described in details by \autoref{alg:predict_local_model} and illustrated by \autoref{fig:slmo}. The \KwCombine function used in line \autoref{ln:combine_local_outputs} of the \autoref{alg:predict_local_model} procedure can be arbitrarily chosen, and is usually defined as the simple element-wise average of both matrices (\KwCombine{$Y_1$, $Y_2$} $= \frac{1}{2}(Y_1 + Y_2)$).
+The procedure for training the estimators in an SLMO setting consists of simply training the primary estimators, the primary rows estimator being trained on $X_1$ and $Y$, and the primary columns estimator on $X_2$ and $Y^\intercal$ (\autoref{alg:train_local_model}). The prediction step is however more complicated, involving the training of the secondary models on the newly predicted labels by the primary estimators, optionally combined with the original training data. The procedure is described in details by \autoref{alg:predict_local_model} and illustrated by \autoref{fig:slmo}. The \KwCombine function used in line \autoref{ln:combine_local_outputs} of the \autoref{alg:predict_local_model} procedure can be arbitrarily chosen, and is usually defined as the simple element-wise average of both matrices (\KwCombine{$Y_1$, $Y_2$} $= \frac{1}{2}(Y_1 + Y_2)$).
 
 \algTrainLocalModel
 \algPredictLocalModel
 
 Notice that, if the secondary multi-output estimators treat each label independently, including the $Y_\text{train}$ labels in their training will make no difference, and one should use only the predictions from the primary estimators.
 
-A specific case of a model with multiple-independent-outputs occurs when a collection of single-output models is utilized as an unified entity, each being trained on each column of $Y_\text{train}$. This setup was present in the first proposal of a local model \cite{}, and enables a wider range of learning algorithms, not just multi-output strategies, to be employed in interaction prediction.
+A specific case of a model with multiple independent-outputs occurs when a collection of single-output models is utilized as a unified entity, each being trained on each column of $Y_\text{train}$. This setup was present in the first proposal of a local model \cite{}, and enables a wider range of learning algorithms, not just multi-output strategies, to be employed in interaction prediction.
 
 If, however, the secondary estimator is indeed able to take advantage of relationships between outputs, one might consider concatenating the primary estimators' predictions to $Y_\text{train}$ and use both to train the secondary estimators (see lines \ref{} of Function \ref{alg:predict_local_model}). This setting would enable the secondary models to explore the output relationships involving the original training set, which are arguably more reliable than those between the primary predictions alone.
 
@@ -408,13 +408,6 @@ A \textit{sui generis} learning algorithm adaptation was proposed by \citet{plia
 
 Named Predictive Bi-Clustering Tree (PBCT) by the authors, it tunes the usual decision tree-growing algorithm to directly operate on bipartite interactions, building a single tree model directly on bipartite formatted datasets (using $X_1$, $X_2$ and $Y$). Importantly, their proposed algorithm inherits all the benefits of tree-based estimators, such as their well-known interpretability and remarkably low amount of hyperparameters~\cite().
 
-%Contrary to the other approaches, it does not involve using multiple monopartite estimators (such as LMO) or converting bipartite datasets to the monopartite format such as (GSO). 
-
-%Although considered a single model, an argument could be made in opposition to this idea. A decision tree training process could indeed be understood as a wrapper procedure around a simpler estimator. Within each node, the decision tree training searches for a way to separate the training samples into two complimentary partitions. Evaluating several of such splits, it is chosen the one which minimizes the variances of each of the two $Y$ partitions it generates. This could be interpreted as minimizing the mean squared error of a trivial estimator that outputs the mean of $Y$ values for any given input. Under this optics, a decision tree recursively searches for binary splits that most favor the performance of a wrapped estimator.
-%
-%Still under this interpretation, the PBCT algorithm then consists of applying to this simple estimator in each node a strategy that resembles the LMO adaptation discussed earlier. The search for the best split is executed locally, for each axis, and the best overall result is chosen between each axis' best.
-%
-%Although maybe a wrapper of a locally adapted trivial estimator, the tree structure generated after training has the exact same format as that of a monopartite decision tree, so that the prediction procedure does not involve any training of component models as is expected with LMO-adapted models. Hence, these bipartite data-centered tree learning algorithms seem to not fit under any of the previously described categories, and we choose to inaugurate a third group we thereafter call \emph{native bipartite models}, encompassing estimators whose basic functioning is specifically designed to deal with interaction data in its bipartite format.
 
 Intriguingly, PBCTs were only explored in a scarce number of previous studies~\cite{pliakos2018global,pliakos2019network,pliakos2020drugtarget}, to the best of our knowledge. A possible explanation is that no improvement in computational complexity of training times is observed with respect to SGSO-adapted decision trees~\cite{pliakos2018global}, even if drastically less memory is used by a PBCT in comparison to a naive implementation of SGSO.  %TODO more pbct papers
 Furthermore, no implementations of PBCTs are provided in sufficiently accessible and extensible formats, which could also have hindered its adoption by the scientific community.
@@ -437,41 +430,48 @@ Let's consider the scenario where a single protein of interest is selected, and 
 
 The hypothetical decision procedure we intend to determine could then be structured as a path with consecutive bifurcations. We always start at the same first bifurcation, and at each forking of the path a question is asked about the drug $x_i$ in hands. The questions are in a standard format, exemplified by "Is $x_i$ more than 60\% similar to the 3rd known drug?", or $x_i\el{j} > t$, for a general known drug $j$ and similarity threshold $t$. The answer to the question in each bifurcation determines which of the two possible paths we should follow. No cycles are allowed in the path, and eventually, all routes reach final locations instead of bifurcations, where a final decision is made about the drug $x_i$'s effect on our protein of interest.
 
-Such a decision procedure, structured as a binary tree path, is what is commonly referred to as a \emph{decision tree} (DT) model, illustrated by \autoref{fig:dt}. The rules leading to each output being clearly defined along the tree structure is what results in the well-known transparency of decision trees, an attractive characteristic in fields such as drug discovery or regulatory networks inference, where insights into the underlying processes are greatly valued.
+Such a decision procedure, structured as a binary tree path, is what is commonly referred to as a \emph{decision tree} (DT) model, illustrated by \autoref{fig:dt}. The rules leading to each output being clearly defined along the tree structure is what results in the well-known transparency of decision trees, an attractive characteristic in fields such as drug discovery or regulatory network inference, where insights into the underlying processes are greatly valued.
 
-This final binary-tree structure is by far the most utilized~\cite{}, being ubiquitous to all tree-based estimators in the present study. The main challenge lies in the building process of such models, in how to determine the rules that define each fork and the stopping criteria for a final decision to be yielded.
+The described binary-tree structure is by far the most utilized~\cite{}, being ubiquitous to all tree-based estimators in the present study. The main challenge lies in the building process of such models, in how to determine the rules that define each fork and the stopping criteria for a final decision to be yielded.
 
-%TODO connect: X is formed by x_i
-As presented by \autoref{sec:definitions}, to build the decision tree we are given a training set $X$ composed of $|X|_i$ entities (drug molecules in the previous example) so that $X\el{i\cdot} = x_i$ represents the $i$-th entity. Each entity is described by $|X|_j$ numeric descriptors (similarities to known drugs in the previous example), and to each is assigned one or more numeric labels $Y\el{i\cdot}$ describing the known target prediction results (in the last example, interaction or not with one or more proteins of interest).
+As presented by \autoref{sec:definitions}, to build the decision tree we are given a training set $X$ composed of $|X|_i$ entities (drug molecules in the previous example) so that $X\el{i\cdot} = x_i$ represents the $i$-th entity. Each entity is described by $|X|_j$ numeric descriptors (similarities to known drugs in the previous example), and to each is assigned one or more numeric labels $Y\el{i\cdot}$ describing the known target prediction results. In analogy to the last example, the labels would denote interaction or not with one or more proteins of interest.
 
 If we were to execute the prediction process of a decision tree for each training instance, going through the aforementioned branched path, each bifurcation would divide the training instances between those who answer the question affirmatively and those who answer otherwise.
-The procedure for building a DT thus consists of determining features $f$ and threshold values $t$ that recursively split the dataset in two parts, named \emph{left} ($X_l$, $Y_l$) and \emph{right} ($X_r$, $Y_r$) partitions, as defined by \autoref{eq:datasplit}.
+The procedure for building a DT thus consists of determining features $f$ and threshold values $t$ that recursively split the dataset in two parts, named \emph{left} and \emph{right} partitions, as defined by \autoref{eq:datasplit}.
 %
 \begin{equation}
     \begin{split} %TODO
-        Y_l &=\{Y\el{k\cdot} \;\forall\; k \mid X\el{kf} \le t\}\\
-        Y_r &=\{Y\el{k\cdot} \;\forall\; k \mid X\el{kf} > t\}\\
-        X_l &=\{X\el{kf} \;\forall\; k \mid X\el{kf} \le t\}\\
-        X_r &=\{X\el{kf} \;\forall\; k \mid X\el{kf} > t\}\\
+        Y_\text{left} &=\{Y\el{k\cdot} \;\forall\; k \mid X\el{kf} \le t\}\\
+        Y_\text{right} &=\{Y\el{k\cdot} \;\forall\; k \mid X\el{kf} > t\}\\
+        X_\text{left} &=\{X\el{kf} \;\forall\; k \mid X\el{kf} \le t\}\\
+        X_\text{right} &=\{X\el{kf} \;\forall\; k \mid X\el{kf} > t\}\\
     \end{split}
     \label{eq:datasplit}
 \end{equation}
 
 Each bifurcation of a DT, more commonly referred to as a \emph{node}, then represents one of such splits, defined by a selected feature $f$ and a threshold value $t$, and each of its two children receives one of the data partitions generated by its parent (see \autoref{}). Under specific pre-defined circumstances, a node stops generating descendant nodes, having no children and taking record of the dataset partition it received from its parent. Among possible stopping criteria are a maximum depth of the tree or a minimum number of samples in a node, for instance. These terminal nodes are called \emph{leaves}.
 
-Under these definitions, the prediction step for a new sample $x_\text{new}$ as described in the introductory example consists of transversing the tree from the first (or \emph{root}) node until a leaf, following each node's test $x\text{new}\el{f_\text{node}} > t_\text{node}$ and selecting the corresponding child node as given by the partitioning rule of \autoref{eq:datasplit}. Once a leaf is reached, the tree returns a prototype value calculated over the partition of the training data corresponding to that leaf. The average label ($Y_\text{leaf} \mel i\el j$) of each output is a common choice for this prototype.
+Under these definitions, the prediction step for a new sample $x_\text{new}$ as described in the introductory example consists of transversing the tree from the first (or \emph{root}) node until a leaf, following each node's test $x_\text{new}\el{f_\text{node}} > t_\text{node}$ and selecting the corresponding child node as given by the partitioning rule of \autoref{eq:datasplit}. Once a leaf is reached, the tree returns a prototype value calculated over the partition of the training data corresponding to that leaf. The average label ($Y_\text{leaf}^{\ang i [j]}$) of each output is a common choice for this prototype.
 
 %TODO
 As previously stated, the focus of the present work is however the training procedure of a decision tree, the method to determine the $f$ and $t$ parameters of each node in order to effectively estimate the labels of new samples. Most commonly, a top-down induction algorithm (from the root node to the leaves) is followed, and all possible partitions of the given training set are evaluated.
 The exhaustive evaluation of partitions in each node can be done by, for each feature column $X\el{\cdot f}$, sorting $X\el{\cdot f}$ and considering a threshold $t$ between each two consecutive values in it. As seen by \autoref{eq:datasplit} and illustrated by \autoref{fig:thresholds}, any threshold value between the same two consecutive $X\el{\cdot f}_\text{sorted}$ elements will result in the exactly same partitioning of the training set. The common practice is thus to take the average between the two neighboring feature values.
 
-A greedy procedure is then followed for the overall tree growing, selecting at each node the best $t$ and $f$ to represent the split, according to a predefined quality criteria we describe in \autoref{sec:criteria}. 
+A greedy procedure is then followed for the overall tree growing, selecting at each node the best $t$ and $f$ to represent the split, according to a predefined quality criteria we further discuss in \autoref{sec:criteria}.
+%
+The exhaustive split search procedure is detailed by the \autoref{alg:find_best_split}. The algorithm \ref{alg:buildtree} then describes its application on growing a traditional decision tree (stablished by \citet{breiman1984classification}),
+while \ref{alg:predict} formally details how predictions are made given a model built by \ref{alg:buildtree} and a new data instance.
 
-The exhaustive split search procedure is detailed by the Function \ref{alg:find_best_split}. The algorithm \ref{alg:buildtree} then describes its use for growing a typical decision tree, while \ref{alg:predict} explains how predictions are made given a model built by \ref{alg:buildtree} and a new data instance.
+\algPredict
+\algBuildTree
+\algFindBestSplit
 
-An alternative to avoid considering all partitioning options and greatly reduce the amount of operations is to draw a random threshold $t$ between the minimum and maximum value of each feature, thus evaluating only $|X|_j$ splits when choosing the best. Although degrading the performance of a single tree, this procedure, described by \ref{alg:find_random_split}, is an interesting option when building tree ensembles (\autoref{sec:ensembles}), being the core idea behind the extremely randomized trees algorithm~\cite{geurts2006extremely}.
+An alternative to avoid considering all partitioning options and greatly reduce the amount of operations is to draw a random threshold $t$ between the minimum and maximum value of each feature, thus evaluating only $|X|_j$ splits when choosing the best. Although degrading the performance of a single tree, this procedure, described by \ref{alg:find_random_split}, is an interesting option when building tree ensembles (\autoref{sec:ensembles}), being the core idea behind the extremely randomized trees (ERT) algorithm~\cite{geurts2006extremely}.
 
-%Notice that the described procedure requires us to sort the $X_g$'s column corresponding to the $f$ feature ($X_g\el {:,\,f}$), so that we can apply the same permutation that sorted $X_g$ to $Y_g$, yielding $X_{\text{permuted}}$ and $Y_{\text{permuted}}$, and generate the data split according to \ref{eq:sortedsplit}, being $i^*$ the index corresponding to the chosen threshold $t$ such that $t=\frac{1}{2}(X_{\text{permuted}}\el{i^*,\,f}+X_{\text{permuted}}\el{i^*+1,\,f})$.
+%\algSplitDataset
+\algFindRandomSplit
+
+%Notice that the described procedure requires us to sort the $X_\text{SGSO}$'s column corresponding to the $f$ feature ($X_\text{SGSO}\el {:,\,f}$), so that we can apply the same permutation that sorted $X_\text{SGSO}$ to $Y_\text{SGSO}$, yielding $X_{\text{permuted}}$ and $Y_{\text{permuted}}$, and generate the data split according to \ref{eq:sortedsplit}, being $i^*$ the index corresponding to the chosen threshold $t$ such that $t=\frac{1}{2}(X_{\text{permuted}}\el{i^*,\,f}+X_{\text{permuted}}\el{i^*+1,\,f})$.
 %
 %\begin{equation}
 %    \begin{split}
@@ -489,32 +489,24 @@ An alternative to avoid considering all partitioning options and greatly reduce 
 \subsection{Split quality criteria and impurity metrics}
 \label{sec:criteria}
 
-The quality $Q$ of a split is defined as the decrease of an impurity function $I(Y)$ calculated over the $Y_l$ and $Y_r$ partitions (Eq. \ref{eq:datasplit}) and averaged together, relative to the impurity of the $Y_\text{node}$ parent's partition (Eq. \ref{eq:quality}). An additional $|Y_\text{node}|/|Y_\text{root}|$ factor is included, reducing the effect of nodes with smaller partitions which could introduce spurious variations of impurity. Notice that $|Y_\text{node}|=|Y_l|+|Y_r|$.
+In order to compare and select the best splitting rules at each node, a split quality criterion must be defined. The quality $\Delta I$ of a split is commonly framed as the decrease of an impurity metric calculated over the subsets of training labels (\autoref{eq:quality}). This decrease is taken for the combined impurities of the generated children nodes (\autoref{eq:datasplit}) relative to their parent's impurity. All impurities are normalized by the size of each partition relative to the total number of training samples ($|Y_\text{root}|_i$), restricting the effect of nodes with less data that could introduce spurious variations of impurity. Notice that $|Y_\text{node}|=|Y_\text{left}|+|Y_\text{right}|$.
+% TODO: notice that |Y_a|_i / |Y_b|_i == |Y_a| / |Y_b|
 %
 \begin{equation}
-    \begin{split}
-    Q(Y, t, f)
-        &=
-            \frac{|Y_\text{node}|}{|Y_\text{root}|}
-            \frac{I_\text{node}(Y)-I_{\text{post-split}}(Y)}{I_\text{node}(Y)} =\\
-        &=
-            \frac{|Y_\text{node}|}{|Y_\text{root}|}
-            \left[
-                1
-                - \frac{|Y_l| I(Y_l)+ |Y_r|I(Y_r)}
-                    {|Y_\text{node}|I(Y_\text{node})}
-            \right]
-    \end{split}
+    \Delta I(Y, t, f) =
+        \frac{|Y_\text{node}|}{|Y_\text{root}|} I(Y_\text{node})
+        - \frac{|Y_\text{left}|}{|Y_\text{root}|} I(Y_\text{left})
+        - \frac{|Y_\text{right}|}{|Y_\text{root}|} I(Y_\text{right})
     \label{eq:quality}
 \end{equation}
 
-Several metrics can be chosen as the impurity function $I(\cdot)$. In this study we utilize the variance of each output column, averaged over all outputs (Eq. \ref{eq:mse}). Since the prediction values we return are the column averages of a leaf's partition $Y_\text{partition}$ of the training labels ($Y_\text{partition}^{\langle i\rangle[j]}$), the column variances correspond to the \emph{mean squared error} (MSE) of each output as if the node holding $Y_\text{partition}$ were a leaf.
+Several metrics can be chosen as the impurity function $I(\cdot)$, such as the Gini impurity, the Shannon entropy or the Poisson loss~\cite{}. In this study we utilize the variance of each output column, averaged over all outputs (\autoref{eq:mse}). Since the prediction values we return, resulting from the \textt{prototype} function, are the column averages of a leaf's partition $Y_\text{partition}$ of the training labels ($Y_\text{partition}^{\langle i\rangle[j]}$), the column variances correspond to the \emph{mean squared error} (MSE) for the training data in the node, as if the node holding $Y_\text{partition}$ were to become a leaf.
 %labels as the basis for calculating a split quality parameter (\ref{eq:mse}). We also set the prediction output of a leaf node (given by the prototype function) to be the average of labels in the training set encompassed by the leaf. Therefore, the impurity $I$ of a dataset partition corresponds to the variance of its labels: 
 %
 \begin{equation}
     I_\text{MSE}(Y)
-        = (Y\el{ij} - Y\mel i\el j)^2\mel{ij}
-        = Y^2\mel{ij} - Y\mel i^2\mel j
+        = (Y\el{ij} - Y^{\ang i[j]})^{2\ang{ij}}
+        = Y^{2\ang{ij}} - Y^{\ang i 2\ang j}
     %I(Y) = \avg{\left(Y\el{i, j} - \avg{Y\el{i, j}}\right)^2} \text{,}
     %%\text{MSE}(Y) = \avg{(Y\el{i, j} - \avg{Y\el{i, j}})^2} \text{,}
     \label{eq:mse}
@@ -532,95 +524,76 @@ Several metrics can be chosen as the impurity function $I(\cdot)$. In this study
 %    \label{eq:mse}
 %\end{multline}
 
-Also notice that $I_\text{MSE}$ is equivalent to the Gini impurity if $Y$ contains only binary values. That can be quickly shown by noticing that $Y_\text{bin}^{[ij]2} = Y_\text{bin}\el{ij}$ for binary labels, so that $Y_\text{bin}^{2\angled{i}[j]}=Y_\text{bin}^{\angled i [j]}\equiv p\el j$ which yields Eq. \ref{eq:gini} and culminates in the usual form of the average of Gini impurities across all outputs.
-\begin{multline}
+Also notice that $I_\text{MSE}$ is equivalent to the Gini impurity if $Y$ contains only binary values. That can be quickly shown by noticing that $Y_\text{bin}^{[ij]2} = Y_\text{bin}\el{ij}$ for binary labels, so that $Y_\text{bin}^{2\ang{i}[j]}=Y_\text{bin}^{\ang i [j]}\equiv p\el j$ which yields \autoref{eq:gini} and culminates in the usual form of the average of Gini impurities across all outputs.
+%
+\begin{equation}
     I_\text{MSE}(Y_\text{bin})
-        = Y_\text{bin}^{2\angled{ij}} - Y_\text{bin}^{\angled{i}2\angled j}
-        = (p\el j  - p\el j^2)\mel j\\
+        = Y_\text{bin}^{2\ang{ij}} - Y_\text{bin}^{\ang{i}2\ang j}
+        = (p\el j  - p^{\ang j 2})\mel j
         = [p\el j(1 - p\el j)]\mel j
     = I_\text{Gini}(Y)
     %I(Y) = \avg{\left(Y\el{i, j} - \avg{Y\el{i, j}}\right)^2} \text{,}
     %%\text{MSE}(Y) = \avg{(Y\el{i, j} - \avg{Y\el{i, j}})^2} \text{,}
     \label{eq:gini}
-\end{multline}
-
-When the monopartite global adaptation $Y_g$ is utilized (see Section \ref{sec:definitions}), a global version of $I_\text{MSE}(\cdot)$ can be used to achieve the same result in the corresponding bipartite partition $Y$.
-%
-\begin{multline*}
-        I_\text{MSE}(Y_g)
-            = Y_g^2\mel{ij} - Y_g\mel i^2\mel j
-            = (Y_g^\intercal)^2\mel i - (Y_g^\intercal)\mel i^2 =\\
-            = Y^2\mel{ij} - Y\mel{ij}^2
-\end{multline*}
-so that we can define $I_\text{GMSE}$ as in Eq. \ref{eq:gso_mse}.
-\begin{equation}
-    I_\text{GMSE}(Y) \equiv I_\text{MSE}(Y_g)
-    = Y^2\mel{ij} - Y\mel{ij}^2
-    \label{eq:gso_mse}
 \end{equation}
 
-%and therefore the sorting procedure to search for split thresholds can be applied to the bipartite feature matrices $X_1$ and $X_2$ instead of $X_g$, naturally avoiding the redundant values generated by \ref{eq:gsodata} but still generating the exatc same tree structure.
+Referring back to bipartite scenarios, we now describe how intuitive adaptations of the decision tree algorithm are developed to deal with interaction data.
 
-%Since the sorting procedure itself often is the most computationally expensive step in decision tree growing, avoiding iteration through these repetitions drastically improves time and memory usage during training (see \ref{sec:complexity_analysis}).
 
-%Furthermore, many criteria utilized for split evaluation can be optimized for this setup. Take for instance the split quality calculation presented by \ref{eq:quality}. Its last term can be rewritten as in \ref{eq:q_last_term}.
-In such global scenario, the quality criteria can be rewritten as in Eq. \ref{eq:q_optimization}.
+\subsection{Bipartite decision trees}
+\label{sec:bipartite_trees}
+
+As presented by \autoref{sec:bipartite_forests}, \citet{pliakos2018global} introduces an ingenious strategy to build a decision tree directly on bipartite-formatted datasets. The main concept behind it borrows the idea of the SLMO approach described in \autoref{sec:slmo}, in that the training procedure is divided into two steps, separately considering each axis of the bipartite data. However, instead of training two separate models as in SLMO, two candidate versions of each node are generated, one for each axis, and the best between both is selected to integrate the final model.
+
+Formally speaking, given a general procedure \FindSplit for finding a split threshold in a traditional multioutput decision tree (see \autoref{sec:dt}), the PBCT algorithm~\cite{pliakos2018global} consists of applying \FindSplit twice at each node: once over $X_1$ and $Y$, in which case each $Y$ \emph{column} is considered a different output; and once over $X_2$ and $Y\T$, so that each $Y$ \emph{row} is now interpreted as an output. Finally, the best overall split is chosen between the best horizontal split and the best vertical split, according to the quality criterion of \autoref{eq:q_lmo}.
+
+Although each node locally performs the partitioning search on each axis, the resulting tree in its entirety is termed \emph{Global MultiOutput} (GMO) by the original authors, and its training procedure corresponds to using \FindSplit = \ref{alg:find_bipartite_split} in \ref{alg:buildtree}.
+
+\algFindBipartiteSplit
+
+Interestingly, contrary to the other adaptation approaches of traditional machine learning algorithms (\autoref{sec:common_approaches}), the PBCT procedure does not require using multiple monopartite estimators and training steps (such as SLMO, \autoref{sec:slmo}) or converting bipartite datasets to the memory-expensive global format such as SGSO (\autoref{sec:sgso}). Nevertheless, considering each row or column of $Y$ as a separate output results that growing a PBCT still occurs in the same asymptotic time complexity of a decision tree under the SGSO adaptation (derived in \autoref{sec:complexity_analysis}). 
+
+Remarkably, we show that leveraging the single-output assumption (\autoref{sec:common_approaches}) in the tree impurity calculation can simplify the bipartite local split searching procedure introduced by \citet{pliakos2018global}, yielding a new PBCT-based algorithm with expressive gains in training time efficiency. A formal description of our algorithm proposal is now presented.
+
+%Nevertheless, an argument could be made in opposition to this idea.
+
+%In some sense, a decision tree could be understood as an ensemble of trivial node-wise estimators, each predicting the mean of the training labels in its partition.
+
+%A decision tree training process could indeed be understood as a wrapper procedure around a simpler estimator. Within each node, the decision tree training searches for a way to separate the training samples into two complimentary partitions. Evaluating several of such splits, it is chosen the one which minimizes the variances of each of the two $Y$ partitions it generates. This could be interpreted as minimizing the mean squared error of a trivial estimator that outputs the mean of $Y$ values for any given input. Under this optics, a decision tree recursively searches for binary splits that most favor the performance of a wrapped estimator.
 %
-\begin{multline}
-    %&\frac{n_l I(Y_l)+ n_rI(Y_r)}{n_l+n_r} =\\
-    %\frac{n_l \avg{Y_l^2}-n_l\avg{Y_l}^2+ n_r\avg{Y_r^2}-n_r\avg{Y_r}^2}{n_l+n_r} =\\
-    %&=\frac{n_l \avg{Y_l^2}+ n_r\avg{Y_r^2}}{n_l+n_r}-\frac{n_l\avg{Y_l}^2+n_r\avg{Y_r}^2}{n_l+n_r} =\\
-    %&=\avg{Y^2}-\frac{n_l\avg{Y_l}^2+n_r\avg{Y_r}^2}{n_l+n_r}
-    Q_\text{GMSE}(Y, t, f)
-        =\\
-            %=\frac{|Y_\text{node}|}{|Y_\text{root}|}
-            % \left[
-            %    1
-            %    - \frac{|Y_l| Y_l^2\mel{ij} + |Y_r|Y^2\mel{ij}}
-            %        {|Y_\text{node}|I(Y_\text{node})}
-            %    + \frac{
-            %        |Y_l|Y_l\mel{ij}^2 + |Y_r|Y_r\mel{ij}^2
-            %    }
-            %        {|Y_\text{node}|I(Y_\text{node})}
-            %\right]\\
-            =\frac{|Y_\text{node}|}{|Y_\text{root}|I(Y_\text{node})}
-            \left(
-                \frac{
-                    |Y_l|Y_l^{\angled{ij}2} + |Y_r|Y_r^{\angled{ij}2}
-                }
-                    {|Y_\text{node}|}
-            - Y_\text{node}^{\angled{ij}2}
-            \right)
-    \label{eq:q_optimization}
-\end{multline}
-where we used that
-\begin{multline*}
-            1-\frac{|Y_l| Y_l^{2\angled{ij}} + |Y_r|Y_r^{2\angled{ij}}}
-                {|Y_\text{node}|I(Y_\text{node})}
-            =1-\frac{\sum_i \sum_j Y_\text{node}^{\angled{ij}2}}
-                {|Y_\text{node}|I(Y_\text{node})}=\\
-            =1-\frac{Y_\text{node}^{2\angled{ij}}}
-                {I(Y_\text{node})}
-            =1-\frac{Y_\text{node}^{2\angled{ij}}}
-                {Y_\text{node}^{2\angled{ij}}-Y_\text{node}^{\angled{ij}2}}=\\
-            =\frac{-Y_\text{node}^{\angled{ij}2}}
-                {Y_\text{node}^{2\angled{ij}}-Y_\text{node}^{\angled{ij}2}}
-            =-\frac{Y_\text{node}^{\angled{ij}2}}
-                {I(Y_\text{node})}
-\end{multline*}
-
-%So that we can also rewrite $Q$ as shown by \ref{eq:q_proxies}.
+%Still under this interpretation, the PBCT algorithm then consists of applying to this simple estimator in each node a strategy that resembles the LMO adaptation discussed earlier. The search for the best split is executed locally, for each axis, and the best overall result is chosen between each axis' best.
 %
-%\begin{align}
-%    \begin{split}
-%        &Q(Y, t, f) = \\
-%        &=\frac{1}{I(Y)} \left(I(Y)-\avg{Y^2}+\frac{n_l\avg{Y_l}^2+n_r\avg{Y_r}^2}{n_l+n_r}\right)=\\
-%        &=\frac{1}{I(Y)} \left(\avg{Y}^2+\frac{n_l\avg{Y_l}^2+n_r\avg{Y_r}^2}{n_l+n_r}\right)
-%    \end{split}
-%    \label{eq:q_proxies}
-%\end{align}
+%Although maybe a wrapper of a locally adapted trivial estimator, the tree structure generated after training has the exact same format as that of a monopartite decision tree, so that the prediction procedure does not involve any training of component models as is expected with LMO-adapted models. Hence, these bipartite data-centered tree learning algorithms seem to not fit under any of the previously described categories, and we choose to inaugurate a third group we thereafter call \emph{native bipartite models}, encompassing estimators whose basic functioning is specifically designed to deal with interaction data in its bipartite format.
 
-Having only global averages in Eq. \ref{eq:gso_mse}, i.e. always involving both $i$ and $j$ indices simultaneously, enables us to pre-compute averages of each row and column of $Y_\text{node}$, iterating over one-dimensional $\tilde Y_\text{node}$ proxies (Eq. \ref{eq:y_proxies}) instead of the bi-dimensional matrix when searching for the best split. This property can be explored to build a more efficient training procedure for bipartite GSO decision trees in comparison to the naive approach (Section \ref{}), as discussed in the Section \ref{sec:bipartite_trees} and demonstrated in the asymptotic complexity analysis developed in Section \ref{sec:complexity_analysis}.
+\subsection{Bipartite global single-output trees}
+\label{sec:bgso_trees}
+%Although being developed specifically to interaction data, the PBCT algorithm shows no improvement in training time complexity relative to the naive GSO approach, as derived in the Section \ref{sec:complexity_analysis}.
+
+Notice that the split rules as defined by \autoref{eq:datasplit} are agnostic to the specific arrangement of the bipartite data, being seamlessly applicable to the ($X_\text{SGSO}$, $Y_\text{SGSO}$) format employed by the SGSO adaptation (\autoref{eq:sgso_data}) or directly to the $X_1$, $X_2$ and $Y$ matrices. For a decision tree growing under the SGSO framework, the impurity of each node, calculated as $I(Y_\text{SGSO})$, in many cases could be easily translated to the bipartite format. \autoref{eq:bipartite_gso_equivalence} describes such a translation of the MSE impurity presented by \autoref{eq:mse}.
+%
+\begin{equation}
+    I_\text{MSE}(Y_\text{SGSO})
+        = Y_\text{SGSO}^{2\ang{ij}} - Y_\text{SGSO}^{\ang i 2 \ang j}
+        % = (Y_\text{SGSO}\T)^{2\ang i} - (Y_\text{SGSO}\T)^{\ang i 2}
+        = Y^{2\ang{ij}} - Y^{\ang{ij}^2}
+    \label{eq:bipartite_gso_equivalence}
+\end{equation}
+ 
+%We can then define $I_\text{GMSE}$ as in \autoref{eq:gso_mse}:
+If we then define
+%
+\begin{equation}
+    I_\text{GMSE}(Y) \equiv I_\text{MSE}(Y_\text{SGSO})
+        = Y^{2\ang{ij}} - Y^{\ang{ij}^2}\text{,}
+    \label{eq:gso_mse}
+\end{equation}
+%
+the exact same SGSO-adapted decision tree, with its node structure and split rules, can be grown by applying the PBCT procedure (\autoref{alg:find_bipartite_split}) with the $I_\text{GMSE}$ impurity instead of the original $I_\text{MSE}$. This again follows from the generality of the split rules defined in \autoref{eq:datasplit}, invariant under the SGSO data rearrangement (\autoref{eq:sgso_data}).
+
+Notably, this new impurity poses a simple yet sound advantage over the original. 
+Having only total averages in \autoref{eq:gso_mse}, always involving both $i$ and $j$ indices simultaneously, exempts the training function from storing column-wise label averages during split search, enabling us to pre-compute averages of each row and column of $Y_\text{node}$ and to iterate over one-dimensional $\tilde Y_\text{node}$ proxies (\autoref{eq:y_proxies}) instead of the bi-dimensional matrix when evaluating splits.   % TODO REF ALGO
+%
+This property can be explored to build a more efficient training procedure for bipartite GSO decision trees, as demonstrated in the asymptotic complexity analysis developed in \autoref{sec:complexity_analysis}.
 %
 \begin{equation}
     \begin{split}
@@ -632,115 +605,16 @@ Having only global averages in Eq. \ref{eq:gso_mse}, i.e. always involving both 
     \label{eq:y_proxies}
 \end{equation}
 
-Dealing directly with bipartite data, another idea would be to take inspiration from the LMO strategy (see Section \ref{}) and define the quality of a node partition as $\frac{1}{2}[Q(Y_\text{node}, t, f)+Q(Y\T_\text{node}, t, f)]$, the simple average between both directions. However, for a horizontal split, the impurity improvement on the columns axis is null for any impurity metric consisting of a simple average of impurities of each output, i.e. $I_\text{total}(Y)=(I(Y\el{ij})\el j)\mel j$, as briefly shown by Eq. \ref{eq:q_T_is_zero} (which uses Eq. \ref{eq:quality}). As a consequence, the split search procedure with such impurities on a bipartite dataset is essentially local, considering different outputs in only a single axis at a time.
-\begin{multline}
-    % I_\text{total}(Y) = I(Y\el{ij})\mel j\implies\\
-    I_\text{total}(Y\T) = I(Y\el{ji})\mel i\implies\\
-    \implies |Y_l|_i I(Y_l\T) + |Y_r|_i I(Y_r\T)=\\
-    = \sum_i I(Y_l\el{ji})\el i + \sum_i I(Y_r\el{ji})\el i %=\\
-    = \sum_i I(Y\el{ji})\el i\implies\\
-    \implies \frac{|Y_l|_i I(Y_l\T) + |Y_r|_i I(Y_r\T)}{|Y|_i}=I_\text{total}(Y)\\
-    %\implies\\
-    \implies Q(Y\T, t, f) = 0 \;\square
-    \label{eq:q_T_is_zero}
-\end{multline}
-
-This result is valid for the majority of multioutput decision tree implementations \cite{}, and leads us to simply define the LMO quality of a split on bipartite data as in Eq. \ref{eq:q_lmo}, where $f$ being a row feature means it represents a column of $X_1$ and, as such, a horizontal split. Otherwise, $f$ is a column feature and designates a column of $X_2$, imposing a split in the vertical axis.
-\begin{equation}
-    Q_\text{LMO}(Y, t, f) =
-    \begin{cases}
-        Q(Y, t, f)&\text{ if $f$ is a row feature}\\
-        Q(Y\T, t, f)&\text{ if $f$ is a column feature}
-    \end{cases}
-    \label{eq:q_lmo}
-\end{equation}
-
-% (Specific demonstration for MSE)
-%
-% The majority of popular impurity metrics fall under this category \cite{}, and we now briefly demonstrate this result for the MSE.
-% When applied to the original $I_\text{MSE}$ of Eq. \ref{eq:mse}, the same manipulation from above results in Eq. \ref{eq:q_mse}.
-% %The definition of $I_\text{MSE}$ also results in $Q_\text{bipartite}$
-% \begin{multline}
-%     Q_\text{MSE}(Y, t, f) =\\
-%     =\frac{|Y_\text{node}|}{|Y_\text{root}|I(Y_\text{node})}
-%     \left(
-%         \frac{
-%             |Y_l|Y_l^{\angled{i}2\angled j} + |Y_r|Y_r^{\angled{i}2\angled j}
-%         }
-%             {|Y_\text{node}|}
-%     -Y_\text{node}^{\angled{i}2\angled j}
-%     \right)
-%     \label{eq:q_mse}
-% \end{multline}
-% 
-% The first term of Eq. \ref{eq:q_mse}, now considering the transposed $Y\T$, can then be simplified as shown by Eq. \ref{eq:q_bip_is_local}.
-% \begin{multline}
-%     \frac{
-%         |Y_l|Y_l^{\angled{j}2\angled i} + |Y_r|Y_r^{\angled{j}2\angled i}
-%     }{
-%         |Y_\text{node}|
-%     }=\\
-%     = \frac{
-%         |Y_l|_i|Y_l|_jY_l^{\angled{j}2\angled i}
-%         + |Y_r|_i|Y_r|_j Y_r^{\angled{j}2\angled i}
-%     }{
-%         |Y_\text{node}|_i|Y_\text{node}|_j
-%     }=\\
-%     = \frac{
-%         |Y_l|_j \sum_i Y_l^{[i]\angled{j}2}
-%         + |Y_r|_j \sum_i Y_r^{[i]\angled{j}2}
-%     }{
-%         |Y_\text{node}|_i|Y_\text{node}|_j
-%     }=\\
-%     = \frac{
-%         |Y_\text{node}|_j (
-%             \sum_i Y_l^{[i]\angled{j}2}
-%             + \sum_i Y_r^{[i]\angled{j}2}
-%         )
-%     }{
-%         |Y_\text{node}|_i|Y_\text{node}|_j
-%     }=\\
-%     = \frac{
-%             \sum_i Y_\text{node}^{[i]\angled{j}2}
-%     }{
-%         |Y_\text{node}|_i
-%     }
-%     = Y_\text{node}^{\angled{j}2\angled{i}}
-%     \label{eq:q_bip_is_local}
-% \end{multline}
-% 
-% Which finally results in Eq. \ref{eq:q_T_is_const}.
-% \begin{multline}
-%     Q_\text{MSE}(Y\T, t, f) =\\
-%     =
-%     \frac{|Y_\text{node}|}{|Y_\text{root}|I(Y\T_\text{node})}
-%     (
-%         Y_\text{node}^{\angled{j}2\angled{i}}
-%         -
-%         Y_\text{node}^{\angled{j}2\angled{i}}
-%     )=\\
-%     =
-%     0    
-%     \label{eq:q_T_is_const}
-% \end{multline}
-
-\subsection{Predictive Bi-Clustering Trees}
-\label{sec:bipartite_trees}
-
-\cite{Pliakos_2018} proposes an interesting method for building a decision tree directly on bipartite-formatted datasets. Given a general procedure \FindSplit for finding a split threshold in a usual multioutput decision tree (see Section \ref{sec:dt}), the PBCT algorithm consists of applying \FindSplit twice at each node: once over $X_1$ and $Y$, in which case each $Y$ \emph{column} is considered a different output; and once over $X_2$ and $Y\T$, so that each $Y$ \emph{row} is now interpreted as an output. Finally, the best overall split is chosen between the best horizontal split and the best vertical split, according to the quality criterion of Eq. \ref{eq:q_lmo}.
-Although each node locally performs the partitioning search on each axis, the overall tree is termed \emph{Global MultiOutput} (GMO) by the original authors, and its training procedure corresponds to using \FindSplit = \ref{alg:find_bipartite_split} in \ref{alg:buildtree}.
-
-\subsection{Bipartite GSO trees}
-
-Although being developed specifically to interaction data, the PBCT algorithm shows no improvement in training time complexity relative to the naive GSO approach, as derived in the Section \ref{sec:complexity_analysis}. However, in Eq. \ref{eq:q_optimization} we demonstrate how a single-output impurity metric can be used directly in the bipartite setup. Being single-output, no distinction is made among $Y$ columns or rows, minimizing label deviance relative to the global average $Y\mel{ij}$ instead of column averages $Y\mel i\el j$. Considering such metric enables further optimization of the split searching procedure by employing single-column proxies of the interaction matrix (Eq. \ref{eq:y_proxies}), as also described by the Function \ref{alg:find_bipartite_split} and justified in Section \ref{sec:complexity_analysis}.
+% --------------
+%However, in \autoref{eq:q_optimization} we demonstrate how a single-output impurity metric can be used directly in the bipartite setup. Being single-output, no distinction is made among $Y$ columns or rows, minimizing label deviance relative to the global average $Y\mel{ij}$ instead of column averages $Y\mel i\el j$. Considering such metric enables further optimization of the split searching procedure by employing single-column proxies of the interaction matrix (\autoref{eq:y_proxies}), as also described by the Function \ref{alg:find_bipartite_split} and justified in Section \ref{sec:complexity_analysis}.
 
 % With the \ref{alg:find_best_split} procedure we intend to evaluate all possible data partitions with format as defined by \ref{eq:datasplit}.
-The bipartite decision trees grown with this procedure on $X_1$, $X_2$ and $Y$ have the exact same structure as a usual monopartite decision tree trained on a dataset $X_g$ and $Y_g$ adapted with the monopartite global strategy (Section \ref{}). This property can be intuitively shown by noticing that $X_1$ and $X_2$ already contain all the information necessary to define a set of thresholds that yields all possible partitions, since each partition considers a single $X$ column and building $X_g$ does not removes or adds different elements to each of them (only repeats them).
-%and no conversion to the global monopartite format ($X_g$ and $Y_g$) is necessary.
-This result is a consequence of Eq. \ref{eq:gsodata} and is formally stated by Eq. \ref{eq:bipartite_gso_equivalence}, in which we assume $f_2 = f_g-|X_1|_j$.
+%The bipartite decision trees grown with this procedure on $X_1$, $X_2$ and $Y$ have the exact same structure as a usual monopartite decision tree trained on a dataset $X_\text{SGSO}$ and $Y_\text{SGSO}$ adapted with the monopartite global strategy (Section \ref{}). This property can be intuitively shown by noticing that $X_1$ and $X_2$ already contain all the information necessary to define a set of thresholds that yields all possible partitions, since each partition considers a single $X$ column and building $X_\text{SGSO}$ does not removes or adds different elements to each of them (only repeats them).
+%%and no conversion to the global monopartite format ($X_\text{SGSO}$ and $Y_\text{SGSO}$) is necessary.
+%This result is a consequence of \autoref{eq:gsodata} and is formally stated by \autoref{eq:bipartite_gso_equivalence}, in which we assume $f_2 = f_g-|X_1|_j$.
 %
 % \begin{multline}
-%     \{Y_g\el{k} \;\forall\; k \mid X_g\el{k,\; f} < t\} =\\
+%     \{Y_\text{SGSO}\el{k} \;\forall\; k \mid X_\text{SGSO}\el{k,\; f} < t\} =\\
 %     \{Y_a\el{i,\; j} \;\forall\; i,j \mid X_a\el{i,\; f-(a-1)|X_1|_j}<t\}
 % \end{multline}
 % \[
@@ -749,18 +623,18 @@ This result is a consequence of Eq. \ref{eq:gsodata} and is formally stated by E
 %     2, & \text{otherwise}.
 % \end{cases}
 % \]
-\begin{multline}
-    \{Y_g\el{k1}\;\forall\; k \mid X_g\el{kf_g} < t\} =\\
-    =\begin{cases}
-        \{Y\el{i_1i_2} \;\forall\; i_1\text{ and }i_2 \mid X_1\el{i_1f_g}<t\}, & \text{if } f \le |X_1|_j\\
-        \{Y\el{i_1i_2} \;\forall\; i_1\text{ and }i_2 \mid X_2\el{i_2f_2}<t\}, & \text{if } f > |X_1|_j
-    \end{cases}
-    \label{eq:bipartite_gso_equivalence}
-\end{multline}
+%\begin{equation}
+%    \{Y_\text{SGSO}\el{k1}\;\forall\; k \mid X_\text{SGSO}\el{kf_g} < t\}
+%    = \begin{cases}
+%        \{Y\el{i_1i_2} \;\forall\; i_1\text{, }i_2 \mid X_1\el{i_1f_g}<t\}, & \text{if } f \le |X_1|_j\\
+%        \{Y\el{i_1i_2} \;\forall\; i_1\text{, }i_2 \mid X_2\el{i_2f_2}<t\}, & \text{if } f > |X_1|_j
+%    \end{cases}
+%    \label{eq:bipartite_gso_equivalence}
+%\end{equation}
 %https://www.overleaf.com/project/62fbafab63095e6cfcb9a8ec
 
 
-%As a result, we can substitute the procedure \ref{alg:find_best_split} by the wrapper procedure \ref{alg:find_bipartite_split} to efficiently build decision trees on bipartite data, directly using the much more compact $X_1$ and $X_2$ feature matrices rather than constructing the $X_g$ GSO representation. A theoretical complexity analysis is presented by the section \ref{sec:complexity_analysis}.
+%As a result, we can substitute the procedure \ref{alg:find_best_split} by the wrapper procedure \ref{alg:find_bipartite_split} to efficiently build decision trees on bipartite data, directly using the much more compact $X_1$ and $X_2$ feature matrices rather than constructing the $X_\text{SGSO}$ GSO representation. A theoretical complexity analysis is presented by the section \ref{sec:complexity_analysis}.
 
 %\begin{align}
 %\begin{split}
@@ -784,30 +658,42 @@ This result is a consequence of Eq. \ref{eq:gsodata} and is formally stated by E
 
 \subsection{Bipartite prediction strategies}
 
-With monopartite datasets, the \KwPrototype function (line \ref{ln:prototype} of \ref{alg:predict}) most often simply returns the average label of the leaf's partition (Eq. \ref{eq:prototype1}).
+With monopartite datasets, the \KwPrototype function (\autoref{ln:prototype} of \autoref{alg:predict}) of traditional decision trees most often simply returns, for each output, the average label of the leaf's partition (\autoref{eq:prototype1})~\cite{breiman1984classification}.
+%
 \begin{equation}
-    \KwPrototype{Y\textsubscript{leaf}}=Y_\text{leaf}\mel{ij}
+    \KwPrototype{Y\textsubscript{leaf}}\el j=Y_\text{leaf}^{\ang{i}[j]}
     \label{eq:prototype1}
 \end{equation}
 
-Nevertheless, some nuances may be appear when dealing with bipartite data, since there are cases in which one sample domain, row or column samples, is already known from the training set. As introduced by \cite{Pliakos_2018}, if a row or column instance is in the training set, we have the option of averaging only the column or row (respectively) of $Y_\text{leaf}$ corresponding to its known outputs. Specifically, when predicting the interaction between a sample pair $x_1$ and $x_2$, we can set \KwPrototype as in Eq. \ref{eq:prototype2}.
+As an extension, the most natural approach to use on single-output bipartite trees is the analogous average of the whole partition of the interaction matrix (\autoref{eq:prototype_gso}).
+%
 \begin{equation}
-    \KwPrototype{Y\textsubscript{leaf}} =
+    \KwPrototype{Y\textsubscript{leaf}}
+        = Y_\text{SGSO, leaf}^{\ang{i}[1]}
+        = Y_\text{leaf}^{\ang{ij}}
+    \label{eq:prototype_gso}
+\end{equation}
+
+Nevertheless, some considerations are possible when dealing with bipartite data, since there are cases in which one of the entities of the interaction being predicted is already known from the training set. As introduced by \citet{pliakos2018global}, if a row or column instance is in the training set, we have the option of averaging only the column or row (respectively) of $Y_\text{leaf}$ corresponding to its known outputs. Specifically, when predicting the interaction between a sample pair $x_{1\text{, new}}$ and $x_{2\text{, new}}$, we can set \KwPrototype as in \autoref{eq:prototype2}.
+\begin{equation}
+    \KwPrototype{$Y_\text{leaf}$} =
     \begin{cases}
-        Y_\text{leaf}^{[k]\angled{j}} & \text{ if } x_1 = X_{1\text{ leaf}}\el{k\cdot}\\
-        Y_\text{leaf}^{\angled{i}[k]} & \text{ if } x_2 = X_{2\text{ leaf}}\el{k\cdot}\\
+        Y_\text{leaf}^{[k]\ang{j}} & \text{ if }
+            \exists \; k \mid x_{1\text{, new}} = X_{1\text{, leaf}}\el{k\cdot}\\
+        Y_\text{leaf}^{\ang{i}[k]} & \text{ if }
+            \exists \; k \mid x_{2\text{, new}} = X_{2\text{, leaf}}\el{k\cdot}\\
         Y_\text{leaf}\mel{ij} & \text{ otherwise.}
     \end{cases}
     \label{eq:prototype2}
 \end{equation}
 
-However, specially when working with very unbalanced interaction matrices and sufficiently small leaf partitions, this approach may be more prone to random fluctuations, since the label averages in the prediction step are took over a much smaller sample size. We thus propose a softer approach: to weight the rows and columns of $Y_\text{leaf}$ by similarity measures in the form $w_{s1}\el i \equiv \text{similarity}(x_1\el i, \, X_1\el{i\cdot})$ between $x$ and the training samples in the leaf node (Eq. \ref{eq:prototype3}).
+A drawback of this approach, especially when working with very imbalanced interaction matrices and sufficiently small leaf partitions, is a possibly greater susceptibility to random fluctuations, since the label averages in the prediction step are taken over a much smaller sample size (a single row or column of $Y_\text{leaf}$ instead of the whole $Y_\text{leaf}$). Given we are predominantly working with similarity scores as sample attributes, we propose an intermediate approach: to weight the rows and columns of $Y_\text{leaf}$ by the similarity measurements in the form $w_{s1}\el i \equiv \text{similarity}(x_1\el i, \, X_1\el{i\cdot})$ between $x_\text{new}$ and the training samples in the leaf node (\autoref{eq:prototype3}).
 % \begin{multline}
 %     \KwPrototype{Y\textsubscript{leaf}} =\\
 %     =\frac{
 %         \sum_{i\in \text{leaf}}
 %             s(x_1\el i, X_1\el{i\cdot})
-%             Y_\text{leaf}^{[i]\angled j}
+%             Y_\text{leaf}^{[i]\ang j}
 %     }{
 %         2\sum_{i\in \text{leaf}}
 %             s(x_1\el i, X_1\el{i\cdot})
@@ -816,7 +702,7 @@ However, specially when working with very unbalanced interaction matrices and su
 %     \frac{
 %         \sum_{j\in \text{leaf}}
 %             s(x_2\el j, X_j\el{j\cdot})
-%             Y_\text{leaf}^{\angled i[j]}
+%             Y_\text{leaf}^{\ang i[j]}
 %     }{
 %         2\sum_{j\in \text{leaf}}
 %             s(x_2\el j, X_2\el{j\cdot})
@@ -824,12 +710,12 @@ However, specially when working with very unbalanced interaction matrices and su
 %     \label{eq:prototype3}
 % \end{multline}
 
-\begin{multline}
-    \KwPrototype{Y\textsubscript{leaf}} =\\
-    =\frac{
+\begin{equation}
+    \KwPrototype{Y\textsubscript{leaf}}
+    = \frac{
         \sum_{i\in \text{leaf}}
             w_{s1}\el i
-            Y_\text{leaf}^{[i]\angled j}
+            Y_\text{leaf}^{[i]\ang j}
     }{
         2\sum_{i\in \text{leaf}}
             w_{s1}\el i
@@ -838,15 +724,19 @@ However, specially when working with very unbalanced interaction matrices and su
     \frac{
         \sum_{j\in \text{leaf}}
             w_{s2}\el j
-            Y_\text{leaf}^{\angled i[j]}
+            Y_\text{leaf}^{\ang i[j]}
     }{
         2\sum_{j\in \text{leaf}}
             w_{s2}\el j
     }
     \label{eq:prototype3}
-\end{multline}
+\end{equation}
 
-% move to results
+
+%XXX TODO: fix name of the similarities
+%XXX describe forests
+%XXX complexity
+
 Since we are dealing with precomputed pairwise similarities, $X_1$ and $X_2$ are square matrices in which $X_a\el{i_1i_2} = \text{similarity}(X_a\el{i_1\cdot},\, X_a \el{i_2\cdot})$. We explore three different cases:
 
 \begin{enumerate}
@@ -855,13 +745,13 @@ Since we are dealing with precomputed pairwise similarities, $X_1$ and $X_2$ are
     \item $w_s = e^{x\el i}$
 \end{enumerate}
 
-% If the input values consist of precomputed pairwise similarities so that $X_1$ and $X_2$ are square matrices in which $X_a\el{i_1i_2} = s(X_a\el{i_1\cdot},\; X_a\el{i_2\cdot})$, Eq. \ref{eq:prototype3} reduces to Eq. \ref{eq:prototype4}.
+% If the input values consist of precomputed pairwise similarities so that $X_1$ and $X_2$ are square matrices in which $X_a\el{i_1i_2} = s(X_a\el{i_1\cdot},\; X_a\el{i_2\cdot})$, \autoref{eq:prototype3} reduces to \autoref{eq:prototype4}.
 % \begin{multline}
 %     \KwPrototype{Y\textsubscript{leaf}} =\\
 %     =\frac{
 %         \sum_{i\in \text{leaf}}
 %             x_1\el i
-%             Y_\text{leaf}^{[i]\angled j}
+%             Y_\text{leaf}^{[i]\ang j}
 %     }{
 %         2\sum_{i\in \text{leaf}}
 %             x_1\el i
@@ -870,13 +760,195 @@ Since we are dealing with precomputed pairwise similarities, $X_1$ and $X_2$ are
 %     \frac{
 %         \sum_{j\in \text{leaf}}
 %             x_2\el j
-%             Y_\text{leaf}^{\angled i[j]}
+%             Y_\text{leaf}^{\ang i[j]}
 %     }{
 %         2\sum_{j\in \text{leaf}}
 %             x_2\el j
 %     }
 %     \label{eq:prototype4}
 % \end{multline}
+
+%---------------------------------------
+
+%When the monopartite global adaptation $Y_\text{SGSO}$ is utilized (see Section \ref{sec:definitions}), a global version of $I_\text{MSE}(\cdot)$ can be used to achieve the same result in the corresponding bipartite partition $Y$.
+%%
+%\begin{multline*}
+%        I_\text{MSE}(Y_\text{SGSO})
+%            = Y_\text{SGSO}^2\mel{ij} - Y_\text{SGSO}\mel i^2\mel j
+%            = (Y_\text{SGSO}^\intercal)^2\mel i - (Y_\text{SGSO}^\intercal)\mel i^2 =\\
+%            = Y^2\mel{ij} - Y\mel{ij}^2
+%\end{multline*}
+%so that we can define $I_\text{GMSE}$ as in \autoref{eq:gso_mse}.
+%\begin{equation}
+%    I_\text{GMSE}(Y) \equiv I_\text{MSE}(Y_\text{SGSO})
+%    = Y^2\mel{ij} - Y\mel{ij}^2
+%    \label{eq:gso_mse}
+%\end{equation}
+%
+%%and therefore the sorting procedure to search for split thresholds can be applied to the bipartite feature matrices $X_1$ and $X_2$ instead of $X_\text{SGSO}$, naturally avoiding the redundant values generated by \ref{eq:gsodata} but still generating the exatc same tree structure.
+%
+%%Since the sorting procedure itself often is the most computationally expensive step in decision tree growing, avoiding iteration through these repetitions drastically improves time and memory usage during training (see \ref{sec:complexity_analysis}).
+%
+%%Furthermore, many criteria utilized for split evaluation can be optimized for this setup. Take for instance the split quality calculation presented by \ref{eq:quality}. Its last term can be rewritten as in \ref{eq:q_last_term}.
+%In such global scenario, the quality criteria can be rewritten as in \autoref{eq:q_optimization}.
+%%
+%\begin{multline}
+%    %&\frac{n_l I(Y_l)+ n_rI(Y_r)}{n_l+n_r} =\\
+%    %\frac{n_l \avg{Y_l^2}-n_l\avg{Y_l}^2+ n_r\avg{Y_r^2}-n_r\avg{Y_r}^2}{n_l+n_r} =\\
+%    %&=\frac{n_l \avg{Y_l^2}+ n_r\avg{Y_r^2}}{n_l+n_r}-\frac{n_l\avg{Y_l}^2+n_r\avg{Y_r}^2}{n_l+n_r} =\\
+%    %&=\avg{Y^2}-\frac{n_l\avg{Y_l}^2+n_r\avg{Y_r}^2}{n_l+n_r}
+%    Q_\text{GMSE}(Y, t, f)
+%        =\\
+%            %=\frac{|Y_\text{node}|}{|Y_\text{root}|}
+%            % \left[
+%            %    1
+%            %    - \frac{|Y_l| Y_l^2\mel{ij} + |Y_r|Y^2\mel{ij}}
+%            %        {|Y_\text{node}|I(Y_\text{node})}
+%            %    + \frac{
+%            %        |Y_l|Y_l\mel{ij}^2 + |Y_r|Y_r\mel{ij}^2
+%            %    }
+%            %        {|Y_\text{node}|I(Y_\text{node})}
+%            %\right]\\
+%            =\frac{|Y_\text{node}|}{|Y_\text{root}|I(Y_\text{node})}
+%            \left(
+%                \frac{
+%                    |Y_l|Y_l^{\ang{ij}2} + |Y_r|Y_r^{\ang{ij}2}
+%                }
+%                    {|Y_\text{node}|}
+%            - Y_\text{node}^{\ang{ij}2}
+%            \right)
+%    \label{eq:q_optimization}
+%\end{multline}
+%where we used that
+%\begin{multline*}
+%            1-\frac{|Y_l| Y_l^{2\ang{ij}} + |Y_r|Y_r^{2\ang{ij}}}
+%                {|Y_\text{node}|I(Y_\text{node})}
+%            =1-\frac{\sum_i \sum_j Y_\text{node}^{\ang{ij}2}}
+%                {|Y_\text{node}|I(Y_\text{node})}=\\
+%            =1-\frac{Y_\text{node}^{2\ang{ij}}}
+%                {I(Y_\text{node})}
+%            =1-\frac{Y_\text{node}^{2\ang{ij}}}
+%                {Y_\text{node}^{2\ang{ij}}-Y_\text{node}^{\ang{ij}2}}=\\
+%            =\frac{-Y_\text{node}^{\ang{ij}2}}
+%                {Y_\text{node}^{2\ang{ij}}-Y_\text{node}^{\ang{ij}2}}
+%            =-\frac{Y_\text{node}^{\ang{ij}2}}
+%                {I(Y_\text{node})}
+%\end{multline*}
+
+%So that we can also rewrite $Q$ as shown by \ref{eq:q_proxies}.
+%
+%\begin{align}
+%    \begin{split}
+%        &Q(Y, t, f) = \\
+%        &=\frac{1}{I(Y)} \left(I(Y)-\avg{Y^2}+\frac{n_l\avg{Y_l}^2+n_r\avg{Y_r}^2}{n_l+n_r}\right)=\\
+%        &=\frac{1}{I(Y)} \left(\avg{Y}^2+\frac{n_l\avg{Y_l}^2+n_r\avg{Y_r}^2}{n_l+n_r}\right)
+%    \end{split}
+%    \label{eq:q_proxies}
+%\end{align}
+
+%Having only global averages in \autoref{eq:gso_mse}, i.e. always involving both $i$ and $j$ indices simultaneously, enables us to pre-compute averages of each row and column of $Y_\text{node}$, iterating over one-dimensional $\tilde Y_\text{node}$ proxies (\autoref{eq:y_proxies}) instead of the bi-dimensional matrix when searching for the best split. This property can be explored to build a more efficient training procedure for bipartite GSO decision trees in comparison to the naive approach (Section \ref{}), as discussed in the Section \ref{sec:bipartite_trees} and demonstrated in the asymptotic complexity analysis developed in Section \ref{sec:complexity_analysis}.
+%%
+%\begin{equation}
+%    \begin{split}
+%        \tilde Y_1\el{i} = Y\el{i}\mel{j}\\
+%        \tilde Y_2\el{j} = Y\mel{i}\el{j}
+%        %\tilde Y_1\el{i} = \savg{Y\el{i,j}}_j\el{i}\\
+%        %\tilde Y_2\el{j} = \savg{Y\el{i,j}}_i\el{j}
+%    \end{split}
+%    \label{eq:y_proxies}
+%\end{equation}
+%
+%Dealing directly with bipartite data, another idea would be to take inspiration from the LMO strategy (see Section \ref{}) and define the quality of a node partition as $\frac{1}{2}[Q(Y_\text{node}, t, f)+Q(Y\T_\text{node}, t, f)]$, the simple average between both directions. However, for a horizontal split, the impurity improvement on the columns axis is null for any impurity metric consisting of a simple average of impurities of each output, i.e. $I_\text{total}(Y)=(I(Y\el{ij})\el j)\mel j$, as briefly shown by \autoref{eq:q_T_is_zero} (which uses \autoref{eq:quality}). As a consequence, the split search procedure with such impurities on a bipartite dataset is essentially local, considering different outputs in only a single axis at a time.
+%\begin{multline}
+%    % I_\text{total}(Y) = I(Y\el{ij})\mel j\implies\\
+%    I_\text{total}(Y\T) = I(Y\el{ji})\mel i\implies\\
+%    \implies |Y_l|_i I(Y_l\T) + |Y_r|_i I(Y_r\T)=\\
+%    = \sum_i I(Y_l\el{ji})\el i + \sum_i I(Y_r\el{ji})\el i %=\\
+%    = \sum_i I(Y\el{ji})\el i\implies\\
+%    \implies \frac{|Y_l|_i I(Y_l\T) + |Y_r|_i I(Y_r\T)}{|Y|_i}=I_\text{total}(Y)\\
+%    %\implies\\
+%    \implies Q(Y\T, t, f) = 0 \;\square
+%    \label{eq:q_T_is_zero}
+%\end{multline}
+%
+%This result is valid for the majority of multioutput decision tree implementations \cite{}, and leads us to simply define the LMO quality of a split on bipartite data as in \autoref{eq:q_lmo}, where $f$ being a row feature means it represents a column of $X_1$ and, as such, a horizontal split. Otherwise, $f$ is a column feature and designates a column of $X_2$, imposing a split in the vertical axis.
+%\begin{equation}
+%    Q_\text{LMO}(Y, t, f) =
+%    \begin{cases}
+%        Q(Y, t, f)&\text{ if $f$ is a row feature}\\
+%        Q(Y\T, t, f)&\text{ if $f$ is a column feature}
+%    \end{cases}
+%    \label{eq:q_lmo}
+%\end{equation}
+%
+%% (Specific demonstration for MSE)
+%%
+%% The majority of popular impurity metrics fall under this category \cite{}, and we now briefly demonstrate this result for the MSE.
+%% When applied to the original $I_\text{MSE}$ of \autoref{eq:mse}, the same manipulation from above results in \autoref{eq:q_mse}.
+%% %The definition of $I_\text{MSE}$ also results in $Q_\text{bipartite}$
+%% \begin{multline}
+%%     Q_\text{MSE}(Y, t, f) =\\
+%%     =\frac{|Y_\text{node}|}{|Y_\text{root}|I(Y_\text{node})}
+%%     \left(
+%%         \frac{
+%%             |Y_l|Y_l^{\ang{i}2\ang j} + |Y_r|Y_r^{\ang{i}2\ang j}
+%%         }
+%%             {|Y_\text{node}|}
+%%     -Y_\text{node}^{\ang{i}2\ang j}
+%%     \right)
+%%     \label{eq:q_mse}
+%% \end{multline}
+%% 
+%% The first term of \autoref{eq:q_mse}, now considering the transposed $Y\T$, can then be simplified as shown by \autoref{eq:q_bip_is_local}.
+%% \begin{multline}
+%%     \frac{
+%%         |Y_l|Y_l^{\ang{j}2\ang i} + |Y_r|Y_r^{\ang{j}2\ang i}
+%%     }{
+%%         |Y_\text{node}|
+%%     }=\\
+%%     = \frac{
+%%         |Y_l|_i|Y_l|_jY_l^{\ang{j}2\ang i}
+%%         + |Y_r|_i|Y_r|_j Y_r^{\ang{j}2\ang i}
+%%     }{
+%%         |Y_\text{node}|_i|Y_\text{node}|_j
+%%     }=\\
+%%     = \frac{
+%%         |Y_l|_j \sum_i Y_l^{[i]\ang{j}2}
+%%         + |Y_r|_j \sum_i Y_r^{[i]\ang{j}2}
+%%     }{
+%%         |Y_\text{node}|_i|Y_\text{node}|_j
+%%     }=\\
+%%     = \frac{
+%%         |Y_\text{node}|_j (
+%%             \sum_i Y_l^{[i]\ang{j}2}
+%%             + \sum_i Y_r^{[i]\ang{j}2}
+%%         )
+%%     }{
+%%         |Y_\text{node}|_i|Y_\text{node}|_j
+%%     }=\\
+%%     = \frac{
+%%             \sum_i Y_\text{node}^{[i]\ang{j}2}
+%%     }{
+%%         |Y_\text{node}|_i
+%%     }
+%%     = Y_\text{node}^{\ang{j}2\ang{i}}
+%%     \label{eq:q_bip_is_local}
+%% \end{multline}
+%% 
+%% Which finally results in \autoref{eq:q_T_is_const}.
+%% \begin{multline}
+%%     Q_\text{MSE}(Y\T, t, f) =\\
+%%     =
+%%     \frac{|Y_\text{node}|}{|Y_\text{root}|I(Y\T_\text{node})}
+%%     (
+%%         Y_\text{node}^{\ang{j}2\ang{i}}
+%%         -
+%%         Y_\text{node}^{\ang{j}2\ang{i}}
+%%     )=\\
+%%     =
+%%     0    
+%%     \label{eq:q_T_is_const}
+%% \end{multline}
 
 
 \subsection{Asymptotic complexity analysis}
@@ -885,22 +957,22 @@ Since we are dealing with precomputed pairwise similarities, $X_1$ and $X_2$ are
 From the algorithm description, one can infer that the \ref{alg:find_best_split}'s complexity will be given by
 %
 \begin{multline}
-    O(\ref{alg:find_best_split}) = O(\tilde n_f S(|Y|_i) + \tilde n_f |Y|_i|Y|_j))=\\
+    O(\ref{alg:find_best_split}) = O(\tilde n_f S(|Y|_i) + \tilde n_f |Y|_i|Y|_j)=\\
     = O(\tilde n_f |Y|_i + \tilde n_f |Y|_i|Y|_j) =\\
     = O(\tilde n_f |Y|_i|Y|_j)
 \end{multline}
-where $S(n)$ is the complexity of the chosen sorting algorithm when operating on $n$ values. Since sorting of multiple subsets of the same $X$ values will be performed, if $X$ is real-valued, it is often effective to spend $O(|X|_j|X|_i\log |X|_i)$ time previously obtaining ranks for each of $X$'s columns and for each axis, before generating $X_g$, so that the following partition sorting can be performed in linear time with integer-specific algorithms such as Radix Sort \cite{}. That said, we thereafter consider $S(n) = O(n)$, and the pre-sorting term of the complexity will be disregarded in favor of the asymptotically dominant tree building complexity described ahead.
+where $S(n)$ is the complexity of the chosen sorting algorithm when operating on $n$ values. Since sorting of multiple subsets of the same $X$ values will be performed, if $X$ is real-valued, it is often effective to spend $O(|X|_j|X|_i\log |X|_i)$ time previously obtaining ranks for each of $X$'s columns and for each axis, before generating $X_\text{SGSO}$, so that the following partition sorting can be performed in linear time with integer-specific algorithms such as Radix Sort \cite{}. That said, we thereafter consider $S(n) = O(n)$, and the pre-sorting term of the complexity will be disregarded in favor of the asymptotically dominant tree building complexity described ahead.
 
-When applied on $X_g$ and $Y_g$ as in the naive GSO approach, we have Eq. \ref{eq:O_naive_gso}.
+When applied on $X_\text{SGSO}$ and $Y_\text{SGSO}$ as in the naive GSO approach, we have \autoref{eq:O_naive_gso}.
 %
 \begin{multline}
-    O(\ref{alg:find_best_split}) = O(\tilde n_f |Y_g|_i|Y_g|_j)
-    = O(\tilde n_f |Y_g|_i) =\\
+    O(\ref{alg:find_best_split}) = O(\tilde n_f |Y_\text{SGSO}|_i|Y_\text{SGSO}|_j)
+    = O(\tilde n_f |Y_\text{SGSO}|_i) =\\
     = O(\tilde n_f |Y|_i|Y|_j)
     \label{eq:O_naive_gso}
 \end{multline}
 
-For \ref{alg:find_bipartite_split} employing the GMO approach, the time complexity is given by Eq. \ref{eq:O_gmo}, which renders it equivalent to the naive GSO strategy. $\tilde n_{fr}$ and $\tilde n_{fc}$ stand for the numbers of row and column features to be drawn, respectively.
+For \ref{alg:find_bipartite_split} employing the GMO approach, the time complexity is given by \autoref{eq:O_gmo}, which renders it equivalent to the naive GSO strategy. $\tilde n_{fr}$ and $\tilde n_{fc}$ stand for the numbers of row and column features to be drawn, respectively.
 %
 \begin{multline}
     O(\ref{alg:find_bipartite_split}_\text{GMO}) =\\
@@ -908,7 +980,7 @@ For \ref{alg:find_bipartite_split} employing the GMO approach, the time complexi
     \label{eq:O_gmo}
 \end{multline}
 
-When considering the native GSO approach however, $\tilde Y_1$ and $\tilde Y_2$ column vectors are used instead of $Y$, effectively eliminating the \texttt{for} loops in lines \ref{algline:gmo_loop1} and \ref{algline:gmo_loop2} of \ref{alg:find_best_split}. Considering that building the $\tilde Y$ proxies takes $O(|Y|_i|Y|_j)$, the split search procedure in this strategy has its complexity described by Eq. \ref{eq:O_gso}.
+When considering the native GSO approach however, $\tilde Y_1$ and $\tilde Y_2$ column vectors are used instead of $Y$, effectively eliminating the \texttt{for} loops in lines \ref{algline:gmo_loop1} and \ref{algline:gmo_loop2} of \ref{alg:find_best_split}. Considering that building the $\tilde Y$ proxies takes $O(|Y|_i|Y|_j)$, the split search procedure in this strategy has its complexity described by \autoref{eq:O_gso}.
 %
 \begin{multline}
     O(\ref{alg:find_bipartite_split}_\text{GSO}) =\\
@@ -916,7 +988,7 @@ When considering the native GSO approach however, $\tilde Y_1$ and $\tilde Y_2$ 
     \label{eq:O_gso}
 \end{multline}
 
-For the whole tree building process, considering $|Y|_i \propto |Y|_j := n_s$ and given any constant $k \in \mathbb{N}$ so that $O(\text{FindSplit})=n_s^k$, we analyze the case of maximum relative tree width, where the number of samples in each node ($|Y| = n_s^2$) halves with each level added so that $T(n_s) = 2T(n_s/\sqrt 2) + O(\text{FindSplit}(n_s))$, with $T(n_s)$ being the time took to build a node with $n_s$ row instances and $n_s$ column instances. Eq. \ref{eq:O_tree} demonstrates the expected overall training complexity for the considered FindSplit functions (as given by the Master Theorem \cite{}). Table \ref{tab:O_comparison} summarizes the last results for the different cases.
+For the whole tree building process, considering $|Y|_i \propto |Y|_j := n_s$ and given any constant $k \in \mathbb{N}$ so that $O(\text{FindSplit})=n_s^k$, we analyze the case of maximum relative tree width, where the number of samples in each node ($|Y| = n_s^2$) halves with each level added so that $T(n_s) = 2T(n_s/\sqrt 2) + O(\text{FindSplit}(n_s))$, with $T(n_s)$ being the time took to build a node with $n_s$ row instances and $n_s$ column instances. \autoref{eq:O_tree} demonstrates the expected overall training complexity for the considered FindSplit functions (as given by the Master Theorem \cite{}). Table \ref{tab:O_comparison} summarizes the last results for the different cases.
 %
 \begin{multline}
     O(\ref{alg:buildtree})
@@ -967,12 +1039,12 @@ Regarding the performance of \ref{alg:find_random_split} as a substitute for \re
 
 
 %%%%%%%%%%%%%
-%The equation \ref{eq:q_optimization} allows the inner loop of the \ref{alg:find_best_split} algorithm to run in linear time with respect to $|X_g|_i$, the number of rows in the provided feature matrix $X_g$, by calculating $\savg{(Y_g\el{i})^2}$ and $\savg{Y_g\el{i}}$ beforehand. Additionally denoting by $S(n)$ the complexity of the sorting procedure ($S(n) = \Omega(n)$) and noticing that the initial average calculation is $O(|X_g|_i)$, we have the Equation\ref{eq:O_find_best_split}.
+%The equation \ref{eq:q_optimization} allows the inner loop of the \ref{alg:find_best_split} algorithm to run in linear time with respect to $|X_\text{SGSO}|_i$, the number of rows in the provided feature matrix $X_\text{SGSO}$, by calculating $\savg{(Y_\text{SGSO}\el{i})^2}$ and $\savg{Y_\text{SGSO}\el{i}}$ beforehand. Additionally denoting by $S(n)$ the complexity of the sorting procedure ($S(n) = \Omega(n)$) and noticing that the initial average calculation is $O(|X_\text{SGSO}|_i)$, we have the Equation\ref{eq:O_find_best_split}.
 %
 %\begin{multline}
-%    O(\text{\ref{alg:find_best_split}}(|X_g|_i,\,|X_g|_j)) = \\
-%    = O(|X_g|_i+|X_g|_i|X_g|_j+|X_g|_jS(|X_g|_i)) =\\
-%    = O(|X_g|_jS(|X_g|_i))
+%    O(\text{\ref{alg:find_best_split}}(|X_\text{SGSO}|_i,\,|X_\text{SGSO}|_j)) = \\
+%    = O(|X_\text{SGSO}|_i+|X_\text{SGSO}|_i|X_\text{SGSO}|_j+|X_\text{SGSO}|_jS(|X_\text{SGSO}|_i)) =\\
+%    = O(|X_\text{SGSO}|_jS(|X_\text{SGSO}|_i))
 %    \label{eq:O_find_best_split}
 %\end{multline}
 %
@@ -984,15 +1056,15 @@ Regarding the performance of \ref{alg:find_random_split} as a substitute for \re
 %    O(\text{GMO}) =\\
 %    =O(|X_1|_j(S(|X_1|_i) + |X_1|_i|X_2|_i) + |X_2|_j(S(|X_2|_i) + |X_1|_i|X_2|_i)\\
 %    =O(|X_1|_j(|X_1|_i|X_2|_i) + |X_2|_j(|X_1|_i|X_2|_i)\\
-%    =O(|X_g|_j|X_g|_i)
+%    =O(|X_\text{SGSO}|_j|X_\text{SGSO}|_i)
 %    \label{eq:O_find_bipartite_split}
 %\end{multline}
 %
-%On the other side, \ref{alg:find_bipartite_split} calculates $\tilde Y_1$ and $\tilde Y_2$ ($O(|X_1|_i|X_2|_i) = O(|X_g|_i)$, see Eq. \ref{eq:y_proxies}) and applies \ref{alg:find_best_split} separately to each instance group in the bipartite dataset, so that its complexity is given by \ref{eq:O_find_bipartite_split}.
+%On the other side, \ref{alg:find_bipartite_split} calculates $\tilde Y_1$ and $\tilde Y_2$ ($O(|X_1|_i|X_2|_i) = O(|X_\text{SGSO}|_i)$, see \autoref{eq:y_proxies}) and applies \ref{alg:find_best_split} separately to each instance group in the bipartite dataset, so that its complexity is given by \ref{eq:O_find_bipartite_split}.
 %
 %\begin{multline}
 %    O(\text{\ref{alg:find_bipartite_split}}) =\\
-%    =O(|X_g|_i + |X_1|_jS(|X_1|_i) + |X_2|_jS(|X_2|_i))
+%    =O(|X_\text{SGSO}|_i + |X_1|_jS(|X_1|_i) + |X_2|_jS(|X_2|_i))
 %    \label{eq:O_find_bipartite_split}
 %\end{multline}
 %
@@ -1000,8 +1072,8 @@ Regarding the performance of \ref{alg:find_random_split} as a substitute for \re
 %
 %\begin{equation}
 %    \begin{split}
-%        O(\text{\ref{alg:find_best_split}}) = O(|X_g|_j S(n_s^2))\\
-%        O(\text{\ref{alg:find_bipartite_split}}) = O(n_s^2 + |X_g|_j S(n_s))\\
+%        O(\text{\ref{alg:find_best_split}}) = O(|X_\text{SGSO}|_j S(n_s^2))\\
+%        O(\text{\ref{alg:find_bipartite_split}}) = O(n_s^2 + |X_\text{SGSO}|_j S(n_s))\\
 %    \end{split}
 %    \label{eq:O_ns}
 %\end{equation}
@@ -1041,13 +1113,6 @@ Since PBCTs can be generated with the exact structure as common decision trees, 
 We thus present an implementation for Random Forests of PBCTs, to which we suggest the name Biclustering Random Forests (BRF). Similarly, we thereafter call ExtraTrees of PBCT by Biclustering Extra Trees (BXT). The procedures to build Random Forests and BRFs are described by algorithms \ref{} and \ref{}, respectively.
 
 %The estimators we tested, with its criterion functions and other hyperparameters are described by Table \ref{}.
-
-\algBuildTree
-\algPredict
-%\algSplitDataset
-\algFindBestSplit
-\algFindRandomSplit
-\algFindBipartiteSplit
 
 
 \subsection{Implementation details}
@@ -1172,7 +1237,7 @@ On the other hand, AUROC is significantly improved by the undersampling procedur
         }
     \end{subfigure}
     \caption{Comparison between GSO models on the Enzymes dataset.}
-    \label{fig:box_gso_models_enzymes}
+    \label{fig:box_\text{SGSO}so_models_enzymes}
 \end{figure*}
 
 
@@ -1333,7 +1398,7 @@ All forests were composed of 100 tree estimators and were fully grown, with the 
 
 In all of the evaluated scenarios, a BXT model was ranked the best. In both TT-MCC and TL-AP, the BRF models and bxt\_gmo were significantly surpassed by the remaining BXT forests. In TL-MCC, bxt\_lso significantly outperformed all the other models. Given that this test-set provides the greatest intersection with the training set, due to the overall higher number of column samples in the datasets we used, we suggest that the LSO model could be better at taking advantage of already seen information from a sample domain, since a forest is grown separately for each row and column. From another perspective, this effect could be regarded as a form of overfitting. This hypothesis is further supported by the fact that both GMO models, which were the only forests subject to a minimum leaf size constraint and thus less prone, in theory, to overfitting, were the most frequently outperformed models in the TL-MCC and TL-AP.
 
-Contrastingly, both GMO models were consistently the best performing models in all AUROC settings, which is commonly assumed to be a less indicative metric in highly unbalanced classification contexts such as the present one \cite{}. This could be explained by a bias towards the majority class, possibly caused by the averaging of the larger leaves employed in this methods. %FIXME: actually, a bias towards minority class
+Contrastingly, both GMO models were consistently the best performing models in all AUROC settings, which is commonly assumed to be a less indicative metric in highly imbalanced classification contexts such as the present one \cite{}. This could be explained by a bias towards the majority class, possibly caused by the averaging of the larger leaves employed in this methods. %FIXME: actually, a bias towards minority class
 
 \begin{figure*}
     \centering
