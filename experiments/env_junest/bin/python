@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+ENV_PARENT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )/../.." &> /dev/null && pwd )
+TARGET=$ENV_PARENT/env/bin/python
+echo BASH_SOURCE="${BASH_SOURCE[0]}"
+echo Calling \"junest $TARGET "$@"\"
+junest $TARGET "$@"

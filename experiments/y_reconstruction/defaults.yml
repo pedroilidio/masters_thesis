@@ -1,0 +1,41 @@
+datasets:
+  X:
+    force_download: false
+    read:
+      call: numpy.loadtxt
+      params: {}
+  y:
+    force_download: false
+    read:
+      call: numpy.loadtxt
+      params: {}
+
+metaestimators:
+  params: {}
+
+estimators:
+  params: {}
+
+runs:
+  active: false
+  metaestimator: null
+  directory: runs
+  cv:
+    call: bipartite_learn.model_selection.multipartite_cross_validate
+    params:
+      return_estimator: false
+      return_train_score: false
+      scoring:
+      - roc_auc
+      - average_precision
+      - matthews_corrcoef
+      - balanced_accuracy
+      - f1
+      - f1_weighted
+      n_jobs: 16
+      cv: 4
+      diagonal: false
+      verbose: 10
+      pairwise: true
+      shuffle: true
+      random_state: 0

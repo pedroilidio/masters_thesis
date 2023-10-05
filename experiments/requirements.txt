@@ -1,0 +1,8 @@
+requests
+pandas[plot, output_formatting]
+scikit-learn
+numpy
+bipartite_learn
+scikit-posthocs
+pyyaml
+tqdm

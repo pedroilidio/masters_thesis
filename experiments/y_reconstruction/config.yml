@@ -1,0 +1,146 @@
+defaults:
+  runs:
+    directory: y_reconstruction/runs
+
+aliases:
+  dataset: []  # Necessary for correct defaults merging
+  estimator:
+  - name: bxt_lmo
+    call: bipartite_adaptations.estimators.bxt_lmo
+  - name: brf_lmo
+    call: bipartite_adaptations.estimators.brf_lmo
+
+  - name: bxt_lso
+    call: bipartite_adaptations.estimators.bxt_lso
+  - name: brf_lso
+    call: bipartite_adaptations.estimators.brf_lso
+  
+  - name: bxt_sgso
+    call: bipartite_adaptations.estimators.bxt_sgso
+  - name: brf_sgso
+    call: bipartite_adaptations.estimators.brf_sgso
+  
+  - name: bxt_sgso_us
+    call: bipartite_adaptations.estimators.bxt_sgso_us
+  - name: brf_sgso_us
+    call: bipartite_adaptations.estimators.brf_sgso_us
+  
+  - name: bxt_gso
+    call: bipartite_adaptations.estimators.bxt_gso
+  - name: bxt_gso_1k
+    call: bipartite_adaptations.estimators.bxt_gso
+    params:
+      n_estimators: 1000
+  - name: brf_gso
+    call: bipartite_adaptations.estimators.brf_gso
+  
+  - name: bxt_gmo
+    call: bipartite_adaptations.estimators.bxt_gmo
+  - name: brf_gmo
+    call: bipartite_adaptations.estimators.brf_gmo
+  
+  - name: bxt_gmosa
+    call: bipartite_adaptations.estimators.bxt_gmosa
+  - name: bxt_gmosa_1k
+    call: bipartite_adaptations.estimators.bxt_gmosa
+    params:
+      n_estimators: 1000
+  - name: brf_gmosa
+    call: bipartite_adaptations.estimators.brf_gmosa
+
+  - name: nrlmf
+    call: y_reconstruction.estimators.nrlmf
+  - name: dnilmf
+    call: y_reconstruction.estimators.dnilmf
+
+  wrapper:
+  - name: nrlmf_y_reconstruction
+    call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
+  - name: dnilmf_y_reconstruction
+    call: y_reconstruction.estimators.dnilmf_y_reconstruction_wrapper
+
+
+runs:
+  - estimator:
+    - nrlmf
+    - dnilmf
+    dataset:
+    - nuclear_receptors
+    - gpcr
+    - davis
+    - ion_channels
+    - enzymes
+    - ern
+    - srn
+    - lncrna
+    - kiba
+    - mirna
+    active: false
+
+  - estimator:
+    - bxt_gso
+    - brf_gso
+    - bxt_gso_1k
+
+    - bxt_lmo
+    - brf_lmo
+
+    - bxt_lso
+    - brf_lso
+
+    - bxt_gmosa
+    - bxt_gmosa_1k
+    - brf_gmosa
+
+    - bxt_sgso
+    - brf_sgso
+    dataset:
+    - nuclear_receptors
+    - gpcr
+    - davis
+    - ion_channels
+    - enzymes
+    - ern
+    - srn
+    - lncrna
+    - kiba
+    - mirna
+    wrapper:
+    - nrlmf_y_reconstruction
+    # - dnilmf_y_reconstruction
+    - regressor_to_classifier  # Already run at "../bipartite_adaptations"
+    active: true
+
+  - estimator:  
+    - bxt_gmo
+    - brf_gmo
+    dataset:
+    - nuclear_receptors
+    - gpcr
+    - davis
+    - ion_channels
+    - enzymes
+    - ern
+    - srn
+    - lncrna
+    wrapper:
+    - nrlmf_y_reconstruction
+    # - dnilmf_y_reconstruction
+    - regressor_to_classifier  # Already run at "../bipartite_adaptations"
+    active: false
+
+  # Largest datasets do not fit in memory with 16 jobs.
+  - estimator:  
+    - bxt_gmo
+    - brf_gmo
+    dataset:
+    - kiba
+    - mirna
+    wrapper:
+    - nrlmf_y_reconstruction
+    # - dnilmf_y_reconstruction
+    - regressor_to_classifier  # Already run at "../bipartite_adaptations"
+    cv:
+      params:
+        n_jobs: 3  # Limit memory usage
+    active: false

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+ENV_PARENT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )/../.." &> /dev/null && pwd )
+TARGET=$ENV_PARENT/env/bin/activate
+echo Calling \"junest source $TARGET\"
+junest source $TARGET
