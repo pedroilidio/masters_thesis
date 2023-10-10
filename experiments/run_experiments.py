@@ -186,7 +186,7 @@ def omit_not_builtin_params(param) -> Any:
         return {
             p: omit_not_builtin_params(v)
             for p, v in param.items()
-            if not (p.endswith("_") or p.startswith("_"))
+            if not (p.endswith("_") or p.startswith("_"))  # HACK: Ignore private params
         }
     if not isinstance(param, str) and isinstance(param, Sequence):
         return [omit_not_builtin_params(p) for p in param]
@@ -201,6 +201,7 @@ def omit_not_builtin_params(param) -> Any:
 def compute_run_hash(run: dict) -> str:
     """Compute hash based on static parameters.
     Parameters used should not change each time the run is loaded.
+    We currently use estimator params, cv params and dataset params.
     Parameters
     ----------
     run : dict
@@ -243,7 +244,7 @@ def compute_run_hash(run: dict) -> str:
         cv_params,
         run["dataset"],
     ):
-        parameters_hash.update(pickle.dumps(obj))
+        parameters_hash.update(pickle.dumps(omit_not_builtin_params(obj)))
 
     return parameters_hash.hexdigest()
 
