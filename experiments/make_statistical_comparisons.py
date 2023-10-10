@@ -18,6 +18,21 @@ from critical_difference_diagrams import (
 )
 
 
+def set_axes_size(w, h, ax=None):
+    """https://stackoverflow.com/a/44971177
+    w, h: width, height in inches
+    """
+    if not ax:
+        ax = plt.gca()
+    l = ax.figure.subplotpars.left
+    r = ax.figure.subplotpars.right
+    t = ax.figure.subplotpars.top
+    b = ax.figure.subplotpars.bottom
+    figw = float(w) / (r - l)
+    figh = float(h) / (t - b)
+    ax.figure.set_size_inches(figw, figh)
+
+
 def plot_insignificance_bars(*, positions, sig_matrix, ystart=None, ax=None, **kwargs):
     ax = ax or plt.gca()
     ylim = ax.get_ylim()
@@ -210,7 +225,6 @@ def iter_posthoc_comparisons(
             zero_method="zsplit",
             sort=True,
         )
-
         mean_ranks = (
             data.set_index(indices)[metric]
             .groupby(level=0)
@@ -218,6 +232,7 @@ def iter_posthoc_comparisons(
             .groupby(level=1 if hue is None else [1, 2])
             .mean()
         )
+
         yield metric, pvalue_crosstable, mean_ranks
 
 
@@ -245,7 +260,10 @@ def make_visualizations(
 
     n_groups = pvalue_crosstable.shape[0]
 
-    plt.figure(figsize=[(n_groups + 2) / 2.54] * 2)
+    # plt.figure(figsize=[(n_groups + 2) / 2.54] * 2)
+    plt.figure()
+    set_axes_size(*[(n_groups + 2) / 2.54] * 2)
+
     plt.title(f"{metric}\np = {omnibus_pvalue:.2e}", wrap=True)
     ax, cbar = sp.sign_plot(
         pvalue_crosstable,
@@ -263,9 +281,12 @@ def make_visualizations(
     )
     plt.close()
 
-    plt.figure(figsize=(6, 0.5 * n_groups / 2.54 + 1))
+    # plt.figure(figsize=(6, 0.5 * n_groups / 2.54 + 1))
+    plt.figure()
+    set_axes_size(6, 0.5 * n_groups / 2.54 + 1)
+
     plot_critical_difference_diagram(
-        mean_ranks,
+        mean_ranks.droplevel(hue),
         pvalue_crosstable,
         crossbar_props={"marker": "."},
     )
@@ -287,7 +308,10 @@ def make_visualizations(
         .get_level_values(0)
     )
 
-    plt.figure(figsize=(0.3 * n_groups + 1, 3))
+    # plt.figure(figsize=(0.3 * n_groups + 1, 3))
+    plt.figure()
+    set_axes_size(0.3 * n_groups + 1, 3)
+
     ax = sns.boxplot(
         data=data,
         x=group_col,
@@ -325,7 +349,9 @@ def make_visualizations(
     else:
         ystart = ax.get_ylim()[1]
         for _, hue_group in data.groupby(hue)[group_col]:
-            hue_group = hue_group.unique()
+            # Some groups are dropped by iter_posthoc_comparisons due to missing folds
+            hue_group = list(set(hue_group) & set(pvalue_crosstable.index))
+
             plot_insignificance_bars(
                 positions=positions,
                 sig_matrix=pvalue_crosstable.loc[hue_group, hue_group],
@@ -392,12 +418,15 @@ def plot_everything(
     sep="_",
     transpose_hue=False,
 ):
-    df = pd.read_table(results_table_path, header=[0, 1])
+    df = pd.read_table(results_table_path)
 
-    df2 = df.results.copy().dropna(axis=1, how="all")
-    df2["estimator"] = df[("estimator", "name")]
-    df2["dataset"] = df[("dataset", "name")]
-    df2["fold"] = df[("cv", "fold")]
+    df2 = df.loc[:, df.columns.str.startswith("results.")].dropna(axis=1, how="all")
+    df2.columns = df2.columns.str.removeprefix("results.")
+    metric_names = df2.columns.to_list()
+
+    df2["estimator"] = df["estimator.name"]
+    df2["dataset"] = df["dataset.name"]
+    df2["fold"] = df["cv.fold"]
 
     if estimator_subset is not None:
         df2 = df2[df2.estimator.isin(estimator_subset)]
@@ -407,6 +436,33 @@ def plot_everything(
         df2 = df2.loc[
             :, df2.columns.isin(metric_subset + ["estimator", "dataset", "fold"])
         ]
+
+    # Determine estimator hue
+    if hue == "prefix":
+        # df2[["prefix", "hue"]] = df2.estimator.str.split(sep, n=1, expand=True)
+        df2["prefix"] = df2.estimator.str.split(sep, n=1).str[transpose_hue]
+    elif hue == "suffix":
+        # df2[["estimator", "hue"]] = df2.estimator.str.rsplit(sep, n=1, expand=True)
+        df2["suffix"] = df2.estimator.str.rsplit(sep, n=1).str[not transpose_hue]
+    elif hue is not None:
+        df2[hue] = df.loc[df2.index, hue]
+        df2[hue] = df2[hue].fillna("none")
+        new_estimator_names = df2["estimator"] + sep + df2[hue].astype(str)
+        if transpose_hue:
+            df2[hue] = df2["estimator"]
+        df2["estimator"] = new_estimator_names
+    else:  # hue is None
+        df2["hue"] = "no_hue"  # HACK
+        hue = "hue"
+
+    # Drop duplicated runs
+    dup = df2.duplicated(["dataset", "fold", "estimator"], keep="first")
+    if dup.any():
+        warnings.warn(
+            "The following runs were duplicated and will be removed from the"
+            f" analysis:\n{df2[dup]}"
+        )
+        df2 = df2[~dup]
 
     max_estimators_per_dataset = df2.groupby("dataset").estimator.nunique().max()
 
@@ -446,28 +502,17 @@ def plot_everything(
         )
 
     allsets_data = (
-        allsets_data.set_index(["dataset", "fold", "estimator"])  # Keep columns
+        allsets_data.set_index(["dataset", "fold", "estimator", hue])  # Keep columns
         .groupby(level=[0, 1])  # groupby(["dataset", "fold"])
         .rank(pct=True)  # Rank estimators per fold
-        .groupby(level=[0, 2])  # groupby(["dataset", "estimator"])
+        .groupby(level=[0, 2, 3])  # groupby(["dataset", "estimator", hue])
         .mean()  # Average ranks across folds for each estimator
-        .rename_axis(index=["fold", "estimator"])  # 'dataset' -> 'fold'
+        .rename_axis(index=["fold", "estimator", hue])  # 'dataset' -> 'fold'
         .reset_index()
         .assign(dataset="all_datasets")
     )
 
     df2 = pd.concat([allsets_data, df2], ignore_index=True, sort=False)
-
-    # Determine estimator hue
-    if hue == "prefix":
-        # df2[["prefix", "hue"]] = df2.estimator.str.split(sep, n=1, expand=True)
-        df2["prefix"] = df2.estimator.str.split(sep, n=1).str[transpose_hue]
-    elif hue == "suffix":
-        # df2[["estimator", "hue"]] = df2.estimator.str.rsplit(sep, n=1, expand=True)
-        df2["suffix"] = df2.estimator.str.rsplit(sep, n=1).str[not transpose_hue]
-    elif hue is not None:
-        df2[hue] = df.loc[:, tuple(hue.split("."))]
-        df2["estimator"] += sep + df2[hue].astype(str)
 
     # Calculate omnibus Friedman statistics per dataset
     friedman_statistics = df2.groupby("dataset").apply(
@@ -486,7 +531,6 @@ def plot_everything(
     friedman_statistics.to_csv(main_outdir / "test_statistics.tsv", sep="\t")
 
     df2 = df2.dropna(axis=1, how="all")  # FIXME: something is bringing nans back
-    metric_names = df.results.columns.intersection(df2.columns)
 
     table_lines = []
 
@@ -543,7 +587,7 @@ def plot_everything(
     table.to_html(main_outdir / "comparison_table.html", escape=False)
     (
         table
-        .apply(lambda x: x.str.replace(r"<b>(.*?)</b>", r"\textbf{\1}", regex=True))
+        .apply(lambda x: x.str.replace(r"<b>(.*?)</b>", r"\\textbf{\1}", regex=True))
         .to_latex(main_outdir / "comparison_table.tex")
     )
 
@@ -583,7 +627,7 @@ def main():
     )
     parser.add_argument(
         "--hue",
-        choices=["prefix", "suffix"],
+        # choices=["prefix", "suffix"],
         help=(
             "Group estimators in boxplots. Can be set to a column of the data"
             " (e.g. 'wrapper.name'), or to 'prefix' or 'suffix' to use part of"

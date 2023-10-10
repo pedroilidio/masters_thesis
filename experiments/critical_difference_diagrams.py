@@ -160,13 +160,19 @@ def plot_critical_difference_diagram(
         sorted_ranks.iloc[half:],
     )
 
+    def bar_intersects(bar1, bar2):
+        return not (
+            ranks[list(bar1)].max() < ranks[list(bar2)].min()
+            or ranks[list(bar1)].min() > ranks[list(bar2)].max()
+        )
+
     # Create stacking of crossbars: for each level, try to fit the crossbar,
     # so that it does not intersect with any other in the level. If it does not
     # fit in any level, create a new level for it.
     crossbar_levels: list[list[set]] = []
-    for bar in _find_maximal_cliques(adj_matrix):
+    for bar in (x for x in _find_maximal_cliques(adj_matrix) if len(x) > 1):
         for level, bars_in_level in enumerate(crossbar_levels):
-            if not any(bool(bar & bar_in_lvl) for bar_in_lvl in bars_in_level):
+            if not any(bar_intersects(bar, bar_in_lvl) for bar_in_lvl in bars_in_level):
                 ypos = -level-1
                 bars_in_level.append(bar)
                 break

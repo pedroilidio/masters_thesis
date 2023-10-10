@@ -23,9 +23,7 @@ from bipartite_learn.preprocessing.monopartite import (
 from bipartite_learn.neighbors import WeightedNeighborsRegressor
 from bipartite_learn.wrappers import LocalMultiOutputWrapper
 from bipartite_learn.matrix_factorization import (
-    NRLMFSampler,
     NRLMFClassifier,
-    DNILMFSampler,
     DNILMFClassifier,
 )
 from bipartite_learn.model_selection import (
@@ -34,9 +32,9 @@ from bipartite_learn.model_selection import (
     make_multipartite_kfold,
 )
 
-# sys.path.insert(0, "..")
 import wrappers
 
+RSTATE = np.random.RandomState(0)
 
 kfold_5_shuffle_diag = make_multipartite_kfold(
     n_parts=2,  # Bipartite
@@ -175,7 +173,7 @@ lmorls = MultipartiteGridSearchCV(
 common_param_options = loguniform(2**-2, 2)
 
 nrlmf_grid = MultipartiteRandomizedSearchCV(
-    NRLMFClassifier(),
+    NRLMFClassifier(random_state=RSTATE),
     param_distributions=dict(
         lambda_rows=common_param_options,
         lambda_cols=common_param_options,
@@ -200,7 +198,7 @@ nrlmf = nrlmf_grid
 
 
 dnilmf_grid = MultipartiteRandomizedSearchCV(
-    DNILMFClassifier(),
+    DNILMFClassifier(random_state=RSTATE),
     param_distributions=dict(
         lambda_rows=common_param_options,
         lambda_cols=common_param_options,

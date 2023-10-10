@@ -62,6 +62,32 @@ aliases:
 
 runs:
   - estimator:
+    - bxt_gmosa_1k
+    dataset:
+    - mirna
+    wrapper:
+    - nrlmf_y_reconstruction
+    # - dnilmf_y_reconstruction
+    # - regressor_to_classifier  # Already run at "../bipartite_adaptations"
+    cv:
+      params:
+        n_jobs: 8  # Limit memory usage
+    active: true
+
+  - estimator:
+    - bxt_gmo
+    dataset:
+    - mirna
+    wrapper:
+    - nrlmf_y_reconstruction
+    # - dnilmf_y_reconstruction
+    # - regressor_to_classifier  # Already run at "../bipartite_adaptations"
+    cv:
+      params:
+        n_jobs: 6  # Limit memory usage
+    active: true
+
+  - estimator:
     - nrlmf
     - dnilmf
     dataset:
@@ -78,6 +104,10 @@ runs:
     active: false
 
   - estimator:
+    # - bxt_gmo  # Ran separately due to memory issues.
+    # - bxt_gmosa_1k
+    - brf_gmo
+
     - bxt_gso
     - brf_gso
     - bxt_gso_1k
@@ -85,15 +115,11 @@ runs:
     - bxt_lmo
     - brf_lmo
 
-    - bxt_lso
-    - brf_lso
-
     - bxt_gmosa
-    - bxt_gmosa_1k
     - brf_gmosa
 
-    - bxt_sgso
-    - brf_sgso
+    # - bxt_lso
+    # - brf_lso
     dataset:
     - nuclear_receptors
     - gpcr
@@ -108,39 +134,25 @@ runs:
     wrapper:
     - nrlmf_y_reconstruction
     # - dnilmf_y_reconstruction
-    - regressor_to_classifier  # Already run at "../bipartite_adaptations"
+    # - regressor_to_classifier  # Already run at "../bipartite_adaptations"
+    active: false
+
+  - estimator:
+    - bxt_gmo
+    - bxt_gmosa_1k
+    dataset:
+    - nuclear_receptors
+    - gpcr
+    - davis
+    - ion_channels
+    - enzymes
+    - ern
+    - srn
+    - lncrna
+    - kiba
+    # - mirna
+    wrapper:
+    - nrlmf_y_reconstruction
+    # - dnilmf_y_reconstruction
+    # - regressor_to_classifier  # Already run at "../bipartite_adaptations"
     active: true
-
-  - estimator:  
-    - bxt_gmo
-    - brf_gmo
-    dataset:
-    - nuclear_receptors
-    - gpcr
-    - davis
-    - ion_channels
-    - enzymes
-    - ern
-    - srn
-    - lncrna
-    wrapper:
-    - nrlmf_y_reconstruction
-    # - dnilmf_y_reconstruction
-    - regressor_to_classifier  # Already run at "../bipartite_adaptations"
-    active: false
-
-  # Largest datasets do not fit in memory with 16 jobs.
-  - estimator:  
-    - bxt_gmo
-    - brf_gmo
-    dataset:
-    - kiba
-    - mirna
-    wrapper:
-    - nrlmf_y_reconstruction
-    # - dnilmf_y_reconstruction
-    - regressor_to_classifier  # Already run at "../bipartite_adaptations"
-    cv:
-      params:
-        n_jobs: 3  # Limit memory usage
-    active: false

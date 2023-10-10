@@ -42,7 +42,11 @@ aliases:
 
 
 runs:
+  # Slightly different than the run at "../prediction_weights". Bootstrap for RF
+  # only.
   - estimator:
+    - brf_gmo
+
     - bxt_sgso_us
     - brf_sgso_us
 
@@ -72,13 +76,10 @@ runs:
     - kiba
     - mirna
     wrapper: regressor_to_classifier
-    active: true
+    active: false
 
-  # Slightly different than the run at "../prediction_weights". Bootstrap for RF
-  # only.
-  - estimator:  
+  - estimator:
     - bxt_gmo
-    - brf_gmo
     dataset:
     - nuclear_receptors
     - gpcr
@@ -88,18 +89,19 @@ runs:
     - ern
     - srn
     - lncrna
+    - kiba
+    # - mirna  # The only difference from the above
     wrapper: regressor_to_classifier
-    active: true
+    active: false
 
-  # Largest datasets do not fit in memory with 16 jobs.
+
+  # Largest dataset does not fit in memory with 16 jobs.
   - estimator:  
     - bxt_gmo
-    - brf_gmo
     dataset:
-    - kiba
     - mirna
     wrapper: regressor_to_classifier
     cv:
       params:
-        n_jobs: 3  # Limit memory usage
+        n_jobs: 4  # Limit memory usage
     active: true
