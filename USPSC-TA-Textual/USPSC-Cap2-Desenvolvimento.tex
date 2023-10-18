@@ -172,7 +172,7 @@ We gathered ten publicly available interaction datasets to evaluate the performa
 , and more detailed descriptions are provided below.
 
 %\subsection{DPI-E, DPI-G, DPI-I, DPI-N~\cite{yamanishi2008}}
-\subsection{DPI-E, DPI-G, DPI-I, DPI-N}
+%\subsection{DPI-E, DPI-G, DPI-I, DPI-N}
 
 These datasets comprise drug-protein interactions for four distinct classes of proteins: enzymes, GPCRs, ion channels, and nuclear receptors, respectively. Drug similarities were computed using the SIMCOMP metric, while protein similarities were computed as normalized scores of Smith-Waterman pairwise alignments~\cite{yamanishi2008}.
 
@@ -206,7 +206,7 @@ Each lncRNA was required to interact with 50 proteins or more in the dataset, an
 
 % stat testing, multiple comparisons, etc
 
-\subsection{Cross-validation}
+\subsection{Model validation}
 \label{sec:cross_validation}
 
 To evaluate machine learning models, the standard procedure consists of separating a subset of data samples not to be used in the training process. These samples are subsequently inputted to the trained model and its known labels are compared to the model's predictions in order to estimate the algorithm performance. The hold-out samples are collectively called the \emph{test set} while the remaining ones used for model building are called the \emph{training set}.
@@ -229,9 +229,85 @@ We refer to the aforementioned two-dimensional cross-validation procedure built 
 In order to maximize the amount of training data in each fold, several studies \ref{} perform LT and TL validation separately from the TT validation, employing 1 by $k$ and $k$ by 1 cross-validation procedures respectively for LT and TL settings. Nevertheless, this requires performing cross-validation three times for each estimator, while TT cross-validation already unavoidably generates LT and TL partitions that could be used for scoring. Furthermore, using separate LT, TL and TT validation procedures hinders score comparison between LT and TT and between TL and TT, since different amounts of training data would be used for validating TT in comparison to validating the partially-learned test sets.
 
 
-\subsection{Prediction performance metrics}  % scoring?
+\subsection{Prediction scoring metrics}
 \label{sec:prediction_metrics}
 
+% TODO classification
+
+This section is concerned with defining the metrics used throughout this work to evaluate the predictive performance of an estimator and enable comparison between them. Consider a test set of $N$ interaction labels to be inferred by a classifier (we are not concerned with the shape of $Y$ in this section, and $N=|Y|$). Let the classifier's predictions then be represented by a matrix $\hat Y$ of the same shape as $Y$, with $\hat Y\el{ij}$ being the predicted value for the ground-truth label $Y\el{ij}$. We first define the traditional:
+\begin{itemize}
+    \item \textbf{True Positives (TP):} the number of positive labels correctly predicted, where both the predicted and actual labels are 1.
+    \begin{equation}
+        TP = \sum_{i,j} \mathbb{I}(Y\el{ij} = 1 \text{ and } \hat{Y}\el{ij} = 1)
+    \end{equation}
+
+    \item \textbf{True Negatives (TN):} the number of negative labels correctly predicted, where both the predicted and actual labels are 0.
+    \begin{equation}
+        TN = \sum_{i,j} \mathbb{I}(Y\el{ij} = 0 \text{ and } \hat{Y}\el{ij} = 0)
+    \end{equation}
+
+    \item \textbf{False Positives (FP):} the number of instances where the predicted label is positive (1), but the actual label is negative (0).
+    \begin{equation}
+        FP = \sum_{i,j} \mathbb{I}(Y\el{ij} = 0 \text{ and } \hat{Y}\el{ij} = 1)
+    \end{equation}
+
+    \item \textbf{False Negatives (FN):} the number of instances where the predicted label is negative (0), but the actual label is positive (1).
+    \begin{equation}
+        FN = \sum_{i,j} \mathbb{I}(Y\el{ij} = 1 \text{ and } \hat{Y}\el{ij} = 0)
+    \end{equation}
+\end{itemize}
+where \(\mathbb{I}(A)\) is the indicator function that equals 1 if statement \(A\) is true and 0 otherwise. Notice that the sum of TP, TN, FP and FN is equal to the total number of instances $N$.
+%- \(n\) is the total number of instances.
+%- \(Y_i\) represents the ground-truth label for instance \(i\).
+%- \(\hat{Y}_i\) represents the predicted label for instance \(i\).
+
+% TODO: we use micro version of the metrics. should we use other forms?
+
+An illustration for those quantities is provided by \autoref{fig:scoring}.
+
+Naturally, one wants their estimator to maximize TP and TN while minimizing FP and FN. For the metrics to be comparable across different datasets of different numbers of instances, they are often normalized to the interval [0, 1] in various ways. Three of them are used in this work: 
+\begin{itemize}
+    \item \textbf{True positive rate (TPR)} or \textbf{recall:} the ratio of correctly predicted positive labels to the total number of positive labels.
+    \begin{equation}
+        TPR = \frac{TP}{TP + FN}
+    \end{equation}
+    \item \textbf{True negative rate (TNR):} the ratio of correctly predicted negative labels to the total number of negative labels.
+    \begin{equation}
+        TNR = \frac{TN}{TN + FP}
+    \end{equation}
+    \item \textbf{False positive rate (FPR):} the ratio of incorrectly predicted positive labels to the total number of negative labels.
+    \begin{equation}
+        FPR = \frac{FP}{FP + TN}
+    \end{equation}
+    \item \textbf{Precision:} the ratio of correctly predicted positive labels to the total number of predicted positive labels.
+    \begin{equation}
+        Precision = \frac{TP}{TP + FP}
+    \end{equation}
+\end{itemize}
+These metrics are better visualized in \autoref{fig:scoring}.
+
+An optimal binary classifier will thus present high TPR and precision while minimizing FPR.
+In real-world scenarios, however, building estimators to simultaneously optimize all these metrics is not a straightforward problem. Often, the task manifests itself as a tradeoff between TP and TN. For instance, if a classifier trivially outputs positive labels for all instances irrespectively of the input features, it will achieve perfect TP, but its TN will be null. On the other hand, if a negative label is outputted every time, an ideal TN will be achieved at the expense of a null TP. Although seldom as extreme as those examples, classifiers will often lean into one of those directions, displaying a tendency towards yielding more positive (\emph{sensibility}) or more negative (\emph{specificity}) labels.
+
+% TODO The preference for each of those tendencies is highly application-specific.
+The preference for each of these tendencies is highly application-specific. For instance, in the process of diagnosing medical conditions, sensitivity (TPR) is often prioritized, favoring the identification of all true cases at the expense of some misleading positive results.
+In this case, the cost of missing a positive result is usually far greater than that of a false positive. In other scenarios, such as spam email filtering, specificity (TNR) might be favored to minimize the number of legitimate emails marked as spam, even if some spam emails go undetected. The choice between these tendencies reflects the trade-off between correctly identifying positive instances and correctly identifying negative instances and should align with the specific goals and constraints of the classification problem at hand.
+
+Deciding between those characteristics across a variety of learning tasks
+is thus a challenging factor to be taken into account, especially in cases where this balance can be finely adjusted.
+%
+Many classifiers, such as those employed in the present study, do not directly output a binary label but instead provide us with a continuous decision value (such as a probability of interaction) that additionally depends on specifying a threshold point to establish the final predicted classes. This choice of threshold usually directly affects the classifier's propensity to positive or negative outputs, so that a single classifier can yield multiple different results with varying levels of TPR and TNR depending on the chosen thresholds.
+
+To avoid the trouble of defining threshold values, influencing each estimator's TPR-TNR balance and hindering fair comparison between them, it is common to consider TP and TN for all thresholds.
+Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible results of a classifier. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and FPR are each indicated by an axis. The resulting curve is called the \emph{receiver operating characteristic} (ROC) curve, and is exemplified by \autoref{fig:roc}.
+
+% TODO fpr represents tnr
+% TODO (0, 1) position is the goal, random estimators are 50%
+
+To collectively %summarize the classifier's performance, the area under the ROC curve (AUC) is often used as a single metric, with values ranging from 0 to 1, where 1 represents a perfect classifier and 0.5 represents a random classifier.
+
+% TODO problems with imbalance
+% TODO aupr
 
 %\section{Common approaches to build bipartite models}
 %\label{sec:common_approaches}
@@ -242,7 +318,7 @@ As previously stated in \autoref{sec:problem_statement}, bipartite interaction p
 
 Such subtlety is most often bypassed by reformulating a bipartite dataset into the traditional machine learning setting~\cite{vert2008reconstruction}.
 %
-These strategies can be encompassed under two general approaches, initially termed \emph{global} and \emph{local} by \citet{vert2008reconstruction} and later adopted and extended by \citet{sschrynemackers2015}.  %TODO cite more
+These strategies can be encompassed under two general approaches, initially termed \emph{global} and \emph{local} by \textcite{vert2008reconstruction} and later adopted and extended by \textcite{sschrynemackers2015}.  %TODO cite more
 % TODO maybe direct citation to specify our changes
 Aiming to enhance clarity and generalization, we further refine these categories by defining \emph{global} and \emph{local} as general properties of bipartite estimators, rather than specific training procedures:
 
@@ -253,7 +329,7 @@ Aiming to enhance clarity and generalization, we further refine these categories
 \end{itemize}
 
 %We refer to \emph{monopartite} estimators as those who are not specifically designed to deal with bipartite data, and \emph{bipartite} estimators as those who are. This distinction is important to differentiate between estimators that are naturally able to deal with bipartite data and those who are not, but can be adapted to do so.
-Furthermore, to be consistent with \citet{pliakos2018,pliakos2019,pliakos2020}, in our current context of bipartite interactions we assume that:
+Furthermore, to be consistent with \textcite{pliakos2018,pliakos2019,pliakos2020}, in our current context of bipartite interactions we assume that:
 
 \begin{itemize}
     \item \emph{\textbf{Single-output}} estimators are those which consider all labels, i.e. all $Y\el{ij}$ elements, irrespectively of the column $j$ or row $i$ they are in. They are all regarded as a single type of output\footnote{Notice that the label matrix $Y$ could be still represented in two dimensions even if the model is single-output in this sense, contrary to the usual case where bidimensionality of $Y$ is a defining characteristic of a multi-output problem.}.
@@ -261,7 +337,7 @@ Furthermore, to be consistent with \citet{pliakos2018,pliakos2019,pliakos2020}, 
 \end{itemize}
 %TODO another term for multi-output, please. This is too confusing with multi-output in the monopartite sense. bipartite multi-output are local models that use multi-output monopartite estimators? or 3D interaction matrices with multiple labels for each interaciton?
 
-Finally, the two most common ways of adapting monopartite estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \citet{pliakos2018,pliakos2019,pliakos2020}. We further denote them \empth{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
+Finally, the two most common ways of adapting monopartite estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \textcite{pliakos2018,pliakos2019,pliakos2020}. We further denote them \empth{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
 
 Specific definitions and shortcomings of these procedures are now presented.
 
@@ -405,7 +481,7 @@ themselves.
 \subsection{Bipartite forests}
 \label{sec:bipartite_forests}
 
-A \textit{sui generis} learning algorithm adaptation was proposed by \citet{pliakos2018} to deal with bipartite data, without the need for dataset reformatting as in SGSO, or compositions of multiple estimators and secondary training steps as SLMO.
+A \textit{sui generis} learning algorithm adaptation was proposed by \textcite{pliakos2018} to deal with bipartite data, without the need for dataset reformatting as in SGSO, or compositions of multiple estimators and secondary training steps as SLMO.
 
 Named Predictive Bi-Clustering Tree (PBCT) by the authors, it tunes the usual decision tree-growing algorithm to directly operate on bipartite interactions, building a single tree model directly on bipartite formatted datasets (using $X_1$, $X_2$ and $Y$). Importantly, their proposed algorithm inherits all the benefits of tree-based estimators, such as their well-known interpretability and remarkably low amount of hyperparameters~\cite().
 
@@ -460,7 +536,7 @@ The exhaustive evaluation of partitions in each node can be done by, for each fe
 
 A greedy procedure is then followed for the overall tree growing, selecting at each node the best $t$ and $f$ to represent the split, according to a predefined quality criteria we further discuss in \autoref{sec:criteria}.
 %
-The exhaustive split search procedure is detailed by the \autoref{alg:find_best_split}. The algorithm \ref{alg:buildtree} then describes its application on growing a traditional decision tree (stablished by \citet{breiman1984classification}),
+The exhaustive split search procedure is detailed by the \autoref{alg:find_best_split}. The algorithm \ref{alg:buildtree} then describes its application on growing a traditional decision tree (stablished by \textcite{breiman1984classification}),
 while \ref{alg:predict} formally details how predictions are made given a model built by \ref{alg:buildtree} and a new data instance.
 
 \algPredict
@@ -544,7 +620,7 @@ Referring back to bipartite scenarios, we now describe how intuitive adaptations
 \subsection{Bipartite decision trees}
 \label{sec:bipartite_trees}
 
-As presented by \autoref{sec:bipartite_forests}, \citet{pliakos2018global} introduces an ingenious strategy to build a decision tree directly on bipartite-formatted datasets. The main concept behind it borrows the idea of the SLMO approach described in \autoref{sec:slmo}, in that the training procedure is divided into two steps, separately considering each axis of the bipartite data. However, instead of training two separate models as in SLMO, two candidate versions of each node are generated, one for each axis, and the best between both is selected to integrate the final model.
+As presented by \autoref{sec:bipartite_forests}, \textcite{pliakos2018global} introduces an ingenious strategy to build a decision tree directly on bipartite-formatted datasets. The main concept behind it borrows the idea of the SLMO approach described in \autoref{sec:slmo}, in that the training procedure is divided into two steps, separately considering each axis of the bipartite data. However, instead of training two separate models as in SLMO, two candidate versions of each node are generated, one for each axis, and the best between both is selected to integrate the final model.
 
 Formally speaking, given a general procedure \FindSplit for finding a split threshold in a traditional multioutput decision tree (see \autoref{sec:dt}), the PBCT algorithm~\cite{pliakos2018global} consists of applying \FindSplit twice at each node: once over $X_1$ and $Y$, in which case each $Y$ \emph{column} is considered a different output; and once over $X_2$ and $Y\T$, so that each $Y$ \emph{row} is now interpreted as an output. Finally, the best overall split is chosen between the best horizontal split and the best vertical split, according to the quality criterion of \autoref{eq:q_lmo}.
 
@@ -554,7 +630,7 @@ Although each node locally performs the partitioning search on each axis, the re
 
 Interestingly, contrary to the other adaptation approaches of traditional machine learning algorithms (\autoref{sec:common_approaches}), the PBCT procedure does not require using multiple monopartite estimators and training steps (such as SLMO, \autoref{sec:slmo}) or converting bipartite datasets to the memory-expensive global format such as SGSO (\autoref{sec:sgso}). Nevertheless, considering each row or column of $Y$ as a separate output results that growing a PBCT still occurs in the same asymptotic time complexity of a decision tree under the SGSO adaptation (derived in \autoref{sec:complexity_analysis}). 
 
-Remarkably, we show that leveraging the single-output assumption (\autoref{sec:common_approaches}) in the tree impurity calculation can simplify the bipartite local split searching procedure introduced by \citet{pliakos2018global}, yielding a new PBCT-based algorithm with expressive gains in training time efficiency. A formal description of our algorithm proposal is now presented.
+Remarkably, we show that leveraging the single-output assumption (\autoref{sec:common_approaches}) in the tree impurity calculation can simplify the bipartite local split searching procedure introduced by \textcite{pliakos2018global}, yielding a new PBCT-based algorithm with expressive gains in training time efficiency. A formal description of our algorithm proposal is now presented.
 
 %Nevertheless, an argument could be made in opposition to this idea.
 
@@ -658,6 +734,7 @@ This property can be explored to build a more efficient training procedure for b
 
 
 \subsection{Prototype functions of bipartite decision trees}
+\label{sec:prototype}
 
 When a leaf is reached during the prediction step of a decision tree, the \KwPrototype function is called to determine the output value to be returned (\autoref{ln:prototype} of \autoref{alg:predict}). With monopartite datasets, the \KwPrototype function of traditional decision trees most often simply returns, for each output, the average label of the leaf's partition (\autoref{eq:prototype1})~\cite{breiman1984classification}.
 %
@@ -675,7 +752,7 @@ As an extension, the most natural approach to use on single-output bipartite tre
     \label{eq:prototype_gso}
 \end{equation}
 
-Nevertheless, some considerations are possible when dealing with bipartite data, since there are cases in which one of the entities of the interaction being predicted is already known from the training set. As introduced by \citet{pliakos2018global}, if a row or column instance is in the training set, we have the option of averaging only the column or row (respectively) of $Y_\text{leaf}$ corresponding to its known outputs. Specifically, when predicting the interaction between a sample pair $x_{1\text{, new}}$ and $x_{2\text{, new}}$, we can set \KwPrototype as in \autoref{eq:prototype2}.
+Nevertheless, some considerations are possible when dealing with bipartite data, since there are cases in which one of the entities of the interaction being predicted is already known from the training set. As introduced by \textcite{pliakos2018global}, if a row or column instance is in the training set, we have the option of averaging only the column or row (respectively) of $Y_\text{leaf}$ corresponding to its known outputs. Specifically, when predicting the interaction between a sample pair $x_{1\text{, new}}$ and $x_{2\text{, new}}$, we can set \KwPrototype as in \autoref{eq:prototype2}.
 \begin{equation}
     \KwPrototype{$Y_\text{leaf}$} =
     \begin{cases}
@@ -1243,7 +1320,7 @@ These compositions of estimators are usually referred to as \emph{ensembles}. Be
 In fact, it has been extensively demonstrated both empirically and theoretically that the predictive perfomance a group of learners always surpasses that of its individual components if and only if the individual estimators are sufficiently accurate and diverse~\cite{dieterich2000}.% TODO cite more
 Importantly, requiring diversity means that the individual estimators must ideally commit errors on different instances for the composition to succeed~\cite{polikar2006ensemble}.
 
-\citet{dietterich2000ensemble,polikar2006ensemble} describe three ways in which combining diverse estimators could benefit the ensemble's performance.
+\textcite{dietterich2000ensemble,polikar2006ensemble} describe three ways in which combining diverse estimators could benefit the ensemble's performance.
 
 \begin{enumerate}
     \item \textbf{Statistical:} Building each estimator can be seen as finding a hipothesis that explains the prediction problem as well as possible. If multiple different hypotheses are found, the likelihood that at least one of them is close to the true underlying function is increased. Furthermore, averaging multiple hypotheses can contribute to alleviate the influence of each hipothesis' variance, resulting in a more accurate approximation and reduced propensity to overfitting.
@@ -1269,13 +1346,13 @@ We briefly describe some popular strategies for introducing heterogeneity in the
 
 Both instance and feature undersampling can be performed node-wise, occurring before the split search procedure of each node, or tree-wise, occurring once for each tree in the ensemble. Both can also be performed with or without replacement, but notice that sampling features with replacement only makes sense if randomization of split threshold is also employed. In such a case, a random candidate split threshold is selected for each repetition of a feature, whereas the same split threshold would be selected for all duplicates if the greedy approach was used, spending more time with no different result than if omitting the repeated features.
 
-The concept of sampling instances with replacement to create a different training set for each estimator in the ensemble was first proposed by \citet{breiman1996bagging} under the name of bootstrap aggregation or \emph{bagging}.
+The concept of sampling instances with replacement to create a different training set for each estimator in the ensemble was first proposed by \textcite{breiman1996bagging} under the name of bootstrap aggregation or \emph{bagging}.
 
-The idea of selecting a subset of features was introduced independently by \citet{amit1997shape} and \citet{tinkamho1998random}. While \citet{amit1997shape} explored feature sampling as a remedy for a shape recognition problem with impeditively large sample sets, \citet{tinkamho1998random} was mainly focused on overfitting-prevention for decision forests.
+The idea of selecting a subset of features was introduced independently by \textcite{amit1997shape} and \textcite{tinkamho1998random}. While \textcite{amit1997shape} explored feature sampling as a remedy for a shape recognition problem with impeditively large sample sets, \textcite{tinkamho1998random} was mainly focused on overfitting-prevention for decision forests.
 
-It was \citet{breiman2001random} who first combined the two ideas, proposing and greatly popularizing the Random Forest algorithm, with over 115 thousand citations according to Google Scholar as of september 2023.
+It was \textcite{breiman2001random} who first combined the two ideas, proposing and greatly popularizing the Random Forest algorithm, with over 115 thousand citations according to Google Scholar as of september 2023.
 
-\citet{geurts2006extremely} later introduced the randomized split threshold concept, presenting the Extremely Randomized Trees algorithm (Extra-Trees) and showcasing its competitive prediction scores and clear superiority in terms of training speed compared to bagging and Random Forests.
+\textcite{geurts2006extremely} later introduced the randomized split threshold concept, presenting the Extremely Randomized Trees algorithm (Extra-Trees) and showcasing its competitive prediction scores and clear superiority in terms of training speed compared to bagging and Random Forests.
 
 The two main ensemble-building strategies we explore in the current work can now be defined as follows:
 
@@ -1286,15 +1363,15 @@ The two main ensemble-building strategies we explore in the current work can now
 
 One of the notable features of decision forests that contribute to their expressive popularity is their low need for data preprocessing, since the order of the values among each feature is the main factor for determining the best split points, and not their scale. Additonally, the relative scaling of different features is not a concern, since the split search procedure is performed separately for each feature. These factors, combined with their strikingly small set of hyperparameters, crown decision forests as remarkable "plug-and-play", easily configurable, models, especially suited for unstructured tabular data~\cite{breiman2001}. % XXX cite more
 
-We refer the reader to \citet{sagi2018ensemble} and \citet{fawagreh2014random} for a more in-depth description of prominent decision forest strategies and previous work in the field. \citet{amasyali2011comparison} provides an experimental comparison of the most popular ensemble methods.  % XXX more (preferably newer) experimental comparisons
+We refer the reader to \textcite{sagi2018ensemble} and \textcite{fawagreh2014random} for a more in-depth description of prominent decision forest strategies and previous work in the field. \textcite{amasyali2011comparison} provides an experimental comparison of the most popular ensemble methods.  % XXX more (preferably newer) experimental comparisons
 
-Regarding interaction problems, \citet{schrynemackers2015classifying} explores the use of decision forests under the standard global multi-output and local single-output adaptations presented by \autoref{sec:common_approaches}.
+Regarding interaction problems, \textcite{schrynemackers2015classifying} explores the use of decision forests under the standard global multi-output and local single-output adaptations presented by \autoref{sec:common_approaches}.
 
 However, the same tree-diversification and forest building techniques discussed in this section can also be applied to bipartite decision trees, with very small modifications regarding the data sampling procedures: instance sampling and feature sampling must now occurr on both domains of the interaction dataset. Under this assumption, the adptation to bipartite problems can thus occur at the tree level, not at the ensemble level as would be the case with SLMO and SGSO strategies.
 
 \cite{pliakos2019network} explores these ideas, using bipartite global multi-output decision trees to build both Random Forests and Extra-Trees ensembles. We hereafter refer to these forests as Bipartite Random Forests (BRF) and Bipartite Extra-Trees (BXT), respectively. Their study suggests superior performance of BXT in comparison to SLMO- and SGSO-adapted forests, as well as in comparison to previously proposed algorithms, although no significance level or test statistic is used to describe the comparisons.
 
-The authors later extended their work to include a self-learning step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their GMO BXT model is not directly built upon the bipartite dataset but rather on a reconstructed version of the interaction matrix obtained through applying the Neighborhood-Regularized Logistic Matrix Factorization technique (NRLMF, \citet{liu2016neighborhood}).
+The authors later extended their work to include a self-learning step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their GMO BXT model is not directly built upon the bipartite dataset but rather on a reconstructed version of the interaction matrix obtained through applying the Neighborhood-Regularized Logistic Matrix Factorization technique (NRLMF, \textcite{liu2016neighborhood}).
 
 % TODO how to combine tree outputs
 In the present work, we refine such comparisons and inroduce ensembles of our newly proposed bipartite global single-output decision trees (\autoref{sec:bgso_trees}), demonstrating competitive prediction scores under an asymptotically more efficient training framework.
@@ -1338,42 +1415,45 @@ In the present work, we refine such comparisons and inroduce ensembles of our ne
 \subsection{Empirical time complexity analysis}
 \label{sec:empirical_complexity}
 
-To empirically access the training time complexity of the tree models under study, we artificially generate a series of bipartite datasets by filling three $n$ by $n$ matrices with pseudo-random values, representing the two $X$ matrices and the $y$ matrix on each interaction. Values were taken uniformly from the interval $[0, 1]$ for the feature matrices and from the interval $[0, 100]$ for the target matrix. We thus represent interactions between $n$ drugs and $n$ proteins, each being described by $n$ features.
+To empirically assess the training time complexity of the tree models under study, we artificially generate a series of bipartite datasets by filling three $n$ by $n$ matrices with pseudo-random values, representing the two $X$ matrices and the $y$ matrix on each interaction. Values were taken uniformly from the interval $[0, 1]$ for the feature matrices and from the interval $[0, 100]$ for the target matrix. We thus represent interactions between $n$ drugs and $n$ proteins, each being described by $n$ features.
 
 We then train the GMO and the optimized GSO versions of a single bipartite decision tree (BDT) and a single bipartite ExtraTree (BXT) on each of the generated datasets, measuring their training duration in seconds. The results are shown in Figure \ref{fig:empirical_complexity}. From the least squares linear regression on the log-log plot, we see that the estimated training time complexities closely follow the theoretical expectations developed under Section \ref{sec:complexity_analysis}, with slopes referring to the GSO models (predicted to be $O(n^3)$) approaching 3 while the GMO models (predicted to be $O(n^3\log(n))$) produce slope between 3 and 4.
 
-Statistical testing further shows that the empirical time complexity of the proposed GSO algorithms are indeed significantly lower than their GMO counterparts (see the caption for Figure \ref{fig:empirical_complexity}).
+Statistical testing further shows that the empirical time complexity of the proposed GSO algorithms are indeed significantly lower than that of their GMO counterparts (see the caption for Figure \ref{fig:empirical_complexity}).
 
 % The value slighly above 3 for bdt\_gso also do not defy expectations, since the theoretical analises were based on the assumption of balanced trees and a small increase in tree depth is expected in real scenarios.
 
-The slightly lower slopes for the ExtraTrees in comparison both with the BDTs and with the theoretical complexities are also expected, since the bottleneck calculation for these models in the asymptotic regime is the search for the minimum and maximum values of each feature in each node, which can be done much faster than the search for the best split employed by the greedy decision trees, eventhough both procedures have the same order of asymptotic complexity. As such, much larger datasets would be required to observe the asymptotic behavior of the ExtraTrees. In spite of that, the empirical complexity of bdt\_gso is still observed to be lower than that of bxt\_gmo, validating once more the prediction that bdt\_gso should present faster training times than bxt\_gmo on sufficiently large datasets.
+The slightly lower slopes for the ExtraTrees in comparison both with the BDTs and with the theoretical complexities are also expected, since the bottleneck calculation for these models in the asymptotic regime is the search for the minimum and maximum values of each feature in each node (lines \ref{}), which can be done much faster than the search for the best split employed by the greedy decision trees (\autoref{alg:find_best_split}), eventhough both procedures have the same order of asymptotic complexity. As such, much larger datasets would be required to observe the asymptotic behavior of the ExtraTrees.
+In spite of that, the empirical complexity of \texttt{bdt\_gso} is still observed to be highly significantly lower than that of \texttt{bxt\_gmo}, validating once more the prediction that \texttt{bdt\_gso} should present faster training times than \texttt{bxt\_gmo} on sufficiently large datasets.
 
 \begin{figure}[h]
     \centering
-    \begin{subfigure}{0.5\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/empirical_complexity/time_vs_n_artificial_data.png
+            experiments/empirical_complexity/time_vs_n_artificial_data.pdf
         }
         \caption{Training durations in seconds versus the the number of samples and features.}
     \end{subfigure}
-    \begin{subfigure}{0.5\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/empirical_complexity/%
-            time_vs_n_artificial_data_loglog.png
+            experiments/empirical_complexity/%
+            time_vs_n_artificial_data_loglog.pdf
         }
         \caption{Logarithm of the training durations in seconds versus the logarithm of the number of samples and features.}
     \end{subfigure}
     \caption{
-        Empirical time complexity estimation of the proposed bipartite tree
-        algorithms. bxt stands for bipartite ExtraTree, bdt for a bipartite decision tree using the greedy split search procedure. Independent two sample t-tests comparing the slope estimates in (b) reveal that the time complexity of bdt\_gso is highly significantly lower than bdt\_gmo (p-value $< 10^{-37}$) and also that bxt\_gso significantly exibits lower complexity than bxt\_gmo (p-value $< 10^{-19}$). Those values
-        corroborate the theoretical estimates from Section \ref{sec:complexity_analysis}.
+        Empirical time complexity estimation of the proposed bipartite global single-output (BGSO) and the global multi-output (GMO)~\cite{pliakos2018}
+        algorithms. Bipartite versions of both extremely randomized trees~\cite{geurts2006extremely} (BXT) and greedy decision trees~\cite{breiman1984} (BDT) were built under the GSO and GMO scheme and trained over artificial datasets of varying numbers of samples (as described in section \ref{sec:complexity_analysis}). Applying least-squares linear regression to the logarithm of the values in (a), as shown in (b), the empirical slopes and respective standard deviations are obtained.
+        Independent two-sample t-tests comparing the slope estimates reveal that the time complexity of \texttt{bdt\_gso} is highly significantly lower than \texttt{bdt\_gmo} (p-value $< 10^{-64}$) and even \texttt{bxt\_gmo} (p-value $< 10^{-20}$), and also that \texttt{bxt\_gso} significantly exhibits lower complexity than \texttt{bxt\_gmo} (p-value $< 10^{-22}$). Those values
+        corroborate the theoretical estimates from section \ref{sec:complexity_analysis}.
     }
     \label{fig:empirical_complexity}
 \end{figure}
 
-\subsection{Comparison between GSO models}
 
-To access the impact of global single-output optimizations in bipartite decision tree growing, we compare three slightly different training methods for BXT and BRF models.
+\subsection{Comparison between GSO models}  % TODO
+
+To assess the impact of global single-output optimizations in bipartite decision tree growing, we compare three slightly different training methods for BXT and BRF models.
 
 \begin{itemize}
     \item \textbf{ngso}: Naive global single output implementation (Section \ref{});
@@ -1385,130 +1465,130 @@ While no significant divergence was measured among the GSO models using the enti
 
 On the other hand, AUROC is significantly improved by the undersampling procedure, which is most likely an artifact of the highly imbalanced nature of the present data, as explained as follows. The models grown on the undersampled datasets are naturally the most likely to assign positive labels to new interactions in general, improving TPR at the expense of also increasing FPR. However, since negative labels greatly outnumbers positive labels in the test sets of our current scenario, an increase in FPR impacts a much larger number of predictions than the same increase in TPR. In spite of that, AUROC equally treats TPR and FPR, so that the impact of a high FPR is underestimated. As such, AUROC results could be deemed as unrepresentative of model performance in this setup.
 
-\begin{figure*}
-    \centering
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/figures/%
-            estimator_name/enzymes__LT_roc_auc.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/figures/%
-            estimator_name/enzymes__LT_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/figures/%
-            estimator_name/enzymes__LT_matthews_corrcoef.png
-        }
-    \end{subfigure}
-
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/figures/%
-            estimator_name/enzymes__TL_roc_auc.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/figures/%
-            estimator_name/enzymes__TL_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/figures/%
-            estimator_name/enzymes__TL_matthews_corrcoef.png
-        }
-    \end{subfigure}
-
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/figures/%
-            estimator_name/enzymes__TT_roc_auc.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/figures/%
-            estimator_name/enzymes__TT_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/figures/%
-            estimator_name/enzymes__TT_matthews_corrcoef.png
-        }
-    \end{subfigure}
-    \caption{Comparison between GSO models on the Enzymes dataset.}
-    \label{fig:box_\text{SGSO}so_models_enzymes}
-\end{figure*}
-
-
-\begin{figure*}
-    \centering
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/post_hoc/%
-            all_datasets__cdd__LT_roc_auc.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/post_hoc/%
-            all_datasets__cdd__LT_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/post_hoc/%
-            all_datasets__cdd__LT_matthews_corrcoef.png
-        }
-    \end{subfigure}
-
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/post_hoc/%
-            all_datasets__cdd__TL_roc_auc.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/post_hoc/%
-            all_datasets__cdd__TL_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/post_hoc/%
-            all_datasets__cdd__TL_matthews_corrcoef.png
-        }
-    \end{subfigure}
-
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/post_hoc/%
-            all_datasets__cdd__TT_roc_auc.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/post_hoc/%
-            all_datasets__cdd__TT_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/gso_optimization/post_hoc/%
-            all_datasets__cdd__TT_matthews_corrcoef.png
-        }
-    \end{subfigure}
-    \caption{Percentile score rankings for each global single output strategy.}
-    \label{fig:cdd_gso_models}
-\end{figure*}
+% \begin{figure*}
+%     \centering
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/figures/%
+%             estimator_name/enzymes__LT_roc_auc.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/figures/%
+%             estimator_name/enzymes__LT_average_precision.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/figures/%
+%             estimator_name/enzymes__LT_matthews_corrcoef.pdf
+%         }
+%     \end{subfigure}
+% 
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/figures/%
+%             estimator_name/enzymes__TL_roc_auc.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/figures/%
+%             estimator_name/enzymes__TL_average_precision.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/figures/%
+%             estimator_name/enzymes__TL_matthews_corrcoef.pdf
+%         }
+%     \end{subfigure}
+% 
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/figures/%
+%             estimator_name/enzymes__TT_roc_auc.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/figures/%
+%             estimator_name/enzymes__TT_average_precision.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/figures/%
+%             estimator_name/enzymes__TT_matthews_corrcoef.pdf
+%         }
+%     \end{subfigure}
+%     \caption{Comparison between GSO models on the Enzymes dataset.}
+%     \label{fig:box_\text{SGSO}so_models_enzymes}
+% \end{figure*}
+% 
+% 
+% \begin{figure*}
+%     \centering
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/statistical_comparisons/%
+%             all_datasets/critical_difference_diagrams/LT_roc_auc.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/statistical_comparisons/%
+%             all_datasets/critical_difference_diagrams/LT_average_precision.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/statistical_comparisons/%
+%             all_datasets/critical_difference_diagrams/LT_matthews_corrcoef.pdf
+%         }
+%     \end{subfigure}
+% 
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/statistical_comparisons/%
+%             all_datasets/critical_difference_diagrams/TL_roc_auc.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/statistical_comparisons/%
+%             all_datasets/critical_difference_diagrams/TL_average_precision.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/statistical_comparisons/%
+%             all_datasets/critical_difference_diagrams/TL_matthews_corrcoef.pdf
+%         }
+%     \end{subfigure}
+% 
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/statistical_comparisons/%
+%             all_datasets/critical_difference_diagrams/TT_roc_auc.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/statistical_comparisons/%
+%             all_datasets/critical_difference_diagrams/TT_average_precision.pdf
+%         }
+%     \end{subfigure}
+%     \begin{subfigure}{0.32\textwidth}
+%         \includegraphics[width=\textwidth]{
+%             experiments/gso_optimization/statistical_comparisons/%
+%             all_datasets/critical_difference_diagrams/TT_matthews_corrcoef.pdf
+%         }
+%     \end{subfigure}
+%     \caption{Percentile rankings of prediction scores for each global single output strategy.}
+%     \label{fig:cdd_gso_models}
+% \end{figure*}
 
 % TODO: talk about pairwise CV
 
@@ -1516,7 +1596,7 @@ When comparing training times, the common choice for undersampling in previous w
 
 %\begin{table}[h]
 %    \input{
-%        figures/run_experiments/gso_optimization/%
+%        figures/experiments/gso_optimization/%
 %        latex_tables/fit.tex
 %    }
 %\end{table}
@@ -1525,149 +1605,211 @@ In conclusion, the proposed approach confidently enables the use of the entire t
 
 
 \subsection{Comparison between GMO prediction weights}
+\label{sec:prototype_comparison}
+%TODO: why we did not use BGSO here?
 
-In order to compare the different prediction weighting strategies (see Section \ref{}), a BXT and a BRF model were built for every option. The minimum rows per leaf and minimum columns per leaf were both set to 5, ensuring a minimum number of co-leaf samples of each sample domain to be taken into consideration in a weighted-neighbors fashion during evaluation (Section \ref{}).
+In this work we propose a different prototyping strategy to determine the output value of each leaf in a GMO decision tree, taking the similarity matrices of our use cases into consideration (\autoref{sec:prototype}).
 
-As shown by Figure \ref{} and Table \ref{}, BXT models show an overall superior performance in comparison to BRF models, with each BXT model scoring significantly higher than its BRF counterpart with the same prediction weights. Furthermore, the weighted GMO predictions seem to prevail relative to the leaf-wise prototype GMOSA (Section \ref{}). Specifically, bxt\_square significantly outperforms all other bipartite forests except for bxt\_precomputed, both in terms of AUROC and average precision (AUPR) in the TT sets (Figure \ref{}).
+We here compare such strategies, building BXT and BRF models for every option. The minimum rows per leaf and minimum columns per leaf were both set to 5, ensuring a minimum number of co-leaf samples of each domain to be considered in a weighted-neighbors fashion during evaluation (Section \ref{}).
 
-\begin{figure*}
+To take the effect of the early-stopping criterion into account (minimum number of samples in each leaf), we also include forests of fully-grown trees in the comparison. The compared models are described below.
+
+\begin{itemize}
+    \item \textbf{\texttt{gmosa}:} proposed by \textcite{pliakos2018global}, the output of each leaf is the average of the labels of the learned samples that reach that leaf (\autoref{eq:prototype1}).
+    \item \textbf{\texttt{uniform}:} also proposed by \textcite{pliakos2018global}, the only difference from the \texttt{gmosa} strategy occurs in TL or LT test settings, when the average is taken only among the labels of the known sample of the pair being predicted (\autoref{eq:prototype2}).
+    \item \textbf{\texttt{precomputed}:} introduced by us (as also \texttt{square} and \texttt{softmax}), the labels in each leaf are weighted by the similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
+    \item \textbf{\texttt{square}:} the labels in each leaf are weighted by the squared similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
+    \item \textbf{\texttt{softmax}:} the labels in each leaf are weighted by the exponential of the similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
+    \item \textbf{\texttt{full}:} the trees are grown until a single interaction remains in each leaf. %, so that the prediction for each pair is the label of the single learned sample in the leaf.
+\end{itemize}
+
+%As shown by \autoref{fig:pred_weights_brf} and Table \ref{}, BXT models show an overall superior performance in comparison to BRF models, with each BXT model scoring significantly higher than its BRF counterpart with the same prediction weights. Furthermore, the weighted GMO predictions seem to prevail relative to the leaf-wise prototype GMOSA (Section \ref{}). Specifically, bxt\_square significantly outperforms all other bipartite forests except for bxt\_precomputed, both in terms of AUROC and average precision (AUPR) in the TT sets (Figure \ref{}).
+
+The results for BRF (\autoref{fig:pred_weights_brf}) and BXT (\autoref{fig:pred_weights_bxt}) were similar. In all cases except LT+TL average precision, using the square of the similarities to weight the labels in each leaf resulted in significantly better scores than all other options. For the LT+TL average precision score, growing the decision tree to its maximal size emerged as the best strategy, followed by \texttt{uniform}, the original proposal by \textcite{pliakos2018global} of averaging only the 
+outputs of the learned samples (known from the training set) in each leaf. Another exception occurs for the LT+TL AUROC score of BRF, in which case the \texttt{uniform} strategy could not be statistically distinguished from the squared-similarities weighting approach, with both still displaying the best performances against the remaining models.
+
+The fully-grown versions of both forest algorithms are shown to be especially advantageous when considering the LT+TL average precision, even more so regarding BXT, where their superiority is remarkably clear (\autoref{fig:pred_weights_bxt}). This suggests that building trees to their maximum depth is the best strategy for tackling mixed train-test tasks such as drug repositioning~\cite{}, even in comparison to the weighted GMO predictions proposed by \textcite{pliakos2018global} and by the present work to approach these scenarios. 
+
+The maximum depth, however, may impact the model's generalization ability, since the same superiority is not shown for the TT average precision score, where both entities of the pair being predicted are unknown to the model. Our squared-similarity weights seemingly display the best generalization in this regard.
+
+% TODO: why fully grown is not that good for AUROC
+%The full models are also seemingly affected
+
+% FIXME: gmosa vs gmo uniform on TT: indicates there are duplicated samples in the dataset, so training samples are leaking to test set.
+We then select the squared-similarities model for the downstream analyses, keeping 5 by 5 as the minimum leaf partition size. While GMOSA will also be further investigated, the leaf size constraint will be dropped, generating fully-grown trees for this strategy hereafter.
+
+\begin{figure*}[tbh]
     \centering
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/prediction_weights/post_hoc/%
-            all_datasets__cdd__LT_roc_auc.png
+            experiments/prediction_weights/statistical_comparisons/%
+            brf/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/prediction_weights/post_hoc/%
-            all_datasets__cdd__LT_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/prediction_weights/post_hoc/%
-            all_datasets__cdd__LT_matthews_corrcoef.png
+            experiments/prediction_weights/statistical_comparisons/%
+            brf/all_datasets/boxplots/LT+TL_average_precision.pdf
         }
     \end{subfigure}
 
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/prediction_weights/post_hoc/%
-            all_datasets__cdd__TL_roc_auc.png
+            experiments/prediction_weights/statistical_comparisons/%
+            brf/all_datasets/boxplots/TT_roc_auc.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/prediction_weights/post_hoc/%
-            all_datasets__cdd__TL_average_precision.png
+            experiments/prediction_weights/statistical_comparisons/%
+            brf/all_datasets/boxplots/TT_average_precision.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/prediction_weights/post_hoc/%
-            all_datasets__cdd__TL_matthews_corrcoef.png
-        }
-    \end{subfigure}
-
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/prediction_weights/post_hoc/%
-            all_datasets__cdd__TT_roc_auc.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/prediction_weights/post_hoc/%
-            all_datasets__cdd__TT_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/prediction_weights/post_hoc/%
-            all_datasets__cdd__TT_matthews_corrcoef.png
-        }
-    \end{subfigure}
-    \caption{Percentile score rankings for each prediction weighting strategy.}
-    \label{fig:pred_weights}
+    \caption{
+        Percentile rankings of prediction scores of bipartite random forests for different prediction weighting strategies, across all 10 datasets.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:empirical_complexity} for further descriptions of each estimator.
+    }
+    \label{fig:pred_weights_brf}
 \end{figure*}
 
-% contribution: GMO models
 
-Hence, the bxt\_square model was selected for the downstream analyses, keeping 5 by 5 as the minimum leaf partition size. While GMOSA will also be further investigated, the leaf size constraint will be dropped, generating fully grown trees for this strategy.
+\begin{figure*}[tbh]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/prediction_weights/statistical_comparisons/%
+            bxt/all_datasets/boxplots/LT+TL_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/prediction_weights/statistical_comparisons/%
+            bxt/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/prediction_weights/statistical_comparisons/%
+            bxt/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/prediction_weights/statistical_comparisons/%
+            bxt/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \caption{
+        Percentile rankings of prediction scores of bipartite extremely randomized trees for different prediction weighting strategies, across all 10 datasets.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:empirical_complexity} for further descriptions of each estimator.
+    }
+    \label{fig:pred_weights_bxt}
+\end{figure*}
 
 
 \subsection{Comparison between adaptation strategies}
+\label{sec:adaptation_comparison}
 
-Still restricted to forest estimators, we compare each of the described approaches for adapting models to bipartite data (Section \ref{}). To avoid differences in random sampling when using the naive GSO adapter versus the natively bipartite GSO tree, no bootstraping was applied to any forest, providing all trees with the whole training samples space. To still ensure randomization in random forest estimators, the maximum features parameter was set to $0.5$, meaning that each tree in a random forest was trained on a random subset of half the features from each sample domain. Due to implementation details, this means the naive GSO forests will sample features slightly differently: they will pick half the features from the whole feature space combined, while the natively bipartite GSO forests will ensure half the features from each sample domain is selected. This is not expected to have a significant impact on the results, given that the total number of features is especially high in the present scenario, where similarity matrices are being employed. 
+Still restricted to forest estimators, we compare each of the described approaches for adapting models to bipartite data (\autoref{sec:common_approaches}, \autoref{sec:bipartite_trees} and \autoref{sec:bgso_trees}). The suffixes in the model names of this section indicating the employed bipartite adaptations are briefly described below.
 
-All forests were composed of 100 tree estimators and were fully grown, with the exception of the GMO models, whose leaf sizes were limited to a minimum of 5 by 5 samples (at least 5 samples from each domain) in order to take advantage of neighborhood weighting (which was set to the squared similarities, see Section \ref{}).
+% TODO: contribution: ensembles of gmo (not gmosa) were nevel built!
 
-In all of the evaluated scenarios, a BXT model was ranked the best. In both TT-MCC and TL-AP, the BRF models and bxt\_gmo were significantly surpassed by the remaining BXT forests. In TL-MCC, bxt\_lso significantly outperformed all the other models. Given that this test-set provides the greatest intersection with the training set, due to the overall higher number of column samples in the datasets we used, we suggest that the LSO model could be better at taking advantage of already seen information from a sample domain, since a forest is grown separately for each row and column. From another perspective, this effect could be regarded as a form of overfitting. This hypothesis is further supported by the fact that both GMO models, which were the only forests subject to a minimum leaf size constraint and thus less prone, in theory, to overfitting, were the most frequently outperformed models in the TL-MCC and TL-AP.
+\begin{itemize}
+    \item \textbf{\texttt{lmo}:} implements the standard local multi-output approach (SLMO; \autoref{sec:slmo}) by training four separate multioutput models, two for each domain. First explored by \textcite{schrynemackers2015classifying}.
+    \item \textbf{\texttt{lso}:} also implements the SLMO approach (\autoref{sec:slmo}), but each multioutput model is instead a composition of several local single-output (LSO) models, i.e. one model is trained for each row or column of the interaction matrix. This setting is similar to the early proposal by \textcite{bleakley2009supervised}, but employing decision forests as the base algorithm.
+    \item \textbf{\texttt{gmosa}:} a global multi-output forest with single-label averaging (GMOSA; \autoref{sec:gmo}), as explored by \textcite{pliakos2019network} under the name eBICT.
+    \item \textbf{\texttt{gmo}:} a global multi-output (GMO; \autoref{sec:gmo}) forest with minimum leaf dimensions of 5 by 5, implementing our proposed squared-similarities weighting for the prototype function (\autoref{sec:prototype}). Apart from the new prototype, this model is based on the original GMO trees proposed by \textcite{pliakos2018global}. Despite their original results suggesting advantage over GMOSA, to the best of our knowledge, this is the first time the GMO trees are employed in building decision forests.  % TODO explain GMOSA
+    \item \textbf{\texttt{gso}:} a bipartite global single-output (BGSO; \autoref{sec:bgso}) forest, as initially explored by \textcite{schrynemackers2015classifying} but now implementing our proposed algorithm with improved computational complexity.
+    \item \textbf{\texttt{sgso\_us}:} implements the standard global single-output (SGSO; \autoref{sec:sgso}) adaptation, additionally employing undersampling of the non-interacting pairs to yield a balanced training set (\autoref{sec:sgso}).  % TODO explain that is frequently used
+\end{itemize}
 
-Contrastingly, both GMO models were consistently the best performing models in all AUROC settings, which is commonly assumed to be a less indicative metric in highly imbalanced classification contexts such as the present one \cite{}. This could be explained by a bias towards the majority class, possibly caused by the averaging of the larger leaves employed in this methods. %FIXME: actually, a bias towards minority class
+All the global models were built with 100 trees. For SLMO, each of the four forests used 50 trees, while for LSO 50 trees were used for each row or column of the interaction matrix.
 
-\begin{figure*}
+Regarding BRF models, SLMO and GMO reveal themselves as the top-scoring adaptations. In the LT+TL setting, SLMO significantly outperforms all other models. In the TT test sets, SLMO was the second best-ranked model, significantly surpassing all models except LSO, SGSOUS and GMO. GMO, in turn, outshines all the remaining models in the TT setting.
+
+The GMO approach is also highlighted by the results of BXT ensembles, being undisputed for the LT+TL AUROC and TT scores. Interestingly, for the LT+TL average precision score, its mean percentile ranking was the second to last, being only better than SGSOUS. These results corroborate the idea discussed in \autoref{sec:prototype_comparison} that reaching the maximum tree depth is the best strategy for LT+TL, while enforcing larger leaves and label weighting seems to improve generalization to unseen instances.
+
+% TODO advantage of BGSOUS in AUROC
+% TODO training times
+
+% To avoid differences in random sampling when using the naive GSO adapter versus the natively bipartite GSO tree, no bootstraping was applied to any forest, providing all trees with the whole training samples space. To still ensure randomization in random forest estimators, the maximum features parameter was set to $0.5$, meaning that each tree in a random forest was trained on a random subset of half the features from each sample domain. Due to implementation details, this means the naive GSO forests will sample features slightly differently: they will pick half the features from the whole feature space combined, while the natively bipartite GSO forests will ensure half the features from each sample domain is selected. This is not expected to have a significant impact on the results, given that the total number of features is especially high in the present scenario, where similarity matrices are being employed. 
+
+%All forests were composed of 100 tree estimators and were fully grown, with the exception of the GMO models, whose leaf sizes were limited to a minimum of 5 by 5 samples (at least 5 samples from each domain) in order to take advantage of neighborhood weighting (which was set to the squared similarities, see Section \ref{}).
+
+%In all of the evaluated scenarios, a BXT model was ranked the best. In both TT-MCC and TL-AP, the BRF models and bxt\_gmo were significantly surpassed by the remaining BXT forests. In TL-MCC, bxt\_lso significantly outperformed all the other models. Given that this test-set provides the greatest intersection with the training set, due to the overall higher number of column samples in the datasets we used, we suggest that the LSO model could be better at taking advantage of already seen information from a sample domain, since a forest is grown separately for each row and column. From another perspective, this effect could be regarded as a form of overfitting. This hypothesis is further supported by the fact that both GMO models, which were the only forests subject to a minimum leaf size constraint and thus less prone, in theory, to overfitting, were the most frequently outperformed models in the TL-MCC and TL-AP.
+
+%Contrastingly, both GMO models were consistently the best performing models in all AUROC settings, which is commonly assumed to be a less indicative metric in highly imbalanced classification contexts such as the present one \cite{}. This could be explained by a bias towards the majority class, possibly caused by the averaging of the larger leaves employed in this methods. %FIXME: actually, a bias towards minority class
+
+\begin{figure*}[tbh]
     \centering
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/bipartite_approaches/post_hoc/%
-            all_datasets__cdd__LT_roc_auc.png
+            experiments/bipartite_adaptations/statistical_comparisons/%
+            brf/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/bipartite_approaches/post_hoc/%
-            all_datasets__cdd__LT_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/bipartite_approaches/post_hoc/%
-            all_datasets__cdd__LT_matthews_corrcoef.png
+            experiments/bipartite_adaptations/statistical_comparisons/%
+            brf/all_datasets/boxplots/LT+TL_average_precision.pdf
         }
     \end{subfigure}
 
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/bipartite_approaches/post_hoc/%
-            all_datasets__cdd__TL_roc_auc.png
+            experiments/bipartite_adaptations/statistical_comparisons/%
+            brf/all_datasets/boxplots/TT_roc_auc.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/bipartite_approaches/post_hoc/%
-            all_datasets__cdd__TL_average_precision.png
+            experiments/bipartite_adaptations/statistical_comparisons/%
+            brf/all_datasets/boxplots/TT_average_precision.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/bipartite_approaches/post_hoc/%
-            all_datasets__cdd__TL_matthews_corrcoef.png
-        }
-    \end{subfigure}
-
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/bipartite_approaches/post_hoc/%
-            all_datasets__cdd__TT_roc_auc.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/bipartite_approaches/post_hoc/%
-            all_datasets__cdd__TT_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/bipartite_approaches/post_hoc/%
-            all_datasets__cdd__TT_matthews_corrcoef.png
-        }
-    \end{subfigure}
-    \caption{Percentile score rankings for each bipartite adaptation approach.}
-    \label{fig:cdd_adapters}
+    \caption{
+        Percentile rankings of prediction scores of random forest models under different adaptation strategies to bipartite interaction data, across all 10 datasets.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator.
+    }
+    \label{fig:adaptations_brf}
 \end{figure*}
+
+
+\begin{figure*}[tbh]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/bipartite_adaptations/statistical_comparisons/%
+            bxt/all_datasets/boxplots/LT+TL_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/bipartite_adaptations/statistical_comparisons/%
+            bxt/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/bipartite_adaptations/statistical_comparisons/%
+            bxt/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/bipartite_adaptations/statistical_comparisons/%
+            bxt/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \caption{
+        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator.
+    }
+    \label{fig:adaptations_bxt}
+\end{figure*}
+
 
 \subsection{Effect of interaction matrix reconstruction}
 
@@ -1693,58 +1835,58 @@ We also notice that \cite{Liu_2017} performs bipartite cross-validation in unusu
     \centering
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets__LT_roc_auc.png
+            experiments/y_reconstruction/figures/%
+            estimator_name/all_datasets/boxplots/LT_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets__LT_average_precision.png
+            experiments/y_reconstruction/figures/%
+            estimator_name/all_datasets/boxplots/LT_average_precision.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets__LT_matthews_corrcoef.png
-        }
-    \end{subfigure}
-
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets__TL_roc_auc.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets__TL_average_precision.png
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets__TL_matthews_corrcoef.png
+            experiments/y_reconstruction/figures/%
+            estimator_name/all_datasets/boxplots/LT_matthews_corrcoef.pdf
         }
     \end{subfigure}
 
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets__TT_roc_auc.png
+            experiments/y_reconstruction/figures/%
+            estimator_name/all_datasets/boxplots/TL_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets__TT_average_precision.png
+            experiments/y_reconstruction/figures/%
+            estimator_name/all_datasets/boxplots/TL_average_precision.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets__TT_matthews_corrcoef.png
+            experiments/y_reconstruction/figures/%
+            estimator_name/all_datasets/boxplots/TL_matthews_corrcoef.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/figures/%
+            estimator_name/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/figures/%
+            estimator_name/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/figures/%
+            estimator_name/all_datasets/boxplots/TT_matthews_corrcoef.pdf
         }
     \end{subfigure}
     \caption{Comparison of scores for the bipartite forests with and without output space reconstruction on the enzymes dataset.}
@@ -1752,7 +1894,7 @@ We also notice that \cite{Liu_2017} performs bipartite cross-validation in unusu
 \end{figure*}
 
 % \begin{table}[h]
-%     \input{figures/run_experiments/y_reconstruction/latex_tables/TT.tex}
+%     \input{figures/experiments/y_reconstruction/latex_tables/TT.tex}
 % \end{table}
 
 
@@ -1793,61 +1935,61 @@ Overall, bxt\_gso and bxt\_gmosa are the most consistently higher ranked models 
     \centering
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/literature_models/post_hoc/%
-            all_datasets__cdd__LT_roc_auc.png
+            experiments/literature_models/statistical_comparisons/%
+            all_datasets/critical_difference_diagrams/LT_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/literature_models/post_hoc/%
-            all_datasets__cdd__LT_average_precision.png
+            experiments/literature_models/statistical_comparisons/%
+            all_datasets/critical_difference_diagrams/LT_average_precision.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/literature_models/post_hoc/%
-            all_datasets__cdd__LT_matthews_corrcoef.png
+            experiments/literature_models/statistical_comparisons/%
+            all_datasets/critical_difference_diagrams/LT_matthews_corrcoef.pdf
         }
     \end{subfigure}
 
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/literature_models/post_hoc/%
-            all_datasets__cdd__TL_roc_auc.png
+            experiments/literature_models/statistical_comparisons/%
+            all_datasets/critical_difference_diagrams/TL_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/literature_models/post_hoc/%
-            all_datasets__cdd__TL_average_precision.png
+            experiments/literature_models/statistical_comparisons/%
+            all_datasets/critical_difference_diagrams/TL_average_precision.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/literature_models/post_hoc/%
-            all_datasets__cdd__TL_matthews_corrcoef.png
+            experiments/literature_models/statistical_comparisons/%
+            all_datasets/critical_difference_diagrams/TL_matthews_corrcoef.pdf
         }
     \end{subfigure}
 
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/literature_models/post_hoc/%
-            all_datasets__cdd__TT_roc_auc.png
+            experiments/literature_models/statistical_comparisons/%
+            all_datasets/critical_difference_diagrams/TT_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/literature_models/post_hoc/%
-            all_datasets__cdd__TT_average_precision.png
+            experiments/literature_models/statistical_comparisons/%
+            all_datasets/critical_difference_diagrams/TT_average_precision.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.32\textwidth}
         \includegraphics[width=\textwidth]{
-            run_experiments/literature_models/post_hoc/%
-            all_datasets__cdd__TT_matthews_corrcoef.png
+            experiments/literature_models/statistical_comparisons/%
+            all_datasets/critical_difference_diagrams/TT_matthews_corrcoef.pdf
         }
     \end{subfigure}
-    \caption{Percentile score rankings for several literature models.}
+    \caption{Percentile rankings of prediction scores for several literature models.}
     \label{fig:cdd_literature}
 \end{figure*}
 
@@ -1877,69 +2019,69 @@ This result points bipartite ExtraTree ensembles as state-of-the-art regression 
 
 % TODO: comment on GPU possible improvements
 
-\begin{figure*}
-    \centering
-    \begin{subfigure}{0.24\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/neural_nets/post_hoc/%
-            davis__boxplot__LT_neg_mean_squared_error.png
-        }
-        \caption{Negative mean squared error on the LT test set.}
-    \end{subfigure}
-    \begin{subfigure}{0.24\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/neural_nets/post_hoc/%
-            davis__boxplot__TL_neg_mean_squared_error.png
-        }
-        \caption{Negative mean squared error on the TL test set.}
-    \end{subfigure}
-    \begin{subfigure}{0.24\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/neural_nets/post_hoc/%
-            davis__boxplot__TT_neg_mean_squared_error.png
-        }
-        \caption{Negative mean squared error on the TT test set.}
-    \end{subfigure}
-    \begin{subfigure}{0.24\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/neural_nets/post_hoc/%
-            davis__boxplot__fit_time.png
-        }
-        \caption{Training duration in seconds.}
-    \end{subfigure}
-
-    \begin{subfigure}{0.24\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/neural_nets/post_hoc/%
-            davis__boxplot__LT_r2.png
-        }
-        \caption{$R^2$ score on the LT test set.}
-    \end{subfigure}
-    \begin{subfigure}{0.24\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/neural_nets/post_hoc/%
-            davis__boxplot__TL_r2.png
-        }
-        \caption{$R^2$ score on the TL test set.}
-    \end{subfigure}
-    \begin{subfigure}{0.24\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/neural_nets/post_hoc/%
-            davis__boxplot__TT_r2.png
-        }
-        \caption{$R^2$ score on the TT test set.}
-    \end{subfigure}
-    \begin{subfigure}{0.24\textwidth}
-        \includegraphics[width=\textwidth]{
-            run_experiments/neural_nets/post_hoc/%
-            davis__boxplot__score_time.png
-        }
-        \caption{Prediction duration in seconds.}
-    \end{subfigure}
-
-    \caption{Model performance on the DAVIS dataset.}
-    \label{fig:davis_mse}
-\end{figure*}
+%\begin{figure*}
+%    \centering
+%    \begin{subfigure}{0.24\textwidth}
+%        \includegraphics[width=\textwidth]{
+%            experiments/neural_nets/statistical_comparisons/%
+%            davis__boxplot__LT_neg_mean_squared_error.pdf
+%        }
+%        \caption{Negative mean squared error on the LT test set.}
+%    \end{subfigure}
+%    \begin{subfigure}{0.24\textwidth}
+%        \includegraphics[width=\textwidth]{
+%            experiments/neural_nets/statistical_comparisons/%
+%            davis__boxplot__TL_neg_mean_squared_error.pdf
+%        }
+%        \caption{Negative mean squared error on the TL test set.}
+%    \end{subfigure}
+%    \begin{subfigure}{0.24\textwidth}
+%        \includegraphics[width=\textwidth]{
+%            experiments/neural_nets/statistical_comparisons/%
+%            davis__boxplot__TT_neg_mean_squared_error.pdf
+%        }
+%        \caption{Negative mean squared error on the TT test set.}
+%    \end{subfigure}
+%    \begin{subfigure}{0.24\textwidth}
+%        \includegraphics[width=\textwidth]{
+%            experiments/neural_nets/statistical_comparisons/%
+%            davis__boxplot__fit_time.pdf
+%        }
+%        \caption{Training duration in seconds.}
+%    \end{subfigure}
+%
+%    \begin{subfigure}{0.24\textwidth}
+%        \includegraphics[width=\textwidth]{
+%            experiments/neural_nets/statistical_comparisons/%
+%            davis__boxplot__LT_r2.pdf
+%        }
+%        \caption{$R^2$ score on the LT test set.}
+%    \end{subfigure}
+%    \begin{subfigure}{0.24\textwidth}
+%        \includegraphics[width=\textwidth]{
+%            experiments/neural_nets/statistical_comparisons/%
+%            davis__boxplot__TL_r2.pdf
+%        }
+%        \caption{$R^2$ score on the TL test set.}
+%    \end{subfigure}
+%    \begin{subfigure}{0.24\textwidth}
+%        \includegraphics[width=\textwidth]{
+%            experiments/neural_nets/statistical_comparisons/%
+%            davis__boxplot__TT_r2.pdf
+%        }
+%        \caption{$R^2$ score on the TT test set.}
+%    \end{subfigure}
+%    \begin{subfigure}{0.24\textwidth}
+%        \includegraphics[width=\textwidth]{
+%            experiments/neural_nets/statistical_comparisons/%
+%            davis__boxplot__score_time.pdf
+%        }
+%        \caption{Prediction duration in seconds.}
+%    \end{subfigure}
+%
+%    \caption{Model performance on the DAVIS dataset.}
+%    \label{fig:davis_mse}
+%\end{figure*}
 
 
 \subsection{Estimated impact of missing labels}
