@@ -270,14 +270,17 @@ Naturally, one wants their estimator to maximize TP and TN while minimizing FP a
     \item \textbf{True positive rate (TPR)} or \textbf{recall:} the ratio of correctly predicted positive labels to the total number of positive labels.
     \begin{equation}
         TPR = \frac{TP}{TP + FN}
+        \label{eq:tpr}
     \end{equation}
     \item \textbf{True negative rate (TNR):} the ratio of correctly predicted negative labels to the total number of negative labels.
     \begin{equation}
         TNR = \frac{TN}{TN + FP}
+        \label{eq:tnr}
     \end{equation}
     \item \textbf{False positive rate (FPR):} the ratio of incorrectly predicted positive labels to the total number of negative labels.
     \begin{equation}
         FPR = \frac{FP}{FP + TN}
+        \label{eq:fpr}
     \end{equation}
     \item \textbf{Precision:} the ratio of correctly predicted positive labels to the total number of predicted positive labels.
     \begin{equation}
@@ -287,9 +290,8 @@ Naturally, one wants their estimator to maximize TP and TN while minimizing FP a
 These metrics are better visualized in \autoref{fig:scoring}.
 
 An optimal binary classifier will thus present high TPR and precision while minimizing FPR.
-In real-world scenarios, however, building estimators to simultaneously optimize all these metrics is not a straightforward problem. Often, the task manifests itself as a tradeoff between TP and TN. For instance, if a classifier trivially outputs positive labels for all instances irrespectively of the input features, it will achieve perfect TP, but its TN will be null. On the other hand, if a negative label is outputted every time, an ideal TN will be achieved at the expense of a null TP. Although seldom as extreme as those examples, classifiers will often lean into one of those directions, displaying a tendency towards yielding more positive (\emph{sensibility}) or more negative (\emph{specificity}) labels.
+In real-world scenarios, however, building estimators to simultaneously optimize all these metrics is not a straightforward problem. Often, the task manifests itself as a tradeoff between TP and TN. For instance, if a classifier trivially outputs positive labels for all instances irrespectively of the input features, it will achieve perfect TP, but its TN will be null. On the other hand, if a negative label is outputted every time, an ideal TN will be achieved at the expense of a null TP. Although seldom as extreme as those examples, classifiers will often lean into one of those directions, displaying a tendency towards yielding more positive (\emph{sensitivity}) or more negative (\emph{specificity}) labels.
 
-% TODO The preference for each of those tendencies is highly application-specific.
 The preference for each of these tendencies is highly application-specific. For instance, in the process of diagnosing medical conditions, sensitivity (TPR) is often prioritized, favoring the identification of all true cases at the expense of some misleading positive results.
 In this case, the cost of missing a positive result is usually far greater than that of a false positive. In other scenarios, such as spam email filtering, specificity (TNR) might be favored to minimize the number of legitimate emails marked as spam, even if some spam emails go undetected. The choice between these tendencies reflects the trade-off between correctly identifying positive instances and correctly identifying negative instances and should align with the specific goals and constraints of the classification problem at hand.
 
@@ -298,19 +300,120 @@ is thus a challenging factor to be taken into account, especially in cases where
 %
 Many classifiers, such as those employed in the present study, do not directly output a binary label but instead provide us with a continuous decision value (such as a probability of interaction) that additionally depends on specifying a threshold point to establish the final predicted classes. This choice of threshold usually directly affects the classifier's propensity to positive or negative outputs, so that a single classifier can yield multiple different results with varying levels of TPR and TNR depending on the chosen thresholds.
 
-To avoid the trouble of defining threshold values, influencing each estimator's TPR-TNR balance and hindering fair comparison between them, it is common to consider TP and TN for all thresholds.
-Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible results of a classifier. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and FPR are each indicated by an axis. The resulting curve is called the \emph{receiver operating characteristic} (ROC) curve, and is exemplified by \autoref{fig:roc}.
+To avoid the trouble of defining threshold values, influencing each estimator's TPR-TNR balance and hindering fair comparison between them, it is common to consider TPR and TNR for all thresholds.
+Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible results of a classifier. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and TNR are each indicated by an axis. Conventionally, the TPR is plotted in $y$ while the FPR (representing the TNR, $FPR=1-TNR$) is presented as $x$ coordinates, which results in the traditional \emph{receiver operating characteristic} (ROC) curve, exemplified by \autoref{fig:roc}.
+An ideal threshold of an ideal estimator would then be close to the top-left corner of the plot, where TPR and TNR are both 1.
+On the other hand, consider a completely random classifier outputting uniformly random values $\hat Y\_\text{proba}\el{ij}$ in the 0-1 interval so that $\hat Y\el{ij} = \mathbb{I}(\hat Y_\text{proba}\el{ij} > t)$ for a given threshold $t$. This implies that the number of correctly guessed positive labels is $1-t$ (the probability of yielding 1) times the total number of positive labels: $TP = (1-t) (TP+FN)$, which results in $TPR = 1-t$ from the definition. Similarly, it is easily shown that $FPR = TPR = 1-t$, so that the ROC curve of a random classifier is a diagonal line from the bottom-left to the top-right corners.
 
-% TODO fpr represents tnr
-% TODO (0, 1) position is the goal, random estimators are 50%
+%$FP = (1-t)(TN + FP)$
 
-To collectively %summarize the classifier's performance, the area under the ROC curve (AUC) is often used as a single metric, with values ranging from 0 to 1, where 1 represents a perfect classifier and 0.5 represents a random classifier.
+% TODO interpretation of roc
+% TODO its TPR and TNR balance, not TP and TN
+
+To summarize a classifier's performance across all thresholds, the area under the ROC curve (AUC ROC) is often employed, with values ranging from 0 to 1, where 1 represents a perfect classifier and 0.5 represents a random classifier. Values below 0.5 would signify the opposite label is being consistently predicted, most likely indicating misconfiguration of the estimator.
+
+Despite considerably common, the use of ROC curves with heavily imbalanced classification datasets (where some classes are greatly overrepresented) requires additional considerations~\cite{he2009learning,saito2015precision,fernandez2018learning}.
+For instance,% let $p$ be the fraction of positive labels relative to the total number of labels: $p = \frac{TP + FN}{N}$.
+consider the case where $NEG \gg POS$. Since the denominator of TNR is far greater than the denominator of TPR, a change in TN (for example, missing one more negative label) will have a much smaller impact on TNR than a change in TP (missing a positive label) will have on TPR.
+Specifically, an increase of $k$ in TN will cause an increase in TNR $\frac{NEG}{POS}$ times greater than the increase in TPR caused by the same $k$ increase in TP.
+
+% Positive labels (the minority class) have more weight
+
+Given that ROC equally considers both metrics, classifiers that are more sensitive to positive labels will be clearly favored over those prioritizing negative outputs. By the same logic, ROC will also be more lenient towards false positives (that decrease TNR) rather than false negatives (that decrease TPR).
+
+To address this issue, it is commonly suggested the usage of precision-recall (PR) curves instead, where the precision is plotted as the vertical coordinate while the recall (or sensitivity, or TPR) is represented horizontally. In the PR space, considering fixed POS and NEG, a change in TP yields 
+
+\begin{equation}
+    \frac{TP + k}{TP + k + FP - k}
+    - \frac{TP}{TP + FP}
+    = \frac{k}{TP + FP}
+    % \frac{k}{TP + FN}
+    % PR area increase: \frac{k^2}{(TP + FP)(TP + FN)}
+    % PR area increase: \frac{k^2}{(TP + FP)(TP + FN)}
+    % PR area increase: \frac{k^2}{(TP + NEG - TN) POS}
+    % ROC area increase: \frac{k^2}{NEG POS}
+\end{equation}
+
+% TODO FP represents TN (NEG - TN), so plot TP vs. FP. Precision and recall are similar for those two metrics.
+
+%TODO AUC PRC
+
+%TODO at least 3 of the 4 basic metrics must be included
+
+% Changes of precision as a function of TN and TP separately
+% \begin{equation}
+%     \frac{TP}{TP + FP - k}
+%     - \frac{TP}{TP + FP}
+%     = \frac{TP k}{(TP + FP)(TP + FP - k)}
+%     = \frac{TP k}{(TP + FP)^2 - (TP + FP) k}
+% \end{equation}
+% 
+% \begin{equation}
+%     \frac{TP + k}{TP + FP + k}
+%     - \frac{TP}{TP + FP}
+%     = \frac{(TP + k)(TP + FP) - (TP)(TP + FP + k)}{(TP + FP)(TP + FP + k)}
+%     = \frac{(TP^2 + TP*FP + kTP + kFP) - (TP^2 + TP*FP + kTP)}{(TP + FP)(TP + FP + k)}
+%     = \frac{k FP}{(TP + FP)(TP + FP + k)}
+%     = \frac{k (NEG - TN)}{(TP + FP)(TP + FP + k)}
+% \end{equation}
+
+\begin{equation}
+    \frac{TP + k}{TP + k + FP - k}
+    - \frac{TP}{TP + FP}
+    = \frac{k}{TP + FP}
+    % \frac{k}{TP + FN}
+    % PR area increase: \frac{k^2}{(TP + FP)(TP + FN)}
+    % PR area increase: \frac{k^2}{(TP + FP)(TP + FN)}
+    % PR area increase: \frac{k^2}{(TP + NEG - TN) POS}
+    % ROC area increase: \frac{k^2}{NEG POS}
+\end{equation}
+
+\begin{equation}
+    \sum_t \Delta TPR_t \Delta FPR_t / 2 + TPR_t * FPR_t
+    % = \sum_t \frac{k_t^2}{NEG * POS} / 2 + \frac{TP_t TN_t}{NEG * POS}
+    = \sum_t \frac{k_t^2}{NEG * POS} / 2 + \Delta TNR_t * TPR_t
+    = \sum_t \sum_t \frac{k_t^2}{NEG * POS} / 2
+\end{equation}
+
+\begin{equation}
+    TPR = tp / pos
+    FPR = fp / (1 - pos)
+    Precision = tp / (tp + fp)
+\end{equation}
+
+\begin{equation}
+    pos is not the ideal tp + fn, it is simply POS / N
+    you cannot asume c = ppos
+
+    TPR = (tp/(tp + fp)) * c / pos = prec * c / pos
+    c = pos * TPR (tp + fp) / tp
+
+    TPR = c - FPR
+
+    FPR = fp/(fp + tp) * c / (1 - pos)
+    FPR = fp / (fp + tp) * (pos * TPR * (tp + fp)) / ((1 - pos) * tp)
+    FPR = fp * pos * TPR / ((1 - pos) * tp)
+    TPR = ((1 - pos) * tp) * FPR / (pos * fp)
+
+    Precision = tp / (tp + fp)
+    Precision = 
+\end{equation}
+
+\begin{equation}
+    TPR = p * c / pos
+    p = pos * TPR / c
+    Precision = p = pos * TPR / c
+\end{equation}
+
+% qualquer estimador é descrito por uma matriz de confusão teórica. Para qualquer estimador, pode se calibá-lo, isso é, usar um parâmetro c que dá uma porcentagem de vezes que, aleatóriamente, mudamos uma predição negativa para positiva ou vice versa. as curvas são em função desse parâmetro. para uma determinada métrica agora em um conjunto de dados real, provemos que o melhor c é o correspondente á proba à priori do conjunto (desbalanceamento). O estimador então pode ajustá-la de acordo com essa proba que ele acha que é a certa. a questão é que ele não tem como saber, então consideramos todas as probas que ele poderia pensar.
 
 % TODO problems with imbalance
 % TODO aupr
+% TODO problems with imbalance of auroc maybe are not problems with PU learning
 
 %\section{Common approaches to build bipartite models}
 %\label{sec:common_approaches}
+
 \section{Applying monopartite estimators on bipartite data}
 \label{sec:common_approaches}
 
@@ -1636,7 +1739,7 @@ The maximum depth, however, may impact the model's generalization ability, since
 %The full models are also seemingly affected
 
 % FIXME: gmosa vs gmo uniform on TT: indicates there are duplicated samples in the dataset, so training samples are leaking to test set.
-We then select the squared-similarities model for the downstream analyses, keeping 5 by 5 as the minimum leaf partition size. While GMOSA will also be further investigated, the leaf size constraint will be dropped, generating fully-grown trees for this strategy hereafter.
+We then select the squared-similarities model for the downstream analyses, keeping 5 by 5 as the minimum leaf partition size. While GMOSA will also be further investigated, the leaf size constraint will be dismissed, generating fully-grown trees for this strategy hereafter.
 
 \begin{figure*}[tbh]
     \centering
@@ -1812,86 +1915,171 @@ The GMO approach is also highlighted by the results of BXT ensembles, being undi
 
 
 \subsection{Effect of interaction matrix reconstruction}
+\label{sec:y_reconstruction}
 
-It was previously suggested that employing logistic matrix factorization to create a denser representation of the interaction matrix and using this representation as the training data for a BXT forest could improve their performance on DTI datasets \cite{Pliakos_2020}. To test this hypothesis, we compare the bipartite forests cross-validation scores with and without the interaction matrix reconstruction step. As done by \cite{Pliakos_2020}, the reconstruction step was performed using neighborhood-regularized logistic matrix factorization (NRLMF)\cite{}. The results are shown in Figure \ref{fig:cdd_reconstruction}.
+It was previously suggested that employing logistic matrix factorization to create a denser representation of the interaction matrix and using this representation as the training data for a BXT forest could improve their performance on DTI datasets \cite{Pliakos_2020}. To test this hypothesis, we compare the bipartite forests cross-validation scores with and without the interaction matrix reconstruction step. As done by \cite{Pliakos_2020}, the reconstruction step was performed using neighborhood-regularized logistic matrix factorization (NRLMF)\cite{}.
 
-To select hyperparameters for the NRLMF algorithm, we performed a randomized search in which 100 different combinations of hyperparameters were evaluated in terms of their resulting mean squared error over a (nested) bipartite 5-fold diagnonal cross-validation. The best combination found in the inner CV loop was then used to reconstruct the interaction matrix of each outer CV fold, and the resulting matrices were used as the training data for the bipartite forests. Note that a single forest was built by outer CV fold, so that the NRLMF hyperparameter seach was performed independently to the downstream forest performance. The hyperparameters \texttt{lambda\_rows}, \texttt{lambda\_cols}, \texttt{alpha\_cols}, \texttt{alpha\_cols}, and \texttt{learning\_rate} were all independently sampled from a log-uniform distribution bounded by $\frac{1}{4}$ and $2$. the number of latent vector components were set to be equal among noth axes, and chosen between 50 and 100. The number of neighbors was randomly selected as 3, 5 or 10 in each iteration, and the maximum number of optimization steps was always set to 100.
+To select hyperparameters for the NRLMF algorithm, we performed a randomized search in which 100 different combinations of hyperparameters were evaluated in terms of their resulting mean squared error over a (nested) bipartite 5-fold diagnonal cross-validation. The best combination found in the inner CV loop was then used to reconstruct the interaction matrix of each outer CV fold, and the resulting matrices were used as the training data for the bipartite forests. Note that a single forest was built by outer CV fold, so that the NRLMF hyperparameter seach was performed independently to the downstream forest performance. The hyperparameters \texttt{lambda\_rows}, \texttt{lambda\_cols}, \texttt{alpha\_cols}, \texttt{alpha\_cols}, and \texttt{learning\_rate} were all independently sampled from a log-uniform distribution bounded by $\frac{1}{4}$ and $2$. the number of latent vector components was set to be equal among both axes, and chosen between 50 and 100. The number of neighbors was randomly selected as 3, 5 or 10 in each iteration, and the maximum number of optimization steps was always set to 100.  % TODO check
 
-The results are shown in Figure \ref{fig:cdd_reconstruction}.
+The results for BRF and BXT are shown by figures \ref{fig:brf_y_reconstruction} and \ref{fig:bxt_y_reconstruction}, respectively. The \texttt{nrlmf} suffix to a model indicates that it was constructed on the output of NRLMF for each fold. The interaction matrix reconstruction step is shown to be especially beneficial in terms of ROC AUC scores, increasing this metric for almost all forest algorithms investigated. The only exceptions were \texttt{bxt\_gmo} and \texttt{brf\_gmo} in LT+TL ROC AUC. As discussed in \autoref{sec:prediction_metrics}, ROC AUC is characterized by leniency towards false positives, which explains the advantage posed by NRLMF in this setting, given that NRLMF explicitly defines a parameter to prioritize positive interactions. In accordance with previous investigations~\cite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting,pliakos2020drugtarget}, this parameter was set to 5, meaning that the loss function employed in the gradient descent procedure of NRLMF is weighted 5 times more for positive interactions than for negative interactions, as if 5 copies of each positive interaction were present in the training set.
 
-In accordance to the previous findings of \cite{Pliakos_2020}, the models with output space reconstruction either show significantly higher AUROC and AUPR or generated inconclusive results regarding those metrics when compared to the models without the reconstruction by NRLMF.
+Even so, the \texttt{bxt\_gmo} and \texttt{brf\_gmo} models employing our squared similarities output weighting (sections \autoref{sec:prototype} and \autoref{sec:prototype_comparison}) are placed second in their corresponding TT ROC AUC results, both significantly outperforming all NRLMF-combined models except for their own versions, \texttt{bxt\_gmo\_\_nrlmf} and \texttt{brf\_gmo\_\_nrlmf}.
+\texttt{brf\_gmo} was also the top performing model in terms of TT average precision, significantly surpassing \texttt{brf\_gso\_\_nrlmf} and \texttt{brf\_gmosa\_\_nrlmf}.
 
-Surprisingly, however, the MCC results tend to favor the opposite conclusion, with the models without reconstruction showing higher MCC scores in most cases.
+The advantage of NRLMF under the average precision metric is less clear. In the LT+TL average precision setting for BXT (\autoref{fig:bxt_y_reconstruction}), it still results in scoring improvements for all models except \texttt{bxt\_gmo}. Interestingly, the scores for \texttt{bxt\_gmo}, \texttt{brf\_gmo}, and \texttt{brf\_lmo} are instead significantly reduced by combination with the matrix factorization technique in LT+TL average precision, contrary to the overall tendency. For \texttt{brf\_gso} in the same setting, the results are statistically distinguished, but the effect is not clear: \texttt{brf\_gso} displays higher mean percentile rankings of the score, while \texttt{brf\_gso\_\_nrlmf} has the higher median value for this metric.
+Other models such as \texttt{brf\_gmosa} for LT+TL average precision and \texttt{brf\_gmo}, \texttt{bxt\_gmo} and \texttt{bxt\_lmo} for TT average precision are not significantly affected by the reconstruction step.
+
+In LT+TL average precision, \texttt{brf\_lmo} significantly outperforms all other random forests, while the GMO models were the clear worst performers for both BRF and BXT. Additionally, the GSO and GMOSA models are seemingly favored by the LT+TL setting in comparison to TT, reinforcing the results of \autoref{sec:adaptation_comparison} suggesting that deeper trees are advantageous for LT+TL, while the larger leaves of GMO models seem to improve generalization for completely unknown pairs (TT average precision). Notably, the \texttt{bxt\_gmosa\_\_nrlmf} model, proposed by \textcite{pliakos2020drugtarget} under the name of BICTR, was the top scoring model among BXT for all but the TT ROC AUC test settings.
+
+% TODO
+% fullly grown doesnt mean n_leaf == 1
+% we expect more trees to make nrlmf irrelevant
+% nrlmf probably makes more false positives
+% less relevant for gmo and degrades performance in lttl ap only for rf
+% complexity of other adaptations
+% why nrlmf is detrimental to BRF lt+tl ap?
+% why nrlmf is detrimental to GMO?
+% why nrlmf is not detrimental to bxt lmo?
+
+So why does NRLMF seem detrimental to \texttt{brf\_gmo}, \texttt{bxt\_gmo} and \text{brf\_lmo} in terms of LT+TL average precision? For any tree, if one of the interacting entities is known from the training data (let's call it $x_\text{known}$), the leaf at which the interaction from the TL or LT sets arrives is guaranteed to hold a partition of $Y_\text{train}$ with a column corresponding to $x_\text{known}$. The GMO and LMO models are the only ones to emphasize the effect of this column: LMO will output the average of only the labels in this column (see \autoref{sec:slmo}), while GMO will weight it considerably higher than the other columns when computing the leaf's prototype (\autoref{sec:prototype}). The usage of NRLMF however, causes the negative labels in such column of $Y_\text{leaf}$ to be influenced by neighbors from the training set. While this should improve generalization, we speculate that the LT+TL setting could benefit from this "partial overfitting" that occurs when NRLMF is not employed. We thus hypothesize this effect is less pronounced in BXT due to the naturally lower tendency to overfit of ExtraTrees, resulting from the randomized selection of thresholds (\autoref{sec:bipartite_forests}). We also suppose that this effect in LT+TL ROC AUC is overruled by the sensitivity improvement brought by NRLMF, as discussed above, hence it not being apparent from the results.
+
+Another hypothesis can be formulated based on the fact that the dense reconstructed matrix will cause trees to grow to a much deeper extent, as homogeneity of leaves is harder to obtain. As such, this could favor overfitting of BRF models to the output of NRLMF, carrying the generalization error of the NRLMF reconstruction to the results. At the same time, NRLMF being a better model than BRF on TT sets would generate, as observed, the inverse effect, with NRLMF improving performance in this case. % TODO discuss this in model comparison section
+% this would cause BRF to be equal or worse than NRLMF alone
+Again, BXT's randomized split search procedure likely makes it more resilient to this influence, building uncorrelated individual estimators even if the trees are large and thus more generally benefitting from NRLMF.
+
+% TODO
+%On BXT, Based on these hypothesis, we predict that the impact of NRLMF will be less prominent on a greater number of t
+
+% Additionally, imputting the negative labels allows the trees to grow deeper
+
+%\texttt{brf\_gmo} and \texttt{lmo} are the models most likely to overfit the training data, given that 
+
+%We speculate that the addition of the NRLMF training step does introduce more information into the training set, of which downstream trees can take advantage, at the expense of elevating type I errors and reducing estimator variance. The first effect, increasing FPR, could explain the positive effect of NRLMF on ROC AUC, as aforementioned...
+
+% The second effect would be to decrease the correlation of each tree with the original interaction matrix.
+
+% nrlmf and gmo
+% TODO: future testing with less positive importance and larger trees
+% some of the estimators are definitely not calibrated (explain)
+
+In summary, interaction matrix reconstruction by matrix factorization seems to consistently improve BRF and BXT results in terms of ROC AUC and also the results of BXT regarding LT+TL average precision. On TT average precision, while less evidence is found, the results still seem to point in the same direction of a beneficial NRLMF transformation step. On the other hand, the comparisons of BRF under LT+TL average precision evaluation indicate the opposite conclusion, disfavoring usage of NRLMF especially for \texttt{brf\_lmo} and \texttt{brf\_gmo}. We thus discourage the application of NRLMF with BRF in scenarios where one of the entities of the interacting pair being predicted is always known to the model, such as in drug repositioning.
 
 % TODO: remake the following explanation after displaying the rank boxplots
 
-A first explanation could be that the NRLMF hyperparameter search was not exhaustive enough, and that a better combination of hyperparameters could have been found. However, we later show in section \ref{} that the NRLMF model alone displays competitive performance, disfavoring such hypothesis of underfitting.
-
-We also notice that \cite{Liu_2017} performs bipartite cross-validation in unusual fashion, by replacing with zeros the positive labels of pairs assigned to the test set but still using them to train the model. Albeit test labels are masked, each model thus still receives all available samples during training, and we hypothesize that unsupervised information from the test set could possibly still be exploited during training. For instance, estimating the sample density of the feature space could provide an importance score, a weight factor, for each sample, in order to favor correct predictions of denser clusters and undermine outliers. Wether and how this or similar mechanisms are explored by the NRLMF algorithm is out of the scope of this work, but we discourage the use of such CV strategy and point it as a possible reason for the higher NRLMF scores observed by previous authors \cite{Pliakos_2020;Liu_2017}.
+% A first explanation could be that the NRLMF hyperparameter search was not exhaustive enough, and that a better combination of hyperparameters could have been found. However, we later show in section \ref{} that the NRLMF model alone displays competitive performance, disfavoring such hypothesis of underfitting.
+% 
+% We also notice that \cite{Liu_2017} performs bipartite cross-validation in unusual fashion, by replacing with zeros the positive labels of pairs assigned to the test set but still using them to train the model. Albeit test labels are masked, each model thus still receives all available samples during training, and we hypothesize that unsupervised information from the test set could possibly still be exploited during training. For instance, estimating the sample density of the feature space could provide an importance score, a weight factor, for each sample, in order to favor correct predictions of denser clusters and undermine outliers. Wether and how this or similar mechanisms are explored by the NRLMF algorithm is out of the scope of this work, but we discourage the use of such CV strategy and point it as a possible reason for the higher NRLMF scores observed by previous authors \cite{Pliakos_2020;Liu_2017}.
 
 % (False, they also used nested CV) The authors of \cite{Pliakos_2020} also do not clearly specify the could have employed the reconstruction step before splitting the data into the cross-validation folds, in which case the observed performance improvement could be attributed to indirect data leakage, where the labels used to train the downstream forest estimator were generated from neighbor samples that are possibly in the test sets.
 
-\begin{figure*}
+\begin{figure*}[tbh]
     \centering
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets/boxplots/LT_roc_auc.pdf
+            experiments/y_reconstruction/statistical_comparisons/%
+            brf/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets/boxplots/LT_average_precision.pdf
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets/boxplots/LT_matthews_corrcoef.pdf
+            experiments/y_reconstruction/statistical_comparisons/%
+            brf/all_datasets/boxplots/LT+TL_average_precision.pdf
         }
     \end{subfigure}
 
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets/boxplots/TL_roc_auc.pdf
+            experiments/y_reconstruction/statistical_comparisons/%
+            brf/all_datasets/boxplots/TT_roc_auc.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets/boxplots/TL_average_precision.pdf
+            experiments/y_reconstruction/statistical_comparisons/%
+            brf/all_datasets/boxplots/TT_average_precision.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets/boxplots/TL_matthews_corrcoef.pdf
-        }
-    \end{subfigure}
-
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets/boxplots/TT_roc_auc.pdf
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets/boxplots/TT_average_precision.pdf
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/figures/%
-            estimator_name/all_datasets/boxplots/TT_matthews_corrcoef.pdf
-        }
-    \end{subfigure}
-    \caption{Comparison of scores for the bipartite forests with and without output space reconstruction on the enzymes dataset.}
-    \label{fig:box_y_reconstruction}
+    \caption{
+        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator.
+    }
+    \label{fig:brf_y_reconstruction}
 \end{figure*}
+
+
+\begin{figure*}[tbh]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/statistical_comparisons/%
+            bxt/all_datasets/boxplots/LT+TL_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/statistical_comparisons/%
+            bxt/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/statistical_comparisons/%
+            bxt/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/statistical_comparisons/%
+            bxt/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \caption{
+        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator.
+    }
+    \label{fig:bxt_y_reconstruction}
+\end{figure*}
+
+\subsection{Random forest versus extremely randomized trees}
+
+Based on the results of \autoref{sec:y_reconstruction}, we select the following models for further comparison:
+
+\begin{figure*}[tbh]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/statistical_comparisons/%
+            best_models/all_datasets/boxplots/LT+TL_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/statistical_comparisons/%
+            best_models/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/statistical_comparisons/%
+            best_models/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/y_reconstruction/statistical_comparisons/%
+            best_models/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \caption{
+        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator.
+    }
+    \label{fig:brf_vs_bxt}
+\end{figure*}
+
+
 
 % \begin{table}[h]
 %     \input{figures/experiments/y_reconstruction/latex_tables/TT.tex}
