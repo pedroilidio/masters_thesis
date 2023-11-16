@@ -15,6 +15,8 @@
 \subsection{Mathematical notation}
 \label{sec:notation}
 
+% TODO link prediction is different, no side features?
+
 For any given matrix $M$, we denote by $M\el {ij}$ its element on the $i$-th row
 and $j$-th column ($i, j \in \mathbb{N}^*$). Analogously, we represent by
 $M\el{i\cdot}$ the vector containing $M$'s $i$-th row so that $M\el{i\cdot}\el j
@@ -234,7 +236,8 @@ In order to maximize the amount of training data in each fold, several studies \
 
 % TODO classification
 
-This section is concerned with defining the metrics used throughout this work to evaluate the predictive performance of an estimator and enable comparison between them. Consider a test set of $N$ interaction labels to be inferred by a classifier (we are not concerned with the shape of $Y$ in this section, and $N=|Y|$). Let the classifier's predictions then be represented by a matrix $\hat Y$ of the same shape as $Y$, with $\hat Y\el{ij}$ being the predicted value for the ground-truth label $Y\el{ij}$. We first define the traditional:
+This section is concerned with defining the two metrics used throughout this work to evaluate the predictive performance of an estimator and enable comparison between them. Consider a test set of $N$ interaction labels to be inferred by a classifier (we are not concerned with the shape of $Y$ in this section, and $N=|Y|$). Let the classifier's predictions then be represented by a matrix $\hat Y$ of the same shape as $Y$, with $\hat Y\el{ij}$ being the predicted value for the ground-truth label $Y\el{ij}$. Since $Y$ and $\hat Y$ are both binary matrices, there are four possible outcomes when a prediction is made, traditionally quantified~\cite{} as follows:
+%
 \begin{itemize}
     \item \textbf{True Positives (TP):} the number of positive labels correctly predicted, where both the predicted and actual labels are 1.
     \begin{equation}
@@ -256,41 +259,57 @@ This section is concerned with defining the metrics used throughout this work to
         FN = \sum_{i,j} \mathbb{I}(Y\el{ij} = 1 \text{ and } \hat{Y}\el{ij} = 0)
     \end{equation}
 \end{itemize}
-where \(\mathbb{I}(A)\) is the indicator function that equals 1 if statement \(A\) is true and 0 otherwise. Notice that the sum of TP, TN, FP and FN is equal to the total number of instances $N$.
+%
+where \(\mathbb{I}(A)\) is the indicator function that equals 1 if statement \(A\) is true and 0 otherwise:
+%
+\begin{equation}
+    \mathbb{I} = \begin{cases}
+        1 & \text{if } A\\
+        0 & \text{otherwise}
+    \end{cases}
+    \label{eq:indicator}
+\end{equation}
+%
+Notice that the sum of TP, TN, FP and FN is equal to the total number of instances $T$, and we also define $\text{P}=TP+FN$, the total number of \textit{a priori} positive labels in the test set, and $\text{N}=TN+FP$, the total number of \textit{a priori} negative labels. The total number of predicted positives is termed $\text{PP}=TP+FP$ and the remaining predicted negatives are called $\text{PN}=TN+FN$.%TODO cite
 %- \(n\) is the total number of instances.
 %- \(Y_i\) represents the ground-truth label for instance \(i\).
 %- \(\hat{Y}_i\) represents the predicted label for instance \(i\).
 
 % TODO: we use micro version of the metrics. should we use other forms?
 
-An illustration for those quantities is provided by \autoref{fig:scoring}.
+Those quantities can be organized in the so-called \emph{confusion matrix}, illustrated by \autoref{fig:scoring}.
 
-Naturally, one wants their estimator to maximize TP and TN while minimizing FP and FN. For the metrics to be comparable across different datasets of different numbers of instances, they are often normalized to the interval [0, 1] in various ways. Three of them are used in this work: 
+Naturally, one wants their estimator to maximize TP and TN while minimizing FP and FN. For the metrics to be comparable across different datasets of different numbers of instances, they are often normalized to the interval [0, 1] in numerous ways. Three of them are used in this work: 
+%
 \begin{itemize}
     \item \textbf{True positive rate (TPR)} or \textbf{recall:} the ratio of correctly predicted positive labels to the total number of positive labels.
     \begin{equation}
-        TPR = \frac{TP}{TP + FN}
+        TPR = \frac{TP}{P} = \frac{TP}{TP + FN}
         \label{eq:tpr}
     \end{equation}
     \item \textbf{True negative rate (TNR):} the ratio of correctly predicted negative labels to the total number of negative labels.
     \begin{equation}
-        TNR = \frac{TN}{TN + FP}
+        TNR = \frac{TN}{N} = \frac{TN}{TN + FP}
         \label{eq:tnr}
     \end{equation}
     \item \textbf{False positive rate (FPR):} the ratio of incorrectly predicted positive labels to the total number of negative labels.
     \begin{equation}
-        FPR = \frac{FP}{FP + TN}
+        FPR = \frac{FP}{N} = \frac{FP}{FP + TN} = 1-TNR 
         \label{eq:fpr}
     \end{equation}
     \item \textbf{Precision:} the ratio of correctly predicted positive labels to the total number of predicted positive labels.
     \begin{equation}
-        Precision = \frac{TP}{TP + FP}
+        Pr = \frac{TP}{PP} = \frac{TP}{TP + FP}
     \end{equation}
 \end{itemize}
 These metrics are better visualized in \autoref{fig:scoring}.
 
-An optimal binary classifier will thus present high TPR and precision while minimizing FPR.
-In real-world scenarios, however, building estimators to simultaneously optimize all these metrics is not a straightforward problem. Often, the task manifests itself as a tradeoff between TP and TN. For instance, if a classifier trivially outputs positive labels for all instances irrespectively of the input features, it will achieve perfect TP, but its TN will be null. On the other hand, if a negative label is outputted every time, an ideal TN will be achieved at the expense of a null TP. Although seldom as extreme as those examples, classifiers will often lean into one of those directions, displaying a tendency towards yielding more positive (\emph{sensitivity}) or more negative (\emph{specificity}) labels.
+An optimal binary classifier will thus present high TPR, TNR and precision while minimizing FPR.
+In real-world scenarios, however, building estimators to simultaneously optimize all these metrics is not a straightforward problem. Often, the task manifests itself as a tradeoff between the abilities to effectively classify each of the classes, usually formulated as a balance between TPR and TNR. For instance, if a classifier trivially outputs positive labels for all instances irrespectively of the input features, it will achieve perfect TPR, but its TNR will be null. On the other hand, if a negative label is outputted every time, an ideal TNR will be achieved at the expense of a null TPR. Although seldom as extreme as those examples, classifiers will often lean into one of those directions, displaying a tendency towards yielding more positive
+%(\emph{sensitivity})
+or more negative
+%(\emph{specificity})
+labels.
 
 The preference for each of these tendencies is highly application-specific. For instance, in the process of diagnosing medical conditions, sensitivity (TPR) is often prioritized, favoring the identification of all true cases at the expense of some misleading positive results.
 In this case, the cost of missing a positive result is usually far greater than that of a false positive. In other scenarios, such as spam email filtering, specificity (TNR) might be favored to minimize the number of legitimate emails marked as spam, even if some spam emails go undetected. The choice between these tendencies reflects the trade-off between correctly identifying positive instances and correctly identifying negative instances and should align with the specific goals and constraints of the classification problem at hand.
@@ -298,10 +317,10 @@ In this case, the cost of missing a positive result is usually far greater than 
 Deciding between those characteristics across a variety of learning tasks
 is thus a challenging factor to be taken into account, especially in cases where this balance can be finely adjusted.
 %
-Many classifiers, such as those employed in the present study, do not directly output a binary label but instead provide us with a continuous decision value (such as a probability of interaction) that additionally depends on specifying a threshold point to establish the final predicted classes. This choice of threshold usually directly affects the classifier's propensity to positive or negative outputs, so that a single classifier can yield multiple different results with varying levels of TPR and TNR depending on the chosen thresholds.
+Many estimators, such as those employed in the present study, do not directly output a binary label but instead provide us with a continuous decision value (such as a probability of interaction) that additionally depends on specifying a threshold point to establish the final predicted classes. This choice of threshold directly affects the propensity to positive or negative outputs, so that a single model can yield multiple different results with varying levels of TPR and TNR depending on the chosen thresholds.
 
 To avoid the trouble of defining threshold values, influencing each estimator's TPR-TNR balance and hindering fair comparison between them, it is common to consider TPR and TNR for all thresholds.
-Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible results of a classifier. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and TNR are each indicated by an axis. Conventionally, the TPR is plotted in $y$ while the FPR (representing the TNR, $FPR=1-TNR$) is presented as $x$ coordinates, which results in the traditional \emph{receiver operating characteristic} (ROC) curve, exemplified by \autoref{fig:roc}.
+Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible classification results of a model. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and TNR are each indicated by an axis. Conventionally, the TPR is plotted in the $y$ axis while the FPR values (representing the TNR, $FPR=1-TNR$) are presented as $x$ coordinates, which results in the traditional \emph{receiver operating characteristic} (ROC) curve, exemplified by \autoref{fig:roc}.
 An ideal threshold of an ideal estimator would then be close to the top-left corner of the plot, where TPR and TNR are both 1.
 On the other hand, consider a completely random classifier outputting uniformly random values $\hat Y\_\text{proba}\el{ij}$ in the 0-1 interval so that $\hat Y\el{ij} = \mathbb{I}(\hat Y_\text{proba}\el{ij} > t)$ for a given threshold $t$. This implies that the number of correctly guessed positive labels is $1-t$ (the probability of yielding 1) times the total number of positive labels: $TP = (1-t) (TP+FN)$, which results in $TPR = 1-t$ from the definition. Similarly, it is easily shown that $FPR = TPR = 1-t$, so that the ROC curve of a random classifier is a diagonal line from the bottom-left to the top-right corners.
 
@@ -310,7 +329,7 @@ On the other hand, consider a completely random classifier outputting uniformly 
 % TODO interpretation of roc
 % TODO its TPR and TNR balance, not TP and TN
 
-To summarize a classifier's performance across all thresholds, the area under the ROC curve (AUC ROC) is often employed, with values ranging from 0 to 1, where 1 represents a perfect classifier and 0.5 represents a random classifier. Values below 0.5 would signify the opposite label is being consistently predicted, most likely indicating misconfiguration of the estimator.
+To summarize a classifier's performance across all thresholds, the area under the ROC curve (AUC ROC) is often employed, with values ranging from 0.5 to 1, where 1 represents a perfect classifier and 0.5 represents a random classifier. Although theoretically possible, values below 0.5 would signify the opposite label is being consistently predicted, most likely indicating misconfiguration of the estimator. If AUROC < 0.5, the result can be easily converted to a value greater than 0.5 by simply inverting the predicted labels (turning 0s into 1s and vice-versa).
 
 Despite considerably common, the use of ROC curves with heavily imbalanced classification datasets (where some classes are greatly overrepresented) requires additional considerations~\cite{he2009learning,saito2015precision,fernandez2018learning}.
 For instance,% let $p$ be the fraction of positive labels relative to the total number of labels: $p = \frac{TP + FN}{N}$.
@@ -319,11 +338,12 @@ Specifically, an increase of $k$ in TN will cause an increase in TNR $\frac{NEG}
 
 % Positive labels (the minority class) have more weight
 
-Given that ROC equally considers both metrics, classifiers that are more sensitive to positive labels will be clearly favored over those prioritizing negative outputs. By the same logic, ROC will also be more lenient towards false positives (that decrease TNR) rather than false negatives (that decrease TPR).
+Given that ROC equally considers both metrics, classifiers that are more sensitive to positive labels will be favored over those prioritizing negative outputs. By the same logic, ROC will also be more lenient towards false positives (that decrease TNR) rather than false negatives (that decrease TPR).
 
-To address this issue, it is commonly suggested the usage of precision-recall (PR) curves instead, where the precision is plotted as the vertical coordinate while the recall (or sensitivity, or TPR) is represented horizontally. In the PR space, considering fixed POS and NEG, a change in TP yields 
-
+To address this issue, it is commonly suggested the usage of precision-recall (PR) curves instead~\cite{ozenne2015precision,he2009learning}, where the precision is plotted as the vertical coordinate while the recall (or sensitivity, or TPR) is represented horizontally. In the PR space, considering fixed P and N, a simultaneous increase in TP and TN results in the following improvement in precision:
+%
 \begin{equation}
+    \Delta Pr =
     \frac{TP + k}{TP + k + FP - k}
     - \frac{TP}{TP + FP}
     = \frac{k}{TP + FP}
@@ -333,10 +353,13 @@ To address this issue, it is commonly suggested the usage of precision-recall (P
     % PR area increase: \frac{k^2}{(TP + NEG - TN) POS}
     % ROC area increase: \frac{k^2}{NEG POS}
 \end{equation}
+%
+which is arguably less sensitive to the strategy of increasing FP to obtain larger TP, in comparison with AUROC. %TODO better explanation
+
+% A formal explanation of the differences between ROC and PR curves is developed in the following section.  % TODO: better?
+The following section delves into those considerations with a higher level of detail, formally defining such metrics in the ideal scenario.
 
 % TODO FP represents TN (NEG - TN), so plot TP vs. FP. Precision and recall are similar for those two metrics.
-
-%TODO AUC PRC
 
 %TODO at least 3 of the 4 basic metrics must be included
 
@@ -357,53 +380,43 @@ To address this issue, it is commonly suggested the usage of precision-recall (P
 %     = \frac{k (NEG - TN)}{(TP + FP)(TP + FP + k)}
 % \end{equation}
 
-\begin{equation}
-    \frac{TP + k}{TP + k + FP - k}
-    - \frac{TP}{TP + FP}
-    = \frac{k}{TP + FP}
-    % \frac{k}{TP + FN}
-    % PR area increase: \frac{k^2}{(TP + FP)(TP + FN)}
-    % PR area increase: \frac{k^2}{(TP + FP)(TP + FN)}
-    % PR area increase: \frac{k^2}{(TP + NEG - TN) POS}
-    % ROC area increase: \frac{k^2}{NEG POS}
-\end{equation}
 
-\begin{equation}
-    \sum_t \Delta TPR_t \Delta FPR_t / 2 + TPR_t * FPR_t
-    % = \sum_t \frac{k_t^2}{NEG * POS} / 2 + \frac{TP_t TN_t}{NEG * POS}
-    = \sum_t \frac{k_t^2}{NEG * POS} / 2 + \Delta TNR_t * TPR_t
-    = \sum_t \sum_t \frac{k_t^2}{NEG * POS} / 2
-\end{equation}
-
-\begin{equation}
-    TPR = tp / pos
-    FPR = fp / (1 - pos)
-    Precision = tp / (tp + fp)
-\end{equation}
-
-\begin{equation}
-    pos is not the ideal tp + fn, it is simply POS / N
-    you cannot asume c = ppos
-
-    TPR = (tp/(tp + fp)) * c / pos = prec * c / pos
-    c = pos * TPR (tp + fp) / tp
-
-    TPR = c - FPR
-
-    FPR = fp/(fp + tp) * c / (1 - pos)
-    FPR = fp / (fp + tp) * (pos * TPR * (tp + fp)) / ((1 - pos) * tp)
-    FPR = fp * pos * TPR / ((1 - pos) * tp)
-    TPR = ((1 - pos) * tp) * FPR / (pos * fp)
-
-    Precision = tp / (tp + fp)
-    Precision = 
-\end{equation}
-
-\begin{equation}
-    TPR = p * c / pos
-    p = pos * TPR / c
-    Precision = p = pos * TPR / c
-\end{equation}
+% \begin{equation}
+%     \sum_t \Delta TPR_t \Delta FPR_t / 2 + TPR_t * FPR_t
+%     % = \sum_t \frac{k_t^2}{NEG * POS} / 2 + \frac{TP_t TN_t}{NEG * POS}
+%     = \sum_t \frac{k_t^2}{NEG * POS} / 2 + \Delta TNR_t * TPR_t
+%     = \sum_t \sum_t \frac{k_t^2}{NEG * POS} / 2
+% \end{equation}
+% 
+% \begin{equation}
+%     TPR = tp / pos
+%     FPR = fp / (1 - pos)
+%     Precision = tp / (tp + fp)
+% \end{equation}
+% 
+% \begin{equation}
+%     pos is not the ideal tp + fn, it is simply POS / N
+%     you cannot asume c = ppos
+% 
+%     TPR = (tp/(tp + fp)) * c / pos = prec * c / pos
+%     c = pos * TPR (tp + fp) / tp
+% 
+%     TPR = c - FPR
+% 
+%     FPR = fp/(fp + tp) * c / (1 - pos)
+%     FPR = fp / (fp + tp) * (pos * TPR * (tp + fp)) / ((1 - pos) * tp)
+%     FPR = fp * pos * TPR / ((1 - pos) * tp)
+%     TPR = ((1 - pos) * tp) * FPR / (pos * fp)
+% 
+%     Precision = tp / (tp + fp)
+%     Precision = 
+% \end{equation}
+% 
+% \begin{equation}
+%     TPR = p * c / pos
+%     p = pos * TPR / c
+%     Precision = p = pos * TPR / c
+% \end{equation}
 
 % qualquer estimador é descrito por uma matriz de confusão teórica. Para qualquer estimador, pode se calibá-lo, isso é, usar um parâmetro c que dá uma porcentagem de vezes que, aleatóriamente, mudamos uma predição negativa para positiva ou vice versa. as curvas são em função desse parâmetro. para uma determinada métrica agora em um conjunto de dados real, provemos que o melhor c é o correspondente á proba à priori do conjunto (desbalanceamento). O estimador então pode ajustá-la de acordo com essa proba que ele acha que é a certa. a questão é que ele não tem como saber, então consideramos todas as probas que ele poderia pensar.
 
@@ -414,7 +427,849 @@ To address this issue, it is commonly suggested the usage of precision-recall (P
 %\section{Common approaches to build bipartite models}
 %\label{sec:common_approaches}
 
-\section{Applying monopartite estimators on bipartite data}
+\subsection{Ideal descriptions of AUROC and AUPRC}
+% TODO previous explanations restrained to specific examples and distant analogies. (hans2009 and davis2006 are nice exceptions)
+
+Consider a general estimator outputting a decision value $s \in \mathbb{R}$ for each input instance. The final class to be assigned is still to be defined by a threshold $s^*$ so that $\hat Y\el{ij} = \mathbb{I}(s\el{ij} > s^*)$. For the ideal case of an infinite number of test samples, the possible scoring results of the estimator would be fully determined by the two theoretical distributions of $s$ given the true label $Y\el{ij}$, i.e. the probability density functions $P(s \mid Y\el{ij} = 1)$ and $P(s \mid Y\el{ij} = 0)$. Similar to \textcite{hand2009measuring}, we thus define the probability density functions $f_k$ and their corresponding cumulative distribution functions $F_k$ for each of the two classes $k \in \{0, 1\}$:
+%
+\begin{gather}
+    f_0(s) = P(s \mid Y\el{ij} = 0) \\
+    f_1(s) = P(s \mid Y\el{ij} = 1) \\
+    F_0(s) = \int_{-\infty}^s f_0(u)\;du \\
+    F_1(s) = \int_{-\infty}^s f_1(u)\;du
+    \label{eq:ideal_confusion_matrix}
+\end{gather}
+%
+By further defining $p=\frac{P}{T}=P(Y_\text{test}\el{ij}=1)$ and $n=\frac{N}{T}=P(Y_\text{test}\el{ij}=0)$ as the fractions of positive and negative labels in the test set, respectively, we can express the expected values of the confusion matrix as functions of a given threshold $s^*$ for the decision value $s$:
+%
+\begin{gather}
+    \text{TP}(s^*) = p (1 - F_1(s^*)) \\
+    \text{TN}(s^*) = n F_0(s^*) \\
+    \text{FP}(s^*) = n (1 - F_0(s^*)) \\
+    \text{FN}(s^*) = p F_1(s^*)
+\end{gather}
+%
+which, in turn, yields
+%
+\begin{gather}
+    \text{TPR}(s^*) = 1 - F_1(s^*) \\
+    \text{TNR}(s^*) = F_0(s^*) \\
+    \text{FPR}(s^*) = 1 - F_0(s^*) \\
+    \text{Pr}(s^*) = \frac{p (1 - F_1(s^*))}{p (1 - F_1(s^*)) + n (1 - F_0(s^*))}
+\end{gather}
+
+The area under the ROC curve can now be expressed as
+%
+\begin{equation}
+    A_\text{ROC}
+    = \int_{0}^{1} \text{TPR}(\text{FPR}) \;d\text{FPR}
+    = \int_{\infty}^{-\infty} \text{TPR}(s) \frac{d\text{FPR}(s)}{ds} \;ds
+    = \int_{-\infty}^{\infty} (1 - F_1(s)) f_0(s) \;ds
+    \label{auroc0}
+\end{equation}
+%
+in which the integration limits arise from noticing that FPR is maximal when all instances are classified as positive, i.e. the decision threshold is as low as possible ($s^* = -\infty$), and minimal when all instances are classified as negative, i.e. $s^* = \infty$. This formulation of AUROC by \autoref{eq:auroc0} leads to the most commonly promoted intuition behind the metric.
+%
+The first factor ($1- F(s^*)$), represents the fraction of positive instances that are ranked higher than the threshold $s^*$, alternatively expressed as $\int_{s^*}^{\infty}f_1(s)\; ds$. $f_0$, as defined by \autoref{eq:ideal_decision_matrix}, represents the probability of finding a negative instance within $s^*$ and $s^* + ds$. Hence, the product of both factors represents the joint probability of having a negative instance between $s^*$ and $s^* + ds$ while also finding a positive instance with a higher decision value than that of the negative instance. 
+%
+Upon integration over all possible thresholds, we conclude that the AUROC score represents the overall probability of randomly selecting a positive instance ranked higher by the estimator than a randomly selected negative instance~\cite{}.
+
+\autoref{eq:auroc0} also formally defines the disadvantage of AUROC for imbalanced datasets discussed in the previous section.
+%
+By definition of the training and test sets, the negative test instances are independent and identically distributed to the negative instances of the training set, with the same being held for the positive instances. Under this assumption, the probability density functions $f_0$ and $f_1$ are independent of the label imbalance of the test set, being solely determined by the nature of the learning algorithm and the training data. As a result, \autoref{eq:auroc0} lets clear that the AUROC score is independent of the relative prevalence of each class in the test set, with no influence of $p$ or $n$ and only the dependency on the learned decision value distributions.
+
+We can alternatively formulate this argument by expressing AUROC in terms of TN and TP themselves. While the variation of the decision values $ds$ is a considerably abstract concept in real-world scenarios, variations of TP and TN are directly related to the number of correctly classified instances of each class.
+%
+\begin{equation}
+    A_\text{ROC}
+        = \frac{1}{n} \int_{0}^{n} \frac{\text{TP}(\text{TN})}{p}\;d\text{TN}
+    \label{eq:auroc_tptn}
+\end{equation}
+%
+%Notice how TP and TN are respectively divided by $p$ and $n$ in \autoref{eq:auroc_tptn}. % TODO better?
+From \autoref{eq:auroc_tptn}, the AUROC can \emph{almost} be interpreted as the mean value of TP when TP is expressed in terms of TN, for all TN values, in which case $\frac{1}{n}$ is merely the normalization factor (the length of the integration interval). The only fact defying such interpretation is the division of TP by $p$. As a result, while TN is simply the integration variable, TP is weighted by $\frac{p}$, so that smaller values of $p$ attribute more importance to TP relative to TN, at each point of the ROC curve.
+
+This property precisely defines the specific implications of using AUROC for imbalanced datasets presented by \autoref{sec:evaluation_protocol}. In such cases, one must have in mind that misclassifications will effectively be inversely weighted by their respective true class prevalences, with misclassifications of the majority class being more tolerated individually than those of the minority class. In other words, if positives are the underrepresented class of a problem, AUROC will be more lenient towards false positives than false negatives.
+%TODO always negative classifier
+%TODO for an estimator with same TP and TN but different p and n, ...
+%TODO variational calculus, how to hack the auroc
+%TODO aucroc is proportional to the expected accuracy
+
+% In scenarios where reducing false positives is more important than increasing true negatives
+In scenarios where constraining the number of false positives is as important as increasing the number of true positives, it is often recommended the usage of precision-recall curves as a replacement for ROC~\cite{ozenne2015precision,he2009learning,krawczyk2016learning,fernandez2018learning}.
+%TODO the precision weights fp as blablabl
+%
+The area under the precision-recall curve behaves differently than AUROC under imbalanced circumstances.
+%
+\begin{multline}
+    A_\text{PRC}
+    = \int_{0}^{1} \text{Pr}(\text{TPR}) \;d\text{TPR}
+    = \int_{\infty}^{-\infty} \text{Pr}(s) \frac{d\text{TPR}(s)}{ds} \;ds
+    =\\
+    = \int_{-\infty}^{\infty} \text{Pr}(s) f_1(s)\;ds
+    = \int_{-\infty}^{\infty} \frac{p (1 - F_1(s)) f_1(s) \;ds}{p (1 - F_1(s)) + n (1 - F_0(s))}
+    \label{eq:auprc0}
+\end{multline}
+%
+In \autoref{eq:auprc0} we see that AVERAGE PRECISIONFJ
+
+Furhtermore, the true label cumulative distributions ($F_0$ and $F_1$) appear each weighted by their respective class prevalences ($p$ and $n$). As a result, expressing the AUPR in terms of TP and FP
+%When weighted in such a manner, a change in TP or TN affects the AUPRC in the same way since $dTP = - p f_1$ and $dTN = n f_0$.
+
+\begin{equation}
+    A_\text{PRC}
+    =
+        \frac{1}{p}
+        \int_{0}^{p}
+            \left(1-\frac{\text{FP}}{\text{TP}}\right)^{-1}
+        \;d\text{TP}
+    =
+        \frac{1}{p}
+        \int_{0}^{p}
+            \left(1-\frac{n-\text{TN}}{\text{TP}}\right)^{-1}
+        \;d\text{TP}
+\end{equation}
+
+
+% XXX define F and f = pf_1 + nf_0
+% XXX interpret PR. average precision considering only a priori positive instances?
+% TODO auroc becomes interesting again for PU
+
+\subsection{AUROC as the normalized mean percentile ranking}
+
+Consider the ranking of a binary classification test set produced by a given classifier (\autoref{}). Green dots represent positive labels while red dots represent negative labels. A threshold is still to be defined, so the only output of the classifier is the order of test instances represented in the figure, indicating which instances the classifier believes are more likely to belong to the positive class (instances to the right are thought to have higher probability to be positive than instances to the left). Splitting the produced ranking in several equally-sized windows, we call $c\el i$ the average fraction of positive labels in the $i$-th window:
+%
+\begin{equation}
+    c \el i = \frac{\text{# of positives in window }i}{\text{window length}\times \text{P}}
+\end{equation}
+
+%%% TODO: c(r) has a maximum value of 1/p, but it shouldn't depend on p?
+%%For a sufficiently large number of samples, $c\el i$ approximates a function $c(r)$ describing the density of positive labels as a function of the classifier's percentile ranking $r$. The probability of classifying a sample between $r$ and $r+dr$ as positive is then given by $c(r)dr$, while $\int_{0}^{1}c(r)\;dr = 1$. Notice that $c(r)$ is independent of the label imbalance of the test set, since it is normalized by the fraction of positive labels $P$ and depends only on the underlying probabilities of predicting a decision value given the true label. For instance, consider a classifier characterized by the distributions% as suggested by \textcite{saito2015precisionrecall}:
+%%%
+%%\begin{gather}
+%%    P(\hat Y\el{ij} = 1 | Y\el{ij} = 1) = \beta(1, 4) \\
+%%    P(\hat Y\el{ij} = 1 | Y\el{ij} = 0) = \beta(4, 1)
+%%\end{gather}
+%%%
+%%$c(r)$ will be given by
+%%%
+%%\begin{equation}
+%%    c(r) = P(\hat Y\el{ij} = 1 | r) = \frac{\beta(1, 4)}{\beta(4, 1) + \beta(1, 4)}
+%%\end{equation}
+%%%
+%%as illustrated by \autoref{fig:}.
+%%
+%%% TODO define confusion matrix
+%%Plotting $p \cdot c(r)$ as a function of the percentile ranking offers an interesting way of visualizing the confusion matrix generated by each threshold, since the threshold values naturally have a one-to-one monotonic relationship with the values of $r$ (\autoref{fig:}). Under this representation, we can define
+%%%
+%%\begin{equation}
+%%    tp(r) = \frac{TP}{N} = p\left(1 - \int_{0}^{r} c(r)\;dr\right)
+%%\end{equation}
+%%\begin{equation}
+%%    tn(r) = \frac{TN}{N} = r - p\int_{0}^{r} c(r)\;dr
+%%\end{equation}
+%%\begin{equation}
+%%    fp(r) = \frac{FP}{N} = n - r + p\int_{0}^{r} c(r)\;dr
+%%\end{equation}
+%%\begin{equation}
+%%    fn(r) = \frac{FN}{N} = p\int_{0}^{r} c(r)\;dr
+%%\end{equation}
+%%%
+%%which yields
+%%%
+%%\begin{equation}
+%%    tpr(r) = \frac{tp(r)}{p} = 1 - \int c(r)\;dr
+%%\end{equation}
+%%\begin{equation}
+%%    fpr(r) = \frac{fp(r)}{n} = 1 - \frac{r}{n} + \frac{p}{n}\int c(r)\;dr
+%%\end{equation}
+%%\begin{equation}
+%%    pr(r) = \frac{tp(r)}{1-r} = \frac{p}{1-r} \left(1 - \int c(r)\;dr\right)
+%%\end{equation}
+%%%
+%%As such, the area under the ROC curve (AUC ROC) is now given by
+%%%
+%%\begin{multline}
+%%    A_\text{ROC}
+%%    = \int_{0}^{1} tpr \;d(fpr)
+%%    = -\int_{fpr(1)}^{fpr(0)} tpr \frac{d(fpr)}{dr} \;dr
+%%    %= \int_{1}^{0} \left(1 - \int c(r)\;dr \right) \frac{1}{n} \left(-1 + p\,c(r)\right) \;dr
+%%    =\\
+%%    = \int_{0}^{1} \left(1 - \int c(r)\;dr \right) \frac{1}{n} \left(1 - p\,c(r)\right) \;dr
+%%    \label{eq:auroc1}
+%%\end{multline}
+%%%
+%%\autoref{eq:auroc1} leads to the most commonly promoted intuition behind AUROC. Notice that the analogous of the function $c(r)$ for the negative class can be found with 
+%%$\frac{1}{n} \left(1 - p\,c(r)\right)$, precisely the last factors of \autoref{eq:auroc1}.
+%%%
+%%The first factor ($1- \int c(r)\;dr $), on the other hand, represents the fraction of positive instances that are ranked higher than the threshold $r$.
+%%%
+%%As a consequence, both factors combined represent the probability of finding a negative instance between $r$ and $dr$ while also finding a positive instance with a higher rank than that of the negative instance.
+%%%
+%%Upon integration over all possible thresholds, we conclude that the AUC ROC score represents the overall probability of randomly selecting a positive instance ranked higher than a randomly selected negative instance.
+
+Defining $C(r) = \int c(r) \; dr$, we can write
+%
+\begin{multline*}
+    A_\text{ROC}
+        = \frac{1}{n} \int_{0}^{1} (1 - C(r)) \left(1 - p C'(r)\right) \;dr
+    =\\
+        = \frac{1}{n} \int_{0}^{1} (1 - C(r)) \;dr
+        + \frac{p}{n} \int_{0}^{1} (C(r) - 1) C'(r) \;dr
+    =\\
+        = \frac{1}{n} - \frac{1}{n}\int_{0}^{1} C(r) \;dr
+        + \frac{p}{n} \left[ \frac{(C(r)-1)^2}{2} \right]_0^1
+    %=\\
+        = \frac{1}{n} - \frac{1}{n}\int_{0}^{1} C(r) \;dr - \frac{p}{2n}
+    =\\
+        = \frac{1}{n} - \frac{1-n}{2n} - \frac{1}{n}\int_{0}^{1} C(r) \;dr
+        = \frac{1}{n} - \frac{1}{2n} + \frac{1}{2} - \frac{1}{n}\int_{0}^{1} C(r) \;dr
+    =\\
+        =  \frac{1}{2} + \frac{1}{n}\left[\frac{1}{2} - \int_{0}^{1} C(r) \;dr\right]
+\end{multline*}
+% \begin{multline*}
+%     A_\text{ROC}
+%         = \frac{1}{n} \int_{0}^{1} (1 - C(r)) \left(1 - p C'(r)\right) \;dr
+%     =\\
+%     = \frac{1}{p}\int_0^1 (1 - C(r)) \;dr
+%         - \int_0^1 (1 - C(r)) C'(r)\;dr
+%     =\\
+%     = \frac{1}{p} \left[ 1 + \int_0^1 C(r) \;dr \right]
+%         - \int_{C(0)}^{C(1)} (1 - C(r)) \;dC
+%     =\\
+%         = \frac{1}{p} \left[ 1 + \int_0^1 C(r) \;dr \right]
+%         - \left[ \frac{(1 - C(r))^2}{2} \right]_0^1
+%     =\\
+%     % \frac{1}{2} + \frac{1}{p} \left[1 - \int_0^1 \int c(r) \;dr^2 \right]  % TODO: dr^2 notation?
+%     \frac{1}{2} + \frac{1}{p} \left[1 - \int_0^1 C(r) \;dr \right]  % TODO: dr^2 notation?
+% \end{multline*}
+%
+Integrating by parts we further have
+%
+\begin{multline}
+    A_\text{ROC}
+        =  \frac{1}{2} + \frac{1}{n}\left[\frac{1}{2} - \int_{0}^{1} (r)'C(r)\;dr\right]
+        = \frac{1}{2}
+        + \frac{1}{n}\left[
+            \frac{1}{2}
+            - \left[rC(r)\right]_0^1
+            +\int_{0}^{1} r\,c(r) \;dr
+        \right]
+        =\\
+        = \frac{1}{2}
+        + \frac{1}{n}\left[
+            \frac{1}{2}
+            - 1
+            +\int_{0}^{1} r\,c(r) \;dr
+        \right]
+        = \frac{1}{2}
+        +\frac{1}{n}\left[
+            \int_{0}^{1} r\,c(r) \;dr
+            - \frac{1}{2}
+        \right]
+        % = 
+        % \frac{1}{1-p}\left[
+        %     \frac{1-p}{2}
+        %     - \frac{1}{2}
+        %     \int_{0}^{1} r\,c(r) \;dr
+        % \right]
+        % =\\
+        % =
+        % \frac{1}{1-p}\left[
+        %     \int_{0}^{1} r\,c(r) \;dr
+        %     -\frac{p}{2}
+        % \right]
+    \label{eq:auroc}
+\end{multline}
+%
+which offers a different perspective on AUC ROC.  % TODO XXX moment of inertia
+% TODO roc is again interesting for PU data, MPR
+%
+The term $\int_{0}^{1} r\,c(r) \;dr$ represents the average percentile ranking of positive labels, or the average distance of a positive label from the origin in the plot of $c(r)$. This quantity by itself, the mean percentile ranking (MPR), is a common metric in the realm of collaborative filtering for recommendation systems~\cite{hu2008collaborative,johnsonlogistic} and has also been proposed to bipartite interaction prediction~\cite{ezzat2019computational,hao2019opensource,yu2020fpscdti}.
+%
+\begin{equation}
+    \text{MPR} = \int_0^1 r\,c(r) \;dr
+\end{equation}
+%
+At first glance, MPR seems to offer some advantages over AUROC: besides simpler in formulation, MPR also seemingly does not depend on $p$ or $n$, the relative amounts of postive and negative labels in the test set, making comparisons across different test sets more direct. However, consider the maximum and minimum values of MPR, achieved for the ideal $c(r)$ distributions:
+%
+\begin{gather}
+    c_\text{max}(r) = \frac{\mathbb{I}(r > n)}{p}\\
+    c_\text{min}(r) = \frac{\mathbb{I}(r < p)}{p}
+\end{gather}
+%
+The extrema of MPR do in fact depend on $n$:
+%
+\begin{equation}
+    \text{MPR}_\text{max}
+        = \frac{1}{p}\int_n^1 r \;dr
+        = \frac{1 - n^2}{2p}
+        = \frac{1 + n}{2}
+\end{equation}
+%
+\begin{equation}
+    \text{MPR}_\text{min}
+        = \frac{1}{p}\int_0^p r \;dr
+        = \frac{p^2}{2p}
+        = \frac{p}{2}
+        = \frac{1 - n}{2}
+\end{equation}
+%
+If we then try to remedy this issue by normalizing MPR to the $[0, 1]$ interval, we obtain
+\begin{equation}
+    \text{MPR}_\text{norm}
+        = \frac{
+            \text{MPR} - \text{MPR}_\text{min}
+        }{
+            \text{MPR}_\text{max} - \text{MPR}_\text{min}
+        }
+        = \frac{\text{MPR} - \frac{1 - n}{2}}{n}
+        %= \frac{1}{n}\left(\text{MPR} - \frac{1 - n}{2}\right)
+        = \frac{1}{2} + \frac{1}{n}\left(\text{MPR} - \frac{1}{2}\right)
+        = A_\text{ROC}
+\end{equation}
+%
+precisely the expression for the AUROC (\autoref{eq:auroc}). To the best of our knowledge, we thus show for the first time that employing MPR as a metric is equivalent to using AUROC normalized to the $[0, 1]$ interval. Since the statistics for model comparison employed in this study consider only the order of the estimators based on their scores and not the score values themselves, MPR results would not differ in any way from AUROC and hence will not be further considered in this work.
+
+%TODO can borrow from physics the intuition of "moment of inertia"~\cite{}. It would represent the 
+
+% % ROC random estimator
+% \begin{multline}
+%     \frac{1}{2}
+%     +\frac{1}{n} \left(
+%         \frac{1}{p}\int_{n}^{1} r \;dr
+%         - \frac{1}{2}
+%     \right)
+%     = \frac{1}{2}
+%     +\frac{1}{n}\left[
+%         \frac{1}{p}\left(\frac{1}{2} - \frac{n^2}{2} \right)
+%         - \frac{1}{2}
+%     \right]
+%     =\\
+%     = \frac{1}{2}
+%     +\frac{1}{n}\left[
+%         \frac{(1-n)(1+n)}{2p}
+%         - \frac{1}{2}
+%     \right]
+%     = \frac{1}{2}
+%     +\frac{1}{n}\left(
+%         \frac{1+n}{2} - \frac{1}{2}
+%     \right)
+%     = 1
+%     % =
+%     % \frac{1}{2} + \frac{1}{2} + \frac{n}{2n} - \frac{1}{2}
+% \end{multline}
+
+% TODO why precision recall curve
+
+
+\begin{multline}
+    A_\text{PR}
+    = \int_{0}^{1} pr \;d(tpr)
+    = \int_{tpr(0)}^{tpr(1)} pr \frac{d(tpr)}{dr} \;dr
+    %= \int_{1}^{0} \left(1 - \int c(r)\;dr \right) \frac{1}{n} \left(-1 + p\,c(r)\right) \;dr
+    =\\
+    = \int_{0}^{1} \left(p\frac{1 - \int c(r)\;dr}{1-r} \right) (- c(r))\;dr
+    = -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
+    \label{eq:aupr}
+\end{multline}
+
+\begin{multline}
+    -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
+    = -n\int_{0}^{1}
+        \frac{1}{n}\frac{r-pC(r)}{r}
+        \frac{1}{n} \left(1 - p\,c(r)\right)
+    \;dr
+    =\\
+    = -\int_{0}^{1}
+        \frac{r-pC(r)}{r}
+        \left(1 - p\,c(r)\right)
+    \;dr
+    = -p\int_{0}^{1}
+        \left(
+            \frac{1}{p}-\frac{C(r)}{r}
+        \right)
+        \left(\frac{1}{p} - c(r)\right)
+    \;dr
+    =\\
+    =
+    -\int_{0}^{1}
+        \frac{1}{p}-\frac{C(r)}{r}
+    \;dr
+    -p\int_{0}^{1}
+        \left(
+            \frac{1}{p}-\frac{C(r)}{r}
+        \right)
+        \left(-c(r)\right)
+    \;dr
+\end{multline}
+
+\begin{multline}
+    -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
+    = -p \left[
+        \left[\frac{1 - C(r)}{1-r} C(r)\right]_{0}^{1}
+        - \int_{0}^{1} \left(\frac{1 - C(r)}{1-r}\right)' C(r)\;dr
+    \right]
+    =\\
+    = -p \left[
+        \left[\frac{1 - C(r)}{1-r} C(r)\right]_{0}^{1}
+        - \int_{0}^{1} \left(
+            \frac{- C'(r)C(r)}{1-r}
+            + \frac{(1-C(r))C(r)}{(1-r)^2}
+        \right)
+        \;dr
+    \right]
+    =\\
+    = -p \left[
+        \left[\frac{1 - C(r)}{2(1-r)} C(r)\right]_{0}^{1}
+        - \int_{0}^{1} \frac{1}{2}\left(
+            \frac{(1-C(r))C(r)}{(1-r)^2}
+        \right)
+        \;dr
+    \right]
+\end{multline}
+
+
+\begin{multline}
+    \int_{0}^{1} \frac{C(r)C'(r)}{1-r}\;dr
+    =
+        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
+        - \int_{0}^{1} \left(\frac{C(r)}{1-r}\right)' C(r)\;dr
+    =\\
+    =
+        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
+        - \int_{0}^{1} \left(
+            \frac{C'(r)C(r)}{1-r}
+            + \frac{C(r)^2}{(1-r)^2}
+        \right)
+        \;dr
+    =\\
+    =
+        \frac{1}{2}
+        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
+        -
+        \frac{1}{2}
+        \int_{0}^{1}
+            \frac{C(r)^2}{(1-r)^2}
+        \;dr
+\end{multline}
+
+\begin{multline}
+    \int_{0}^{1} \frac{C'(r)}{1-r}\;dr
+    =
+        \left[\frac{C(r)}{1-r}\right]_{0}^{1}
+        - \int_{0}^{1} C(r)\left(\frac{1}{1-r}\right)'\;dr
+    =\\
+    =
+        \left[\frac{C(r)}{1-r}\right]_{0}^{1}
+        - \int_{0}^{1} \frac{C(r)}{(1-r)^2}\;dr
+\end{multline}
+
+% \begin{multline}
+%     \frac{1}{n}\frac{f_1}{pf_1 + n f_0}
+%     =\frac{f_1}{(1-n)f_1 + n f_0}
+%     =\\
+%     =\frac{f_1}{f_1 + n (f_0 - f_1)}
+%     =\frac{1}{(1-n) + n f_0 / f_1}
+%     =\frac{1}{1 + n (f_0 / f_1 - 1)}
+%     \\
+%     =\frac{1}{(1 + n (f_0 / f_1 - 1))^2}
+%     =\frac{1}{(1 + 2n (f_0 / f_1 -1) + n^2(f_0 / f_1-1)^2)}
+%     =\frac{1}{1 + 2n (f - 1) + n^2(f^2 -2f + 1)}
+%     =\frac{1}{1 + 2nf - 2n + n^2f^2 - 2n^2f + n^2}
+% \end{multline}
+
+\section{Stablished algorithms for interaction prediction}
+\label{sec:literature_algorithms}
+
+Several algorithm proposals have been made throughout the last decades to tackle the problem of bipartite interaction prediction. 
+%TODO collaborative filtering in the context of recommendation systems
+
+
+% Traditional in the context of recommendation systems, matrix 
+The idea behind matrix factorization is to find an approximation of the interaction matrix $Y$ by decomposing it into two matrices $U$ and $V$ of lower dimensions, such that %TODO not decomposing
+%
+\begin{equation}
+    \hat Y = U V^T \approx Y
+    \label{eq:matrix_factorization}
+\end{equation}
+%
+The rows of $U$ and $V$ can be seen as learned representations in a new vector space (usually called \emph{latent} space) of each sample in the row and column domains, so that $U\el{i}$ represents $X_1\el{i}$ and $V\el{j}$ represents $X_2\el{j}$.
+%
+Notice that the number of latent features is constrained by \autoref{eq:matrix_factorization} to be the same for both instance domains: $|U|_j=|V|_j$, being an arbitrary hyperparameter to be defined by the user. Usually, the number of latent features is set to be much smaller than the number of original features ($|U|_j \ll |X_1|_j$ and $|V|_j \ll |X_2|_j$), requiring less computational labor and generating models less susceptible to overfitting.
+
+The learning procedure of matrix factorization algorithms thus consists of obtaining such latent feature matrices $U$ and $V$ so to approximate $Y$ as best as possible. The most common approach is to define a loss function that penalizes the difference between the predicted and the true values of $Y$ and to employ gradient descent techniques to gradually change $U$ and $V$ in the direction that minimizes such loss.
+%
+% TODO For instance, 
+
+As can be deduced from \autoref{eq:matrix_factorization}, the dot product of each row of $U$ and $V$ approximates the corresponding element of $Y$:
+%
+\begin{equation}
+    \hat Y\el{ij} = U\el{i} \cdot V\el{j}
+\end{equation}
+%
+Logistic matrix factorization (LMF) slightly redefines the problem by introducing one more step to obtain $\hat Y$ from $U$ and $V$~\cite{johnsonlogistic}: it assumes that the interaction matrix $Y$ is the result of the logistic function applied to $UV\T$ and not only $UV\T$ anymore.
+%
+\begin{equation}
+    \hat Y\el{ij} = \text{logistic}(U\el{i} \cdot V\el{j})
+    = \frac{\exp(U\el{i} \cdot V\el{j})}{1 + \exp(U\el{i} \cdot V\el{j})}
+    \label{eq:lmf_prediction}
+\end{equation}
+%
+where $\mathbf{a} \cdot \mathbf{b}$ represents the dot product between the vectors $\mathbf{a}$ and $\mathbf{b}$. When applied to a matrix, we assume that $\log$ and $\exp$ functions operate element-wise:
+%
+\begin{equation*}
+    (\log M)\el{ij} = \log M\el{ij}
+\end{equation*}
+
+If $\hat Y$ is interpreted as the probability of being positive as predicted by the model ($\hat Y\el{ij} = P(Y\el{ij} = 1)$ and $1-\hat Y\el{ij} = P(Y\el{ij} = 0)$),
+the optimization objective is usually based on maximizing the joint probability of correctly guessing all interactions in $Y$:
+%
+\begin{equation}
+    P(\hat Y = Y) = \prod_{ij} | \hat Y\el{ij} + Y\el{ij} - 1|
+    \label{eq:lmf_objective_raw}
+\end{equation}
+%
+in which $|a|$ represents the absolute value of $a$. A few modifications are then further made:
+%
+\begin{enumerate}
+    \item The logarithm of the objective function is taken to simplify the expression without affecting the optimization problem, since $\log$ is a monotonic function;
+    \item Since positive interactions are usually less numerous but more important in matrix completion problems, a factor $\alpha$ is introduced to prioritize them, multiplying the terms corresponding to $Y\el{ij}=1$ in the objective function. It results as if $alpha$ copies of each positive interaction are present in the training set;
+    \item To discourage overfitting and avoid $U$ and $V$ being arbitrarily large, quadratic regularization terms are added, penalizing the magnitude of the elements of $U$ and $V$.
+    \item Similarity information between samples is incorporated by NRLMF,%TODO
+\end{enumerate}
+%
+%The resulting objective function is then given by
+To simplify notation, we define matrices $J$ whose combined sum of all elements corresponds to the objective function $\mathcal{J}$:
+%
+\begin{equation}
+    \mathcal{J} =
+        \sum J_\text{labels}
+        + \sum J_\text{1, regularization}
+        + \sum J_\text{2, regularization}
+        + \sum J_\text{1, neighborhood}
+        + \sum J_\text{2, neighborhood}
+    \label{eq:lmf_objective_matrices}
+\end{equation}
+%
+where by $\sum J$ we denote $\sum_i^{|J|i}\sum_j^{|J|_j} J$. The sums must be performed individually due to the $J$ matrices having different dimensions.
+
+Applying the logarithm to \autoref{eq:lmf_objective_raw} we have our first term of $\mathcal{J}$:
+%
+\begin{equation*}
+    J_\text{labels} = \log |\hat Y + Y - 1| = Y \odot \log \hat Y + (1 - Y) \odot \log (1 - \hat Y)
+\end{equation*}
+%
+where we separate the cases in which $Y\el{ij} = 1$ and $Y\el{ij} = 0$. $\odot$ represents the Hadamard product (element-wise multiplication) between matrices:
+%
+\begin{equation*}
+    (A \odot B)\el{ij} = A\el{ij} B\el{ij}
+\end{equation*}
+%
+Adding the aforementioned positive importance factor $\alpha$ and expanding $\hat Y$ according to \autoref{eq:lmf_prediction} we have
+%
+%%% Using indices instead of J matrix
+% \begin{multline}
+%     %- \lambda \|U\|^2 - \|V\|^2
+%     \mathcal{L} =
+%         \sum_{ij} \alpha Y\el{ij} \log \hat Y\el{ij}
+%         + (1 - Y\el{ij}) \log (1 - \hat Y\el{ij})
+%     =\\
+%     =
+%     \sum_{ij}
+%         \alpha Y\el{ij} \left\{W\el{ij} - \log\left[1 + \exp(W\el{ij})\right]\right\} 
+%         - (1 - Y\el{ij}) \log \left[1 + \exp(W\el{ij})\right]
+%     =\\
+%     =
+%     \sum_{ij}
+%         \alpha Y\el{ij} W\el{ij}
+%         + [(1 - \alpha) Y\el{ij} - 1] \log \left[1+\exp(W\el{ij})\right]
+% \end{multline}
+%
+\begin{multline}
+    J_\text{labels} =
+        \alpha Y \odot \left\{UV\T - \log\left[1 + \exp(UV\T)\right]\right\} 
+        - (1 - Y) \odot \log \left[1 + \exp(UV\T)\right]
+    =\\
+    =
+        \alpha Y \odot UV\T
+        + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]
+\end{multline}
+
+To discourage large values in $U$ and $V$, we consider quadratic regularization terms weighted by hyperparameters $\lambda_1$ and $\lambda_2$:
+%
+\begin{gather}
+    J_\text{1, regularization}
+        = -\frac{\lambda_1}{2} U \odot U
+        = -\frac{\lambda_1}{2} \mathbb{I} \odot (UU\T)\\
+    J_\text{2, regularization}
+        = - \frac{\lambda_2}{2} V \odot V
+        = - \frac{\lambda_2}{2} \mathbb{I} \odot (VV\T)
+    \label{eq:lmf_regularization}
+\end{gather}
+%
+%In the LMF context of \autoref{eq:lmf_prediction}, the regularization terms can be interpreted as a Gaussian prior on the latent features, centered at the origin with variance $\lambda_1$ and $\lambda_2$ for $U$ and $V$, respectively~\cite{johnsonlogistic}.
+If the initial objective proposal can be interpreted as maximizing the probability of guessing all labels correctly given specific $U$ and $V$ ($\sum J_\text{labels} = \log P(\hat Y=Y\mid U,V)$), adding the regularization terms is equivalent to introduce prior assumptions about $U$ and $V$ distributions and define a slightly different objective: maximizing the posterior probability to obtain the current $U$ and $V$ given that $\hat Y = Y$. Applying Bayes' theorem and assuming $P(Y) = 1$ we have
+%
+\begin{equation}
+    P(U,V\mid \lambda_1, \lambda_2, Y) = P(Y\mid U,V)\; P(U\mid \lambda_1) \; P(V\mid \lambda_2)
+\end{equation}
+%
+Under the assumption that the values in $U$ and $V$ follow zero-centered spherical gaussian distributions with variances $\frac{1}{\lambda}$ ($U\el{ij}\sim\mathcal{N}(0, \lambda_1^{-1}\mathbf{I})$ and $V\el{ij}\sim\mathcal{N}(0, \lambda_2^{-1}\mathbf{I})$), we recover the regularized objective function of \autoref{eq:lmf_regularization}~\cite{johnsonlogistic}.
+%
+\begin{multline}
+    \log P(U,V\mid \lambda_1, \lambda_2, Y)
+    =\\
+    = \log P(Y\mid U,V)
+        + \sum \log(\exp(-\frac{\lambda_1}{2} U \odot U))
+        + \sum \log(\exp(-\frac{\lambda_2}{2} V \odot V))
+    =\\
+    = \sum J_\text{labels}
+        - \sum \frac{\lambda_1}{2} U \odot U
+        - \sum \frac{\lambda_2}{2} V \odot V
+\end{multline}
+%
+Therefore, if multiple values of $U$ and $V$ possibly generate the same $\hat Y = Y$, applying the regularization can be understood as not only finding one of such combinations but, between those $U$ and $V$ that satisfy $\hat Y = Y$, finding the $U$ and $V$ that are most likely to be randomly sampled. If $P(U, V\mid \lambda_1, \lambda_2, Y)$ continuously varies as a function of $U$ and $V$, pooling $U$ and $V$ from a region of maximal $P(U, V\mid \lambda_1, \lambda_2, Y)$ should improve generality, arguably ensuring that stochastic deviations of $U$ and $V$ would still result in high $P(\hat Y = Y)$ and justifying the use of regularization as a way to avoid overfitting. %TODO confuso?
+
+% Being bounded by $[0, 1]$, the predictions $\hat Y$ are interpreted as the probabilities of each interaction to be positive.
+% %
+% \begin{equation}
+%     \hat Y\el{ij} = P(Y\el{ij} = 1)
+% \end{equation}
+% %
+% The probability of correctly guessing the label $Y\el{ij}$ is then given by
+% \begin{equation}
+%     P(\hat Y\el{ij} = Y\el{ij})
+%     =
+%     \begin{cases}
+%         \hat Y\el{ij} & \text{if } Y\el{ij} = 1\\
+%         1 - \hat Y\el{ij} & \text{if } Y\el{ij} = 0
+%     \end{cases}
+% \end{equation}
+% %
+% alternatively formulated as
+% %
+% \begin{equation}
+%     P(\hat Y\el{ij} = Y\el{ij})
+%     = \hat Y\el{ij}^{Y\el{ij}} (1 - \hat Y\el{ij})^{1 - Y\el{ij}}
+% \end{equation}
+% 
+% We will then define the objective function based on the probability of correctly guessing all interactions in $Y$:
+% TODO must assume independent Y
+
+One may have noticed that the original feature matrices $X_1$ and $X_2$ were not considered in any regard when describing matrix factorization and detailing the objective functions.
+Born in the context of recommendation systems where the relationship labels are usually the only information available, matrix factorization algorithms in general encounter a significant issue when brought to our current scenario of bipartite interaction prediction:
+in its canonic formulation, they do not take sample-level features into account, often called \emph{side information} or \emph{side features} in the recommendation field~\cite{}, possibly overlooking valuable data. As a consequence, they are unable to provide predictions for new samples that were not present in the training set, since no information about them is available to be inputted to the model. This is commonly regarded as the \emph{cold-start problem}~\cite{}. As such, matrix factorization usage is usually restricted to the task of matrix completion, in which the goal is to predict the missing values of a matrix given the values of the remaining elements, without receiving completely new rows or columns during model evaluation~\cite{}.
+
+Targeting these issues, \textcite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting} proposes a modification to LMF that incorporates side information into the model, successfully applying their method to interaction problems such as drug-target interaction prediction~\cite{liu2016neighborhood}, long non-coding RNA interactions~\cite{liu2017lpinrlmf} and microRNA interactions~\cite{liu2020predicting}.
+%
+The core idea of their technique lies in adding one more term to the objective function, penalizing instances regarded as close when considering the original features but were separated by $U$ and $V$, placed far from each other in the latent space. As such, the algorithm is called \emph{Neighborhood-Regularized Logistic Matrix Factorization} (NRLMF).
+%
+To precisely define it, let's consider similarity-weighted adjacency matrices $A_1$ and $A_2$ referring to each sample domain that specifies neighborhood relationships between samples. If $S_1\el{ij}$ denotes a similarity score between $X_1\el i$ and $X_1\el j$, $A_1\el{ij}$ is set to this similarity value if $X_1\el{j}$ belongs to the neighborhood of $X_1\el{i}$, denoted $N(X_1\el i)$, and 0 otherwise:
+%
+\begin{equation}
+    A_1\el{ij} =
+    \begin{cases}
+        S_1\el{ij} & \text{if } X_1\el{j} \in N(X_1\el i)\\
+        0 & \text{otherwise}
+    \end{cases}
+    \label{eq:nrlmf_A}
+\end{equation}
+%
+Multiple options are available for the definition of neighborhoods, such as considering all samples within a certain radius of each other or only the $k$ nearest neighbors of each sample. In this work, following the original proposal of NRLMF~\cite{liu2016neighborhood}, we will consider the latter, defining $A_1$ and $A_2$ as the adjacency matrices of the $k$-nearest neighbors graphs of $X_1$ and $X_2$, respectively. In other words, $N(X_1\el{i})$ is the set formed by the $k$ rows $X_1\el{j}$ with the $k$ highest $s_ij$. In the interaction prediction problems we analyze, similarities are precalculated so that the $X$ matrices directly provide the distance metric over which the nearest neighbors are selected. That is, $X_1$ and $X_2$ themselves already constitute pairwise similarity matrices: $S_1\el{ij} = X_1\el{ij}$. In general, however, one may need to define a kernel matrix $S$ as a preprocessing step, choosing a distance metric over the original features to be used in the nearest neighbors search such as the Euclidean distance or a radial basis function~\cite{vanlaarhoven2011gaussian}. In any case, notice that $A$ is a function of $X$ alone for NRLMF. While $Y$ may also be considered in similar scenarios (as will be discussed ahead), $A$ does not depend on $U$ or $V$ and can be built as a single pre-training step.
+
+The loss term proposed by NRLMF is then given by the sum of the Euclidean distances in the latent space between samples in the same neighborhood, weighted by their similarities:
+%
+\begin{gather}
+    \mathcal{J}_\text{1, neighborhood} =
+    - \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
+    \\
+    \mathcal{J}_\text{2, neighborhood} =
+    - \sum_{ij}A_2\el{ij} \|V\el{i} - V\el{j}\|^2
+    \label{eq:neighborhood_regularization}
+\end{gather}
+%
+in which $\|\mathbf{v}\|$ represents the Euclidean norm of a vector $\mathbf{v}$.
+Concentrating on the row instances and expanding the last definition we have
+%
+\begin{multline*}
+    \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
+    = \sum_{ij} A\el{ij}
+    \left(
+        U\el{i}\cdot U\el{i} + U\el{j}\cdot U\el{j} - 2 U\el{i}\cdot U\el{j}
+    \right)
+    =\\
+    =
+        \sum_i \left(\sum_j A_1\el{ij}\right) U\el{i}\cdot U\el{i}
+        + \sum_j \left(\sum_i A_1\el{ij}\right) U\el{j}\cdot U\el{i}
+\end{multline*}
+%
+The terms in which $U$ appears with the same index ($U\el{i}\cdot U\el{i}$ and $U\el{j}\cdot U\el{j}$) can be rewritten to include both by multiplying them by the identity matrix $\mathbb{I}$. Essentially, we consider $\sum_i U\el{i}\cdot U\el{i} = \text{trace}(U U\T) = \sum_{ij} (\mathbb{I} \odot UU\T)\el{ij}$.
+%
+\begin{equation*}
+    \sum_i \left(\sum_j A_1\el{ij}\right) U\el{i}\cdot U\el{i}
+    = \sum_i \left(\sum_j A_1\el{ij}\right) \sum_k \mathbb{I}\el{ik}U\el{i}\cdot U\el{k}
+    = \sum_{ij} \left(\sum_k A_1\el{ik}\right) \mathbb{I}\el{ij} U\el{i}\cdot U\el{j}
+\end{equation*}
+%
+This allows us to write
+%
+\begin{multline*}
+    \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
+    =\\
+    = \sum_{ij}
+        \left[
+            \left(\sum_k A_1\el{ik} + \sum_l A_1\el{lj}\right)
+            \mathbb{I}\el{ij}
+            - 2 A_1\el{ij} 
+        \right]
+        U\el{i}\cdot U\el{j}
+    =\\
+    = \sum L_1 \odot (UU\T)
+    %= tr ( U L U\T )
+\end{multline*}
+%
+in which we define
+%
+\begin{equation}
+    L_1\el{ij}
+    = \left(\sum_k A_1\el{ik} + \sum_l A_1\el{lj}\right)
+        \mathbb{I}\el{ij}
+        - 2 A_1\el{ij} 
+    %
+    = \left(\sum_k A_1\el{ik} + A_1\el{kj}\right)
+        \mathbb{I}\el{ij}
+        - 2 A_1\el{ij} 
+    \label{eq:laplacian}
+\end{equation}
+%
+Notice that taking $A_1\T$ instead of $A_1$ has no effect on the final result, since $\sum A_1 UU\T = \sum A_1\T UU\T$. We could then work with a symmetrized version of $A_1$ from the start:
+%
+\begin{equation*}
+    \tilde A_1 = A_1 + A_1\T
+\end{equation*}
+yielding
+%
+\begin{equation*}
+    L_1 = \left(\sum_k \tilde A_1\el{ik}\right)
+        \mathbb{I}\el{ij}
+        - \tilde A_1\el{ij} 
+\end{equation*}
+%
+We can see that the first term of $L_1$ acts in a similar way to the quadratic regularization terms presented by \autoref{eq:lmf_regularization}, multiplying the main diagonal of $UU\T$ and thus penalizing the model for latent vectors with large Euclidean norms (the diagonal of $UU\T$ holds the squared norms $U\el{i}\cdot U\el{i}$). The amount of regularization is however pondered by the weighted number of neighbors of each sample in this case: $\sum_k A_1\el{ik}$ represents the sum of similarities of $X_1\el{i}$ with all its neighbors, also called the \emph{degree} of a sample. This results in samples with larger and more compact neighborhoods being more heavily penalized for having large norms in the latent space. The second term of \autoref{eq:laplacian}, on the other hand, rewards the model for placing close neighbors colinear to each other in the latent space, summing over $S\el{ij} U\el{i}\cdot U\el{j}$ terms
+%(a metric of vector colinearity)
+between each sample and its neighbors ($A_1\el{ij}$ is $0$ if $U\el{i}$ and $U\el{j}$ are not neighbors).
+%TODO more on interpretation and properties of laplacian matrix
+
+Finally, the neighborhood regularization terms are written as
+%
+\begin{gather}
+    J_\text{1, neighborhood} = -\frac{\beta_1}{2} L_1 \odot (UU\T)\\
+    J_\text{2, neighborhood} = -\frac{\beta_2}{2} L_2 \odot (VV\T)
+\end{gather}
+%
+%
+% \begin{equation}
+%     \begin{split}
+%         \mathcal{L} &=\\
+%             &= \alpha Y \odot UV\T
+%             + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]\\
+%             &- \frac{\lambda_1}{2} U \odot U
+%             - \frac{\lambda_2}{2} V \odot V\\
+%             &- \frac{\beta_1}{2} L_1 \odot (UU\T)
+%             - \frac{\beta_2}{2} L_2 \odot (VV\T)
+%     \end{split}
+% \end{equation}
+
+Combining the matrix terms as in \autoref{eq:lmf_objective_matrices}, NRLMF's objective function is given by
+%
+\begin{equation}
+    \begin{split}
+        \mathcal{J} = &\; \sum
+                \alpha Y \odot UV\T
+                + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]\\
+            &- \sum \frac{1}{2} (\lambda_1\mathbb{I} + \beta_1 L_1) \odot (U U\T)\\
+            &- \sum \frac{1}{2} (\lambda_2\mathbb{I} + \beta_2 L_2) \odot (V V\T)
+    \end{split}
+    \label{eq:nrlmf_objective}
+\end{equation}
+%
+and the derivatives of the objective function with respect to $U$ and $V$ to be used in the gradient descent procedure are given by
+% \begin{equation}
+%     \begin{split}
+%         \mathcal{L} =
+%             \alpha Y \odot UV\T
+%             + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]
+%             - \frac{\lambda_1}{2} U \odot U
+%             - \frac{\lambda_2}{2} V \odot V
+%             - \frac{\beta_1}{2} L_1 \odot (UU\T)
+%             - \frac{\beta_2}{2} L_2 \odot (VV\T)
+%     \end{split}
+% \end{equation}
+% TODO: appendix showing d(A \odot U V\T) / dU = A V
+% TODO: appendix showing d(A \odot U V\T) / dV = A\T U
+% TODO: appendix showing d(A \odot U U\T) / dU = A U + A\T U
+\begin{gather}
+    G_U = \frac{\partial \mathcal{J}}{\partial U} =
+        \{[(1 - \alpha) Y - 1] \odot \hat Y + \alpha Y\}V
+        - (\lambda_1\mathbb{I} + \beta_1 L_1) U
+    \label{eq:nrlmf_gradient_U}
+    \\
+    G_V = \frac{\partial \mathcal{J}}{\partial V} =
+        \{[(1 - \alpha) Y - 1] \odot \hat Y + \alpha Y\}\T U
+        - (\lambda_2\mathbb{I} + \beta_2 L_2) V
+    \label{eq:nrlmf_gradient_V}
+\end{gather}
+%
+The training procedure of NRLMF is presented by \autoref{alg:nrlmf_train}, and consists of alternated updates on $U$ and $V$ in the gradient's direction until certain stop criteria are satisfied. Common choices for stopping conditions are a maximum number of iterations or a minimum change in the objective function between iterations.
+
+Since faster convergence is reported by the original authors~\cite{johnsonlogistic}, we follow \textcite{johnsonlogistic,liu2016neighborhooda} by implementing the AdaGrad procedure~\cite{duchi2011adaptive}, in which the length of each gradient step is divided by the square-root sum of squared previous steps:
+%
+\begin{equation}
+    U_{t+1} = U_t + \frac{\eta G_{U,t}}{\sqrt{\sum_{t'=0}^t G_{U,t'}^2}}
+\end{equation}
+%
+where $G_{U,t}$ is the partial derivative $\frac{\partial\mathcal{J}}{\partial U}$ of the objective function with respect to $U$ at step $t$, and $\eta$ is the user-defined learning rate. The same is done for $V$.
+
+\algNRLMFTrain
+
+The main importance of NRLMF however lies in the inference phase. As mentioned, matrix factorization methods are not designed to deal with new input samples, that are not present in the training set. Specifically, traditional matrix factorization is incapable of generating latent vectors for the unseen samples to be used for label prediction. An idea that may seem natural at first glance is to delay training to the arrival of new instances, including them in the training set with zero-only labels before performing the optimization. But even then, using an objective function based only on $Y$ as is traditionally done, no new information is brought by the new instances and adding new zeroed rows or columns to $Y$ will mainly introduce noise to the training data and likely degrade the model's predictive performance.
+
+NRLMF, however, leverages proximity information encoded by $X$ to remarkably enable determining latent feature vectors for completely new instances. The neighborhood regularization terms in the objective function now reveal their full importance: they support proximity as a transferable property between the original and the latent spaces. By encouraging that neighbors in $X_1$ and $X_2$ remain close in $U$ and $V$, we can infer latent features of new instances based on their neighborhood.
+
+Consider the test similarity matrices $S_{1\text{, test}}$ and $S_{2\text{, test}}$ respectively derived from $X_\text{1, test}$ and $X_\text{2, test}$, relating the new instances to the known training samples. For instance, $S_{1\text{, test}}\el{ij}$ represents the similarity between $X_\text{1, test}\el{i}$ and $X_\text{1, train}\el{j}$. If $A_\text{1, test}$, like before in \autoref{eq:nrlmf_A}, accordingly restricts the similarity matrix to the neighborhood of each sample,
+%
+\begin{equation}
+    A_\text{1, test}\el{ij} =
+    \begin{cases}
+        S_\text{1, test}\el{ij} & \text{if } X_\text{1, train}\el{j} \in N(X_\text{1, test}\el i)\\
+        0 & \text{otherwise}
+    \end{cases}
+    \label{eq:nrlmf_A_test}
+\end{equation}
+%
+the latent feature vector of a new instance is simply estimated as the weighted average of its neighbors' latent representations:
+% \begin{equation}
+%     U_\text{test} = A_\text{1, test} U_\text{train}
+% \end{equation}
+%
+\begin{equation}
+    U_\text{test}\el{i} = \frac{A_\text{1, test}\el{i} U_\text{train}}{\sum A_\text{1, test}\el{i}}
+\end{equation}
+%
+the analogous being held for $V$, so that new predictions are made as usual with \autoref{eq:lmf_prediction}, where $U_\text{test}$, $U_\text{train}$, $V_\text{test}$ and $V_\text{train}$ can be used in accordance with the prediction task under study (see \autoref{sec:cross_validation} for details on the different prediction scenarios):
+%
+\begin{gather}
+    \begin{aligned}
+        \hat Y_\text{TT} = \frac{\exp(U_\text{test} V_\text{test}\T)}{1 + \exp(U_\text{test} V_\text{test}\T)}&&
+        \hat Y_\text{TL} = \frac{\exp(U_\text{test} V_\text{train}\T)}{1 + \exp(U_\text{test} V_\text{train}\T)}&&
+        \hat Y_\text{LT} = \frac{\exp(U_\text{train} V_\text{test}\T)}{1 + \exp(U_\text{train} V_\text{test}\T)}
+    \end{aligned}
+\end{gather}
+
+
+
+\section{Applying monopartite estimators to bipartite data}
 \label{sec:common_approaches}
 
 As previously stated in \autoref{sec:problem_statement}, bipartite interaction problems fundamentally differ from the usual machine learning paradigm, in which input data represents a single entity to be labeled. Interaction tasks are instead concerned with labeling a relationship between two entities, and as such, each prediction is made upon a pair of feature vectors, each vector being specific to each of the two sample domains.
@@ -1507,6 +2362,58 @@ In the present work, we refine such comparisons and inroduce ensembles of our ne
 
 %\subsection{Dataset}
 %In this work, we use data from Drug-Target interactions in the experimental validation of the proposed model. DTI is an area of the literature that has been the focus of several recent advances and consists of methods for predicting interactions between drugs and targets (Proteins, Diseases, Ligands). This area has already been investigated in several applications present in the literature, such as~\cite{Fattahi2019,Nasution2019}. In this context, the dataset used is the Drug-Protein Interaction Networks, defined in~\cite{Yamanishi2008}. This dataset consists of four bipartite interaction networks between proteins and drugs: Ion channels (DPI-I), Nuclear receptors (DPI-N), protein-coupled receptors G (DPI-G), and Enzymes (DPI-E). Both networks of interactions form datasets, and the interaction prediction in these contexts and applying them to the real world can bring innovations and discoveries.
+
+\subsection{Semi-supervised decision trees}
+
+The tree algorithms presented up until this point disregard the positive-unlabeled characteristic of our datasets of interest, either ignoring the possibility of abscence of labels in the training set, or, equivalently, considering all non-occurring interactions as unknown interactions.
+In other words, negative labels represent both the interactions known to not occur and the interactions about which no information is available.
+
+Therefore, the machine learning paradigm under which the discussed decision trees are proposed is still \emph{supervised}, in the sense that all training instances are associated with a label (for each sample in $X$ there is a corresponding expected output in $Y$).
+
+As many previous authors~\cite{liu2017lpinrlmf,he2017simboost},%TODO cite more
+we argue that taking into account the partial availability of information that is often intrinsic to interaction prediction problems could thus improve prediction performance of bipartite models and reduce the necessity for labeled data.
+
+When the learning problem at hand does not involve predefined labels, the taks is termed \emph{unsupervised}. The most common example is clustering problems, where the goal is to group similar instances together based solely on their numerical attributes, without any \textit{a priori} information regarding hypothetical classes to which each instance could belong. In such problems, only the $X$ matrix is utilized, there is not an associated label matrix $Y$.
+
+In summary, while supervised learning problems are concerned with the relationship between $X$ and $Y$, aiming to model how a label is determined by the descriptive features of each instance, unsupervised learning problems target the relationship between instances themselves (between rows of $X$), describing how similar they are and how they can be taxonomically organized.
+
+Some problems, however, lie in the intersection of the supervised-unsupervised spectrum. They usually arise when the available labels are scarce or unreliable, so that both supervised and unsupervised objectives are of interest. Take for instance the case of an image gallery phone applicative capable of grouping all photos of a person into a folder with their name. While the name must be asked once to the user, subsequent photos of the same person are automatically grouped under the same directory. The algorithm is both concerned with labeling each photo with the correct name and with grouping similar photos together. Another example can occur when diagnostic data of a large collection of patients is employed to build an automated diagnosis system to assess multiple diseases simultaneously. Almost certainly, not all labels for the occurrence of each medical condition will be available for all patients, so that the algorithm must be able to deal with considerable amounts of missing data. One possible strategy is to infer missing labels from the labels of similar instances, so that the concept of grouping is again into play. Still in the same example, the diagnosis for each disease may be presented in different (unknown) degrees of certainty, resulting from diagnostic procedures of different natures. In this case, an even more refined strategy can be employed, in which the amount of importance given by the model to correctly classify a given label may be adjusted to allow prioritizing information resulting from clustering rather than the label itself, essentially regulating the relative importance between the supervised and unsupervised objectives.
+
+While in the first example the known labels are usually much more scarce than (hopefully) the diagnostics example, both problems deal with the same underlying issue: the lack of reliable labels for all instances. As such, both label inference (that characterizes supervised problems) and clustering (that characterizes unsupervised problems) are closely intertwined as the model's objective. The goal is to simultaneously learn to correctly classify the instances with known labels in the training set while also considering similarities to infer the labels of the remaining instances or to rectify labels on which one cannot fully rely. This intermediate learning paradigm is called \emph{semi-supervised learning}.
+
+Since missing labels are a defining characteristic of interaction prediction tasks, it is commonly suggested~\cite{he2017simboost,liu2016neighborhood}%TODO cite more
+that applying semi-supervised concepts to our problems could significantly improve the performance of bipartite models.
+
+%TODO survey
+
+Notably, the growing of decision trees unavoidably induces grouping of samples in the training set, since the splitting procedure naturally clusters instances of similar labels together. The final tree structure by itself, with partitions of the training set at each node, represents a hierarchical clustering of the data, based on the label values. As such, decision trees can be easily adapted to unsupervised tasks, by simply computing the impurity function on the feature matrix $X$ instead of the label matrix $Y$. In the same way that the impurity function represents the average degree of similarity between labels on a node of a supervised tree (see \autoref{sec:criteria}), it will thus represent average instance similarity when applied to the feature matrix. \autoref{eq:I_unsup} provides an example of an unsupervised impurity function.
+%
+\begin{equation}
+    I_\text{unsupervised MSE}(X) = \text{MSE}(X) = \left( X\el{ij} - X^{\ang{i}[j]} \right)^{\ang{i}2\ang{j}}
+    \label{eq:I_unsup}
+\end{equation}
+%
+Expanding on the same logic, we can merge both supervised and unsupervised impurities to create a hybrid criterion function, that takes into account both the similarities between features and between labels to build a semisupervised decision tree. \autoref{eq:I_semi} defines such an impurity function. The parameter $\sigma \in [0, 1]$, called supervision ratio,% TODO consider alternative names
+balances the relative importance given to each of them, with $\sigma = 0$ corresponding to a fully unsupervised tree and $\sigma = 1$ to a fully supervised tree.
+%
+\begin{equation}
+    I_{ss}(X, Y) = (1 - \sigma(Y)) I_u(X) + \sigma(Y) I_s(Y)
+    %I_\text{semi-supervised}(X, Y) = (1 - \sigma) I_\text{unsupervised}(X) + \sigma I_\text{supervised}(Y)
+    \label{eq:I_semi}
+\end{equation}
+
+For tasks in which we have confirmed positive- and negative-labeled instances alongside missing entries, notice how $I_s$ can be calculated over the known labels only, so that the impurity function is not affected by the missing labels, while $I_u$ should always utilize both labeled and unlabeled instances. Nevertheless, in our present scenario of positive-unlabeled learning, it is unreasonable to apply such logic, given that known labels are completely homogeneous and would result in $I_s$ to be always null. Hence, we still consider the missing labels as zero entries for the calculation of $I_s$.
+
+Determining the ideal value of $\sigma$, is not a trivial task. In fact, it is not even clear whether a single value of $\sigma$ should be used for the whole tree or if it should be adjusted for each node. For instance, one could argue that nodes with a larger number of unlabeled instances should prioritize the unsupervised objective, since the supervised information is more likely to be unreliable.
+One may also make the point that nodes with fewer instances in total (labeled or unlabeled) should favor the supervised objective, since the unsupervised impurity would be more prone to noise, and thus set larger values of $\sigma$ for smaller nodes or for deeper nodes in the tree structure.
+Furthermore, if the partition of $Y$ in a node is composed of a single type of label, further splitting is still able to generate improvements in terms of the unsupervised impurity, but all the descendant nodes would yield the same output, since the prototype value is still calculated over $Y$ alone. As such, one may define $\sigma=1$ for such nodes to avoid redundant splits. These arguments lead us to consider $\sigma$ as a function of $Y$ (the label partition at each node), experimenting with node-wise dynamic values of the supervision ratio.
+
+We investigate several heuristics for $\sigma$.
+
+% TODO list and describe our heuristics for sigma
+% XXX
+
+% trees naturally cluster
 
 \subsection{Code and data availability}
 
