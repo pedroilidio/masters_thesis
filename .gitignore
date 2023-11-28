@@ -1,4 +1,9 @@
+# Memory profiling
 fil-result
+
+# Saved models
+*.joblib
+
 # Large files
 experiments/datasets/miRNA/gene_sequences.fasta
 experiments/datasets/miRNA/gene_sequences.tsv
