@@ -56,37 +56,14 @@ aliases:
   wrapper:
   - name: nrlmf_y_reconstruction
     call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
+    params:
+      estimator__classifierassampler__estimator__n_jobs: 75
   - name: dnilmf_y_reconstruction
     call: y_reconstruction.estimators.dnilmf_y_reconstruction_wrapper
 
 
 runs:
-  - estimator:
-    - bxt_gmosa_1k
-    dataset:
-    - mirna
-    wrapper:
-    - nrlmf_y_reconstruction
-    # - dnilmf_y_reconstruction
-    # - regressor_to_classifier  # Already run at "../bipartite_adaptations"
-    cv:
-      params:
-        n_jobs: 8  # Limit memory usage
-    active: true
-
-  - estimator:
-    - bxt_gmo
-    dataset:
-    - mirna
-    wrapper:
-    - nrlmf_y_reconstruction
-    # - dnilmf_y_reconstruction
-    # - regressor_to_classifier  # Already run at "../bipartite_adaptations"
-    cv:
-      params:
-        n_jobs: 6  # Limit memory usage
-    active: true
-
+  # Y reconstruction alone, no wrappers
   - estimator:
     - nrlmf
     - dnilmf
@@ -103,14 +80,58 @@ runs:
     - mirna
     active: false
 
+  # Takes long time and much memory
+  - estimator:
+    # - bxt_gmo
+    - brf_gmo
+    modify_params:
+    # - n_jobs: 75  # maxes at 3.5 threads. There is probably competition for data.
+    - n_jobs: 25
+    dataset:
+    - kiba
+    - mirna
+    wrapper:
+    - name: nrlmf_y_reconstruction
+      call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
+      params:
+        estimator__classifierassampler__estimator__n_jobs: 75
+    # - dnilmf_y_reconstruction
+    # - regressor_to_classifier  # Already ran at "../bipartite_adaptations"
+    cv:
+      params:
+        n_jobs: 6  # Limit memory usage
+    active: false
+
+  # Takes long time and much memory
+  - estimator:
+    - bxt_lso
+    modify_params:
+    - primary_rows_estimator__n_jobs: 75
+      primary_cols_estimator__n_jobs: 75
+      secondary_rows_estimator__n_jobs: 75
+      secondary_cols_estimator__n_jobs: 75
+    dataset:
+    - kiba
+    - mirna
+    wrapper:
+    - name: nrlmf_y_reconstruction
+      call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
+      params:
+        estimator__classifierassampler__estimator__n_jobs: 75
+    # - nrlmf_y_reconstruction
+    # - dnilmf_y_reconstruction
+    # - regressor_to_classifier  # Already ran at "../bipartite_adaptations"
+    cv:
+      params:
+        n_jobs: 1  # Limit memory usage
+    active: false
+
   - estimator:
     # - bxt_gmo  # Ran separately due to memory issues.
-    # - bxt_gmosa_1k
     - brf_gmo
 
     - bxt_gso
     - brf_gso
-    - bxt_gso_1k
 
     - bxt_lmo
     - brf_lmo
@@ -118,8 +139,8 @@ runs:
     - bxt_gmosa
     - brf_gmosa
 
-    # - bxt_lso
-    # - brf_lso
+    # - bxt_lso  # A lot slower.
+    # - brf_lso  # A lot slower.
     dataset:
     - nuclear_receptors
     - gpcr
@@ -134,12 +155,12 @@ runs:
     wrapper:
     - nrlmf_y_reconstruction
     # - dnilmf_y_reconstruction
-    # - regressor_to_classifier  # Already run at "../bipartite_adaptations"
+    # - regressor_to_classifier  # Already ran at "../bipartite_adaptations"
     active: false
 
+  # GMO on smaller datasets that fit in memory.
   - estimator:
     - bxt_gmo
-    - bxt_gmosa_1k
     dataset:
     - nuclear_receptors
     - gpcr
@@ -154,5 +175,25 @@ runs:
     wrapper:
     - nrlmf_y_reconstruction
     # - dnilmf_y_reconstruction
-    # - regressor_to_classifier  # Already run at "../bipartite_adaptations"
-    active: true
+    # - regressor_to_classifier  # Already ran at "../bipartite_adaptations"
+    active: false
+
+  # Larger forests with no wrapper
+  # (continuous y makes trees a lot bigger, so using y_reconstruction is dificult)
+  - estimator:
+    - bxt_gso_1k
+    - bxt_gmosa_1k
+    dataset:
+    - nuclear_receptors
+    - gpcr
+    - davis
+    - ion_channels
+    - enzymes
+    - ern
+    - srn
+    - lncrna
+    - kiba
+    - mirna
+    wrapper:
+    - regressor_to_classifier  # NOT ran at "../bipartite_adaptations"
+    active: false

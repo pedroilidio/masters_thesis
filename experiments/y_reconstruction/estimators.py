@@ -1,38 +1,23 @@
-import sys
 from copy import deepcopy
 import numpy as np
 
 from scipy.stats import loguniform
-from sklearn.base import MetaEstimatorMixin, ClassifierMixin
-from sklearn.metrics import average_precision_score
-from sklearn.kernel_ridge import KernelRidge
-from sklearn.multioutput import (
-    MultiOutputRegressor,
-    MultiOutputClassifier,
-)
-from sklearn.svm import SVR, SVC
-
 from bipartite_learn.pipeline import make_multipartite_pipeline
-from bipartite_learn.preprocessing.multipartite import DTHybridSampler
 from bipartite_learn.preprocessing.monopartite import (
-    TargetKernelLinearCombiner,
     TargetKernelDiffuser,
-    SimilarityDistanceSwitcher,
     SymmetryEnforcer,
 )
-from bipartite_learn.neighbors import WeightedNeighborsRegressor
-from bipartite_learn.wrappers import LocalMultiOutputWrapper
 from bipartite_learn.matrix_factorization import (
-    NRLMFClassifier,
-    DNILMFClassifier,
+    NRLMFRegressor,
+    DNILMFRegressor,
 )
 from bipartite_learn.model_selection import (
-    MultipartiteGridSearchCV,
     MultipartiteRandomizedSearchCV,
     make_multipartite_kfold,
 )
 
 import wrappers
+
 
 RSTATE = np.random.RandomState(0)
 
@@ -44,136 +29,12 @@ kfold_5_shuffle_diag = make_multipartite_kfold(
     random_state=0,
 )
 
-
-blmnii_rls = MultipartiteGridSearchCV(
-    make_multipartite_pipeline(
-        SymmetryEnforcer(),
-        TargetKernelLinearCombiner(),
-        LocalMultiOutputWrapper(
-            primary_rows_estimator=WeightedNeighborsRegressor(
-                metric="precomputed",
-                weights="similarity",
-            ),
-            primary_cols_estimator=WeightedNeighborsRegressor(
-                metric="precomputed",
-                weights="similarity",
-            ),
-            secondary_rows_estimator=KernelRidge(kernel="precomputed"),
-            secondary_cols_estimator=KernelRidge(kernel="precomputed"),
-            independent_labels=False,
-        ),
-    ),
-    param_grid={
-        "targetkernellinearcombiner__samplers__alpha": [
-            0.0,
-            0.1,
-            0.25,
-            0.5,
-            0.75,
-            0.9,
-            1.0,
-        ],
-    },
-    cv=kfold_5_shuffle_diag,
-    n_jobs=3,
-    scoring="neg_mean_squared_error",
-    pairwise=True,
-)
-
-blmnii_svm = MultipartiteGridSearchCV(
-    make_multipartite_pipeline(
-        SymmetryEnforcer(),
-        TargetKernelLinearCombiner(),
-        LocalMultiOutputWrapper(
-            primary_rows_estimator=WeightedNeighborsRegressor(
-                metric="precomputed",
-                weights="similarity",
-            ),
-            primary_cols_estimator=WeightedNeighborsRegressor(
-                metric="precomputed",
-                weights="similarity",
-            ),
-            secondary_rows_estimator=MultiOutputRegressor(SVR(kernel="precomputed")),
-            secondary_cols_estimator=MultiOutputRegressor(SVR(kernel="precomputed")),
-            independent_labels=True,
-        ),
-    ),
-    param_grid={
-        "targetkernellinearcombiner__samplers__alpha": [
-            0.0,
-            0.1,
-            0.25,
-            0.5,
-            0.75,
-            0.9,
-            1.0,
-        ],
-    },
-    cv=kfold_5_shuffle_diag,
-    n_jobs=3,
-    scoring="neg_mean_squared_error",
-    pairwise=True,
-)
-
-dthybrid_regressor = make_multipartite_pipeline(
-    SymmetryEnforcer(),
-    DTHybridSampler(),
-    LocalMultiOutputWrapper(
-        primary_rows_estimator=WeightedNeighborsRegressor(
-            metric="precomputed",
-            weights="similarity",
-        ),
-        primary_cols_estimator=WeightedNeighborsRegressor(
-            metric="precomputed",
-            weights="similarity",
-        ),
-        secondary_rows_estimator=WeightedNeighborsRegressor(
-            metric="precomputed",
-            weights="similarity",
-        ),
-        secondary_cols_estimator=WeightedNeighborsRegressor(
-            metric="precomputed",
-            weights="similarity",
-        ),
-        independent_labels=True,
-    ),
-)
-
-# van Laarhoven
-lmorls = MultipartiteGridSearchCV(
-    make_multipartite_pipeline(
-        TargetKernelLinearCombiner(),
-        LocalMultiOutputWrapper(
-            primary_rows_estimator=KernelRidge(kernel="precomputed"),
-            primary_cols_estimator=KernelRidge(kernel="precomputed"),
-            secondary_rows_estimator=KernelRidge(kernel="precomputed"),
-            secondary_cols_estimator=KernelRidge(kernel="precomputed"),
-            independent_labels=False,
-        ),
-    ),
-    param_grid={
-        "targetkernellinearcombiner__samplers__alpha": [
-            0.0,
-            0.1,
-            0.25,
-            0.5,
-            0.75,
-            0.9,
-            1.0,
-        ],
-    },
-    cv=kfold_5_shuffle_diag,
-    n_jobs=3,
-    scoring="neg_mean_squared_error",
-    pairwise=True,
-)
-
 # The original proposal cannot be used:
 # common_param_options = [2**-2, 2**-1, 1, 2]  # 18_432 parameter combinations!
 common_param_options = loguniform(2**-2, 2)
 
 nrlmf_grid = MultipartiteRandomizedSearchCV(
-    NRLMFClassifier(random_state=RSTATE),
+    NRLMFRegressor(random_state=deepcopy(RSTATE)),
     param_distributions=dict(
         lambda_rows=common_param_options,
         lambda_cols=common_param_options,
@@ -198,7 +59,7 @@ nrlmf = nrlmf_grid
 
 
 dnilmf_grid = MultipartiteRandomizedSearchCV(
-    DNILMFClassifier(random_state=RSTATE),
+    DNILMFRegressor(random_state=deepcopy(RSTATE)),
     param_distributions=dict(
         lambda_rows=common_param_options,
         lambda_cols=common_param_options,
@@ -226,24 +87,24 @@ dnilmf = make_multipartite_pipeline(
 )
 
 
-def nrlmf_y_reconstruction_wrapper(estimator):
+def nrlmf_y_reconstruction_wrapper(estimator, **params):
     return wrappers.RegressorToBinaryClassifier(
         make_multipartite_pipeline(
             SymmetryEnforcer(),
-            wrappers.ClassifierAsSampler(nrlmf_grid, keep_positives=True),
+            wrappers.RegressorAsSampler(nrlmf_grid, keep_positives=True),
             estimator,
             memory="/tmp",
         )
-    )
+    ).set_params(**params)
 
 
-def dnilmf_y_reconstruction_wrapper(estimator):
+def dnilmf_y_reconstruction_wrapper(estimator, **params):
     return wrappers.RegressorToBinaryClassifier(
         make_multipartite_pipeline(
             SymmetryEnforcer(),
             TargetKernelDiffuser(),
-            wrappers.ClassifierAsSampler(dnilmf_grid, keep_positives=True),
+            wrappers.RegressorAsSampler(dnilmf_grid, keep_positives=True),
             estimator,
             memory="/tmp",
         )
-    )
+    ).set_params(**params)

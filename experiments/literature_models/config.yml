@@ -1,0 +1,93 @@
+defaults:
+  aliases:
+    dataset:
+      X:
+        force_download: false
+        read:
+          call: numpy.loadtxt
+          params: {}
+      y:
+        force_download: false
+        read:
+          call: numpy.loadtxt
+          params: {}
+    
+    estimator:
+      params: {}
+    
+  runs:
+    active: false
+    directory: literature_models/runs
+    cv:
+      call: bipartite_learn.model_selection.multipartite_cross_validate
+      params:
+        return_estimator: false
+        return_train_score: false
+        scoring:
+        - roc_auc
+        - average_precision
+        n_jobs: 16
+        n_jobs: 16
+        cv: 4
+        diagonal: false
+        verbose: 10
+        pairwise: true
+        shuffle: true
+        random_state: 0
+        # error_score: raise
+
+
+aliases:
+  # Many datasets come from https://people.montefiore.uliege.be/schrynemackers/datasets
+  dataset: []
+  wrapper: []
+  estimator:
+    - name: blmnii_svm
+      call: literature_models.estimators.blmnii_svm
+    - name: blmnii_rls
+      call: literature_models.estimators.blmnii_rls
+    - name: dthybrid
+      call: literature_models.estimators.dthybrid_regressor
+    - name: lmo_rls
+      call: literature_models.estimators.lmo_rls
+    - name: kron_rls
+      call: literature_models.estimators.kron_rls
+    - name: mlp
+      call: literature_models.estimators.mlp
+
+    - name: nrlmf
+      call: y_reconstruction.estimators.nrlmf
+    - name: dnilmf
+      call: y_reconstruction.estimators.dnilmf
+
+
+runs:
+  - wrapper:
+    - null
+    - drop50
+    - drop70
+    - drop90
+    # - drop20
+    # - drop30
+    # - drop40
+    # - drop60
+    # - drop80
+    dataset:
+    - nuclear_receptors
+    - gpcr
+    - davis
+    - ion_channels
+    - enzymes
+    - ern
+    - srn
+    - lncrna
+    - mirna
+    - kiba
+    estimator:
+    - dthybrid
+    - kron_rls
+    - lmo_rls
+    - mlp
+    - blmnii_rls
+    - blmnii_svm
+    active: true

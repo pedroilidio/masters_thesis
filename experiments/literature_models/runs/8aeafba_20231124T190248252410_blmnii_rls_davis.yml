@@ -1,0 +1,308 @@
+active: true
+cv:
+  call: bipartite_learn.model_selection.multipartite_cross_validate
+  params:
+    cv: 4
+    diagonal: false
+    n_jobs: 16
+    pairwise: true
+    random_state: 0
+    return_estimator: false
+    return_train_score: false
+    scoring:
+    - average_precision
+    - roc_auc
+    shuffle: true
+    verbose: 10
+dataset:
+  X:
+  - force_download: false
+    path: datasets/davis/binary/X1.txt
+    read:
+      call: numpy.loadtxt
+      params: {}
+  - force_download: false
+    path: datasets/davis/binary/X2.txt
+    read:
+      call: numpy.loadtxt
+      params: {}
+  name: davis
+  pairwise: true
+  y:
+    force_download: false
+    path: datasets/davis/binary/y100.txt
+    read:
+      call: numpy.loadtxt
+      params: {}
+directory: literature_models/runs
+end: 2023-11-24 19:02:56.060673
+estimator:
+  call: literature_models.estimators.blmnii_rls
+  final_params:
+    cv:
+      call: bipartite_learn.model_selection._split.MultipartiteCrossValidator
+      params: {}
+    diagonal: false
+    error_score: .nan
+    estimator:
+      call: imblearn.pipeline.Pipeline
+      params:
+        memory: null
+        steps:
+        - - symmetryenforcer
+          - call: bipartite_learn.wrappers.MultipartiteSamplerWrapper
+            params:
+              ndim: 2
+              samplers:
+                call: bipartite_learn.preprocessing.monopartite.SymmetryEnforcer
+                params:
+                  sampling_strategy: auto
+        - - targetkernellinearcombiner
+          - call: bipartite_learn.wrappers.MultipartiteSamplerWrapper
+            params:
+              ndim: 2
+              samplers:
+                call: bipartite_learn.preprocessing.monopartite.TargetKernelLinearCombiner
+                params:
+                  alpha: 0.5
+                  filter_params: false
+                  gamma: 1.0
+                  gamma_scale: squares
+                  metric: rbf
+                  n_jobs: null
+        - - localmultioutputwrapper
+          - call: bipartite_learn.wrappers.LocalMultiOutputWrapper
+            params:
+              combine_func_kwargs: null
+              combine_predictions_func:
+                load: numpy.mean
+              independent_labels: false
+              primary_cols_estimator:
+                call: bipartite_learn.neighbors.WeightedNeighborsRegressor
+                params:
+                  metric: precomputed
+                  metric_params: null
+                  n_jobs: null
+                  p: 2
+                  weights: similarity
+              primary_rows_estimator:
+                call: bipartite_learn.neighbors.WeightedNeighborsRegressor
+                params:
+                  metric: precomputed
+                  metric_params: null
+                  n_jobs: null
+                  p: 2
+                  weights: similarity
+              secondary_cols_estimator:
+                call: sklearn.kernel_ridge.KernelRidge
+                params:
+                  alpha: 1
+                  coef0: 1
+                  degree: 3
+                  gamma: null
+                  kernel: precomputed
+                  kernel_params: null
+              secondary_rows_estimator:
+                call: sklearn.kernel_ridge.KernelRidge
+                params:
+                  alpha: 1
+                  coef0: 1
+                  degree: 3
+                  gamma: null
+                  kernel: precomputed
+                  kernel_params: null
+        verbose: false
+    n_jobs: 4
+    pairwise: true
+    param_grid:
+      targetkernellinearcombiner__samplers__alpha:
+      - 0.0
+      - 0.1
+      - 0.25
+      - 0.5
+      - 0.75
+      - 0.9
+      - 1.0
+    pre_dispatch: 2*n_jobs
+    refit: true
+    return_train_score: false
+    scoring: neg_mean_squared_error
+    train_test_combinations: null
+    verbose: 0
+  name: blmnii_rls
+  params: {}
+hash: 8aeafbaaf986d97788650d86c1bf43677a24b27457c4d82cb0e9bc7cb511e9de
+path: "/home/pedro/mestrado/disserta\xE7\xE3o/experiments/literature_models/runs/8aeafba_20231124T190248252410_blmnii_rls_davis.yml"
+results:
+  LL_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LL_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LT_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LT_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TL_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TL_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TT_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TT_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  fit_time:
+  - 7.505878686904907
+  - 7.609334945678711
+  - 7.435418128967285
+  - 7.226682186126709
+  - 7.525858402252197
+  - 7.574965476989746
+  - 7.2651896476745605
+  - 7.130152225494385
+  - 7.23616361618042
+  - 7.4969024658203125
+  - 7.534451723098755
+  - 7.125206470489502
+  - 7.42633318901062
+  - 7.506353855133057
+  - 7.151519536972046
+  - 7.251809597015381
+  score_time:
+  - 0.005930662155151367
+  - 0.0057833194732666016
+  - 0.0059146881103515625
+  - 0.005731821060180664
+  - 0.005864143371582031
+  - 0.005600929260253906
+  - 0.006730079650878906
+  - 0.005953311920166016
+  - 0.010112762451171875
+  - 0.005192756652832031
+  - 0.004678249359130859
+  - 0.008803844451904297
+  - 0.00720667839050293
+  - 0.005402565002441406
+  - 0.008342504501342773
+  - 0.0107574462890625
+start: 2023-11-24 19:02:48.252410
+wrapper: null
