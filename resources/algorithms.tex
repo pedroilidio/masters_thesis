@@ -357,3 +357,45 @@ Grow
     \caption{PredictLocalModel(primary models, $X_\text{new}$)}
     \label{alg:predict_local_model}
 \end{function*}}
+
+
+\newcommand{\algNRLMFTrain}{  % TODO adagrad
+\begin{function}[tbh]
+    \SetKwData{maxIter}{max\_iter}
+    \KwIn{$Y$, the training labels matrix to be approximated.}
+    \KwIn{$S_1$, $S_2$, Similarity matrices among instances of each axis.}
+    \KwIn{$\alpha$, the positive importance factor.}
+    \KwIn{$\lambda_1$, $\lambda_2$, quadratic regularization factors.}
+    \KwIn{$\beta_1$, $\beta_2$, neighborhood regularization factors.}
+    \KwIn{$\eta$, the learning rate.}
+    %\KwIn{\maxIter, the maximum number of iterations.}
+    \KwOut{$U$, $V$, the resulting latent feature matrices.}
+    \BlankLine
+    Optionally precompute constant factors of the gradient
+    (Equations \ref{eq:nrlmf_gradient_U} and \ref{eq:nrlmf_gradient_V}),
+    %(\cref{eq:nrlmf_gradient_U,eq:nrlmf_gradient_V}),  %TODO
+    such as
+    $(\lambda_2\mathbb{I} + \beta_2 L_2)$, $[(1-\alpha)Y-1]$ or $\alpha Y$\;
+    \BlankLine
+    Initialize $U$ and $V$ with normally-distributed random values\;
+    \BlankLine
+    $T_U, T_V \gets \mathbf{0}$\tcp*{Initialize gradient accumulators}
+
+    \BlankLine
+    % \Repeat{Maximum number of iterations or satisfactory gain is achieved}{
+    \While{Stop conditions are not met}{
+        \tcp{Update U}
+        Obtain $G_U$ through \autoref{eq:nrlmf_gradient_U}\;
+        $T_U \gets T_U + G_U^2$\;
+        $U \gets U + \eta \frac{G_U}{\sqrt{T_U}}$\;
+        \BlankLine
+        \tcp{Update V}
+        Obtain $G_V$ through \autoref{eq:nrlmf_gradient_V}\;
+        $T_V \gets T_V + G_V^2$\;
+        $V \gets V + \eta \frac{G_V}{\sqrt{T_V}}$\;
+    }
+    \BlankLine
+    \Return $U$, $V$
+    \caption{TrainNRLMF($Y$, $S_1$, $S_2$, $\alpha$, $\lambda_1$, $\lambda_2$, $\beta_1$, $\beta_2$, $\eta$): Train an NRLMF model.}
+    \label{alg:nrlmf_train}
+\end{function}}
