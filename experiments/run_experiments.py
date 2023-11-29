@@ -17,6 +17,7 @@ from pathlib import Path
 import requests
 import numpy as np
 import yaml
+import joblib
 
 DEF_PATH_CONFIG = Path("config.yml")
 DEF_PATH_LOG = Path("experiments.log")
@@ -169,8 +170,9 @@ def deep_update(A: Any, B: Any) -> Any:
 
 def omit_not_builtin_params(param) -> Any:
     if isinstance(param, Callable):  # type or function
+        name = getattr(param, "__name__", None) or type(param).__name__
         return dict(
-            load=param.__module__ + "." + param.__name__,
+            load=param.__module__ + "." + name,
         )
     # If it's an instantiated object
     if type(param).__module__ != "builtins":
@@ -303,12 +305,12 @@ def execute_run(
     if not allow_redundant_runs:
         try:
             # FIXME: current hashes need to be recalculated.
-            # next(outdir.rglob(f"{run['hash'][:7]}*.yml"))
-            next(
-                outdir.rglob(
-                    f"*{run['estimator']['name']}_{run['dataset']['name']}*.yml"
-                )
-            )
+            next(outdir.rglob(f"{run['hash'][:7]}*.yml"))
+            # next(
+            #     outdir.rglob(
+            #         f"*{run['estimator']['name']}_{run['dataset']['name']}*.yml"
+            #     )
+            # )
         except StopIteration:
             pass
         else:
@@ -430,6 +432,11 @@ def run_experiments(
     )
     logging.info("Starting a new series of runs.")
 
+    # Add custom constructors
+    yaml.add_constructor("!callable", load_callable)
+    yaml.add_constructor("!object", load_object)
+    yaml.add_constructor("!estimator", load_estimator)
+
     for var in [
         "OMP_NUM_THREADS",
         "MKL_NUM_THREADS",
@@ -454,6 +461,12 @@ def run_experiments(
                 continue
             run_path = Path(finished_run["path"])
             run_path.parent.mkdir(exist_ok=True, parents=True)
+
+            if "estimator" in finished_run["results"]:
+                joblib.dump(
+                    finished_run["results"].pop("estimator"),
+                    run_path.with_suffix(".joblib"),
+                )
 
             with run_path.open("w") as out:
                 yaml.dump(finished_run, out)
