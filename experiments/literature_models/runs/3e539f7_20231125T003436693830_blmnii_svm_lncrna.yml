@@ -1,0 +1,326 @@
+active: true
+cv:
+  call: bipartite_learn.model_selection.multipartite_cross_validate
+  params:
+    cv: 4
+    diagonal: false
+    n_jobs: 16
+    pairwise: true
+    random_state: 0
+    return_estimator: false
+    return_train_score: false
+    scoring:
+    - average_precision
+    - roc_auc
+    shuffle: true
+    verbose: 10
+dataset:
+  X:
+  - force_download: false
+    path: datasets/lncRNA/normalized_lncrna_similarity.tsv
+    read:
+      call: data_loading.read_table_to_array
+      params: {}
+  - force_download: false
+    path: datasets/lncRNA/normalized_target_similarity.tsv
+    read:
+      call: data_loading.read_table_to_array
+      params: {}
+  name: lncrna
+  pairwise: true
+  y:
+    force_download: false
+    path: datasets/lncRNA/interaction_matrix.tsv
+    read:
+      call: data_loading.read_table_to_array
+      params: {}
+directory: literature_models/runs
+end: 2023-11-25 00:36:33.555871
+estimator:
+  call: literature_models.estimators.blmnii_svm
+  final_params:
+    cv:
+      call: bipartite_learn.model_selection._split.MultipartiteCrossValidator
+      params: {}
+    diagonal: false
+    error_score: .nan
+    estimator:
+      call: imblearn.pipeline.Pipeline
+      params:
+        memory: null
+        steps:
+        - - symmetryenforcer
+          - call: bipartite_learn.wrappers.MultipartiteSamplerWrapper
+            params:
+              ndim: 2
+              samplers:
+                call: bipartite_learn.preprocessing.monopartite.SymmetryEnforcer
+                params:
+                  sampling_strategy: auto
+        - - targetkernellinearcombiner
+          - call: bipartite_learn.wrappers.MultipartiteSamplerWrapper
+            params:
+              ndim: 2
+              samplers:
+                call: bipartite_learn.preprocessing.monopartite.TargetKernelLinearCombiner
+                params:
+                  alpha: 0.5
+                  filter_params: false
+                  gamma: 1.0
+                  gamma_scale: squares
+                  metric: rbf
+                  n_jobs: null
+        - - localmultioutputwrapper
+          - call: bipartite_learn.wrappers.LocalMultiOutputWrapper
+            params:
+              combine_func_kwargs: null
+              combine_predictions_func:
+                load: numpy.mean
+              independent_labels: true
+              primary_cols_estimator:
+                call: bipartite_learn.neighbors.WeightedNeighborsRegressor
+                params:
+                  metric: precomputed
+                  metric_params: null
+                  n_jobs: null
+                  p: 2
+                  weights: similarity
+              primary_rows_estimator:
+                call: bipartite_learn.neighbors.WeightedNeighborsRegressor
+                params:
+                  metric: precomputed
+                  metric_params: null
+                  n_jobs: null
+                  p: 2
+                  weights: similarity
+              secondary_cols_estimator:
+                call: sklearn.multioutput.MultiOutputRegressor
+                params:
+                  estimator:
+                    call: sklearn.svm._classes.SVR
+                    params:
+                      C: 1.0
+                      cache_size: 200
+                      coef0: 0.0
+                      degree: 3
+                      epsilon: 0.1
+                      gamma: scale
+                      kernel: precomputed
+                      max_iter: -1
+                      shrinking: true
+                      tol: 0.001
+                      verbose: false
+                  n_jobs: null
+              secondary_rows_estimator:
+                call: sklearn.multioutput.MultiOutputRegressor
+                params:
+                  estimator:
+                    call: sklearn.svm._classes.SVR
+                    params:
+                      C: 1.0
+                      cache_size: 200
+                      coef0: 0.0
+                      degree: 3
+                      epsilon: 0.1
+                      gamma: scale
+                      kernel: precomputed
+                      max_iter: -1
+                      shrinking: true
+                      tol: 0.001
+                      verbose: false
+                  n_jobs: null
+        verbose: false
+    n_jobs: 4
+    pairwise: true
+    param_grid:
+      targetkernellinearcombiner__samplers__alpha:
+      - 0.0
+      - 0.1
+      - 0.25
+      - 0.5
+      - 0.75
+      - 0.9
+      - 1.0
+    pre_dispatch: 2*n_jobs
+    refit: true
+    return_train_score: false
+    scoring: neg_mean_squared_error
+    train_test_combinations: null
+    verbose: 0
+  name: blmnii_svm
+  params: {}
+hash: 3e539f7383b6243ae116c6b3da504ba32f785985f8fc1fb03cbbe4c34968eab9
+path: "/home/pedro/mestrado/disserta\xE7\xE3o/experiments/literature_models/runs/3e539f7_20231125T003436693830_blmnii_svm_lncrna.yml"
+results:
+  LL_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LL_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LT_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LT_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TL_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TL_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TT_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TT_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  fit_time:
+  - 103.36572265625
+  - 114.83926367759705
+  - 114.75528955459595
+  - 115.4397497177124
+  - 114.87450575828552
+  - 110.96402096748352
+  - 114.84320902824402
+  - 103.2814519405365
+  - 111.6104588508606
+  - 115.23466372489929
+  - 104.03185510635376
+  - 104.95311546325684
+  - 104.41579961776733
+  - 115.91725444793701
+  - 115.07929730415344
+  - 116.61111521720886
+  score_time:
+  - 0.02978992462158203
+  - 0.0200808048248291
+  - 0.028698444366455078
+  - 0.023419857025146484
+  - 0.019793987274169922
+  - 0.029552459716796875
+  - 0.019639253616333008
+  - 0.025307655334472656
+  - 0.030782699584960938
+  - 0.01599407196044922
+  - 0.009947061538696289
+  - 0.027118206024169922
+  - 0.03208470344543457
+  - 0.008501529693603516
+  - 0.016629695892333984
+  - 0.011054039001464844
+start: 2023-11-25 00:34:36.693830
+wrapper: null

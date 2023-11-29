@@ -1,0 +1,306 @@
+active: true
+cv:
+  call: bipartite_learn.model_selection.multipartite_cross_validate
+  params:
+    cv: 4
+    diagonal: false
+    n_jobs: 16
+    pairwise: true
+    random_state: 0
+    return_estimator: false
+    return_train_score: false
+    scoring:
+    - average_precision
+    - roc_auc
+    shuffle: true
+    verbose: 10
+dataset:
+  X:
+  - force_download: false
+    path: datasets/srn/X1.txt
+    read:
+      call: data_loading.load_regulatory_network_features
+      params: {}
+    url: https://people.montefiore.uliege.be/schrynemackers/srn/X1.txt
+  - force_download: false
+    path: datasets/srn/X2.txt
+    read:
+      call: data_loading.load_regulatory_network_features
+      params: {}
+    url: https://people.montefiore.uliege.be/schrynemackers/srn/X2.txt
+  name: srn
+  pairwise: true
+  y:
+    force_download: false
+    path: datasets/srn/Y.txt
+    read:
+      call: numpy.loadtxt
+      params:
+        delimiter: ','
+    url: https://people.montefiore.uliege.be/schrynemackers/srn/Y.txt
+directory: literature_models/runs
+end: 2023-11-24 19:40:14.863812
+estimator:
+  call: literature_models.estimators.lmo_rls
+  final_params:
+    cv:
+      call: bipartite_learn.model_selection._split.MultipartiteCrossValidator
+      params: {}
+    diagonal: false
+    error_score: .nan
+    estimator:
+      call: imblearn.pipeline.Pipeline
+      params:
+        memory: null
+        steps:
+        - - targetkernellinearcombiner
+          - call: bipartite_learn.wrappers.MultipartiteSamplerWrapper
+            params:
+              ndim: 2
+              samplers:
+                call: bipartite_learn.preprocessing.monopartite.TargetKernelLinearCombiner
+                params:
+                  alpha: 0.5
+                  filter_params: false
+                  gamma: 1.0
+                  gamma_scale: squares
+                  metric: rbf
+                  n_jobs: null
+        - - localmultioutputwrapper
+          - call: bipartite_learn.wrappers.LocalMultiOutputWrapper
+            params:
+              combine_func_kwargs: null
+              combine_predictions_func:
+                load: numpy.mean
+              independent_labels: false
+              primary_cols_estimator:
+                call: sklearn.kernel_ridge.KernelRidge
+                params:
+                  alpha: 1
+                  coef0: 1
+                  degree: 3
+                  gamma: null
+                  kernel: precomputed
+                  kernel_params: null
+              primary_rows_estimator:
+                call: sklearn.kernel_ridge.KernelRidge
+                params:
+                  alpha: 1
+                  coef0: 1
+                  degree: 3
+                  gamma: null
+                  kernel: precomputed
+                  kernel_params: null
+              secondary_cols_estimator:
+                call: sklearn.kernel_ridge.KernelRidge
+                params:
+                  alpha: 1
+                  coef0: 1
+                  degree: 3
+                  gamma: null
+                  kernel: precomputed
+                  kernel_params: null
+              secondary_rows_estimator:
+                call: sklearn.kernel_ridge.KernelRidge
+                params:
+                  alpha: 1
+                  coef0: 1
+                  degree: 3
+                  gamma: null
+                  kernel: precomputed
+                  kernel_params: null
+        verbose: false
+    n_jobs: 4
+    pairwise: true
+    param_grid:
+      targetkernellinearcombiner__samplers__alpha:
+      - 0.0
+      - 0.1
+      - 0.25
+      - 0.5
+      - 0.75
+      - 0.9
+      - 1.0
+    pre_dispatch: 2*n_jobs
+    refit: true
+    return_train_score: false
+    scoring: neg_mean_squared_error
+    train_test_combinations: null
+    verbose: 0
+  name: lmo_rls
+  params: {}
+hash: 41f9c455a512ddb14bf9194222e8338d5bdcc6fa1a25a6b2aa3a6d9ac5532881
+path: "/home/pedro/mestrado/disserta\xE7\xE3o/experiments/literature_models/runs/41f9c45_20231124T193924396270_lmo_rls_srn.yml"
+results:
+  LL_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LL_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LT_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LT_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TL_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TL_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TT_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TT_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  fit_time:
+  - 48.16951513290405
+  - 48.551406145095825
+  - 48.22214221954346
+  - 47.58332300186157
+  - 47.61923599243164
+  - 48.212241649627686
+  - 48.10842847824097
+  - 48.05532693862915
+  - 48.65350818634033
+  - 48.526320695877075
+  - 48.64984679222107
+  - 48.61361885070801
+  - 48.03318524360657
+  - 49.0196168422699
+  - 48.39812707901001
+  - 49.162863969802856
+  score_time:
+  - 0.01606130599975586
+  - 0.01393890380859375
+  - 0.01601266860961914
+  - 0.017483949661254883
+  - 0.017844438552856445
+  - 0.016121864318847656
+  - 0.01637864112854004
+  - 0.017767906188964844
+  - 0.01605391502380371
+  - 0.01690196990966797
+  - 0.016609668731689453
+  - 0.017014026641845703
+  - 0.018456220626831055
+  - 0.015935897827148438
+  - 0.032404422760009766
+  - 0.014246463775634766
+start: 2023-11-24 19:39:24.396270
+wrapper: null

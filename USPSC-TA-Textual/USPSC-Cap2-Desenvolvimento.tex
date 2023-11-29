@@ -340,7 +340,7 @@ Specifically, an increase of $k$ in TN will cause an increase in TNR $\frac{NEG}
 
 Given that ROC equally considers both metrics, classifiers that are more sensitive to positive labels will be favored over those prioritizing negative outputs. By the same logic, ROC will also be more lenient towards false positives (that decrease TNR) rather than false negatives (that decrease TPR).
 
-To address this issue, it is commonly suggested the usage of precision-recall (PR) curves instead~\cite{ozenne2015precision,he2009learning}, where the precision is plotted as the vertical coordinate while the recall (or sensitivity, or TPR) is represented horizontally. In the PR space, considering fixed P and N, a simultaneous increase in TP and TN results in the following improvement in precision:
+To address this issue, it is commonly suggested the usage of precision-recall (PR) curves instead~\cite{ozenne2015precision,he2009learning}, where the precision is plotted as the vertical coordinate while the \emph{recall} (another name for TPR, also called \emph{sensitivity}) is represented horizontally. In the PR space, considering fixed P and N, a simultaneous increase in TP and TN results in the following improvement in precision:
 %
 \begin{equation}
     \Delta Pr =
@@ -474,6 +474,17 @@ The first factor ($1- F(s^*)$), represents the fraction of positive instances th
 %
 Upon integration over all possible thresholds, we conclude that the AUROC score represents the overall probability of randomly selecting a positive instance ranked higher by the estimator than a randomly selected negative instance~\cite{}.
 
+From \autoref{eq:auroc0}, the baseline score of a random classifier is easily derived. In our current setting, a random classifier can be precisely defined as an estimator incapable of distinguishing between the true label distributions, that is, a classifier is a random classifier if and only if $f_0(s) = f_1(s) \forall s$. As a consequence,
+%
+\begin{equation}
+    A_\text{ROC}
+    = \int_{-\infty}^{\infty} (1 - F_0(s)) f_0(s) \;ds
+    = -\int_{-\infty}^{\infty} (1 - F_0) \;d(F_0)
+    = \left[\frac{(1-F_0)^2}{2}\right]_{-\infty}^{\infty}
+    = \frac{1}{2}
+    \label{auroc_random}
+\end{equation}
+ 
 \autoref{eq:auroc0} also formally defines the disadvantage of AUROC for imbalanced datasets discussed in the previous section.
 %
 By definition of the training and test sets, the negative test instances are independent and identically distributed to the negative instances of the training set, with the same being held for the positive instances. Under this assumption, the probability density functions $f_0$ and $f_1$ are independent of the label imbalance of the test set, being solely determined by the nature of the learning algorithm and the training data. As a result, \autoref{eq:auroc0} lets clear that the AUROC score is independent of the relative prevalence of each class in the test set, with no influence of $p$ or $n$ and only the dependency on the learned decision value distributions.
@@ -490,16 +501,19 @@ We can alternatively formulate this argument by expressing AUROC in terms of TN 
 From \autoref{eq:auroc_tptn}, the AUROC can \emph{almost} be interpreted as the mean value of TP when TP is expressed in terms of TN, for all TN values, in which case $\frac{1}{n}$ is merely the normalization factor (the length of the integration interval). The only fact defying such interpretation is the division of TP by $p$. As a result, while TN is simply the integration variable, TP is weighted by $\frac{p}$, so that smaller values of $p$ attribute more importance to TP relative to TN, at each point of the ROC curve.
 
 This property precisely defines the specific implications of using AUROC for imbalanced datasets presented by \autoref{sec:evaluation_protocol}. In such cases, one must have in mind that misclassifications will effectively be inversely weighted by their respective true class prevalences, with misclassifications of the majority class being more tolerated individually than those of the minority class. In other words, if positives are the underrepresented class of a problem, AUROC will be more lenient towards false positives than false negatives.
-%TODO always negative classifier
 %TODO for an estimator with same TP and TN but different p and n, ...
 %TODO variational calculus, how to hack the auroc
 %TODO aucroc is proportional to the expected accuracy
 
-% In scenarios where reducing false positives is more important than increasing true negatives
-In scenarios where constraining the number of false positives is as important as increasing the number of true positives, it is often recommended the usage of precision-recall curves as a replacement for ROC~\cite{ozenne2015precision,he2009learning,krawczyk2016learning,fernandez2018learning}.
+If the class distribution of the test set is not an inherent property of the problem under study and the main research interest lies in probing the underlying label distributions $f_0$ and $f_1$, this independence from $p$ may be a desired characteristic of AUROC. However, if the label imbalance is in fact a consistent feature of the learning task, taking it into consideration may report a more realistic portrait of the model performance in future studies. If the positive class is always heavily underrepresented in a given learning task, for example, one may intend to prioritize the correct classification of negative instances, since the overall number of correct classifications will be more influenced by them. More generally, the choice to be made is usually between scoring based on the absolute metrics TP and TN, directly related to the number of samples, or the relative metrics TPR and TNR, relying on fractions of negatives and positives.
+
+In scenarios of high class imbalance and where the absolute metrics are the main focus,
+% TODO maybe remove following
+i.e. constraining the number of false positives is as important as increasing the number of true positives,
+it is often recommended the usage of precision-recall (PR) curves as a replacement for ROC~\cite{ozenne2015precision,he2009learning,krawczyk2016learning,fernandez2018learning}.
 %TODO the precision weights fp as blablabl
-%
-The area under the precision-recall curve behaves differently than AUROC under imbalanced circumstances.
+%XXX
+As one shall see, the area under the PR curve behaves slightly differently than AUROC under imbalanced circumstances. Let's define it.
 %
 \begin{multline}
     A_\text{PRC}
@@ -511,11 +525,10 @@ The area under the precision-recall curve behaves differently than AUROC under i
     \label{eq:auprc0}
 \end{multline}
 %
-In \autoref{eq:auprc0} we see that AVERAGE PRECISIONFJ
+Although less rich in interpretations in comparison to AUROC, in \autoref{eq:auprc0} we promptly see the main intuitive formulation of AUPRC as an average over precision as a function of the true positives. Here it may be useful to bring back the discrete scenario of real classification problems, where each sample of the training set defines a threshold $s*$. With the precision weighted by the positive samples' distribution in \autoref{eq:auprc0}, AUPRC would thus be the average precision considering only the threshold values $s*$ defined by a true positive sample.
 
-Furhtermore, the true label cumulative distributions ($F_0$ and $F_1$) appear each weighted by their respective class prevalences ($p$ and $n$). As a result, expressing the AUPR in terms of TP and FP
-%When weighted in such a manner, a change in TP or TN affects the AUPRC in the same way since $dTP = - p f_1$ and $dTN = n f_0$.
-
+Furthermore, the true label cumulative distributions ($F_0$ and $F_1$) appear each weighted by their respective class prevalences ($p$ and $n$). As a result, expressing the AUPR in terms of TP and FP yields no dependence on $p$ or $n$ apart from dividing by the length of integration interval $\frac{1}{p}$ that characterizes the averaging procedure:
+%
 \begin{equation}
     A_\text{PRC}
     =
@@ -523,20 +536,120 @@ Furhtermore, the true label cumulative distributions ($F_0$ and $F_1$) appear ea
         \int_{0}^{p}
             \left(1-\frac{\text{FP}}{\text{TP}}\right)^{-1}
         \;d\text{TP}
-    =
-        \frac{1}{p}
-        \int_{0}^{p}
-            \left(1-\frac{n-\text{TN}}{\text{TP}}\right)^{-1}
-        \;d\text{TP}
+    % =
+    %     \frac{1}{p}
+    %     \int_{0}^{p}
+    %         \left(1-\frac{n-\text{TN}}{\text{TP}}\right)^{-1}
+    %     \;d\text{TP}
 \end{equation}
+%
+% TODO why FP instead of TN write in the previous section
+% Another distinguishing characteristic of AUPR is its dependence on FP rather than TN.
 
+To better describe the differences between using the absolute metrics and the relative metrics, we can once again bring our theoretical formulation closer to real-world applications. When computing AUROC or AUPR for a given estimator on a test set, the values of the decision function $s$ are not directly used. Instead, the decision values outputted for each test instance are used to rank them from lowest to highest, and from these ranked test labels the curves and respective areas are obtained. The specific values of $s$ are thus indifferent to the scoring process, as long as the ranking is preserved. If the percentile ranking of each test instance is denoted by $r \in [0, 1]$ and each test instance is associated with a decision value, there is a one-to-one monotonic correspondence between $r$ and $s$ in the limit of an infinite number of test samples. While $s$ can often represent a rather abstract concept, $r$ is directly related to the number of instances below a given threshold. Formally, if we define $f(s)$ as the total distribution of decision values irrespectively of their true labels and $F(s)$ as the corresponding cumulative distribution, we have
+% TODO we take the freedom to represent f(r) = f(s(r))
+%
+%\begin{equation}
+%    f(s) = P(s) = pf_1(s) + nf_0(s)
+%\end{equation}
+%
+\begin{gather}
+    dr = f(s) ds = [pf_1(s) + nf_0(s)] ds\\
+    r = F(s) = pF_1(s) + nF_0(s)
+\end{gather}
+%
+%so that a change $dr$ represents a change in the number of instances between $s$ and $s+ds$. 
+AUPRC as defined in \autoref{eq:auprc0} can now be written as
+%
+\begin{multline}
+    A_\text{PRC}
+    = p \int_{0}^{1}
+        %\frac{1 - \int \frac{f_1(r)}{f(r)} \;dr}{(p+n) - [pF_1(r) + nF_0(r)]}
+        \frac{1 - F_1(r)}{(p+n) - [pF_1(r) + nF_0(r)]}
+        \; \frac{f_1(r)}{f(r)}
+    \;dr
+    = p \int_{0}^{1}
+        \frac{[1 - F_1(r)]f_1(r)}{[1 - F(r)]f(r)}
+    \;dr
+    =\\
+    = p \int_{0}^{1}
+    %\left[
+        \frac{1 - \int \frac{f_1(r)}{f(r)} \;dr}{1 - r}
+    %\right]
+    %\left[
+        \; \frac{f_1(r)}{f(r)}
+    %\right]
+    \;dr
+    = \int_{0}^{1}
+        \frac{1 - \frac{1}{p}C(r)}{1 - r}
+        \; c(r)
+    \;dr
+    \label{eq:auprc1}
+\end{multline}
+%
+where we define
+%
+\begin{gather}
+    c(r) = \frac{p f_1(r)}{f(r)} = \frac{p f_1(r)}{pf_1(r) + nf_0(r)}\\
+    C(r) = \int c(r) \;dr = p F_1(r)
+\end{gather}
 
-% XXX define F and f = pf_1 + nf_0
-% XXX interpret PR. average precision considering only a priori positive instances?
+\begin{multline}
+    \int_{0}^{1}
+        \frac{1 - \frac{1}{p}C(r)}{1 - r}
+        \; c(r)
+    \;dr
+    = \int_{0}^{1}
+        \frac{1}{1 - r}
+        \; \left(-\frac{p}{2}\right)
+        \; \frac{d [1 - \frac{1}{p}C(r)]^2}{dr}
+    \;dr
+    =\\
+    =
+    - \frac{p}{2}
+    \left|
+        \frac{[1 - \frac{1}{p}C(r)]^2}{1 - r}
+    \right|_0^1
+    + \frac{p}{2}
+    \int_{0}^{1}
+        \left[\frac{1 - \frac{1}{p}C(r)}{1 - r}\right]^2
+    dr
+    =
+    \frac{p}{2} \left\{
+        1 - \lim_{r \to 1} \frac{[1 - \frac{1}{p}C(r)]^2}{1 - r}
+        + \int_{0}^{1}
+            \left[\frac{1 - \frac{1}{p}C(r)}{1 - r}\right]^2
+        dr
+    \right\}
+    =\\
+    =
+    \frac{p}{2}
+    \left\{
+        1 + \int_0^1 \left[\frac{1 - F_1(r)}{1 - r}\right]^2 dr
+    \right\}
+    \label{eq:auprc2}
+\end{multline}
+%
+in which the limit term is determined as follows, using L'Hôpital's rule and noticing that $\frac{C(1)}{p}= F_1(r=1) = 1$ and $c(r) \le 1 \forall r$:
+%
+\begin{equation*}
+    \lim_{r \to 1} \frac{[1 - \frac{1}{p}C(r)]^2}{1 - r}
+    %= \lim_{r \to 1} \frac{- 2 [1 - \frac{1}{p}C(r)] c(r)}{- p}
+    = \frac{2}{p} \lim_{r \to 1} \left[1 - \frac{1}{p}C(r)\right] c(r)
+    = \frac{2}{p} \lim_{r \to 1} (1 - 1) c(1)
+    = 0
+\end{equation*}
+
+\autoref{eq:auprc2} shows us that AUPRC, when expressed in terms of percentile rankings, has a simple linear dependency on the positive class prevalence $p$ of the test set. Although not completely independent, this simple relationship makes the comparison of AUPRC scores across test sets with different class distributions a straightforward task. % TODO predictable well-behaved Just a matter of rescaling.
+
+Another consequence of \autoref{eq:auprc2} is a new interpretation of AUPRC as a linear function over the average \emph{squared} precision across all possible thresholds.
+
 % TODO auroc becomes interesting again for PU
 
-\subsection{AUROC as the normalized mean percentile ranking}
+% \subsection{AUROC as the normalized mean percentile ranking}
+The same does not hold for the area under the ROC curve. 
 
+% TODO:
 Consider the ranking of a binary classification test set produced by a given classifier (\autoref{}). Green dots represent positive labels while red dots represent negative labels. A threshold is still to be defined, so the only output of the classifier is the order of test instances represented in the figure, indicating which instances the classifier believes are more likely to belong to the positive class (instances to the right are thought to have higher probability to be positive than instances to the left). Splitting the produced ranking in several equally-sized windows, we call $c\el i$ the average fraction of positive labels in the $i$-th window:
 %
 \begin{equation}
@@ -608,24 +721,25 @@ Consider the ranking of a binary classification test set produced by a given cla
 %%%
 %%Upon integration over all possible thresholds, we conclude that the AUC ROC score represents the overall probability of randomly selecting a positive instance ranked higher than a randomly selected negative instance.
 
-Defining $C(r) = \int c(r) \; dr$, we can write
+% Defining $C(r) = \int c(r) \; dr$, we can write
 %
 \begin{multline*}
     A_\text{ROC}
-        = \frac{1}{n} \int_{0}^{1} (1 - C(r)) \left(1 - p C'(r)\right) \;dr
+        = \frac{1}{n} \int_{0}^{1} (1 - \frac{1}{p}C(r)) \left(1 - C'(r)\right) \;dr
     =\\
-        = \frac{1}{n} \int_{0}^{1} (1 - C(r)) \;dr
-        + \frac{p}{n} \int_{0}^{1} (C(r) - 1) C'(r) \;dr
+        = \frac{1}{n} \int_{0}^{1} (1 - \frac{1}{p}C(r)) \;dr
+        + \frac{1}{n} \int_{0}^{1} (\frac{1}{p}C(r) - 1) C'(r) \;dr
     =\\
-        = \frac{1}{n} - \frac{1}{n}\int_{0}^{1} C(r) \;dr
-        + \frac{p}{n} \left[ \frac{(C(r)-1)^2}{2} \right]_0^1
+        = \frac{1}{n} - \frac{1}{np}\int_{0}^{1} C(r) \;dr
+        + \frac{1}{n} \left[p \frac{(\frac{1}{p}C(r)-1)^2}{2} \right]_0^1
     %=\\
-        = \frac{1}{n} - \frac{1}{n}\int_{0}^{1} C(r) \;dr - \frac{p}{2n}
+        = \frac{1}{n} - \frac{1}{np}\int_{0}^{1} C(r) \;dr - \frac{p}{2n}
     =\\
-        = \frac{1}{n} - \frac{1-n}{2n} - \frac{1}{n}\int_{0}^{1} C(r) \;dr
-        = \frac{1}{n} - \frac{1}{2n} + \frac{1}{2} - \frac{1}{n}\int_{0}^{1} C(r) \;dr
+        = \frac{1}{n} - \frac{1-n}{2n} - \frac{1}{np}\int_{0}^{1} C(r) \;dr
+        = \frac{1}{n} - \frac{1}{2n} + \frac{1}{2} - \frac{1}{np}\int_{0}^{1} C(r) \;dr
     =\\
-        =  \frac{1}{2} + \frac{1}{n}\left[\frac{1}{2} - \int_{0}^{1} C(r) \;dr\right]
+        =  \frac{1}{2} + \frac{1}{n}\left[\frac{1}{2} - \frac{1}{p}\int_{0}^{1} C(r) \;dr\right]
+        =  \frac{1}{2} + \frac{1}{n}\left[\frac{1}{2} - \int_{0}^{1} F_1(r) \;dr\right]
 \end{multline*}
 % \begin{multline*}
 %     A_\text{ROC}
@@ -648,23 +762,23 @@ Integrating by parts we further have
 %
 \begin{multline}
     A_\text{ROC}
-        =  \frac{1}{2} + \frac{1}{n}\left[\frac{1}{2} - \int_{0}^{1} (r)'C(r)\;dr\right]
+        =  \frac{1}{2} + \frac{1}{n}\left[\frac{1}{2} - \frac{1}{p}\int_{0}^{1} (r)'C(r)\;dr\right]
         = \frac{1}{2}
         + \frac{1}{n}\left[
             \frac{1}{2}
-            - \left[rC(r)\right]_0^1
-            +\int_{0}^{1} r\,c(r) \;dr
+            - \left[rF_1(r)\right]_0^1
+            + \frac{1}{p} \int_{0}^{1} r\,c(r) \;dr
         \right]
         =\\
-        = \frac{1}{2}
-        + \frac{1}{n}\left[
-            \frac{1}{2}
-            - 1
-            +\int_{0}^{1} r\,c(r) \;dr
-        \right]
+        % = \frac{1}{2}
+        % + \frac{1}{n}\left[
+        %     \frac{1}{2}
+        %     - 1
+        %     + \frac{1}{p} \int_{0}^{1} r\,c(r) \;dr
+        % \right]
         = \frac{1}{2}
         +\frac{1}{n}\left[
-            \int_{0}^{1} r\,c(r) \;dr
+            \frac{1}{p} \int_{0}^{1} r\,c(r) \;dr
             - \frac{1}{2}
         \right]
         % = 
@@ -882,6 +996,177 @@ precisely the expression for the AUROC (\autoref{eq:auroc}). To the best of our 
 \section{Stablished algorithms for interaction prediction}
 \label{sec:literature_algorithms}
 
+
+\section{Linear models}
+\label{sec:linear_models}
+
+One of the simplest approaches to learning problems in general is to assume a linear relationship between the input features and output labels. Formally, for the non-bipartite case, one assumes that the training output matrix $Y$ can be approximated as follows:
+%
+\begin{equation}
+    \hat Y = X W
+\end{equation}
+%
+in which $W$ is a matrix representing the set of parameters to be learned. To determine $W$, the mean squared error (MSE) is usually defined as the loss function to be minimized, to which we add an extra regularization term controlled by the hyperparameter $\alpha$:
+%
+\begin{equation}
+    \mathcal{J} = \frac{1}{2} \|Y - \hat Y\|^2 + \frac{\alpha}{2} \|W\|^2
+    = \frac{1}{2} \|Y - XW\|^2 + \frac{\alpha}{2} \|W\|^2
+\end{equation}
+%
+An analytical solution for $W$ can be obtained by taking the derivative of $\mathcal{J}$ with respect to $W$ and setting it to zero:
+%
+\begin{equation} %TODO FIX THE ORDER OF THE multiplications
+    \frac{\partial \mathcal{J}}{\partial W} = 0
+    = X\T (XW - Y) + \alpha W
+    %= (Y - XW) + (\alpha\mathbb{I}) W
+    \implies W = (X\T X + \alpha I)^{-1} X\T Y
+\end{equation}
+
+There are scenarios, however, where the specific values of $X$ are less interesting than the pairwise similarities between them. In those settings, while $X$ may not be directly available, we do have access to similarity matrices $S$ (also called \emph{kernel} matrices) in which $S\el{ij}$ designates a similarity score between $X\el{i}$ and $X\el{j}$. Rather than simply considering $S$ in the same way we would treat $X$ in linear regression, we could instead employ the \emph{kernel trick}~\cite{murphy2012machine}: replacing the $XX\T$ terms in the above equations by $S$. In this case, we are assuming that similarities $S\el{ij}$ represent the internal product of the vectors $X\el{i}$ and $X\el{j}$ in some feature space, which is based on the intuition that the internal product by itself can be regarded as a similarity metric.
+%
+We also define $W$ slightly differently, ommiting the $X\T$ factor as $W = (S + \alpha I)^{-1} Y$, so that the final prediction is given by
+%
+\begin{equation}
+    \hat Y = S W = (S + \alpha I)^{-1} S
+\end{equation}
+
+For the bipartite interaction prediction case, besides standard adaptations as described in \autoref{sec:common_approaches}, a unique formulation is presented by \textcite{vanlaarhoven2011gaussian}. Similar in concept to the standard global single output procedure (\autoref{sec:common_approaches}), the authors consider each interaction pair as a unitary instance. The authors then propose building a kernel matrix relating each pair of instances to another pair, and not each interacting entity to another of the same domain. If $S_1 \in \mathbb{R}^{n_1 \times n_1}$ and $S_2 \in \mathbb{R}^{n_2 \times n_2}$ are the intra-domain similarity matrices, the global kernel matrix $S$ is defined as
+%
+\begin{equation}
+    S\el{(i_1n_2 + i_2)(j_1 n_2 + j_2)} = S_1\el{i_1j_1} S_2\el{i_2j_2}
+\end{equation}
+%
+or, more succinctly, as the Kronecker product of $S_1$ and $S_2$:
+%
+\begin{equation}
+    S = S_1 \otimes S_2
+\end{equation}
+%
+Each entry on $S$ thus represents the similarity between the pair $X_1\el{i_1}$-$X_2\el{j_1}$ and another pair $X_1\el{i_2}$-$X_2\el{j_2}$ by the product of the similarities between $X_1\el{i_1}$ and $X_1\el{j_1}$ and between $X_2\el{i_2}$ and $X_2\el{j_2}$.
+
+The bipartite linear regression is then framed on the vectorized $Y$, denoted $\text{vec}(Y)$, built by concatenating the columns of $Y$ into a single $|Y|$ by $1$ column vector.
+Purely for notation purposes, we organize the weight parameters as the vectorized version of a matrix $W$ with the same dimensions of $Y$.
+%
+\begin{gather}
+    \text{vec}(\hat Y) = S\,\text{vec}(W) \approx \text{vec}(Y)
+    \\
+    \text{vec}(W) = (S + \alpha I)^{-1} \text{vec}(Y)
+\end{gather}
+
+As the reader may imagine, $S$ gets prohibitively large for big datasets (it's a $n_1 n_2$-sized square matrix!), both in terms of memory usage and the time needed to perform the matrix inversion. The authors, however, provide a clever way of circumventing this issue by decomposing each of the $S_1$ and $S_2$ kernel matrices separately and exploiting the properties of the Kronecker product.
+
+Given that $S_1$ and $S_2$ are symmetric square matrices, it follows from the spectral theorem~\cite{} that they can be decomposed as follows:
+%
+\begin{gather*}
+    S_1 = U_1 \Lambda_1 U_1\T \\
+    S_2 = U_2 \Lambda_2 U_2\T
+\end{gather*}
+%
+where, if $\mathbf{\lambda}_1$ represents the vector of eigenvalues of $S_1$, $\Lambda_1$ is the diagonal matrix of those eigenvalues ($\Lambda_1 = \text{diag}(\mathbf{\lambda}_1)$), with $U_1$ columns representing their corresponding eigenvectors $U^{\intercal[i]}$ for each $\mathbf{\lambda}_1\el{i}$. The symmetry of the similarity matrices also implies that $U_1$ and $U_2$ are orthogonal, i.e. $U_1\T U_1 = U_1 U_1\T = \mathbb{I}$ and $U_2\T U_2 = U_2 U_2\T = \mathbb{I}$, or, equivalently, $U_1^{-1} = U_1\T$ and $U_2^{-1} = U_2\T$.
+%
+Utilizing the fact that $(AB) \otimes (CD) = (A \otimes C)(B \otimes D)$~\cite{}, the Kronecker product of $S_1$ and $S_2$ can be written as
+%
+\begin{equation}
+    S = S_1 \otimes S_2
+    = (U_1 \Lambda_1 U_1\T) \otimes (U_2 \Lambda_2 U_2\T)
+    % = (U_1 \otimes U_2) (\Lambda_1 V_1\T \otimes \Lambda_2 V_2\T)
+    % = (U_1 \otimes U_2) (\Lambda_1 \otimes \Lambda_2) (V_1\T \otimes V_2\T)
+    = (U_1 \otimes U_2) (\Lambda_1 \otimes \Lambda_2) (U_1 \otimes U_2)\T
+    = U \Lambda U\T
+\end{equation}
+%
+in which we denote $U = U_1 \otimes U_2$ and $\Lambda = \Lambda_1 \otimes \Lambda_2$.
+$W$ now becomes
+%
+\begin{equation*}
+    \text{vec}(W) = (U \Lambda U\T + \alpha \mathbb{I})^{-1} \text{vec}(Y)
+\end{equation*}
+%
+Further exploring the orthogonality of $U$, $U U\T = U \mathbb{I} U\T = \mathbb{I}$, so that
+%
+\begin{equation*}
+    \text{vec}(W) = U (\Lambda + \alpha\mathbb{I})^{-1} U\T \text{vec}(Y)
+\end{equation*}
+%
+The most crucial property of the Kronecker product for our application is its relationship with the vectorization operator~\cite{}: $(A \otimes B)\text{vec} (C) = \text{vec}(BCA\T)$, which allows us to write
+%
+\begin{equation*}
+    \text{vec}(W)
+    = U (\Lambda + \alpha\mathbb{I})^{-1} (U_1\T \otimes U_2\T) \text{vec}(Y)
+    = U (\Lambda + \alpha\mathbb{I})^{-1} \text{vec}(U_2\T Y U_1)
+\end{equation*}
+%
+Since $(\Lambda + \alpha\mathbb{I})^{-1}$ is diagonal, its multiplication by the vector $\text{vec}(U_2\T Y U_1)\T$ can be expressed as a Hadamard product (element-wise multiplication, denoted by $\odot$) between two vectors. Acting element-wise, the Hadamard product is unaffected by vectorization, so that we can simplify the above expression by employing the matrix
+%
+\begin{equation}
+    (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1[ij]}
+    = \frac{1}{\alpha + \mathbf{\lambda}_1\el{i} \mathbf{\lambda}_2\el{j}}
+\end{equation}
+%
+In this context, $\mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T$ represents the $n_1$ by $n_2$ matrix resulting from the \emph{outer product} of the vectors containing the eigenvalues of $S_1$ and $S_2$, respectively, while $A^{\circ -1}$ denotes the Hadamard inverse, corresponding to the matrix formed by taking the reciprocal of each element in $A$. Thus,
+%
+\begin{multline*}
+    \text{vec}(W)
+    = U \text{diag}(\Lambda + \alpha^{-1}\mathbb{I}) \odot \text{vec}(U_2\T Y U_1)
+    =\\
+    = (U_1 \otimes U_2) \text{vec}(
+        (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+        \odot (U_2\T Y U_1)
+    )
+    =\\
+    = \text{vec}(
+        U_2
+        [
+            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+            \odot (U_2\T Y U_1)
+        ]
+        U_1\T
+    )
+\end{multline*}
+%
+Which yields
+%
+\begin{equation}
+    W = 
+        U_2
+        [
+            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+            \odot (U_2\T Y U_1)
+        ]
+        U_1\T
+\end{equation}
+
+Finally, predictions for a new group of instances in the test set are obtained as follows from the similarities with the train instances ($S_\text{1, test}\el{ij}$ specifies the similarity between $X_\text{1, test}\el{i}$ and $X_\text{1, train}\el{j}$).
+%
+\begin{equation}
+    \text{vec}(\hat Y_\text{test})
+    = (S_\text{1, test} \otimes S_\text{2, test}) \text{vec}(W)
+    = \text{vec}(S_\text{2, test} W S_\text{1, test}\T)
+\end{equation}
+%
+which summarizes to
+%
+\begin{equation}
+    \hat Y_\text{test} =
+        S_\text{2, test}
+        U_2
+        [
+            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+            \odot (U_2\T Y U_1)
+        ]
+        U_1\T
+        S_\text{1, test}\T
+\end{equation}
+
+%TODO rlskron did not worry about new instances
+%TODO complexity
+%TODO using all neighbors in BLM is prone to overfitting
+%TODO although nrlmf is fast, building a complete tree after is not
+%TODO grid search can be even detrimental in small sparse datasets, since test sets are not representative
+
+\section{Matrix factorization}
+\label{sec:matrix_factorization}
+
 Several algorithm proposals have been made throughout the last decades to tackle the problem of bipartite interaction prediction. 
 %TODO collaborative filtering in the context of recommendation systems
 
@@ -1015,7 +1300,7 @@ If the initial objective proposal can be interpreted as maximizing the probabili
     P(U,V\mid \lambda_1, \lambda_2, Y) = P(Y\mid U,V)\; P(U\mid \lambda_1) \; P(V\mid \lambda_2)
 \end{equation}
 %
-Under the assumption that the values in $U$ and $V$ follow zero-centered spherical gaussian distributions with variances $\frac{1}{\lambda}$ ($U\el{ij}\sim\mathcal{N}(0, \lambda_1^{-1}\mathbf{I})$ and $V\el{ij}\sim\mathcal{N}(0, \lambda_2^{-1}\mathbf{I})$), we recover the regularized objective function of \autoref{eq:lmf_regularization}~\cite{johnsonlogistic}.
+Under the assumption that the values in $U$ and $V$ follow zero-centered spherical gaussian distributions with variances given by $\frac{1}{\lambda}$, that is, $U\el{ij}\sim\mathcal{N}(0, \lambda_1^{-1}\mathbf{I})$ and $V\el{ij}\sim\mathcal{N}(0, \lambda_2^{-1}\mathbf{I})$, we recover the regularized objective function of \autoref{eq:lmf_regularization}~\cite{johnsonlogistic}.
 %
 \begin{multline}
     \log P(U,V\mid \lambda_1, \lambda_2, Y)
