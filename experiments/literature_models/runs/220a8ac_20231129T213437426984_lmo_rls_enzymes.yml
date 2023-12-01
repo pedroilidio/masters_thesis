@@ -1,0 +1,305 @@
+active: true
+cv:
+  call: bipartite_learn.model_selection.multipartite_cross_validate
+  params:
+    cv: 4
+    diagonal: false
+    n_jobs: 4
+    pairwise: true
+    random_state: 0
+    return_estimator: false
+    return_train_score: false
+    scoring:
+    - roc_auc
+    - average_precision
+    shuffle: true
+    verbose: 10
+dataset:
+  X:
+  - force_download: false
+    path: datasets/enzymes/X1.txt
+    read:
+      call: numpy.loadtxt
+      params: {}
+    url: https://people.montefiore.uliege.be/schrynemackers/dpix/dpie_X1.txt
+  - force_download: false
+    path: datasets/enzymes/X2.txt
+    read:
+      call: numpy.loadtxt
+      params: {}
+    url: https://people.montefiore.uliege.be/schrynemackers/dpix/dpie_X2.txt
+  name: enzymes
+  pairwise: true
+  y:
+    force_download: false
+    path: datasets/enzymes/Y.txt
+    read:
+      call: numpy.loadtxt
+      params: {}
+    url: https://people.montefiore.uliege.be/schrynemackers/dpix/dpie_Y.txt
+directory: literature_models/runs
+end: 2023-11-29 21:39:15.922749
+estimator:
+  call: literature_models.estimators.lmo_rls
+  final_params:
+    cv:
+      call: bipartite_learn.model_selection._split.MultipartiteCrossValidator
+      params: {}
+    diagonal: false
+    error_score: .nan
+    estimator:
+      call: imblearn.pipeline.Pipeline
+      params:
+        memory: null
+        steps:
+        - - targetkernellinearcombiner
+          - call: bipartite_learn.wrappers.MultipartiteSamplerWrapper
+            params:
+              ndim: 2
+              samplers:
+                call: bipartite_learn.preprocessing.monopartite.TargetKernelLinearCombiner
+                params:
+                  alpha: 0.5
+                  filter_params: false
+                  gamma: 1.0
+                  gamma_scale: squares
+                  metric: rbf
+                  n_jobs: null
+        - - localmultioutputwrapper
+          - call: bipartite_learn.wrappers.LocalMultiOutputWrapper
+            params:
+              combine_func_kwargs: null
+              combine_predictions_func:
+                load: numpy.mean
+              independent_labels: false
+              primary_cols_estimator:
+                call: sklearn.kernel_ridge.KernelRidge
+                params:
+                  alpha: 1
+                  coef0: 1
+                  degree: 3
+                  gamma: null
+                  kernel: precomputed
+                  kernel_params: null
+              primary_rows_estimator:
+                call: sklearn.kernel_ridge.KernelRidge
+                params:
+                  alpha: 1
+                  coef0: 1
+                  degree: 3
+                  gamma: null
+                  kernel: precomputed
+                  kernel_params: null
+              secondary_cols_estimator:
+                call: sklearn.kernel_ridge.KernelRidge
+                params:
+                  alpha: 1
+                  coef0: 1
+                  degree: 3
+                  gamma: null
+                  kernel: precomputed
+                  kernel_params: null
+              secondary_rows_estimator:
+                call: sklearn.kernel_ridge.KernelRidge
+                params:
+                  alpha: 1
+                  coef0: 1
+                  degree: 3
+                  gamma: null
+                  kernel: precomputed
+                  kernel_params: null
+        verbose: false
+    n_jobs: 4
+    pairwise: true
+    param_grid:
+      targetkernellinearcombiner__samplers__alpha:
+      - 0.0
+      - 0.1
+      - 0.25
+      - 0.5
+      - 0.75
+      - 0.9
+      - 1.0
+    pre_dispatch: 2*n_jobs
+    refit: true
+    return_train_score: false
+    scoring: average_precision
+    train_test_combinations: null
+    verbose: 0
+  name: lmo_rls
+  params: {}
+hash: 220a8acc0f75fd90f93e9e5db4b4e7badee617916734673aeb08b152f21a9eb5
+path: /home/pedro/master_thesis/experiments/literature_models/runs/220a8ac_20231129T213437426984_lmo_rls_enzymes.yml
+results:
+  LL_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LL_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LT_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  LT_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TL_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TL_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TT_average_precision:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  TT_roc_auc:
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  - .nan
+  fit_time:
+  - 69.67796039581299
+  - 67.63848972320557
+  - 67.11023116111755
+  - 70.86245274543762
+  - 67.77371907234192
+  - 64.25561928749084
+  - 69.13989853858948
+  - 67.85348296165466
+  - 65.63730907440186
+  - 68.05686378479004
+  - 69.98770785331726
+  - 70.81034517288208
+  - 67.58463740348816
+  - 68.26192426681519
+  - 64.9110016822815
+  - 68.48614573478699
+  score_time:
+  - 0.028076648712158203
+  - 0.026832103729248047
+  - 0.025989770889282227
+  - 0.01446533203125
+  - 0.028667449951171875
+  - 0.0292665958404541
+  - 0.02674698829650879
+  - 0.01594686508178711
+  - 0.02651047706604004
+  - 0.025204181671142578
+  - 0.02887725830078125
+  - 0.02513432502746582
+  - 0.014256715774536133
+  - 0.023992061614990234
+  - 0.02913689613342285
+  - 0.026357173919677734
+start: 2023-11-29 21:34:37.426984
+wrapper: null

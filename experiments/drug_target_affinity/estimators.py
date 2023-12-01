@@ -2,6 +2,15 @@ import torch
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import (
+    make_scorer,
+    explained_variance_score,
+    max_error,
+    mean_absolute_error,
+    mean_squared_error,
+    median_absolute_error,
+    r2_score,
+)
 from imblearn.under_sampling import RandomUnderSampler
 import bipartite_learn.ensemble
 from bipartite_learn.base import BaseBipartiteEstimator
@@ -14,42 +23,100 @@ import DeepPurpose.utils
 from drug_target_affinity.deep_purpose_wrapper import DeepPurposeWrapper
 
 
-class KnTransformer(BaseEstimator, TransformerMixin):
-    """Transforms target Kn to p (using log10)"""
+def restrict_scorer_to_known_outputs(scorer_func):
+    """Use only known affinities to score.
 
-    def fit(self, X, y=None):
-        return self
+    Unknown affinities are set to a very high value, which becomes very low
+    after -log(y_true) is applied in the preprocessing step. We then assume an
+    unknown drug-target pair is always present in the training set, so that
+    this defining value to exclude can be selected with y_true.min(). Even if
+    it is not the case, the damage is expected be fairly small, since the
+    y_true.min() cutout will likely drop one or very few known interactions in
+    this case.
+    """ 
+    def new_func(y_true, y_pred):
+        mask = y_true > y_true.min()
+        return scorer_func(y_true[mask], y_pred[mask])
+    return new_func
+    
 
-    def transform(self, X):
-        return DeepPurpose.utils.convert_y_unit(X, "nM", "p")
+def exclude_min_binarizer(y):
+    """Mark known affinities so that we can undersample the unknown ones.
 
-    def inverse_transform(self, X):
-        return DeepPurpose.utils.convert_y_unit(X, "p", "nM")
-
-
-class BipartiteTransformedTargetRegressor(
-    TransformedTargetRegressor,
-    BaseBipartiteEstimator,
-):
-    pass
-
-
-def wrap_forest(forest):
-    """A common wrapper for forest estimators"""
-    return make_multipartite_pipeline(
-        SymmetryEnforcer(),
-        BipartiteTransformedTargetRegressor(
-            regressor=forest,
-            transformer=KnTransformer(),
-        ),
-    )
+    Used in conjunction with DeepPurposeWrapper.
+    """
+    return (y > y.min()).astype(int)
 
 
-print(f"* {torch.cuda.is_available()=}")
-print(f"* {torch.cuda.device_count()=}")
-print(f"* {torch.cuda.get_device_name(0)=}")
+def get_scorers():
+    """Used in yaml config files to get our custom scorers."""
+    return SCORERS
 
-# NOTE: DeepPurpose selects GPU automatically if available.
+
+FOREST_PARAMS = {
+    "bipartite_adapter": "gmosa",
+    "n_estimators": 1000,
+    "n_jobs": 20,
+    "verbose": 10,
+}
+SCORERS = {
+    "explained_variance": "explained_variance",
+    "max_error": "max_error",
+    "neg_mean_absolute_error": "neg_mean_absolute_error",
+    "neg_mean_squared_error": "neg_mean_squared_error",
+    "neg_root_mean_squared_error": "neg_root_mean_squared_error",
+    "neg_median_absolute_error": "neg_median_absolute_error",
+    "r2": "r2",
+    "explained_variance_known": make_scorer(
+        restrict_scorer_to_known_outputs(explained_variance_score),
+        greater_is_better=True,
+    ),
+    "max_error_known": make_scorer(
+        restrict_scorer_to_known_outputs(max_error),
+        greater_is_better=False,
+    ),
+    "neg_mean_absolute_error_known": make_scorer(
+        restrict_scorer_to_known_outputs(mean_absolute_error),
+        greater_is_better=False,
+    ),
+    "neg_mean_squared_error_known": make_scorer(
+        restrict_scorer_to_known_outputs(mean_squared_error),
+        greater_is_better=False,
+    ),
+    "neg_median_absolute_error_known": make_scorer(
+        restrict_scorer_to_known_outputs(median_absolute_error),
+        greater_is_better=False,
+    ),
+    "r2_known": make_scorer(
+        restrict_scorer_to_known_outputs(r2_score),
+        greater_is_better=True,
+    ),
+}
+
+
+print(f"[{__file__}] {torch.cuda.is_available()=}")
+print(f"[{__file__}] {torch.cuda.device_count()=}")
+print(f"[{__file__}] {torch.cuda.get_device_name(0)=}")
+
+# ========================================================
+# Enable usage of tensor cores for matmul and convolutions
+# ========================================================
+# (from https://pytorch.org/docs/stable/notes/cuda.html)
+
+# The flag below controls whether to allow TF32 on matmul. This flag defaults to False
+# in PyTorch 1.12 and later.
+torch.backends.cuda.matmul.allow_tf32 = True
+# The flag below controls whether to allow TF32 on cuDNN. This flag defaults to True.
+torch.backends.cudnn.allow_tf32 = True
+print(f"[{__file__}] {torch.backends.cuda.matmul.allow_tf32=}")
+print(f"[{__file__}] {torch.backends.cudnn.allow_tf32=}")
+
+
+# ===============================
+# Deep learning models definition
+# ===============================
+
+# NOTE: DeepPuccose selects GPU automatically if available.
 deep_dta = DeepPurposeWrapper(
     DeepPurpose.utils.generate_config(
         drug_encoding="CNN",
@@ -66,11 +133,11 @@ deep_dta = DeepPurposeWrapper(
     ),
     # Selected balanced number of unknown interactions:
     under_sampler=RandomUnderSampler(random_state=0),
-    binarizer=lambda y: (y > y.min()).astype(int),
+    binarizer=exclude_min_binarizer,
 )
 
-### MolTrans config
-# Source: https://github.com/kexinhuang12345/MolTrans/blob/master/config.py
+# MolTrans hyperparameters are obtained from
+# https://github.com/kexinhuang12345/MolTrans/blob/master/config.py
 #
 #    config['batch_size'] = 16
 #    config['input_dim_drug'] = 23532
@@ -81,7 +148,7 @@ deep_dta = DeepPurposeWrapper(
 #    config['emb_size'] = 384
 #    config['dropout_rate'] = 0.1
 #
-#    #DenseNet
+#    # DenseNet
 #    config['scale_down_ratio'] = 0.25
 #    config['growth_rate'] = 20
 #    config['transition_rate'] = 0.5
@@ -117,44 +184,40 @@ moltrans = DeepPurposeWrapper(
     ),
     # Selected balanced number of unknown interactions:
     under_sampler=RandomUnderSampler(random_state=0),
-    binarizer=lambda y: (y > y.min()).astype(int),
+    binarizer=exclude_min_binarizer,
 )
 
+
+# ============================
+# Bipartite forests definition
+# ============================
+
 brf_gmosa = bipartite_learn.ensemble.BipartiteRandomForestRegressor(
-    bipartite_adapter="gmosa",
     criterion="squared_error",
-    max_row_features="sqrt",
-    max_col_features="sqrt",
-    n_estimators=1000,
-    n_jobs=3,
+    max_row_features=0.5,
+    max_col_features=0.5,
+    **FOREST_PARAMS,
 )
 
 brf_gso = bipartite_learn.ensemble.BipartiteRandomForestRegressor(
-    bipartite_adapter="gmosa",
     criterion="squared_error_gso",
-    max_row_features="sqrt",
-    max_col_features="sqrt",
-    n_estimators=1000,
-    n_jobs=3,
+    max_row_features=0.5,
+    max_col_features=0.5,
+    **FOREST_PARAMS,
 )
 
 bxt_gmosa = bipartite_learn.ensemble.BipartiteExtraTreesRegressor(
-    bipartite_adapter="gmosa",
     criterion="squared_error",
-    n_estimators=1000,
-    n_jobs=3,
+    **FOREST_PARAMS,
 )
 
 bxt_gso = bipartite_learn.ensemble.BipartiteExtraTreesRegressor(
-    bipartite_adapter="gmosa",
     criterion="squared_error_gso",
-    n_estimators=1000,
-    n_jobs=3,
+    **FOREST_PARAMS,
 )
 
 bgbm = bipartite_learn.ensemble.BipartiteGradientBoostingRegressor(
-    bipartite_adapter="gmosa",
     criterion="friedman_gso",
-    n_estimators=1000,
+    **{k: v for k, v in FOREST_PARAMS.items() if k != "n_jobs"},
 )
 
