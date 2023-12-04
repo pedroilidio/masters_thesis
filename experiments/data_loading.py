@@ -16,3 +16,4 @@ def read_table_to_array(path):
 
 def load_regulatory_network_features(path):
     return rbf_kernel(np.loadtxt(path, delimiter=','))
+

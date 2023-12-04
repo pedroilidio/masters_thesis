@@ -67,7 +67,10 @@ aliases:
     y:
       path: datasets/kiba/final/affinity.tsv
       read:
-        call: data_loading.load_log_affinities
+        call: drug_target_affinity.estimators.load_kiba_affinities_for_deepdta
+        params:
+          max_value: 20
+          fill_nan: false
 
   - name: davis
     pairwise: true
@@ -95,7 +98,10 @@ aliases:
     y:
       path: datasets/kiba/final/affinity.tsv
       read:
-        call: data_loading.load_log_affinities
+        call: drug_target_affinity.estimators.load_kiba_affinities_for_deepdta
+        params:
+          max_value: 20
+          fill_nan: true
 
 
   estimator:
@@ -180,12 +186,14 @@ runs:
     estimator:
     - deep_dta
     - moltrans
-    cv: {params: {pairwise: false}}
+    cv:
+      params:
+        pairwise: false
     active: true
 
   - dataset:
-    - davis
     - kiba
+    - davis
     estimator:
     - bxt_gso
     - bxt_gmosa

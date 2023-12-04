@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pandas as pd
 from DeepPurpose.utils import encode_drug, encode_protein, convert_y_unit
@@ -32,6 +34,16 @@ def preprocess_dti_for_deeppurpose(
     })
     if subset is not None:
         df_data = df_data.iloc[subset]
+
+    is_finite = np.isfinite(df_data.Label)
+
+    if not is_finite.all():
+        warnings.warn(
+            f"Found {(~is_finite).sum()}/{len(df_data)} non-finite"
+            f" labels (nan or inf). They will be removed. {is_finite.sum()}"
+            " entries remaining."
+        )
+        df_data = df_data.loc[is_finite]
 
     if threshold is not None:
         df_data['Label'] = (df_data['Label'] < threshold).astype(float)

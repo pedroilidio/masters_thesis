@@ -1,3 +1,4 @@
+import pandas as pd
 import torch
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.compose import TransformedTargetRegressor
@@ -16,7 +17,6 @@ import bipartite_learn.ensemble
 from bipartite_learn.base import BaseBipartiteEstimator
 from bipartite_learn.preprocessing.monopartite import SymmetryEnforcer
 from bipartite_learn.pipeline import make_multipartite_pipeline
-
 import DeepPurpose.DTI
 import DeepPurpose.utils
 
@@ -35,7 +35,7 @@ def restrict_scorer_to_known_outputs(scorer_func):
     this case.
     """ 
     def new_func(y_true, y_pred):
-        mask = y_true > y_true.min()
+        mask = y_true > y_true.min()  # If there are NaN, NaN will be the minimum.
         return scorer_func(y_true[mask], y_pred[mask])
     return new_func
     
@@ -46,6 +46,13 @@ def exclude_min_binarizer(y):
     Used in conjunction with DeepPurposeWrapper.
     """
     return (y > y.min()).astype(int)
+
+
+def load_kiba_affinities_for_deepdta(path, max_value=20, fill_nan=False):
+    data = max_value - pd.read_table(path, index_col=0)
+    if fill_nan:
+        return data.fillna(value=0).values
+    return data.values
 
 
 def get_scorers():
@@ -132,8 +139,8 @@ deep_dta = DeepPurposeWrapper(
         cuda_id=0,
     ),
     # Selected balanced number of unknown interactions:
-    under_sampler=RandomUnderSampler(random_state=0),
-    binarizer=exclude_min_binarizer,
+    # under_sampler=RandomUnderSampler(random_state=0),
+    # binarizer=exclude_min_binarizer,
 )
 
 # MolTrans hyperparameters are obtained from
@@ -183,8 +190,8 @@ moltrans = DeepPurposeWrapper(
         LR=0.001,
     ),
     # Selected balanced number of unknown interactions:
-    under_sampler=RandomUnderSampler(random_state=0),
-    binarizer=exclude_min_binarizer,
+    # under_sampler=RandomUnderSampler(random_state=0),
+    # binarizer=exclude_min_binarizer,
 )
 
 

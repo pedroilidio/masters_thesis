@@ -8,8 +8,8 @@ from bipartite_learn.preprocessing.monopartite import (
     SymmetryEnforcer,
 )
 from bipartite_learn.matrix_factorization import (
-    NRLMFRegressor,
-    DNILMFRegressor,
+    NRLMFClassifier,
+    DNILMFClassifier,
 )
 from bipartite_learn.model_selection import (
     MultipartiteRandomizedSearchCV,
@@ -17,6 +17,7 @@ from bipartite_learn.model_selection import (
 )
 
 import wrappers
+import bipartite_positive_dropper
 
 
 RSTATE = np.random.RandomState(0)
@@ -34,7 +35,7 @@ kfold_5_shuffle_diag = make_multipartite_kfold(
 common_param_options = loguniform(2**-2, 2)
 
 nrlmf_grid = MultipartiteRandomizedSearchCV(
-    NRLMFRegressor(random_state=deepcopy(RSTATE)),
+    NRLMFClassifier(random_state=deepcopy(RSTATE)),
     param_distributions=dict(
         lambda_rows=common_param_options,
         lambda_cols=common_param_options,
@@ -59,7 +60,7 @@ nrlmf = nrlmf_grid
 
 
 dnilmf_grid = MultipartiteRandomizedSearchCV(
-    DNILMFRegressor(random_state=deepcopy(RSTATE)),
+    DNILMFClassifier(random_state=deepcopy(RSTATE)),
     param_distributions=dict(
         lambda_rows=common_param_options,
         lambda_cols=common_param_options,
@@ -87,23 +88,47 @@ dnilmf = make_multipartite_pipeline(
 )
 
 
-def nrlmf_y_reconstruction_wrapper(estimator, **params):
+# def nrlmf_y_reconstruction_wrapper(estimator, **params):
+#     return wrappers.RegressorToBinaryClassifier(
+#         make_multipartite_pipeline(
+#             SymmetryEnforcer(),
+#             wrappers.ClassifierAsSampler(nrlmf_grid, keep_positives=True),
+#             estimator,
+#             memory="/tmp",
+#         )
+#     ).set_params(**params)
+
+
+def nrlmf_y_reconstruction_wrapper(
+    estimator, drop=None, random_state=None,  **params,
+):
     return wrappers.RegressorToBinaryClassifier(
         make_multipartite_pipeline(
+            *(
+                (BipartitePositiveDropper(drop, random_state=random_state),)
+                if drop is not None else ()
+            ),
             SymmetryEnforcer(),
-            wrappers.RegressorAsSampler(nrlmf_grid, keep_positives=True),
+            TargetKernelDiffuser(),
+            wrappers.ClassifierAsSampler(nrlmf_grid, keep_positives=True),
             estimator,
             memory="/tmp",
         )
     ).set_params(**params)
 
 
-def dnilmf_y_reconstruction_wrapper(estimator, **params):
+def dnilmf_y_reconstruction_wrapper(
+    estimator, drop=None, random_state=None,  **params,
+):
     return wrappers.RegressorToBinaryClassifier(
         make_multipartite_pipeline(
+            *(
+                (BipartitePositiveDropper(drop, random_state=random_state),)
+                if drop is not None else ()
+            ),
             SymmetryEnforcer(),
             TargetKernelDiffuser(),
-            wrappers.RegressorAsSampler(dnilmf_grid, keep_positives=True),
+            wrappers.ClassifierAsSampler(dnilmf_grid, keep_positives=True),
             estimator,
             memory="/tmp",
         )
