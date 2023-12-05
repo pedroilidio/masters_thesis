@@ -125,7 +125,7 @@ def collect_run_times(outdir=Path.cwd(), n_jobs=1, random_state=None, cache_dir=
         for record in joblib.Parallel(
             n_jobs=n_jobs,
             return_as="generator_unordered",  # Enable recovering partial results
-            require="sharedmem",
+            prefer="processes",
         )(
             joblib.delayed(cached_run_estimator)(estimator_name, n)
             for n in np.logspace(2, 4, 50, dtype=int)

@@ -1,6 +1,4 @@
 import argparse
-import itertools
-import pickle
 import warnings
 from pathlib import Path
 
@@ -483,10 +481,17 @@ def plot_everything(
     )
     discarded_datasets = set(df2.dataset) - set(allsets_data.dataset)
     if discarded_datasets:
-        print(
+        fold_counts = pd.crosstab(df2.dataset, df2.estimator)
+        n_folds = fold_counts.max().max()
+        fold_counts = fold_counts.loc[
+            (fold_counts < n_folds).any(axis=1),
+            (fold_counts < n_folds).any(axis=0),
+        ]
+        warnings.warn(
             "The following datasets were not present for all estimators and"
             " will not be considered for rankings across all datasets:"
-            f" {discarded_datasets}"
+            f" {discarded_datasets}."
+            f" Runs with less than {n_folds=} are:\n{fold_counts}"
         )
 
     max_folds_per_estimator = df2.groupby(["dataset", "estimator"]).fold.nunique().max()
@@ -508,6 +513,10 @@ def plot_everything(
             " will not be considered for rankings across all datasets:"
             f" {discarded_runs}"
         )
+
+    print("Selected estimators for all sets:", *allsets_data.estimator.unique(), sep="\n  * ")
+    print("Selected datasets for all sets:", *allsets_data.dataset.unique(), sep="\n  * ")
+    print("Selected metrics:", *metric_names, sep="\n  * ")
 
     allsets_data = (
         allsets_data.set_index(["dataset", "fold", "estimator", hue])  # Keep columns

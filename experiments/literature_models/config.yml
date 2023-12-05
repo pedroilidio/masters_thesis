@@ -99,29 +99,29 @@ aliases:
   - name: nrlmf_y_reconstruction
     call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
     params:
-      estimator__classifierassampler__estimator__n_jobs: 4
+      classifierassampler__estimator__n_jobs: 4
   - name: nrlmf_y_reconstruction_drop50
     call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
     params:
-      estimator__classifierassampler__estimator__n_jobs: 4
+      classifierassampler__estimator__n_jobs: 4
       drop: 0.5
       random_state: 0
   - name: nrlmf_y_reconstruction_drop50
     call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
     params:
-      estimator__classifierassampler__estimator__n_jobs: 4
+      classifierassampler__estimator__n_jobs: 4
       drop: 0.5
       random_state: 0
   - name: nrlmf_y_reconstruction_drop70
     call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
     params:
-      estimator__classifierassampler__estimator__n_jobs: 4
+      classifierassampler__estimator__n_jobs: 4
       drop: 0.7
       random_state: 0
   - name: nrlmf_y_reconstruction_drop90
     call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
     params:
-      estimator__classifierassampler__estimator__n_jobs: 4
+      classifierassampler__estimator__n_jobs: 4
       drop: 0.9
       random_state: 0
 
@@ -152,65 +152,65 @@ runs:
     - dthybrid
     - kron_rls
     - lmo_rls
+    - bxt_sgso_us
     - mlp
     - blmnii_rls
     - blmnii_svm
     active: false
 
-  - wrapper:
-    - null
-    - drop50
-    - drop70
-    - drop90
-    # - drop20
-    # - drop30
-    # - drop40
-    # - drop60
-    # - drop80
-    dataset:
-    - nuclear_receptors
-    - gpcr
-    - davis
-    - ion_channels
-    - enzymes
-    - ern
-    - srn
-    - lncrna
-    - mirna
-    - kiba
-    estimator:
-    - dnilmf
-    - nrlmf
-    - bxt_gso
-    - bxt_gmosa
-    - bxt_sgso_us
-    - bxt_gmo
-    - brf_lmo
-    active: true
+  # - wrapper:
+  #   - null
+  #   - drop50
+  #   - drop70
+  #   - drop90
+  #   # - drop20
+  #   # - drop30
+  #   # - drop40
+  #   # - drop60
+  #   # - drop80
+  #   dataset:
+  #   - nuclear_receptors
+  #   - gpcr
+  #   - davis
+  #   - ion_channels
+  #   - enzymes
+  #   - ern
+  #   - srn
+  #   - lncrna
+  #   - mirna
+  #   - kiba
+  #   estimator:
+  #   - dnilmf
+  #   - nrlmf
+  #   - bxt_gso
+  #   - bxt_gmosa
+  #   - bxt_gmo
+  #   - brf_lmo
+  #   active: true
 
-  - wrapper:
-    - nrlmf_y_reconstruction
-    - nrlmf_y_reconstruction_drop50
-    - nrlmf_y_reconstruction_drop70
-    - nrlmf_y_reconstruction_drop90
-    # - drop20
-    # - drop30
-    # - drop40
-    # - drop60
-    # - drop80
-    dataset:
-    - nuclear_receptors
-    - gpcr
-    - davis
-    - ion_channels
-    - enzymes
-    - ern
-    - srn
-    - lncrna
-    - mirna
-    - kiba
-    estimator:
-    - bxt_gso
-    - bxt_gmosa
-    active: true
+  # - wrapper:
+  #   - nrlmf_y_reconstruction
+  #   - nrlmf_y_reconstruction_drop50
+  #   - nrlmf_y_reconstruction_drop70
+  #   - nrlmf_y_reconstruction_drop90
+  #   # - drop20
+  #   # - drop30
+  #   # - drop40
+  #   # - drop60
+  #   # - drop80
+  #   dataset:
+  #   - nuclear_receptors
+  #   - gpcr
+  #   - davis
+  #   - ion_channels
+  #   - enzymes
+  #   - ern
+  #   - srn
+  #   - lncrna
+  #   - mirna
+  #   - kiba
+  #   estimator:
+  #   - bxt_gso
+  #   - bxt_gmosa
+  #   active: true
 

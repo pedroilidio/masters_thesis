@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-BASEDIR=best_forests_with_dropout
+BASEDIR=literature_models
 METRICS=(
     "fit_time"
     "score_time"
@@ -13,23 +13,24 @@ METRICS=(
 )
 ESTIMATORS=(
     "nrlmf"
-    "bxt_gso"
-    # "bxt_gmo"
-    "bxt_gmosa"
+    "dnilmf"
+    "lmo_rls"
+    "kron_rls"
+    "mlp"
+    "blmnii_rls"
+    "blmnii_svm"
+    "dthybrid"
+    "bxt_sgso_us"
     "bxt_gso_1k"
     "bxt_gmosa_1k"
-    "bxt_gso__nrlmf"
     "bxt_gmosa__nrlmf"
+    "bxt_gso__nrlmf"
     "bxt_gmo__nrlmf"
     "brf_lmo"
     "ss_bxt_gso__md_size"
     "ss_bxt_gso__ad_fixed"
     "ss_bxt_gso__mse_density"
 )
-
-# gmosa_1k
-# brf_gso_1k__nrlmf\
-# bxt_gso_1k__nrlmf\
 
 echo "*** NO DROP ***"
 python make_statistical_comparisons.py \
@@ -58,3 +59,4 @@ python make_statistical_comparisons.py \
     --outdir $BASEDIR/statistical_comparisons/drop90 \
     --estimators $(for E in ${ESTIMATORS[@]}; do echo $E"__90"; done) \
     --metrics ${METRICS[@]}
+

@@ -109,7 +109,8 @@ SCORERS = {
 
 print(f"[{__file__}] {torch.cuda.is_available()=}")
 print(f"[{__file__}] {torch.cuda.device_count()=}")
-print(f"[{__file__}] {torch.cuda.get_device_name(0)=}")
+if torch.cuda.is_available():
+    print(f"[{__file__}] {torch.cuda.get_device_name(0)=}")
 
 # ========================================================
 # Enable usage of tensor cores for matmul and convolutions
