@@ -1,3 +1,7 @@
+# Cache folders
+cache
+joblib
+
 # Memory profiling
 fil-result
 

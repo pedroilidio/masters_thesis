@@ -88,48 +88,42 @@ dnilmf = make_multipartite_pipeline(
 )
 
 
-# def nrlmf_y_reconstruction_wrapper(estimator, **params):
-#     return wrappers.RegressorToBinaryClassifier(
-#         make_multipartite_pipeline(
-#             SymmetryEnforcer(),
-#             wrappers.ClassifierAsSampler(nrlmf_grid, keep_positives=True),
-#             estimator,
-#             memory="/tmp",
-#         )
-#     ).set_params(**params)
-
-
 def nrlmf_y_reconstruction_wrapper(
     estimator, drop=None, random_state=None,  **params,
 ):
-    return wrappers.RegressorToBinaryClassifier(
-        make_multipartite_pipeline(
-            *(
-                (BipartitePositiveDropper(drop, random_state=random_state),)
-                if drop is not None else ()
-            ),
-            SymmetryEnforcer(),
-            TargetKernelDiffuser(),
-            wrappers.ClassifierAsSampler(nrlmf_grid, keep_positives=True),
-            estimator,
-            memory="/tmp",
-        )
-    ).set_params(**params)
+    if drop is None:
+        pipe = []
+    else:
+        pipe = [
+            bipartite_positive_dropper.BipartitePositiveDropper(
+                drop,
+                random_state=random_state
+            )
+        ]
+    pipe += [
+        SymmetryEnforcer(),
+        wrappers.ClassifierAsSampler(nrlmf_grid, keep_positives=True),
+        estimator,
+    ]
+    return make_multipartite_pipeline(*pipe, memory="/tmp").set_params(**params)
 
 
 def dnilmf_y_reconstruction_wrapper(
     estimator, drop=None, random_state=None,  **params,
 ):
-    return wrappers.RegressorToBinaryClassifier(
-        make_multipartite_pipeline(
-            *(
-                (BipartitePositiveDropper(drop, random_state=random_state),)
-                if drop is not None else ()
-            ),
-            SymmetryEnforcer(),
-            TargetKernelDiffuser(),
-            wrappers.ClassifierAsSampler(dnilmf_grid, keep_positives=True),
-            estimator,
-            memory="/tmp",
-        )
-    ).set_params(**params)
+    if drop is None:
+        pipe = []
+    else:
+        pipe = [
+            bipartite_positive_dropper.BipartitePositiveDropper(
+                drop,
+                random_state=random_state
+            )
+        ]
+    pipe += [
+        SymmetryEnforcer(),
+        TargetKernelDiffuser(),
+        wrappers.ClassifierAsSampler(dnilmf_grid, keep_positives=True),
+        estimator,
+    ]
+    return make_multipartite_pipeline(*pipe, memory="/tmp").set_params(**params)
