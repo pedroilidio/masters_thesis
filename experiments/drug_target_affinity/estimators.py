@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import torch
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -35,7 +36,12 @@ def restrict_scorer_to_known_outputs(scorer_func):
     this case.
     """ 
     def new_func(y_true, y_pred):
-        mask = y_true > y_true.min()  # If there are NaN, NaN will be the minimum.
+        minimum = y_true.min()
+        # If there are NaN, NaN will be the minimum.
+        if minimum == np.nan:
+            mask = np.isfinite(y_true)
+        else:
+            mask = y_true > minimum
         return scorer_func(y_true[mask], y_pred[mask])
     return new_func
     

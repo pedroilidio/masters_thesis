@@ -181,6 +181,16 @@ aliases:
 
 runs:
   - dataset:
+    - kiba_raw
+    estimator:
+    - moltrans
+    cv:
+      params:
+        n_jobs: 4
+        pairwise: false
+    active: true
+
+  - dataset:
     - davis_raw
     - kiba_raw
     estimator:
@@ -189,7 +199,7 @@ runs:
     cv:
       params:
         pairwise: false
-    active: true
+    active: false
 
   - dataset:
     - kiba
@@ -202,6 +212,7 @@ runs:
     # - bgbm
     cv:
       params:
+        n_jobs: 8
         pairwise: true
         return_estimator: false
     active: false
