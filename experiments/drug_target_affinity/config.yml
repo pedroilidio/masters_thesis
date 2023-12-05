@@ -119,6 +119,8 @@ aliases:
     call: drug_target_affinity.estimators.brf_gmosa
   - name: bgbm
     call: drug_target_affinity.estimators.bgbm
+  - name: kron_rls
+    call: literature_models.kron_rls.KronRLSRegressor
 
   wrapper:
   # Drops the given fraction of positive labels from the training set prior to
@@ -188,7 +190,7 @@ runs:
       params:
         n_jobs: 4
         pairwise: false
-    active: true
+    active: false
 
   - dataset:
     - davis_raw
@@ -205,14 +207,15 @@ runs:
     - kiba
     - davis
     estimator:
-    - bxt_gso
-    - bxt_gmosa
-    - brf_gso
-    - brf_gmosa
+    - kron_rls
+    # - bxt_gso
+    # - bxt_gmosa
+    # - brf_gso
+    # - brf_gmosa
     # - bgbm
     cv:
       params:
         n_jobs: 8
         pairwise: true
         return_estimator: false
-    active: false
+    active: true
