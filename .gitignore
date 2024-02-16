@@ -1,3 +1,8 @@
+# Result tables and plots (can be generated again)
+results.tsv
+results_renamed.tsv
+statistical_comparisons
+
 # Cache folders
 cache
 joblib
@@ -440,6 +445,8 @@ celerybeat.pid
 # Environments
 .env
 .venv
+env
+env_junest
 env/
 venv/
 ENV/

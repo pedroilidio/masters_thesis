@@ -9,6 +9,7 @@ ESTIMATORS=(
     "bxt_gmosa"
     "moltrans"
     "deep_dta"
+    "kron_rls"
 )
 
 python make_statistical_comparisons.py \
