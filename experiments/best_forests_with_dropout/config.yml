@@ -129,7 +129,7 @@ runs:
     # Too memory-hungry, will run separately:
     # - brf_gmo
     # - bxt_gmo
-    active: true
+    active: false
 
   # Larger forests with no y reconstruction.
   # (continuous y makes trees a lot bigger, so using y_reconstruction is dificult)
@@ -152,7 +152,7 @@ runs:
     estimator:
     - bxt_gso_1k
     - bxt_gmosa_1k
-    active: true
+    active: false
 
   # nrlmf and forests alone
   - wrapper:
@@ -176,7 +176,8 @@ runs:
     - bxt_gso
     - brf_lmo
     - brf_gmo
-    active: true
+    active: false
+
 
   # Takes long time and much memory
   - estimator:
@@ -193,22 +194,44 @@ runs:
     - name: nrlmf_y_reconstruction_drop50
       call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
       params:
-        estimator__classifierassampler__estimator__n_jobs: 75
+        classifierassampler__estimator__n_jobs: 75
         drop: 0.5
         random_state: 0
     - name: nrlmf_y_reconstruction_drop70
       call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
       params:
-        estimator__classifierassampler__estimator__n_jobs: 75
+        classifierassampler__estimator__n_jobs: 75
         drop: 0.7
         random_state: 0
     - name: nrlmf_y_reconstruction_drop90
       call: y_reconstruction.estimators.nrlmf_y_reconstruction_wrapper
       params:
-        estimator__classifierassampler__estimator__n_jobs: 75
+        classifierassampler__estimator__n_jobs: 75
         drop: 0.9
         random_state: 0
     cv:
       params:
         n_jobs: 1  # Limit memory usage
+    active: false
+
+  # GMO forests with y reconstruction (remaining datasets)
+  - estimator:
+    - bxt_gmo
+    - brf_gmo
+    wrapper:
+    # - nrlmf_y_reconstruction (ran at y_reconstruction/runs)
+    - nrlmf_y_reconstruction_drop50
+    - nrlmf_y_reconstruction_drop70
+    - nrlmf_y_reconstruction_drop90
+    dataset:
+    - nuclear_receptors
+    - gpcr
+    - davis
+    - ion_channels
+    - enzymes
+    - ern
+    - srn
+    - lncrna
+    # - mirna
+    # - kiba
     active: true

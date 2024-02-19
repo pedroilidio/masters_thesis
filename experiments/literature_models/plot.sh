@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+DEBUG=$1
+echo "DEBUG=$DEBUG"
 BASEDIR=literature_models
 METRICS=(
     "fit_time"
@@ -13,7 +15,7 @@ METRICS=(
 )
 ESTIMATORS=(
     "nrlmf"
-    "dnilmf"
+    # "dnilmf"  # XXX
     "lmo_rls"
     "kron_rls"
     "mlp"
@@ -21,42 +23,31 @@ ESTIMATORS=(
     "blmnii_svm"
     "dthybrid"
     "bxt_sgso_us"
-    "bxt_gso_1k"
-    "bxt_gmosa_1k"
+    # "bxt_gso_1k"
+    # "bxt_gmosa_1k"
     "bxt_gmosa__nrlmf"
     "bxt_gso__nrlmf"
     "bxt_gmo__nrlmf"
     "brf_lmo"
-    "ss_bxt_gso__md_size"
-    "ss_bxt_gso__ad_fixed"
-    "ss_bxt_gso__mse_density"
+    # "ss_bxt_gso__md_size"  # XXX
+    # "ss_bxt_gso__ad_fixed"  # XXX
+    # "ss_bxt_gso__mse_density"  # XXX
 )
 
 echo "*** NO DROP ***"
-python make_statistical_comparisons.py \
+python $DEBUG make_statistical_comparisons.py \
     --results-table $BASEDIR/results_renamed.tsv \
     --outdir $BASEDIR/statistical_comparisons/no_drop \
     --estimators ${ESTIMATORS[@]} \
-    --metrics ${METRICS[@]}
+    --metrics ${METRICS[@]} \
+    --raise-missing
 
-echo "*** DROP 50% ***"
-python make_statistical_comparisons.py \
-    --results-table $BASEDIR/results_renamed.tsv \
-    --outdir $BASEDIR/statistical_comparisons/drop50 \
-    --estimators $(for E in ${ESTIMATORS[@]}; do echo $E"__50"; done) \
-    --metrics ${METRICS[@]}
-
-echo "*** DROP 70% ***"
-python make_statistical_comparisons.py \
-    --results-table $BASEDIR/results_renamed.tsv \
-    --outdir $BASEDIR/statistical_comparisons/drop70 \
-    --estimators $(for E in ${ESTIMATORS[@]}; do echo $E"__70"; done) \
-    --metrics ${METRICS[@]}
-
-echo "*** DROP 90% ***"
-python make_statistical_comparisons.py \
-    --results-table $BASEDIR/results_renamed.tsv \
-    --outdir $BASEDIR/statistical_comparisons/drop90 \
-    --estimators $(for E in ${ESTIMATORS[@]}; do echo $E"__90"; done) \
-    --metrics ${METRICS[@]}
-
+for drop in 50 70 90; do
+    echo "*** DROP $drop% ***"
+    python $DEBUG make_statistical_comparisons.py \
+        --results-table $BASEDIR/results_renamed.tsv \
+        --outdir $BASEDIR/statistical_comparisons/drop$drop \
+        --estimators $(for E in ${ESTIMATORS[@]}; do echo $E"__"$drop; done) \
+        --metrics ${METRICS[@]} \
+        --raise-missing
+done

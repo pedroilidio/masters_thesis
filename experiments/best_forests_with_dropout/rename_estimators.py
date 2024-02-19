@@ -11,6 +11,7 @@ def rename_estimators(input_path: Path):
 
     wrapper_renaming = {
         np.nan: "",
+        "regressor_to_classifier": "",
         "nrlmf_y_reconstruction": "__nrlmf",
         "nrlmf_y_reconstruction_drop50": "__nrlmf__50",
         "nrlmf_y_reconstruction_drop70": "__nrlmf__70",
@@ -22,6 +23,7 @@ def rename_estimators(input_path: Path):
     }
     estimator_renaming = {
         "bxt_gmo__25": "bxt_gmo",
+        "bxt_gmo__75": "bxt_gmo",
         "brf_gmo__75": "brf_gmo",
     }
 

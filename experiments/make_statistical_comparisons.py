@@ -1,4 +1,7 @@
+import sys
 import argparse
+import itertools
+import pickle
 import warnings
 from pathlib import Path
 
@@ -9,11 +12,45 @@ from statsmodels.stats.multitest import multipletests
 import scikit_posthocs as sp
 import matplotlib.pyplot as plt
 import seaborn as sns
+from tqdm import tqdm
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from critical_difference_diagrams import (
     plot_critical_difference_diagram,
     _find_maximal_cliques,
 )
+
+THESIS_TEXTWIDTH = 6.29707  # inches
+PLOT_WIDTH = 0.45 * THESIS_TEXTWIDTH
+
+METRIC_FORMATTING = {
+    "test_average_precision_micro": "Micro AP",
+    "test_roc_auc_micro": "Micro AUROC",
+    "test_matthews_corrcoef_micro": "Micro MCC",
+    "test_f1_micro": "Micro F1",
+    "test_neg_label_ranking_loss": "Ranking Error",
+    "test_neg_hamming_loss_micro": "Micro Hamming Loss",
+}
+
+
+def has_no_nans(g):
+    """Check if a group has NaNs in any of the metrics."""
+    missing_estimators = set(g.estimator.cat.categories) - set(g.estimator)
+
+    # if g.estimator.cat.categories.size != g.estimator.nunique():
+    if missing_estimators:
+        warnings.warn(
+            f"Dropping the following runs missing estimators {missing_estimators}\n{g}"
+        )
+        return False
+
+    nan_runs = g.isna()
+    has_nan = nan_runs.any().any()
+    if has_nan:
+        warnings.warn(f"Dropping the following runs with NaN:\n{g}")
+
+    return not has_nan
 
 
 def set_axes_size(w, h, ax=None):
@@ -90,8 +127,8 @@ def plot_insignificance_bars(*, positions, sig_matrix, ystart=None, ax=None, **k
 
 def make_text_table(
     data,
-    block_col,
-    group_col,
+    fold_col,
+    estimator_col,
     metric,
     sig_matrix,
     positions,
@@ -107,16 +144,21 @@ def make_text_table(
         dtype=bool,
     )
 
-    table = data.set_index(block_col).groupby(group_col)[metric].agg(["mean", "std"]).T
+    table = (
+        data.set_index(fold_col)
+        .groupby(estimator_col, observed=True)[metric]
+        .agg(["mean", "std"])
+        .T
+    )
 
-    percentile_ranks = data.groupby(block_col)[metric].rank(pct=True)
+    percentile_ranks = data.groupby(fold_col)[metric].rank(pct=True)
     is_victory = percentile_ranks == 1
 
     percentile_ranks_stats = (
-        percentile_ranks.groupby(data[group_col]).agg(["mean", "std"]).T
+        percentile_ranks.groupby(data[estimator_col]).agg(["mean", "std"]).T
     )
     is_victory_stats = (
-        is_victory.groupby(data[group_col]).agg(["mean", "std"]).T
+        is_victory.groupby(data[estimator_col]).agg(["mean", "std"]).T
     )  # How many times was this estimator the best?
 
     text_table = {}
@@ -137,7 +179,8 @@ def make_text_table(
 
     # Get top-ranked set
     best_group = positions.idxmax() if higher_is_better else positions.idxmin()
-    best_group = best_group[0]  # Select group from (group, hue)
+    # If estimator names do not include hue:
+    # best_group = best_group[0]  # Select group from (group, hue_col)
 
     for crossbar in crossbar_sets:
         if best_group in crossbar:
@@ -149,9 +192,9 @@ def make_text_table(
     # Highlight top-ranked set, if it is not the only set
     if len(best_crossbar) < len(adj_matrix):
         # HTML bold
-        text_table.loc[(best_crossbar, slice(None))] = text_table[
-            best_crossbar
-        ].apply(lambda s: f"<b>{s}</b>")
+        text_table.loc[(best_crossbar, slice(None))] = text_table[best_crossbar].apply(
+            lambda s: f"<b>{s}</b>"
+        )
 
     return text_table
 
@@ -160,42 +203,13 @@ def iter_posthoc_comparisons(
     data,
     *,
     y_cols,
-    group_col,
-    block_col,
+    estimator_col,
+    fold_col,
     p_adjust,
-    hue=None,
+    hue_col=None,
 ):
-    all_blocks = set(data[block_col].unique())
-
-    estimators_per_fold = data.groupby(block_col)[group_col].count()
-    folds_to_drop = estimators_per_fold[
-        estimators_per_fold < estimators_per_fold.max()
-    ].index
-    if not folds_to_drop.empty:  # FIXME: explain
-        warnings.warn(
-            "The following groups have missing blocks and will be removed"
-            f" from the comparison analysis:\n{folds_to_drop}"
-        )
-        data = data[~data[block_col].isin(folds_to_drop)]
-
-    missing_blocks = (
-        data.groupby(group_col)[block_col].unique().apply(lambda x: all_blocks - set(x))
-    )
-    missing_blocks = missing_blocks.loc[missing_blocks.apply(len) != 0]
-
-    if not missing_blocks.empty:
-        warnings.warn(
-            "The following groups have missing blocks and will be removed"
-            f" from the comparison analysis:\n{missing_blocks}"
-        )
-        data = data[~data[group_col].isin(missing_blocks.index)]
-
-    groups = data[group_col].unique()
+    groups = data[estimator_col].unique()
     n_groups = len(groups)
-
-    indices = [block_col, group_col]
-    if hue is not None:
-        indices.append(hue)
 
     for metric in y_cols:
         if n_groups <= 1:
@@ -209,24 +223,32 @@ def iter_posthoc_comparisons(
         #     data,
         #     melted=True,
         #     y_col=metric,
-        #     group_col=group_col,
-        #     block_col=block_col,
+        #     estimator_col=estimator_col,
+        #     fold_col=fold_col,
         #     # p_adjust=p_adjust,
         # )
         pvalue_crosstable = sp.posthoc_wilcoxon(
             data,
             val_col=metric,
-            group_col=group_col,
+            group_col=estimator_col,
             p_adjust=p_adjust,
             correction=True,
             zero_method="zsplit",
             sort=True,
         )
+
+        # If estimator names do not include hue:
+        # indices = [fold_col, estimator_col]
+        # if hue_col is not None:
+        #     indices.append(hue_col)
+
         mean_ranks = (
-            data.set_index(indices)[metric]
-            .groupby(level=0)
+            data.set_index([fold_col, estimator_col])[metric]
+            .groupby(level=fold_col, observed=True)
             .rank(pct=True)
-            .groupby(level=1 if hue is None else [1, 2])
+            .groupby(level=estimator_col, observed=True)
+            # If estimator names do not inclue hue, we would need to use:
+            # .groupby(level=estimator_col if hue_col is None else [estimator_col, hue_col])
             .mean()
         )
 
@@ -235,13 +257,13 @@ def iter_posthoc_comparisons(
 
 def make_visualizations(
     data,
-    group_col,
+    estimator_col,
     pvalue_crosstable,
     mean_ranks,
     outdir,
     metric,
     omnibus_pvalue,
-    hue=None,
+    hue_col=None,
 ):
     # Define base paths
     sigmatrix_outpath = outdir / f"significance_matrices/{metric}"
@@ -256,12 +278,47 @@ def make_visualizations(
     pvalue_crosstable.to_csv(sigmatrix_outpath.with_suffix(".tsv"), sep="\t")
 
     n_groups = pvalue_crosstable.shape[0]
+    formatted_metric_name = METRIC_FORMATTING.get(metric, metric)
+
+    # HACK
+    # Extract drop ratio from estimator name (bxt_gmo__nrlmf__50 -> 50)
+    drop = data[estimator_col].str.extract(r".*__(\d+)", expand=False)
+    if not drop.isna().any() and drop.nunique() == 1:
+        drop = drop.iloc[0]
+        data = data.copy()
+        pvalue_crosstable = pvalue_crosstable.copy()
+        mean_ranks = mean_ranks.copy()
+        data.loc[:, estimator_col] = data[estimator_col].str.rsplit("__", n=1).str[0]
+        pvalue_crosstable.index = pvalue_crosstable.index.str.rsplit("__", n=1).str[0]
+        pvalue_crosstable.columns = pvalue_crosstable.columns.str.rsplit("__", n=1).str[0]
+        mean_ranks.index = mean_ranks.index.str.rsplit("__", n=1).str[0]
+        # If estimator names do not include hue:
+        # mean_ranks.index = mean_ranks.index.set_levels(
+        #     mean_ranks.index.get_level_values(estimator_col).str.rsplit("__", n=1).str[0],
+        #     level=estimator_col,
+        # )
+    else:
+        drop = None
+
+    if data.dataset.iloc[0] == "all_datasets":
+        # formatted_metric_name += "\n(mean percentile ranks)"
+        formatted_metric_name += " (ranks)"
+        data = data.copy()
+        data[metric] *= 100
+
+    title = f"{formatted_metric_name}\np = {omnibus_pvalue:.2e}"
+
+    if drop is not None:
+        title += f" | ILR = {drop}%"
+
+    plt.title(title, wrap=True)
 
     # plt.figure(figsize=[(n_groups + 2) / 2.54] * 2)
     plt.figure()
     set_axes_size(*[(n_groups + 2) / 2.54] * 2)
 
-    plt.title(f"{metric}\np = {omnibus_pvalue:.2e}", wrap=True)
+    plt.title(title, wrap=True)
+
     ax, cbar = sp.sign_plot(
         pvalue_crosstable,
         annot=sp.sign_table(pvalue_crosstable),
@@ -280,14 +337,14 @@ def make_visualizations(
 
     # plt.figure(figsize=(6, 0.5 * n_groups / 2.54 + 1))
     plt.figure()
-    set_axes_size(6, 0.5 * n_groups / 2.54 + 1)
+    set_axes_size(PLOT_WIDTH, 3)
 
     plot_critical_difference_diagram(
-        mean_ranks.droplevel(hue),
+        mean_ranks,
         pvalue_crosstable,
         crossbar_props={"marker": "."},
     )
-    plt.title(f"{metric}\np = {omnibus_pvalue:.2e}", wrap=True)
+    plt.title(title, wrap=True)
     plt.tight_layout()
     plt.savefig(cdd_outpath.with_suffix(".png"))
     plt.savefig(
@@ -297,36 +354,48 @@ def make_visualizations(
     )
     plt.close()
 
-    order = (
-        mean_ranks
-        .sort_values()
-        .sort_index(level=hue, sort_remaining=False)
-        .index
-        .get_level_values(0)
-    )
+    # order = (
+    #     mean_ranks
+    #     .sort_values()
+    #     .sort_index(level=hue_col, sort_remaining=False)
+    #     .index
+    #     .get_level_values(0)
+    # )
+    means = data.groupby(estimator_col, observed=True)[metric].mean().sort_values()
+    order = means.index
 
     # plt.figure(figsize=(0.3 * n_groups + 1, 3))
     plt.figure()
-    set_axes_size(0.3 * n_groups + 1, 3)
+    set_axes_size(PLOT_WIDTH, 3)
 
     ax = sns.boxplot(
         data=data,
-        x=group_col,
+        x=estimator_col,
         y=metric,
-        hue=hue,
+        hue=hue_col,
         order=order,
         linecolor="k",
+        linewidth=1.5,
         showfliers=False,
         legend=False,
+        # showmeans=True,
+        showmeans=False,
+        meanprops={
+            "marker": "d",
+            "markerfacecolor": "C1",
+            "markeredgecolor": "w",
+            "markersize": 5,
+            "zorder": 100,
+        },
     )
     sns.stripplot(
         ax=ax,
         data=data,
-        x=group_col,
+        x=estimator_col,
         y=metric,
-        hue=hue,
+        hue=hue_col,
         order=order,
-        palette=["k"] * mean_ranks.index.get_level_values(hue).nunique(),
+        palette=["k"] * data[hue_col].nunique(),
         # color="black",
         marker="o",
         size=3,
@@ -338,31 +407,67 @@ def make_visualizations(
         for label, tick in zip(ax.get_xticklabels(), ax.get_xticks())
     }
 
-    if hue is None:
+    if hue_col is None:
         plot_insignificance_bars(
             positions=positions,
             sig_matrix=pvalue_crosstable,
         )
     else:
         ystart = ax.get_ylim()[1]
-        for _, hue_group in data.groupby(hue)[group_col]:
+        for _, hue_col_group in data.groupby(hue_col, observed=True)[estimator_col]:
             # Some groups are dropped by iter_posthoc_comparisons due to missing folds
-            hue_group = list(set(hue_group) & set(pvalue_crosstable.index))
+            hue_col_group = list(set(hue_col_group) & set(pvalue_crosstable.index))
 
             plot_insignificance_bars(
                 positions=positions,
-                sig_matrix=pvalue_crosstable.loc[hue_group, hue_group],
+                sig_matrix=pvalue_crosstable.loc[hue_col_group, hue_col_group],
                 ystart=ystart,
             )
 
-    plt.xticks(rotation=45, ha="right")
-    plt.title(f"{metric}\np = {omnibus_pvalue:.2e}", wrap=True)
+    plt.title(title, wrap=True)
+    plt.xlabel("")
+    plt.ylabel("")
+    plt.xticks(rotation=45, ha="right", fontsize="large")
+    ax.xaxis.set_tick_params(width=1.5)
+    ax.yaxis.set_tick_params(width=1.5)
+
+    # Add "(mean)" label to each x label
+    # x_labels = [
+    #     label.get_text() + f" ({means[label.get_text()]:.2g})"
+    #     for label in ax.get_xticklabels()
+    # ]
+    # ax.set_xticklabels(x_labels)
+
+    # plt.ylim(bottom=plt.ylim()[0] - 0.1 * (plt.ylim()[1] - plt.ylim()[0]))
+    for axis in ["top", "bottom", "left", "right"]:
+        ax.spines[axis].set_linewidth(1.5)
+
+    for xtick in ax.get_xticks():
+        plt.annotate(
+            # xtick,
+            # plt.ylim()[0],
+            # means.iloc[xtick],
+            # f"{means.iloc[xtick]:.2f}",
+            f"{means.iloc[xtick]:.0f}",
+            # (xtick, plt.ylim()[0]),
+            (xtick, means.iloc[xtick]),
+            backgroundcolor="white",
+            size="small",
+            horizontalalignment="center",
+            verticalalignment="center",
+            bbox=dict(facecolor="white", edgecolor="k", pad=2, linewidth=1.5),
+            xycoords="data",
+            # xytext=(xtick, plt.ylim()[0]),
+            # annotation_clip=False,
+        )
+
     plt.tight_layout()
     plt.savefig(boxplot_outpath.with_suffix(".png"))
     plt.savefig(
         boxplot_outpath.with_suffix(".pdf"),
         transparent=True,
         bbox_inches="tight",
+        pad_inches=0.02,
     )
     plt.close()
 
@@ -386,7 +491,7 @@ def friedman_melted(data, *, index, columns, values):
         return result
 
     # Apply Friedman test for each result metric
-    result = pivot.T.groupby(level=0).apply(
+    result = pivot.T.groupby(level=0, observed=True).apply(
         lambda x: pd.Series(stats.friedmanchisquare(*(x.values.T))._asdict())
     )
 
@@ -414,8 +519,19 @@ def plot_everything(
     hue=None,
     sep="_",
     transpose_hue=False,
+    raise_missing=False,
 ):
-    df = pd.read_table(results_table_path)
+    # Read results table and sort runs by start time (necessary to select latest run)
+    df = (
+        pd.read_table(results_table_path)
+        .groupby(
+            ["estimator.name", "dataset.name"],
+            group_keys=False,
+            sort=False,
+            observed=True,
+        )
+        .apply(lambda g: g.sort_values("start"))
+    )
 
     df2 = df.loc[:, df.columns.str.startswith("results.")].dropna(axis=1, how="all")
     df2.columns = df2.columns.str.removeprefix("results.")
@@ -435,33 +551,47 @@ def plot_everything(
         ]
         metric_names &= set(df2.columns)
 
+    print(
+        "Original selection:"
+        + "\n  estimator_subset:\n  - "
+        + "\n  - ".join(estimator_subset or [])
+        + "\n  dataset_subset:\n  - "
+        + "\n  - ".join(dataset_subset or [])
+        + "\n  metric_subset:\n  - "
+        + "\n  - ".join(metric_subset or [])
+    )
+
     if df2.empty:
         raise ValueError(
             "No data selected. Please review the filter parameters specified:"
-            + "\n  estimator_subset:\n  - " + "\n  - ".join(estimator_subset or [])
-            + "\n  dataset_subset:\n  - " + "\n  - ".join(dataset_subset or [])
-            + "\n  metric_subset:\n  - " + "\n  - ".join(metric_subset or [])
+            + "\n  estimator_subset:\n  - "
+            + "\n  - ".join(estimator_subset or [])
+            + "\n  dataset_subset:\n  - "
+            + "\n  - ".join(dataset_subset or [])
+            + "\n  metric_subset:\n  - "
+            + "\n  - ".join(metric_subset or [])
         )
 
     # Determine estimator hue
     if hue == "prefix":
+        # If we intend to separate estimator from hue:
         # df2[["prefix", "hue"]] = df2.estimator.str.split(sep, n=1, expand=True)
-        df2["prefix"] = df2.estimator.str.split(sep, n=1).str[transpose_hue]
+        df2["hue"] = df2.estimator.str.split(sep, n=1).str[transpose_hue]
     elif hue == "suffix":
+        # If we intend to separate estimator from hue:
         # df2[["estimator", "hue"]] = df2.estimator.str.rsplit(sep, n=1, expand=True)
-        df2["suffix"] = df2.estimator.str.rsplit(sep, n=1).str[not transpose_hue]
+        df2["hue"] = df2.estimator.str.rsplit(sep, n=1).str[not transpose_hue]
     elif hue is not None:
-        df2[hue] = df.loc[df2.index, hue]
-        df2[hue] = df2[hue].fillna("none")
+        df2["hue"] = df.loc[df2.index, hue].fillna("none")
+        # To include hue in estimator name:
         new_estimator_names = df2["estimator"] + sep + df2[hue].astype(str)
         if transpose_hue:
-            df2[hue] = df2["estimator"]
+            df2["hue"] = df2["estimator"]
         df2["estimator"] = new_estimator_names
-    else:  # hue is None
+    else:  # hue_col is None
         df2["hue"] = "no_hue"  # HACK
-        hue = "hue"
 
-    # Drop duplicated runs (should be ordered by start time)
+    # Drop duplicated runs (here is why we ordered by start time)
     dup = df2.duplicated(["dataset", "fold", "estimator"], keep="last")
     if dup.any():
         warnings.warn(
@@ -470,61 +600,71 @@ def plot_everything(
         )
         df2 = df2[~dup]
 
-    max_estimators_per_dataset = df2.groupby("dataset").estimator.nunique().max()
+    # Convert to categorical for efficiency
+    df2[["dataset", "fold", "estimator", "hue"]] = df2[
+        ["dataset", "fold", "estimator", "hue"]
+    ].astype("category")
 
-    allsets_data = (
-        df2
-        # Consider only datasets with all the estimators
-        .groupby("dataset").filter(
-            lambda x: x.estimator.nunique() == max_estimators_per_dataset
+    # Generate cross-tabulation of estimator and dataset
+    crosstab = pd.crosstab(index=df2.estimator, columns=df2.dataset)
+    sns.heatmap(crosstab, annot=True)
+    plt.tight_layout()
+    main_outdir.mkdir(exist_ok=True, parents=True)
+    plt.savefig(main_outdir / "fold_counts.png")
+    plt.close()
+
+    # Remove folds with NaNs in any of the metrics
+    df2 = df2.groupby(
+        ["dataset", "fold"], group_keys=False, sort=False, observed=True
+    ).filter(has_no_nans)
+
+    available_estimators = set(df2.estimator.cat.categories)
+    available_datasets = set(df2.dataset.cat.categories)
+    available_metrics = set(df2.columns[df2.dtypes == float])
+
+    missing_estimators = set(estimator_subset or []) - available_estimators
+    missing_datasets = set(dataset_subset or []) - available_datasets
+    missing_metrics = set(metric_subset or []) - available_metrics
+
+    message = ""
+    if missing_estimators:
+        message += (
+            "\n  Missing estimators:\n  - "
+            + "\n  - ".join(missing_estimators)
+            + "\n  Available estimators:\n  - "
+            + "\n  - ".join(available_estimators)
         )
-    )
-    discarded_datasets = set(df2.dataset) - set(allsets_data.dataset)
-    if discarded_datasets:
-        fold_counts = pd.crosstab(df2.dataset, df2.estimator)
-        n_folds = fold_counts.max().max()
-        fold_counts = fold_counts.loc[
-            (fold_counts < n_folds).any(axis=1),
-            (fold_counts < n_folds).any(axis=0),
-        ]
+    if missing_datasets:
+        message += (
+            "\n  Missing datasets:\n  - "
+            + "\n  - ".join(missing_datasets)
+            + "\n  Available datasets:\n  - "
+            + "\n  - ".join(available_datasets)
+        )
+    if missing_metrics:
+        message += (
+            "\n  Missing metrics:\n  - "
+            + "\n  - ".join(missing_metrics)
+            + "\n  Available metrics:\n  - "
+            + "\n  - ".join(available_metrics)
+        )
+    if message:
+        if raise_missing:
+            raise ValueError(
+                "The following categories are missing from the data:" + message
+            )
         warnings.warn(
-            "The following datasets were not present for all estimators and"
-            " will not be considered for rankings across all datasets:"
-            f" {discarded_datasets}."
-            f" Runs with less than {n_folds=} are:\n{fold_counts}"
+            "The following categories were missing from the data and were"
+            " removed from the analysis:" + message
         )
-
-    max_folds_per_estimator = df2.groupby(["dataset", "estimator"]).fold.nunique().max()
 
     allsets_data = (
-        allsets_data
-        # Consider only estimators with all the CV folds
-        .groupby(["dataset", "estimator"]).filter(
-            lambda x: x.fold.nunique() == max_folds_per_estimator
-        )
-    )
-
-    discarded_runs = set(df2[["dataset", "estimator"]].itertuples(index=False)) - set(
-        allsets_data[["dataset", "estimator"]].itertuples(index=False)
-    )
-    if discarded_runs:
-        print(
-            "The following runs were not present for all CV folds and"
-            " will not be considered for rankings across all datasets:"
-            f" {discarded_runs}"
-        )
-
-    print("Selected estimators for all sets:", *allsets_data.estimator.unique(), sep="\n  * ")
-    print("Selected datasets for all sets:", *allsets_data.dataset.unique(), sep="\n  * ")
-    print("Selected metrics:", *metric_names, sep="\n  * ")
-
-    allsets_data = (
-        allsets_data.set_index(["dataset", "fold", "estimator", hue])  # Keep columns
-        .groupby(level=[0, 1])  # groupby(["dataset", "fold"])
-        .rank(pct=True)  # Rank estimators per fold
-        .groupby(level=[0, 2, 3])  # groupby(["dataset", "estimator", hue])
-        .mean()  # Average ranks across folds for each estimator
-        .rename_axis(index=["fold", "estimator", hue])  # 'dataset' -> 'fold'
+        df2.set_index(["dataset", "fold", "estimator", "hue"])  # Keep columns
+        .groupby(level=["dataset", "fold"], observed=True)  # Select estimators
+        .rank(pct=True)  # Rank scores across estimators for each fold
+        .groupby(level=["dataset", "estimator", "hue"], observed=True)  # Select folds
+        .mean()  # Average across folds the ranks of each estimator
+        .rename_axis(index={"dataset": "fold"})
         .reset_index()
         .assign(dataset="all_datasets")
     )
@@ -532,7 +672,7 @@ def plot_everything(
     df2 = pd.concat([allsets_data, df2], ignore_index=True, sort=False)
 
     # Calculate omnibus Friedman statistics per dataset
-    friedman_statistics = df2.groupby("dataset").apply(
+    friedman_statistics = df2.groupby("dataset", observed=True).apply(
         friedman_melted,
         columns="fold",
         index="estimator",
@@ -544,15 +684,13 @@ def plot_everything(
         method="fdr_bh",
     )[1]
 
-    main_outdir.mkdir(exist_ok=True, parents=True)
     friedman_statistics.to_csv(main_outdir / "test_statistics.tsv", sep="\t")
 
-    df2 = df2.dropna(axis=1, how="all")  # FIXME: something is bringing nans back
-
     table_lines = []
+    grouped = df2.groupby("dataset", sort=False, observed=True)
 
     # Make visualizations of pairwise estimator comparisons.
-    for dataset_name, dataset_group in df2.groupby("dataset"):
+    for dataset_name, dataset_group in tqdm(grouped, total=grouped.ngroups):
 
         # Existence is assured by make_visualizations()
         outdir = main_outdir / dataset_name
@@ -560,13 +698,12 @@ def plot_everything(
         for metric, pvalue_crosstable, mean_ranks in iter_posthoc_comparisons(
             dataset_group,
             y_cols=metric_names,
-            group_col="estimator",
-            block_col="fold",  # different from the above will all sets
+            estimator_col="estimator",
+            fold_col="fold",  # different from the above will all sets
             # p_adjust="holm",
             p_adjust="fdr_bh",
-            hue=hue,
+            hue_col="hue",
         ):
-            print(f"  ==> Processing {dataset_name=} {metric=}")
             omnibus_pvalue = friedman_statistics.loc[dataset_name, metric].pvalue
 
             make_visualizations(
@@ -574,15 +711,15 @@ def plot_everything(
                 metric=metric,
                 pvalue_crosstable=pvalue_crosstable,
                 mean_ranks=mean_ranks,
-                group_col="estimator",
+                estimator_col="estimator",
                 outdir=outdir,
                 omnibus_pvalue=omnibus_pvalue,
-                hue=hue,
+                hue_col="hue",
             )
             table_line = make_text_table(
                 data=dataset_group,
-                block_col="fold",
-                group_col="estimator",
+                fold_col="fold",
+                estimator_col="estimator",
                 metric=metric,
                 sig_matrix=pvalue_crosstable,
                 positions=mean_ranks,
@@ -603,16 +740,16 @@ def plot_everything(
     table.to_csv(main_outdir / "comparison_table.tsv", sep="\t")
     table.to_html(main_outdir / "comparison_table.html", escape=False)
     (
-        table
-        .apply(lambda x: x.str.replace(r"<b>(.*?)</b>", r"\\textbf{\1}", regex=True))
-        .to_latex(main_outdir / "comparison_table.tex")
+        table.apply(
+            lambda x: x.str.replace(r"<b>(.*?)</b>", r"\\textbf{\1}", regex=True)
+        ).to_latex(main_outdir / "comparison_table.tex")
     )
 
 
 def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        description="Generate statistical comparisons between run results."
+        description="Generate statistical comparisons between run results.",
     )
     parser.add_argument(
         "--outdir",
@@ -664,8 +801,14 @@ def main():
     parser.add_argument(
         "--transpose-hue",
         action="store_true",
+        help=("Transpose hue"),
+    )
+    parser.add_argument(
+        "--raise-missing",
+        action="store_true",
         help=(
-            "Transpose hue"
+            "Raise an error if any of the specified estimators, datasets, or"
+            " metrics are not found in the results table."
         ),
     )
 
@@ -680,6 +823,7 @@ def main():
         main_outdir=args.outdir,
         sep=args.sep,
         transpose_hue=args.transpose_hue,
+        raise_missing=args.raise_missing,
     )
 
 

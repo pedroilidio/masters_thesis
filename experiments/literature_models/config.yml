@@ -129,9 +129,9 @@ aliases:
 runs:
   - wrapper:
     - null
-    - drop50
-    - drop70
-    - drop90
+    # - drop50
+    # - drop70
+    # - drop90
     # - drop20
     # - drop30
     # - drop40
@@ -139,17 +139,17 @@ runs:
     # - drop80
     dataset:
     - nuclear_receptors
-    - gpcr
-    - davis
-    - ion_channels
-    - enzymes
-    - ern
-    - srn
-    - lncrna
-    - mirna
-    - kiba
+    # - gpcr
+    # - davis
+    # - ion_channels
+    # - enzymes
+    # - ern
+    # - srn
+    # - lncrna
+    # - mirna
+    # - kiba
     estimator:
-    - lmo_rls
+    # - lmo_rls
     - blmnii_rls
     - blmnii_svm
     # - dthybrid
@@ -157,60 +157,3 @@ runs:
     # - bxt_sgso_us
     # - mlp
     active: true
-
-  # - wrapper:
-  #   - null
-  #   - drop50
-  #   - drop70
-  #   - drop90
-  #   # - drop20
-  #   # - drop30
-  #   # - drop40
-  #   # - drop60
-  #   # - drop80
-  #   dataset:
-  #   - nuclear_receptors
-  #   - gpcr
-  #   - davis
-  #   - ion_channels
-  #   - enzymes
-  #   - ern
-  #   - srn
-  #   - lncrna
-  #   - mirna
-  #   - kiba
-  #   estimator:
-  #   - dnilmf
-  #   - nrlmf
-  #   - bxt_gso
-  #   - bxt_gmosa
-  #   - bxt_gmo
-  #   - brf_lmo
-  #   active: true
-
-  # - wrapper:
-  #   - nrlmf_y_reconstruction
-  #   - nrlmf_y_reconstruction_drop50
-  #   - nrlmf_y_reconstruction_drop70
-  #   - nrlmf_y_reconstruction_drop90
-  #   # - drop20
-  #   # - drop30
-  #   # - drop40
-  #   # - drop60
-  #   # - drop80
-  #   dataset:
-  #   - nuclear_receptors
-  #   - gpcr
-  #   - davis
-  #   - ion_channels
-  #   - enzymes
-  #   - ern
-  #   - srn
-  #   - lncrna
-  #   - mirna
-  #   - kiba
-  #   estimator:
-  #   - bxt_gso
-  #   - bxt_gmosa
-  #   active: true
-
