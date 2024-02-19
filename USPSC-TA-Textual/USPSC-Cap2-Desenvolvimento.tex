@@ -9,6 +9,10 @@
 \chapter{Development}
 \label{cap:development}
 
+% TEXTWIDTH: \printinunitsof{in}\prntlen{\textwidth}
+
+% COLWIDTH: \printinunitsof{in}\prntlen{\columnwidth}
+
 \section{Definitions}
 \label{sec:definitions}
 
@@ -1810,7 +1814,9 @@ An alternative to avoid considering all partitioning options and greatly reduce 
 \subsection{Split quality criteria and impurity metrics}
 \label{sec:criteria}
 
-In order to compare and select the best splitting rules at each node, a split quality criterion must be defined. The quality $\Delta I$ of a split is commonly framed as the decrease of an impurity metric calculated over the subsets of training labels (\autoref{eq:quality}). This decrease is taken for the combined impurities of the generated children nodes (\autoref{eq:datasplit}) relative to their parent's impurity. All impurities are normalized by the size of each partition relative to the total number of training samples ($|Y_\text{root}|_i$), restricting the effect of nodes with less data that could introduce spurious variations of impurity. Notice that $|Y_\text{node}|=|Y_\text{left}|+|Y_\text{right}|$.
+In order to compare and select the best splitting rules at each node, a split quality criterion must be defined. The quality $\Delta I$ of a split is commonly framed as the decrease of an impurity metric calculated over the subsets of training labels (\autoref{eq:quality}). This decrease is taken for the combined impurities of the generated children nodes (\autoref{eq:datasplit}).
+%relative to their parent's impurity.
+All impurities are normalized by the size of each partition relative to the total number of training samples ($|Y_\text{root}|_i$), restricting the effect of nodes with less data that could introduce spurious variations of impurity. Notice that $|Y_\text{node}|=|Y_\text{left}|+|Y_\text{right}|$.
 % TODO: notice that |Y_a|_i / |Y_b|_i == |Y_a| / |Y_b|
 %
 \begin{equation}
@@ -2719,7 +2725,7 @@ Statistical testing further shows that the empirical time complexity of the prop
 
 % The value slighly above 3 for bdt\_gso also do not defy expectations, since the theoretical analises were based on the assumption of balanced trees and a small increase in tree depth is expected in real scenarios.
 
-The slightly lower slopes for the ExtraTrees in comparison both with the BDTs and with the theoretical complexities are also expected, since the bottleneck calculation for these models in the asymptotic regime is the search for the minimum and maximum values of each feature in each node (lines \ref{}), which can be done much faster than the search for the best split employed by the greedy decision trees (\autoref{alg:find_best_split}), eventhough both procedures have the same order of asymptotic complexity. As such, much larger datasets would be required to observe the asymptotic behavior of the ExtraTrees.
+The slightly lower slopes for the ExtraTrees in comparison both with the BDTs and with the theoretical complexities are also expected, since the bottleneck calculation for these models in the asymptotic regime is the search for the minimum and maximum values of each feature in each node (lines \ref{}), which can be done much faster than the search for the best split employed by the greedy decision trees (\autoref{alg:find_best_split}), even though both procedures have the same order of asymptotic complexity. As such, much larger datasets would be required to observe the asymptotic behavior of the ExtraTrees.
 In spite of that, the empirical complexity of \texttt{bdt\_gso} is still observed to be highly significantly lower than that of \texttt{bxt\_gmo}, validating once more the prediction that \texttt{bdt\_gso} should present faster training times than \texttt{bxt\_gmo} on sufficiently large datasets.
 
 \begin{figure}[h]
@@ -2757,134 +2763,10 @@ To assess the impact of global single-output optimizations in bipartite decision
     \item \textbf{gso}: Optimized implementation of global single output trees (Section \ref{}).
 \end{itemize}
 
-While no significant divergence was measured among the GSO models using the entirety of the training data, undersampling revealed to significantly degrade the predictive performance of both forests in terms of AUPR and MCC (Figure \ref{fig:cdd_gso_models}), eventhough it is arguably the most common procedure when dealing with this kind of data \cite{}.
+While no significant divergence was measured among the GSO models using the entirety of the training data, undersampling revealed to significantly degrade the predictive performance of both forests in terms of AUPR and MCC (Figure \ref{fig:cdd_gso_models}), even though it is arguably the most common procedure when dealing with this kind of data \cite{}.
 
 On the other hand, AUROC is significantly improved by the undersampling procedure, which is most likely an artifact of the highly imbalanced nature of the present data, as explained as follows. The models grown on the undersampled datasets are naturally the most likely to assign positive labels to new interactions in general, improving TPR at the expense of also increasing FPR. However, since negative labels greatly outnumbers positive labels in the test sets of our current scenario, an increase in FPR impacts a much larger number of predictions than the same increase in TPR. In spite of that, AUROC equally treats TPR and FPR, so that the impact of a high FPR is underestimated. As such, AUROC results could be deemed as unrepresentative of model performance in this setup.
 
-% \begin{figure*}
-%     \centering
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/figures/%
-%             estimator_name/enzymes__LT_roc_auc.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/figures/%
-%             estimator_name/enzymes__LT_average_precision.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/figures/%
-%             estimator_name/enzymes__LT_matthews_corrcoef.pdf
-%         }
-%     \end{subfigure}
-% 
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/figures/%
-%             estimator_name/enzymes__TL_roc_auc.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/figures/%
-%             estimator_name/enzymes__TL_average_precision.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/figures/%
-%             estimator_name/enzymes__TL_matthews_corrcoef.pdf
-%         }
-%     \end{subfigure}
-% 
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/figures/%
-%             estimator_name/enzymes__TT_roc_auc.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/figures/%
-%             estimator_name/enzymes__TT_average_precision.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/figures/%
-%             estimator_name/enzymes__TT_matthews_corrcoef.pdf
-%         }
-%     \end{subfigure}
-%     \caption{Comparison between GSO models on the Enzymes dataset.}
-%     \label{fig:box_\text{SGSO}so_models_enzymes}
-% \end{figure*}
-% 
-% 
-% \begin{figure*}
-%     \centering
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/statistical_comparisons/%
-%             all_datasets/critical_difference_diagrams/LT_roc_auc.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/statistical_comparisons/%
-%             all_datasets/critical_difference_diagrams/LT_average_precision.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/statistical_comparisons/%
-%             all_datasets/critical_difference_diagrams/LT_matthews_corrcoef.pdf
-%         }
-%     \end{subfigure}
-% 
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/statistical_comparisons/%
-%             all_datasets/critical_difference_diagrams/TL_roc_auc.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/statistical_comparisons/%
-%             all_datasets/critical_difference_diagrams/TL_average_precision.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/statistical_comparisons/%
-%             all_datasets/critical_difference_diagrams/TL_matthews_corrcoef.pdf
-%         }
-%     \end{subfigure}
-% 
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/statistical_comparisons/%
-%             all_datasets/critical_difference_diagrams/TT_roc_auc.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/statistical_comparisons/%
-%             all_datasets/critical_difference_diagrams/TT_average_precision.pdf
-%         }
-%     \end{subfigure}
-%     \begin{subfigure}{0.32\textwidth}
-%         \includegraphics[width=\textwidth]{
-%             experiments/gso_optimization/statistical_comparisons/%
-%             all_datasets/critical_difference_diagrams/TT_matthews_corrcoef.pdf
-%         }
-%     \end{subfigure}
-%     \caption{Percentile rankings of prediction scores for each global single output strategy.}
-%     \label{fig:cdd_gso_models}
-% \end{figure*}
 
 % TODO: talk about pairwise CV
 
@@ -2905,10 +2787,11 @@ In conclusion, the proposed approach confidently enables the use of the entire t
 %TODO: why we did not use BGSO here?
 
 In this work we propose a different prototyping strategy to determine the output value of each leaf in a GMO decision tree, taking the similarity matrices of our use cases into consideration (\autoref{sec:prototype}).
-
-We here compare such strategies, building BXT and BRF models for every option. The minimum rows per leaf and minimum columns per leaf were both set to 5, ensuring a minimum number of co-leaf samples of each domain to be considered in a weighted-neighbors fashion during evaluation (Section \ref{}).
-
-To take the effect of the early-stopping criterion into account (minimum number of samples in each leaf), we also include forests of fully-grown trees in the comparison. The compared models are described below.
+%
+We here compare such strategies, building BXT and BRF models for every option. The minimum rows per leaf and minimum columns per leaf were both set to 5, ensuring that at least 5 samples of each domain are considered when calculating the prototype values.
+%in a weighted-neighbors fashion during evaluation (Section \ref{}).
+%
+To observe the effect of this early-stopping criterion by itself, we also include forests of fully-grown trees in the comparison. The compared models are described below.
 
 \begin{itemize}
     \item \textbf{\texttt{gmosa}:} proposed by \textcite{pliakos2018global}, the output of each leaf is the average of the labels of the learned samples that reach that leaf (\autoref{eq:prototype1}).
@@ -2921,42 +2804,55 @@ To take the effect of the early-stopping criterion into account (minimum number 
 
 %As shown by \autoref{fig:pred_weights_brf} and Table \ref{}, BXT models show an overall superior performance in comparison to BRF models, with each BXT model scoring significantly higher than its BRF counterpart with the same prediction weights. Furthermore, the weighted GMO predictions seem to prevail relative to the leaf-wise prototype GMOSA (Section \ref{}). Specifically, bxt\_square significantly outperforms all other bipartite forests except for bxt\_precomputed, both in terms of AUROC and average precision (AUPR) in the TT sets (Figure \ref{}).
 
-The results for BRF (\autoref{fig:pred_weights_brf}) and BXT (\autoref{fig:pred_weights_bxt}) were similar. In all cases except LT+TL average precision, using the square of the similarities to weight the labels in each leaf resulted in significantly better scores than all other options. For the LT+TL average precision score, growing the decision tree to its maximal size emerged as the best strategy, followed by \texttt{uniform}, the original proposal by \textcite{pliakos2018global} of averaging only the 
-outputs of the learned samples (known from the training set) in each leaf. Another exception occurs for the LT+TL AUROC score of BRF, in which case the \texttt{uniform} strategy could not be statistically distinguished from the squared-similarities weighting approach, with both still displaying the best performances against the remaining models.
+The results for BRF (\autoref{fig:pred_weights_brf}) and BXT (\autoref{fig:pred_weights_bxt}) were similar. In all cases except LT+TL average precision, using the square of the similarities to weight the labels in each leaf resulted in in the best scores. For the LT+TL average precision score, growing the decision tree to its maximal size was the best strategy, followed by \texttt{uniform}, the original proposal by \textcite{pliakos2018global} of averaging only the 
+outputs of the learned samples (known from the training set) in each leaf. With the exception of the LT+TL AUROC metric for BXT, the mentioned winning models were statistically distinguished from all the remaining estimators. For LT+TL AUROC, the superiority of \texttt{square} could not be attested when compared to the \texttt{uniform} strategy.
 
-The fully-grown versions of both forest algorithms are shown to be especially advantageous when considering the LT+TL average precision, even more so regarding BXT, where their superiority is remarkably clear (\autoref{fig:pred_weights_bxt}). This suggests that building trees to their maximum depth is the best strategy for tackling mixed train-test tasks such as drug repositioning~\cite{}, even in comparison to the weighted GMO predictions proposed by \textcite{pliakos2018global} and by the present work to approach these scenarios. 
+The fully-grown versions of both forest algorithms are shown to be especially advantageous when considering the LT+TL average precision. This suggests that building trees to their maximum depth is the best strategy for learning tasks in which
+%
+\begin{enumerate}
+    \item one of the domains is fixed, with the final goal being to model how new instances will bind to this known set of entities and
+    \item controlling the number of false positives is equally important to correctly ranking the positive interactions.  % TODO: review
+\end{enumerate}
 
-The maximum depth, however, may impact the model's generalization ability, since the same superiority is not shown for the TT average precision score, where both entities of the pair being predicted are unknown to the model. Our squared-similarity weights seemingly display the best generalization in this regard.
+Examples that satisfy the first condition are drug repositioning~\cite{} or dyadic prediction~\cite{}. % TODO check
+
+We propose that this behaviour results from the ability of a fully-grown tree to independently consider the labels of each learned instance when calculating the prototype, while the methods using weighted averages ivariably mix the labels of a pool of neighbors in each leaf. This hypothesis is supported by the fact that the second-best model regarding LT+TL average precision is the \texttt{uniform} strategy, which also uses the labels of individual learned samples to generate the predictions. The hypothesis alone, however, do not explain the superiority of the deeper trees over the \texttt{uniform} weights. In this case, the larger tree depth is likely beneficial through i) an increase in the predictive power of each individual tree, and/or ii) an increase in tree diversity, both of which would improve the ensemble's performance as discussed in \autoref{sec:ensembles}. We let to future work the more specific investigation of these effects.
+
+%The fact the opposite result is found in the TT scenario
+On the other hand, \texttt{full} and \texttt{uniform} show notable inferior performance in the TT evaluation settings, suggesting that the weighting strategy used by the other prototype functions could be an important technique to improve generalization.
+
+%The maximum depth, however, may impact the model's generalization ability, since the same superiority is not shown for the TT average precision score, where both entities of the pair being predicted are unknown to the model. Our squared-similarity weights seemingly display the best generalization in this regard.
 
 % TODO: why fully grown is not that good for AUROC
 %The full models are also seemingly affected
 
 % FIXME: gmosa vs gmo uniform on TT: indicates there are duplicated samples in the dataset, so training samples are leaking to test set.
-We then select the squared-similarities model for the downstream analyses, keeping 5 by 5 as the minimum leaf partition size. While GMOSA will also be further investigated, the leaf size constraint will be dismissed, generating fully-grown trees for this strategy hereafter.
+We then select the squared weighting strategy and the fully grown trees to be further investigated in the downstream analyses. %, keeping 5 by 5 as the minimum leaf partition size besides.
+
 
 \begin{figure*}[tbh]
     \centering
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{
+        \includegraphics{
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{
+        \includegraphics{
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/LT+TL_average_precision.pdf
         }
     \end{subfigure}
 
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{
+        \includegraphics{
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/TT_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{
+        \includegraphics{
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/TT_average_precision.pdf
         }
@@ -3007,7 +2903,7 @@ We then select the squared-similarities model for the downstream analyses, keepi
 \subsection{Comparison between adaptation strategies}
 \label{sec:adaptation_comparison}
 
-Still restricted to forest estimators, we compare each of the described approaches for adapting models to bipartite data (\autoref{sec:common_approaches}, \autoref{sec:bipartite_trees} and \autoref{sec:bgso_trees}). The suffixes in the model names of this section indicating the employed bipartite adaptations are briefly described below.
+We now compare each of the described approaches for adapting decision forests to bipartite data (\autoref{sec:common_approaches}, \autoref{sec:bipartite_trees} and \autoref{sec:bgso_trees}). The suffixes in the model names of this section indicating the employed bipartite adaptations are briefly described below.
 
 % TODO: contribution: ensembles of gmo (not gmosa) were nevel built!
 
