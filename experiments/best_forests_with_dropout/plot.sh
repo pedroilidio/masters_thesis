@@ -14,19 +14,22 @@ METRICS=(
     "TT_roc_auc"
 )
 ESTIMATORS=(
-    "nrlmf"
+    # "nrlmf"
     "bxt_gso"
     # "bxt_gmo"
-    "bxt_gmosa"
+    # "bxt_gmosa"
     # "bxt_gso_1k"
     # "bxt_gmosa_1k"
     "bxt_gso__nrlmf"
     "bxt_gmosa__nrlmf"
-    "bxt_gmo__nrlmf"  # FIXME
+    "bxt_gmo__nrlmf"
+    "brf_gmo__nrlmf"
     "brf_lmo"
-    "ss_bxt_gso__md_size"
-    "ss_bxt_gso__ad_fixed"
-    "ss_bxt_gso__mse_density"
+    "md_size"
+    "md_fixed"
+    "ad_size"
+    "ad_fixed"
+    "mse_density"
 )
 
 # gmosa_1k

@@ -22,16 +22,16 @@ ESTIMATORS=(
     "blmnii_rls"
     "blmnii_svm"
     "dthybrid"
-    "bxt_sgso_us"
+    # "bxt_sgso_us"
     # "bxt_gso_1k"
     # "bxt_gmosa_1k"
     "bxt_gmosa__nrlmf"
     "bxt_gso__nrlmf"
     "bxt_gmo__nrlmf"
-    "brf_lmo"
-    # "ss_bxt_gso__md_size"  # XXX
-    # "ss_bxt_gso__ad_fixed"  # XXX
-    # "ss_bxt_gso__mse_density"  # XXX
+    # "brf_lmo"
+    # "ss_bxt_gso__md_size"
+    # "ss_bxt_gso__ad_fixed"
+    # "ss_bxt_gso__mse_density"
 )
 
 echo "*** NO DROP ***"

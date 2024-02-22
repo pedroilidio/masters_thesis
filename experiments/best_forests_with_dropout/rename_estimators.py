@@ -25,6 +25,11 @@ def rename_estimators(input_path: Path):
         "bxt_gmo__25": "bxt_gmo",
         "bxt_gmo__75": "bxt_gmo",
         "brf_gmo__75": "brf_gmo",
+        "ss_bxt_gso__md_size": "md_size",
+        "ss_bxt_gso__md_fixed": "md_fixed",
+        "ss_bxt_gso__ad_size": "ad_size",
+        "ss_bxt_gso__ad_fixed": "ad_fixed",
+        "ss_bxt_gso__mse_density": "mse_density",
     }
 
     # Rename estimators
