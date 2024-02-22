@@ -2918,11 +2918,26 @@ We now compare each of the described approaches for adapting decision forests to
 
 All the global models were built with 100 trees. For SLMO, each of the four forests used 50 trees, while for LSO 50 trees were used for each row or column of the interaction matrix.
 
-Regarding BRF models, SLMO and GMO reveal themselves as the top-scoring adaptations. In the LT+TL setting, SLMO significantly outperforms all other models. In the TT test sets, SLMO was the second best-ranked model, significantly surpassing all models except LSO, SGSOUS and GMO. GMO, in turn, outshines all the remaining models in the TT setting.
+In the LT+TL AP evaluation setting, the pattern observed in \autoref{sec:prototype_comparison} again emerges: the label averaging strategy employed by GMO performs considerably worse in comparison to forests that separately consider each known instance. In particular, the SLMO and SLSO adaptations yield the clear best BRF models in terms of LT+TL AP, and these adaptations interpret each instance as a separate output to be predicted. Among the local adaptations, SLMO significantly ouperforms SLSO. SLSO treats each training instance as a completely independent task, building a separate forests for each row and column of the interaction matrix. As such, the previous result shows that this complete independence is not desirable for the learning problems under study, and exploring label correlations between instances of the same domain, as performed by SLMO, is beneficial. This result could partially be a consequence of the very sparse nature of our problems: if the interaction information of each instance is limited, it becomes advantageus to aggregate information from other instances with correlated interactomes. We then speculate that the advantage of SLMO over SLSO could become less prominent once the number of known interactions per instance increases and more data are available for training.
 
-The GMO approach is also highlighted by the results of BXT ensembles, being undisputed for the LT+TL AUROC and TT scores. Interestingly, for the LT+TL average precision score, its mean percentile ranking was the second to last, being only better than SGSOUS. These results corroborate the idea discussed in \autoref{sec:prototype_comparison} that reaching the maximum tree depth is the best strategy for LT+TL, while enforcing larger leaves and label weighting seems to improve generalization to unseen instances.
+Still considering LT+TL AP but focusing on BXT models instead, we notice that SLMO loses the advantage to the fully-grown bipartite trees GMO and GSO. A possible explanation comes from the fact that local approaches yield shallower trees, and much more randomized trees could be required to achieve comparable performance. In more detail, first notice that the individual performance of each tree in a BXT forest is lower than that of a tree in a BRF. Thus, a BXT ensemble requires a larger number of trees to reach satisfactory performance. Additionally, if the trees are shallow, they tend to be less representative of the training data (each tree node brings a little more information on the dataset).
+Even more trees then should be required to compensate the randomness of each individual. Finally, building a forest locally as in SLMO or SLSO results that each tree is trained on a much smaller number of samples in comparison to considering each dyad as a separate instance. Therefore, local approaches generate smaller and less representative trees. We then suggest that the advantage of SLMO could also manifest for BXT estimators if the number of trees in the ensemble were to be increased.
 
-% TODO advantage of BGSOUS in AUROC
+For both BXT and BRF in all the TT settings, the GMO model significantly outperforms the other estimators. GMO is also the best model in the LT+TL AUROC setting when comparing BXTs and the second best for BRFs. This reinforces the findings of \autoref{sec:prototype_comaprison} suggesting that larger leaves and label weighting seems to improve generalization to unseen instances.
+%
+We also highlight SLMO as a prominent strategy for BRFs under TT AUROC and TT AP, being the second best model in both cases.
+
+The SGSO strategy employing undersampling of negative annotations performed consistently worse than the others under the AP metric. Conversely, it was the second best BXT model in both LT+TL and TT AUROC settings, while surpassing BRF GMOSA also under both AUROC test sets. The explanation would be that the undersampling procedure naturally causes the model to equally prioritize the positive and negative labels, which matches the AUROC's behaviour of equally treating TPR and FPR.
+More specifically, these models tend to produce a larger number of false positives since they are unaware of the large label imabalance of our test sets. While this substantially affects AP, the AUROC metric is agnostic to the label imbalance (\autoref{sec:prediction_metrics}), being much more forgiving with the number of false positives given the large total number of negative labels in the test sets.
+
+% TODO sgso us is popular but not good
+
+We select LMO, GMO, GSO, and GMOSA to be further analysed in the next section.
+
+% TODO: relationship with previous work
+
+% The GMO approach is also highlighted by the results of BXT ensembles, being undisputed for the LT+TL AUROC and TT scores. Interestingly, for the LT+TL average precision score, its mean percentile ranking was the second to last, being only better than SGSOUS. These results corroborate the idea discussed in \autoref{sec:prototype_comparison} that reaching the maximum tree depth is the best strategy for LT+TL, 
+
 % TODO training times
 
 % To avoid differences in random sampling when using the naive GSO adapter versus the natively bipartite GSO tree, no bootstraping was applied to any forest, providing all trees with the whole training samples space. To still ensure randomization in random forest estimators, the maximum features parameter was set to $0.5$, meaning that each tree in a random forest was trained on a random subset of half the features from each sample domain. Due to implementation details, this means the naive GSO forests will sample features slightly differently: they will pick half the features from the whole feature space combined, while the natively bipartite GSO forests will ensure half the features from each sample domain is selected. This is not expected to have a significant impact on the results, given that the total number of features is especially high in the present scenario, where similarity matrices are being employed. 
@@ -3008,18 +3023,37 @@ The GMO approach is also highlighted by the results of BXT ensembles, being undi
 
 It was previously suggested that employing logistic matrix factorization to create a denser representation of the interaction matrix and using this representation as the training data for a BXT forest could improve their performance on DTI datasets \cite{Pliakos_2020}. To test this hypothesis, we compare the bipartite forests cross-validation scores with and without the interaction matrix reconstruction step. As done by \cite{Pliakos_2020}, the reconstruction step was performed using neighborhood-regularized logistic matrix factorization (NRLMF)\cite{}.
 
+%\subsubsection{Hyperparameter selection}
+%\subsubsection{Experimental settings}
 To select hyperparameters for the NRLMF algorithm, we performed a randomized search in which 100 different combinations of hyperparameters were evaluated in terms of their resulting mean squared error over a (nested) bipartite 5-fold diagnonal cross-validation. The best combination found in the inner CV loop was then used to reconstruct the interaction matrix of each outer CV fold, and the resulting matrices were used as the training data for the bipartite forests. Note that a single forest was built by outer CV fold, so that the NRLMF hyperparameter seach was performed independently to the downstream forest performance. The hyperparameters \texttt{lambda\_rows}, \texttt{lambda\_cols}, \texttt{alpha\_cols}, \texttt{alpha\_cols}, and \texttt{learning\_rate} were all independently sampled from a log-uniform distribution bounded by $\frac{1}{4}$ and $2$. the number of latent vector components was set to be equal among both axes, and chosen between 50 and 100. The number of neighbors was randomly selected as 3, 5 or 10 in each iteration, and the maximum number of optimization steps was always set to 100.  % TODO check
 
-The results for BRF and BXT are shown by figures \ref{fig:brf_y_reconstruction} and \ref{fig:bxt_y_reconstruction}, respectively. The \texttt{nrlmf} suffix to a model indicates that it was constructed on the output of NRLMF for each fold. The interaction matrix reconstruction step is shown to be especially beneficial in terms of ROC AUC scores, increasing this metric for almost all forest algorithms investigated. The only exceptions were \texttt{bxt\_gmo} and \texttt{brf\_gmo} in LT+TL ROC AUC. As discussed in \autoref{sec:prediction_metrics}, ROC AUC is characterized by leniency towards false positives, which explains the advantage posed by NRLMF in this setting, given that NRLMF explicitly defines a parameter to prioritize positive interactions. In accordance with previous investigations~\cite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting,pliakos2020drugtarget}, this parameter was set to 5, meaning that the loss function employed in the gradient descent procedure of NRLMF is weighted 5 times more for positive interactions than for negative interactions, as if 5 copies of each positive interaction were present in the training set.
+The results for BRF and BXT are shown by figures \ref{fig:brf_y_reconstruction} and \ref{fig:bxt_y_reconstruction}, respectively. The \texttt{nrlmf} suffix to a model indicates that it was constructed on the output of NRLMF for each fold.
 
-Even so, the \texttt{bxt\_gmo} and \texttt{brf\_gmo} models employing our squared similarities output weighting (sections \autoref{sec:prototype} and \autoref{sec:prototype_comparison}) are placed second in their corresponding TT ROC AUC results, both significantly outperforming all NRLMF-combined models except for their own versions, \texttt{bxt\_gmo\_\_nrlmf} and \texttt{brf\_gmo\_\_nrlmf}.
-\texttt{brf\_gmo} was also the top performing model in terms of TT average precision, significantly surpassing \texttt{brf\_gso\_\_nrlmf} and \texttt{brf\_gmosa\_\_nrlmf}.
+The interaction matrix reconstruction step is shown to be especially beneficial in terms of ROC AUC scores, improving this score for almost all forest algorithms investigated. The only exceptions were \texttt{bxt\_gmo} and \texttt{brf\_gmo} in LT+TL ROC AUC, where the improvement is still observed but not statistically significant. As discussed in \autoref{sec:prediction_metrics}, ROC AUC is characterized by leniency towards false positives, which explains the advantage posed by NRLMF in this setting: NRLMF explicitly defines a parameter to prioritize outputting positive interactions (\autoref{sec}). % TODO
+In accordance with previous investigations~\cite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting,pliakos2020drugtarget}, this parameter was set to 5, meaning that the loss function employed in the gradient descent procedure of NRLMF is weighted 5 times more for positive interactions than for negative interactions, as if 5 copies of each positive interaction were present in the training set.
 
-The advantage of NRLMF under the average precision metric is less clear. In the LT+TL average precision setting for BXT (\autoref{fig:bxt_y_reconstruction}), it still results in scoring improvements for all models except \texttt{bxt\_gmo}. Interestingly, the scores for \texttt{bxt\_gmo}, \texttt{brf\_gmo}, and \texttt{brf\_lmo} are instead significantly reduced by combination with the matrix factorization technique in LT+TL average precision, contrary to the overall tendency. For \texttt{brf\_gso} in the same setting, the results are statistically distinguished, but the effect is not clear: \texttt{brf\_gso} displays higher mean percentile rankings of the score, while \texttt{brf\_gso\_\_nrlmf} has the higher median value for this metric.
-Other models such as \texttt{brf\_gmosa} for LT+TL average precision and \texttt{brf\_gmo}, \texttt{bxt\_gmo} and \texttt{bxt\_lmo} for TT average precision are not significantly affected by the reconstruction step.
+Even so, the \texttt{bxt\_gmo} and \texttt{brf\_gmo} models employing our squared similarities output weighting (sections \autoref{sec:prototype} and \autoref{sec:prototype_comparison}) are placed second in their corresponding TT ROC AUC results, both significantly outperforming all NRLMF-combined models except for their own versions, \texttt{bxt\_gmo\_\_nrlmf} and \texttt{brf\_gmo\_\_nrlmf} (as aforementioned).
+\texttt{brf\_gmo} was also the top performing BRF model in terms of TT average precision, significantly surpassing all but \texttt{brf\_gmo\_\_nrlmf} and \texttt{brf\_lmo\_\_nrlmf}.
+Similarly, \texttt{bxt\_gmo} was the top performing BXT model under the same metric, significantly surpassing all estimator but \texttt{brf\_gmo\_\_nrlmf}, \texttt{brf\_lmo\_\_nrlmf} and BXT GMOSA NRLMF.
 
-In LT+TL average precision, \texttt{brf\_lmo} significantly outperforms all other random forests, while the GMO models were the clear worst performers for both BRF and BXT. Additionally, the GSO and GMOSA models are seemingly favored by the LT+TL setting in comparison to TT, reinforcing the results of \autoref{sec:adaptation_comparison} suggesting that deeper trees are advantageous for LT+TL, while the larger leaves of GMO models seem to improve generalization for completely unknown pairs (TT average precision). Notably, the \texttt{bxt\_gmosa\_\_nrlmf} model, proposed by \textcite{pliakos2020drugtarget} under the name of BICTR, was the top scoring model among BXT for all but the TT ROC AUC test settings.
+Regarding TT AP, NRLMF still provides a significant improvement for all models except \texttt{brf\_gmo}, \texttt{bxt\_gmo} and \texttt{bxt\_lmo}. While both BRF GMO and BXT GMO resulted in the highest average ranks for TT AP, the top position could not be statistically resolved between the BRFs using GMO, GMO NRLMF, and LMO NRLMF, nor between the BXTs using GMO, GMO NRLMF, LMO NRLMF, and GMOSA NRLMF.
 
+In the LT+TL AP setting for BXT ensembles, NRLMF is shown to significantly degrade the performance of \texttt{bxt\_gmo}.
+We attribute this effect to the aforementioned increase in false positives caused by NRLMF, especially since such degradation is not observed under LT+TL AUROC. Notwithstanding, we note that this degradation of LT+TL AP is exclusive to the GMO adaptation, as all other BXT models are significantly improved by NRLMF in this setting. Moreover, we highlight the differences between the LT+TL AUROC and LT+TL AP results considering BXT GMO and BXT GMO NRLMF: while these models are the best ranked in the former setting, they are the clear worst in the latter. We thus argue that both the GMO strategy and the NRLMF reconstruction step, each in and of itself, have the effect of increasing the tendency towards false positives in the predictions. Their summed effects could thus impair predictive performance especially under LT+TL AP evaluation, whereas in other settings they could  missing positives or AUROC evaluation in general, the combina...  % TODO finish this discussion
+
+%This suggests that the combination of GMO's label averaging method 
+
+% TODO: (last section) gmo more fp
+
+% Interestingly, the scores for \texttt{bxt\_gmo}, \texttt{brf\_gmo}, and \texttt{brf\_lmo} are instead significantly reduced by combination with the matrix factorization technique in LT+TL average precision, contrary to the overall tendency.
+%
+
+For BRF models under LT+TL AP, the advantage of employing NRLMF is not clear. GSO was the only adaptation to significantly benefit from NRLMF in this setting, while GMO and LMO were significantly impaired by it. In fact, the BRF LMO model without label matrix reconstruction significantly outperformed all the other random forests for this evaluation setting.
+
+% Not clear from the data:
+%Additionally, the GSO and GMOSA models are seemingly favored by the LT+TL setting in comparison to TT, reinforcing the results of \autoref{sec:adaptation_comparison} suggesting that deeper trees are advantageous for LT+TL, while the larger leaves of GMO models seem to improve generalization for completely unknown pairs (TT average precision). Notably, the \texttt{bxt\_gmosa\_\_nrlmf} model, proposed by \textcite{pliakos2020drugtarget} under the name of BICTR, was the top scoring model among BXT for all but the TT ROC AUC test settings.
+
+% TODO add hue, compare within pairs with vs without nrlmf
 % TODO
 % fullly grown doesnt mean n_leaf == 1
 % we expect more trees to make nrlmf irrelevant
@@ -3030,7 +3064,7 @@ In LT+TL average precision, \texttt{brf\_lmo} significantly outperforms all othe
 % why nrlmf is detrimental to GMO?
 % why nrlmf is not detrimental to bxt lmo?
 
-So why does NRLMF seem detrimental to \texttt{brf\_gmo}, \texttt{bxt\_gmo} and \text{brf\_lmo} in terms of LT+TL average precision? For any tree, if one of the interacting entities is known from the training data (let's call it $x_\text{known}$), the leaf at which the interaction from the TL or LT sets arrives is guaranteed to hold a partition of $Y_\text{train}$ with a column corresponding to $x_\text{known}$. The GMO and LMO models are the only ones to emphasize the effect of this column: LMO will output the average of only the labels in this column (see \autoref{sec:slmo}), while GMO will weight it considerably higher than the other columns when computing the leaf's prototype (\autoref{sec:prototype}). The usage of NRLMF however, causes the negative labels in such column of $Y_\text{leaf}$ to be influenced by neighbors from the training set. While this should improve generalization, we speculate that the LT+TL setting could benefit from this "partial overfitting" that occurs when NRLMF is not employed. We thus hypothesize this effect is less pronounced in BXT due to the naturally lower tendency to overfit of ExtraTrees, resulting from the randomized selection of thresholds (\autoref{sec:bipartite_forests}). We also suppose that this effect in LT+TL ROC AUC is overruled by the sensitivity improvement brought by NRLMF, as discussed above, hence it not being apparent from the results.
+%So why does NRLMF seem detrimental to \texttt{brf\_gmo}, \texttt{bxt\_gmo} and \text{brf\_lmo} in terms of LT+TL average precision? For any tree, if one of the interacting entities is known from the training data (let's call it $x_\text{known}$), the leaf at which the interaction from the TL or LT sets arrives is guaranteed to hold a partition of $Y_\text{train}$ with a column corresponding to $x_\text{known}$. The GMO and LMO models are the only ones to emphasize the effect of this column: LMO will output the average of only the labels in this column (see \autoref{sec:slmo}), while GMO will weight it considerably higher than the other columns when computing the leaf's prototype (\autoref{sec:prototype}). The usage of NRLMF however, causes the negative labels in such column of $Y_\text{leaf}$ to be influenced by neighbors from the training set. While this should improve generalization, we speculate that the LT+TL setting could benefit from this "partial overfitting" that occurs when NRLMF is not employed. We thus hypothesize this effect is less pronounced in BXT due to the naturally lower tendency to overfit of ExtraTrees, resulting from the randomized selection of thresholds (\autoref{sec:bipartite_forests}). We also suppose that this effect in LT+TL ROC AUC is overruled by the sensitivity improvement brought by NRLMF, as discussed above, hence it not being apparent from the results.
 
 Another hypothesis can be formulated based on the fact that the dense reconstructed matrix will cause trees to grow to a much deeper extent, as homogeneity of leaves is harder to obtain. As such, this could favor overfitting of BRF models to the output of NRLMF, carrying the generalization error of the NRLMF reconstruction to the results. At the same time, NRLMF being a better model than BRF on TT sets would generate, as observed, the inverse effect, with NRLMF improving performance in this case. % TODO discuss this in model comparison section
 % this would cause BRF to be equal or worse than NRLMF alone
@@ -3051,6 +3085,7 @@ Again, BXT's randomized split search procedure likely makes it more resilient to
 % TODO: future testing with less positive importance and larger trees
 % some of the estimators are definitely not calibrated (explain)
 
+% TODO: rewrite
 In summary, interaction matrix reconstruction by matrix factorization seems to consistently improve BRF and BXT results in terms of ROC AUC and also the results of BXT regarding LT+TL average precision. On TT average precision, while less evidence is found, the results still seem to point in the same direction of a beneficial NRLMF transformation step. On the other hand, the comparisons of BRF under LT+TL average precision evaluation indicate the opposite conclusion, disfavoring usage of NRLMF especially for \texttt{brf\_lmo} and \texttt{brf\_gmo}. We thus discourage the application of NRLMF with BRF in scenarios where one of the entities of the interacting pair being predicted is always known to the model, such as in drug repositioning.
 
 % TODO: remake the following explanation after displaying the rank boxplots
@@ -3130,44 +3165,281 @@ In summary, interaction matrix reconstruction by matrix factorization seems to c
     \label{fig:bxt_y_reconstruction}
 \end{figure*}
 
-\subsection{Random forest versus extremely randomized trees}
+
+
+\subsection{Comparison between semi-supervised forests}
+\label{sec:ss_comparison}
+
+The comparison results are displayed by \autoref{fig:ss_comparison}.
+
+Regarding LT+TL AUROC, the 0\% ILR and 50\% ILR do not result in statistically significant differences in performance. For ILR=70\%, md random and md size significantly outperform the remaining models, while under IRL=90\%, md random, md size, and md density are shown to surpass the others. These results indicate that the MD unsupervised impurity is the most suited to the LT+TL AUROC evaluation setting. Furthermore, we see that the random strategy to select the supervision amount %TODO
+is among the best in both ILR=70\% and ILR=90\%, suggesting that increasing diversity among the trees could be the main mechanism behind the improvement of the semi-supervised models, rather than necessarily guessing the best $\sigma$ at each tree node. Since md size is also among the best, it is not clear if the advantage of md size over the other models is due to a better choice of $\sigma$ or to a more stochastic nature of the $\sigma$s it selects.
+%
+%As a future investigation, we suggest using the size-based $\sigma$ selection with a completely random unsupervised impurity, .
+%
+As a future investigation, we suggest using completely random values for the unsupervised impurity, to assess the possibility of tree-diversity being the main factor behind the observed improvements.
+
+As for TT AUROC, only ILR=90\% yielded significant comparisons. In this case, the mse unsupervised impurity with size, random, and density $\sigma$ selection were the best strategies, surpassing the remaining. MSE thus seems the better option in terms of AUROC for scenarios with very scarse information and completely unknown instances.
+
+Under LT+TL AP, md fixed significantly outperformed the other models for ILR=50\% and ILR=70\%. For ILR=0\%, md fixed is also the first place, but could not be statistically resolved from the second place ad size. AD size was also the second best model for ILR=0\%, 50\%, 70\%, statistically outperforming all but md fixed in ILR=70\%.
+
+Finally, with respect to TT AP, the AD strategies prevail, being the best four models for ILR=50\% and ILR=70\%, and being among the five best models for ILR=0\%. The presence of AD random among the best models again suggests that the main factor for performance improvement is tree-diversity.
+
+% TODO more discussion
+% TODO size vs fixed
+
+% md size, md fixed, ad size, ad fixed, mse density
+
+\begin{figure*}[tb]
+    \centering
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            no_drop/all_datasets/boxplots/LT+TL_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop50/all_datasets/boxplots/LT+TL_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop70/all_datasets/boxplots/LT+TL_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop90/all_datasets/boxplots/LT+TL_roc_auc.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            no_drop/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop50/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop70/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop90/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            no_drop/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop50/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop70/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop90/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            no_drop/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop50/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop70/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/semisupervised_forests/statistical_comparisons/%
+            drop90/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+
+    \caption{
+        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
+    }
+    \label{fig:ss_comparison}
+\end{figure*}
+
+
+\subsection{Comparison between different forests}  % TODO
+\label{sec:best_forests}
 
 Based on the results of \autoref{sec:y_reconstruction}, we select the following models for further comparison:
 
+% TODO: nrlmf very efficient for missing data
+% gmo is faster than full trees
+% ss less efficient
+% bxt better than brf
+% gmo king
+% is gmo ss as well?
+% using nrlmf makes trees deeper -> diversity / ovefitting
+% time to train is complicated with NRLMF
+
+The comparisons are presented by \autoref{fig:best_forests}. The results reveal a clear superiority of forests employing the NRLMF as a label imputation strategy, in comparison to those using semi-supervised impurities. The four models employing NRLMF were the four highest ranked estimators in almost all evaluation settings, the two exceptions being LT+TL AP with ILR=0\% and ILR=50\%. In the first exception (LT+TL AP ILR=0\%), BRF GMO NRLMF and BXT GMO NRLMF are the two worst-performing models, whereas BXT GMOSA NRLMF and BXT GSO NRLMF are the first and second best, respectively. In the second exception (LT+TL AP ILR=50\%), the two best models are the same, and BRF GMO NRLMF is still one the worst performers. However, BXT GMO NRLMF jumps to the third best position. 
+
+% TODO gmo better on less info: less info, more imputation better
+
+Furthermore, under the other metrics (LT+TL AUROC, TT AUROC, and TT AP), BXT GMO NRLMF was the highest ranked estimator in almost all cases, the only exception being TT AP IRL=0\%, where it was only behind BXT GMOSA NRLMF. Notwithstanding, the comparison between BXT GMO NRLMF and BXT GMOSA NRLMF was still not statistically significant in this setting. Similarly, no statistical difference is found between these models in the LT+TL AUROC 0\% setting, where they also occupy the first positions. The leadership of BXT GMO NRLMF is also not significant in comparison to BXT GSO NRLMF under TT AP 50\% and TT AP 70\%. For all remaining cases where BXT GMO NRLMF was the best model, it was statistically significantly better than all other estimators (TT AP 90, LT+TL AUROC 50, LT+TL AUROC 70, LT+TL AUROC 90, and all TT AUROC).
+
+% TODO: metrics section: define questions: there is difference of performance between metrics? between ILR?
+% TODO: metrics section: how is AP and AUROC affected by PU?
+% TODO: unsupervised impurity according to the prototype of GMO with similarity weighting? (Iu predicts the prototype)
+% TODO: leaf weighting with BGSO
+% TODO: SS with other adaptations
+
+Another observation is that some semi-supervised impurities significantly improve predictive performance relative to the original BXT GSO, especially when more annotations are missing. This conclusion is based on the fact that, in all settings with ILR != 0 except LT+TL AP, the original BXT GSO is among the three worst performers. For all AUROC settings with ILR!=0, it was the lowest ranked model. On the other hand, md fixed is noted to significantly surpass BXT GSO in 10 of the 16 evaluation settings, the exceptions being LT+TL AUROC 0\%, TT AUROC 0\%, TT AUROC 90\%, TT AP 0\%, TT AP 70\% and TT AP 90\%. Therefore, although not as effective as the NRLMF reconstruction technique, using semi-supervised trees seems indeed beneficial when label information is scarce.
+
+% TODO: future work: GMO + SS impurity
+
+When comapring the BXT against the BRF models, we notice that BXT GMO NRLMF significantly outperformed BRF GMO NRLMF in all settings. The other random forest, BFR LMO, was also significantly outperformed by BXT GMO NRLMF in all cases but LT+TL AP 0\%, where the opposite was observed. Similar results hold for the other BXT models as well: they significantly surpassed BRF LMO in the vast majority of test configurations, with the only exception being TT AUROC 0\%, in which the comparison between BXT GMOSA NRLMF and BRF LMO was not significant. These results suggest that BXT models could offer significant advantages over BRF models in the context of DTI prediction. This conclusion is especially relevant given that the BXT training algorithm is considerably faster than the procedure for building BRFs, as discussed in \autoref{sec:complexity_analysis}.
+
+% TODO: do they never compared BXT vs BRF?
+
+
 \begin{figure*}[tbh]
     \centering
-    \begin{subfigure}{0.49\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/statistical_comparisons/%
-            best_models/all_datasets/boxplots/LT+TL_roc_auc.pdf
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            no_drop/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/statistical_comparisons/%
-            best_models/all_datasets/boxplots/LT+TL_average_precision.pdf
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop50/all_datasets/boxplots/LT+TL_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop70/all_datasets/boxplots/LT+TL_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop90/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
 
-    \begin{subfigure}{0.49\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/statistical_comparisons/%
-            best_models/all_datasets/boxplots/TT_roc_auc.pdf
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            no_drop/all_datasets/boxplots/LT+TL_average_precision.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
-            experiments/y_reconstruction/statistical_comparisons/%
-            best_models/all_datasets/boxplots/TT_average_precision.pdf
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop50/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop70/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop90/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            no_drop/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop50/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop70/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop90/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            no_drop/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop50/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop70/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/best_forests_with_dropout/statistical_comparisons/%
+            drop90/all_datasets/boxplots/TT_average_precision.pdf
         }
     \end{subfigure}
     \caption{
         Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
-        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator.
     }
-    \label{fig:brf_vs_bxt}
+    \label{fig:best_forests}
 \end{figure*}
-
 
 
 % \begin{table}[h]
@@ -3176,98 +3448,127 @@ Based on the results of \autoref{sec:y_reconstruction}, we select the following 
 
 
 \subsection{Comparison with previous works}
+\label{sec:comparison literature}
 
-In this section we employ several algorithms previously described in the literature, all of which were reimplemented and had their performance measured on the four DTI prediction datasets according to this study's evaluation framework (Section \ref{}).
+The algorithms being considered in this section are listed below, and their scoring results are shown by \autoref{fig:comparison literature}.
 
-The algorithms being considered in this section are listed below, and their scoring results are shown in Figure \ref{fig:cdd_literature} and Table \ref{}. To further explore the potential of bipartite forests, all forests evaluated in this section were composed of 1000 trees, as opposed to the 100 trees used in the previous experiments.
+BXT GMO NRLMF was the best ranked model in 11 out of the 16 test settings analysed. The exceptions were the four LT+TL AP configurations and TT AP 0\%. In TT AP 0\%, BXT GMO NRLMF was only behind lmo rls, and among the three models that could not be statistically distinguished from lmo rls (the others being kron rls bxt and gmosa nrlmf). In LT+TL AUROC 0\%, the comparison between BXT GMO NRLMF and the second best model, bxt gmosa nrlmf, was also not statistically significant. In the remaining 10 cases where BXT GMO NRLMF prevails, it was significantly better than all other learning algorithms analysed.
 
-\begin{itemize}
-    \item NRLMF \cite{Liu_2017}
-    \item BLM-NII 
-    % TODO
-\end{itemize}
+Regarding LT+TL AP, in ILR=50 and ILR=70 bxt gso nrlmf and bxt gmosa nrlmf significantly outperform the other models. In ILR=0, bxt gmosa nrlmf was the best model and bxt gso nrlmf was the second best, but neither could be statistically distinguished from the third best model, kron rls. In ILR=90, bxt gso nrlmf was the best model and bxt gmosa nrlmf was the second best, but neither could be statistically distinguished from the third best model, kron rls. Under ILR=90, bxt gso nrlmf and bxt gmo nrlmf are shown to significantly outperform the others.
 
-Regarding the AUROC metric, bxt\_gmosa\_nrlmf, bxt\_gso\_nrlmf and nrlmf are consistently the three highest ranked models in all three testing settings, with both bxt\_gmosa\_nrlmf and bxt\_gso\_nrlmf significantly outperforming BLM-NII-SVM, BLM-NII-RLS, and DTHybrid.
-Additionally, DNILMF was outperformed by bxt\_gmosa\_nrlmf and bxt\_gso\_nrlmf in the TL and LT settings, and by bxt\_gmosa\_nrlmf in the TT setting.
+We notice that the highest ranked bipartite forests in each evaluation setting are always able to significantly surpass NRLMF alone. This demonstrates that the forests are able to capture different patterns than the NRLMF model, even though they are trained on NRLMF's outputs. If this result were to not hold, one could argue that the forests might be merely approximating the predictive function learned by NRLMF, rather than expanding on the information extracted in the matrix factorization step.
 
-Both in the LT and TT settings, the bipartite forests without matrix reconstruction (bxt\_gmosa and bxt\_gso) showed no significant difference in performance when compared to their counterparts employing interaction matrix reconstruction by NRLMF (bxt\_gmosa\_nrlmf and bxt\_gso\_nrlmf, respectively), contrary to the results on the TL testing configuration, where matrix reconstruction was shown to be significantly beneficial.
-A possible explanation relies on the fact that the TL test set has the higher intersection with the training data in our specific scenario, since in the four datasets considered the drug molecules outnumber the protein targets by considerable margins (see Table \ref{tab:datasets}).
-That said, NRLMF fundamentally relies on the label information of a small neighborhood of each sample to infer interactions and, as such, this result may suggest that the benefit of the matrix factorization step is elevated in cases where the test set is similar to the training set, and could be specifically useful in drug repurposing scenarios rather than in drug discovery. On the other hand, overfitting may arise as a potential concern when new drugs and new targets are of the main interest.
+We also note that the competitiveness of the kron rls model for TT AP 0\% and LT+TL AP 0\% is remarkable, since kron rls has notably low training times in comparison to the other models.  %TODO figure
+However, the algorithm seems to not perform as well when a larger number of positive annotations is missing.
 
-Additionally, one must recall we are using larger forests in comparison to the previous section, which may render the matrix factorization step less relevant.
-This is further supported by the fact that the NRLMF model itself could not significantly outperform bxt\_gso in the LT\_roc\_auc setting, bxt\_gmosa in the TL\_roc\_auc setting and also could not outperform either forest in the TT\_roc\_auc setting (Figure \ref{fig:cdd_literature}), not ruling out the explanation that the tree ensemble itself is sufficient to encompass neighborhood information.
+% one could use c estimation to choose the best model based on the amout of missing annotations
 
-When the average precision metric is considered, the reconstruction step is again regarded unbeneficial, with no significant difference in employing it versus using the bipartite forest alone. Interestingly, all BXT forests perform significantly better than all other methods in the TL\_average\_precision setting, even than the matrix factorization techniques NRLMF and DNILMF (Figure \ref{fig:cdd_literature}). NRLMF, DNILMF and lmorls were the only methods not proven significantly inferior to the BXT in the remaining average precision settings. 
 
-The superiority of DNILMF with respect to NRLMF as claimed by its authors \cite{} was not observed in our experiments, with NRLMF even proven significantly superior to DNILMF in the TL\_roc\_auc and LT\_roc\_auc settings (Figure \ref{fig:cdd_literature}).
-
-With respect to the MCC metric, the bxt\_gmosa and bxt\_gso stand out as the best performing models, significantly outperforming all the other models in TL\_mcc, all but bxt\_gmosa\_nrlmf in LT\_mcc, and all but bxt\_gmosa\_nrlmf and bxt\_gso\_nrlmf in the TT setting.
-
-However, this result is likely affected by the classification threshold choice, since this is the only metric we used that is threshold-dependent. Since we chose this threshold as the probability of interaction in each training set (the average of all binary values of $y$), the MCC metric will favor well calibrated models, i.e. whose predicted probabilities are close to the measured propabilities.  % TODO: define better and cite
-As such, this result mainly indicates better calibration of the BXT models out of the box. Conversely, the other models may benefit from calibration techniques such as Platt scaling \cite{} or isotonic regression \cite{}, with BLM models being especially underperformant regarding MCC.
-
-Overall, bxt\_gso and bxt\_gmosa are the most consistently higher ranked models among the algorithms we tested. Remarkably, we demonstrate in sections \ref{sec:complexity_analysis} and \ref{sec:empirical_complexity} that our optimized GSO forests are considerably faster to train than the GMO forests proposed by \cite{Pliakos_2018}, even if no statistically significant decrease in performance is observed. This time complexity superiority enables forest estimators to tackle much larger bipartite datasets than was possible with the current bipartite trees, and points native GSO bipartite forests as a strong candidate to be further studied across similar learning scenarios in the future.
-
-\begin{figure*}
+\begin{figure*}[tb]
     \centering
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
             experiments/literature_models/statistical_comparisons/%
-            all_datasets/critical_difference_diagrams/LT_roc_auc.pdf
+            no_drop/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
             experiments/literature_models/statistical_comparisons/%
-            all_datasets/critical_difference_diagrams/LT_average_precision.pdf
+            drop50/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
             experiments/literature_models/statistical_comparisons/%
-            all_datasets/critical_difference_diagrams/LT_matthews_corrcoef.pdf
+            drop70/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
-
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
             experiments/literature_models/statistical_comparisons/%
-            all_datasets/critical_difference_diagrams/TL_roc_auc.pdf
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            experiments/literature_models/statistical_comparisons/%
-            all_datasets/critical_difference_diagrams/TL_average_precision.pdf
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
-        \includegraphics[width=\textwidth]{
-            experiments/literature_models/statistical_comparisons/%
-            all_datasets/critical_difference_diagrams/TL_matthews_corrcoef.pdf
+            drop90/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
 
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
             experiments/literature_models/statistical_comparisons/%
-            all_datasets/critical_difference_diagrams/TT_roc_auc.pdf
+            no_drop/all_datasets/boxplots/LT+TL_average_precision.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
             experiments/literature_models/statistical_comparisons/%
-            all_datasets/critical_difference_diagrams/TT_average_precision.pdf
+            drop50/all_datasets/boxplots/LT+TL_average_precision.pdf
         }
     \end{subfigure}
-    \begin{subfigure}{0.32\textwidth}
+    \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
             experiments/literature_models/statistical_comparisons/%
-            all_datasets/critical_difference_diagrams/TT_matthews_corrcoef.pdf
+            drop70/all_datasets/boxplots/LT+TL_average_precision.pdf
         }
     \end{subfigure}
-    \caption{Percentile rankings of prediction scores for several literature models.}
-    \label{fig:cdd_literature}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/literature_models/statistical_comparisons/%
+            drop90/all_datasets/boxplots/LT+TL_average_precision.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/literature_models/statistical_comparisons/%
+            no_drop/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/literature_models/statistical_comparisons/%
+            drop50/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/literature_models/statistical_comparisons/%
+            drop70/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/literature_models/statistical_comparisons/%
+            drop90/all_datasets/boxplots/TT_roc_auc.pdf
+        }
+    \end{subfigure}
+
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/literature_models/statistical_comparisons/%
+            no_drop/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/literature_models/statistical_comparisons/%
+            drop50/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/literature_models/statistical_comparisons/%
+            drop70/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{
+            experiments/literature_models/statistical_comparisons/%
+            drop90/all_datasets/boxplots/TT_average_precision.pdf
+        }
+    \end{subfigure}
+    \caption{
+        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
+    }
+    \label{fig:comparison literature}
 \end{figure*}
 
 
