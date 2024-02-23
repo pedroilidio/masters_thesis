@@ -2061,7 +2061,7 @@ A drawback of this approach, especially when working with very imbalanced intera
 \end{equation}
 
 
-%XXX TODO: fix name of the similarities
+%XXX TODO: fix name of the similarities (from future pedro: call it S?)
 
 Since we are dealing with precomputed pairwise similarities, $X_1$ and $X_2$ are square matrices in which $X_a\el{i_1i_2} = \text{similarity}(X_a\el{i_1\cdot},\, X_a \el{i_2\cdot})$. We explore three different cases:
 
@@ -2656,13 +2656,14 @@ In the present work, we refine such comparisons and inroduce ensembles of our ne
 %In this work, we use data from Drug-Target interactions in the experimental validation of the proposed model. DTI is an area of the literature that has been the focus of several recent advances and consists of methods for predicting interactions between drugs and targets (Proteins, Diseases, Ligands). This area has already been investigated in several applications present in the literature, such as~\cite{Fattahi2019,Nasution2019}. In this context, the dataset used is the Drug-Protein Interaction Networks, defined in~\cite{Yamanishi2008}. This dataset consists of four bipartite interaction networks between proteins and drugs: Ion channels (DPI-I), Nuclear receptors (DPI-N), protein-coupled receptors G (DPI-G), and Enzymes (DPI-E). Both networks of interactions form datasets, and the interaction prediction in these contexts and applying them to the real world can bring innovations and discoveries.
 
 \subsection{Semi-supervised decision trees}
+\label{sec:ss trees}
 
 The tree algorithms presented up until this point disregard the positive-unlabeled characteristic of our datasets of interest, either ignoring the possibility of abscence of labels in the training set, or, equivalently, considering all non-occurring interactions as unknown interactions.
 In other words, negative labels represent both the interactions known to not occur and the interactions about which no information is available.
 
 Therefore, the machine learning paradigm under which the discussed decision trees are proposed is still \emph{supervised}, in the sense that all training instances are associated with a label (for each sample in $X$ there is a corresponding expected output in $Y$).
 
-As many previous authors~\cite{liu2017lpinrlmf,he2017simboost},%TODO cite more
+As several previous authors~\cite{liu2017lpinrlmf,he2017simboost}, %TODO cite more
 we argue that taking into account the partial availability of information that is often intrinsic to interaction prediction problems could thus improve prediction performance of bipartite models and reduce the necessity for labeled data.
 
 When the learning problem at hand does not involve predefined labels, the taks is termed \emph{unsupervised}. The most common example is clustering problems, where the goal is to group similar instances together based solely on their numerical attributes, without any \textit{a priori} information regarding hypothetical classes to which each instance could belong. In such problems, only the $X$ matrix is utilized, there is not an associated label matrix $Y$.
@@ -2671,41 +2672,109 @@ In summary, while supervised learning problems are concerned with the relationsh
 
 Some problems, however, lie in the intersection of the supervised-unsupervised spectrum. They usually arise when the available labels are scarce or unreliable, so that both supervised and unsupervised objectives are of interest. Take for instance the case of an image gallery phone applicative capable of grouping all photos of a person into a folder with their name. While the name must be asked once to the user, subsequent photos of the same person are automatically grouped under the same directory. The algorithm is both concerned with labeling each photo with the correct name and with grouping similar photos together. Another example can occur when diagnostic data of a large collection of patients is employed to build an automated diagnosis system to assess multiple diseases simultaneously. Almost certainly, not all labels for the occurrence of each medical condition will be available for all patients, so that the algorithm must be able to deal with considerable amounts of missing data. One possible strategy is to infer missing labels from the labels of similar instances, so that the concept of grouping is again into play. Still in the same example, the diagnosis for each disease may be presented in different (unknown) degrees of certainty, resulting from diagnostic procedures of different natures. In this case, an even more refined strategy can be employed, in which the amount of importance given by the model to correctly classify a given label may be adjusted to allow prioritizing information resulting from clustering rather than the label itself, essentially regulating the relative importance between the supervised and unsupervised objectives.
 
-While in the first example the known labels are usually much more scarce than (hopefully) the diagnostics example, both problems deal with the same underlying issue: the lack of reliable labels for all instances. As such, both label inference (that characterizes supervised problems) and clustering (that characterizes unsupervised problems) are closely intertwined as the model's objective. The goal is to simultaneously learn to correctly classify the instances with known labels in the training set while also considering similarities to infer the labels of the remaining instances or to rectify labels on which one cannot fully rely. This intermediate learning paradigm is called \emph{semi-supervised learning}.
+While in the first example the known labels are usually much more scarce than in the diagnostics example, both problems deal with the same underlying issue: the lack of reliable labels for all instances. As such, both label inference (that characterizes supervised problems) and clustering (that characterizes unsupervised problems) are closely intertwined as the model's objective. The goal is to simultaneously learn to correctly classify the instances with known labels in the training set while also considering similarities to infer the labels of the unlabeled instances (or to rectify labels on which one cannot fully rely). The class of such hybrid learning paradigms is called \emph{semi-supervised learning}~\cite{}.
 
-Since missing labels are a defining characteristic of interaction prediction tasks, it is commonly suggested~\cite{he2017simboost,liu2016neighborhood}%TODO cite more
+Since missing labels are a defining characteristic of interaction prediction tasks, it is commonly suggested~\cite{he2017simboost,liu2016neighborhood}  %TODO cite more
 that applying semi-supervised concepts to our problems could significantly improve the performance of bipartite models.
 
 %TODO survey
+%TODO terms: pu, weak labels, one-class, dyadic prediction (pu is a subclass of ss)
+%TODO terms: what are standard semi-supervision techniques
 
-Notably, the growing of decision trees unavoidably induces grouping of samples in the training set, since the splitting procedure naturally clusters instances of similar labels together. The final tree structure by itself, with partitions of the training set at each node, represents a hierarchical clustering of the data, based on the label values. As such, decision trees can be easily adapted to unsupervised tasks, by simply computing the impurity function on the feature matrix $X$ instead of the label matrix $Y$. In the same way that the impurity function represents the average degree of similarity between labels on a node of a supervised tree (see \autoref{sec:criteria}), it will thus represent average instance similarity when applied to the feature matrix. \autoref{eq:I_unsup} provides an example of an unsupervised impurity function.
+For decision trees specifically, there are straightforward ways to incorporate semi-supervised assumptions.
+%
+Notice that the growing of decision trees unavoidably induces groupings of samples in the training set. 
+%since the recursive splitting procedure essentially clusters instances of similar labels together.
+Specifically, the structure of each tree represents a hierarchical clustering of the training samples, in which each tree node represents a partition of the training set composed by the training instances that reach that node.
+%
+However, this clustering procedure is usually preformed under the objective of grouping instances with similar \emph{labels}, which not necessarily means that instances in the same group will have similar \emph{features}.
+%
+This results from the definition of the impurity function $I$ governing the split search procedure: $I$ is usually chosen as to minimize the divergence of labels within each partition (see \autoref{sec:monopartite trees}). As such, $I$ commonly depends on $Y_\text{node}$ alone.
+%
+With that in mind, decision trees can be naturally adapted to unsupervised or semi-supervised tasks by redefining the impurity function to consider the feature matrix $X_\text{node}$ instead of only the label matrix $Y_\text{node}$.
+
+In a purely unsupervised context, an example would be to utilize the average of column variances in $X_\text{node}$ as the impurity function (\autoref{eq:I unsup}). This would result in a tree that groups instances with similar features together, regardless of their labels. This idea is the main concept behind the CLUS algorithm~\cite{boley1998unsupervised}.
 %
 \begin{equation}
     I_\text{unsupervised MSE}(X) = \text{MSE}(X) = \left( X\el{ij} - X^{\ang{i}[j]} \right)^{\ang{i}2\ang{j}}
-    \label{eq:I_unsup}
+    \label{eq:I unsup}
 \end{equation}
-%
-Expanding on the same logic, we can merge both supervised and unsupervised impurities to create a hybrid criterion function, that takes into account both the similarities between features and between labels to build a semisupervised decision tree. \autoref{eq:I_semi} defines such an impurity function. The parameter $\sigma \in [0, 1]$, called supervision ratio,% TODO consider alternative names
-balances the relative importance given to each of them, with $\sigma = 0$ corresponding to a fully unsupervised tree and $\sigma = 1$ to a fully supervised tree.
+
+To address semi-supervised scenarios, we can consider both supervised and unsupervised objectives simultaneously. This can be done by using a linear combination of unsupervised and supervised impurities to guide the split selection, taking into account both the similarities between features and between labels to build a semi-supervised decision tree.
+\autoref{eq:I ss} defines such a hybrid impurity function.
 %
 \begin{equation}
-    I_{ss}(X, Y) = (1 - \sigma(Y)) I_u(X) + \sigma(Y) I_s(Y)
-    %I_\text{semi-supervised}(X, Y) = (1 - \sigma) I_\text{unsupervised}(X) + \sigma I_\text{supervised}(Y)
-    \label{eq:I_semi}
+    I_{ss}(X_\text{node}, Y_\text{node}) =
+        (1 - \sigma) \frac{I_u(X_\text{node})}{I_u(X_\text{root})}
+        + \sigma \frac{I_s(Y_\text{node})}{I_s(Y_\text{root})}
+    \label{eq:I ss}
+\end{equation}
+%
+We divide each term by the corresponding impurities on the root node, thus calculated over the entire training set. The reason is to avoid the influence of possible differences in scale between the values in $X$ and in $Y$. It also compensates relative scale differences that could arise when choosing different functions for $I_u$ and $I_s$.
+%
+The parameter $\sigma \in [0, 1]$, called supervision ratio,  % TODO consider alternative names
+balances the relative importance given to each objective, with $\sigma = 0$ corresponding to a fully unsupervised tree and $\sigma = 1$ to a fully supervised tree. Strategies for adjusting $\sigma$ are discussed in \autoref{sec:sigma heuristics}.
+
+For semi-supervised tasks in general, where we have confirmed positive and confirmed negative annotations alongside missing entries, notice how $I_s$ can only be calculated over the non-missing annotations, while $I_u$ can always utilize both labeled and unlabeled instances.
+%
+Nevertheless, please notice that all confirmed annotations are positive in our present scenario of positive-unlabeled learning. Thus, we must still consider the missing labels as zero entries for the calculation of $I_s$. Even so, we argue 
+that decreasing the relative importance of the supervised objective can compensate the label uncertainty and improve generalization. The idea is to encourage the tree to appreciate the structures in the feature space. For example, it should select splits that isolate very compact groups of instances, even if the labels in a given group are not satisfactorily homogeneous.
+
+A caveat of using a semi-supervised impurity as in \autoref{eq:I ss} is that trees could continue to find splits even if all instances in a given node have the same label. This is because we could keep reducing the unsupervised impurity by further splitting even if the supervised impurity is already zero.
+However, since the output value of each node is still calculated over $Y_\text{node}$ alone, all nodes descending from a homogeneous node would yield the same output. We avoid such redundant splits by forcefully stopping the split search for a node when $I_s(Y_\text{node})=0$.
+
+Another important notice is that features must be normalized before training the tree: the impurity function $I_u$ (\autoref{eq:I unsup}) is most often sensitive to the relative scale of the different columns of $X$. This is normally not a requirement for decision trees, since the split search procedure is performed separately for each feature and usually only depends on the order of the values, not on their specific magnitude.
+
+% assumes true 0 is more likely
+% TODO: impurity that considers 0 as both 0 and 1 (with relative proba (c estimation))
+
+
+\subsubsection{Heuristics for $\sigma$}
+\label{sec:sigma heuristics}
+% TODO: the smaller the partition, the smaller we should set the sigma, contrary to what we did. few labels are less informative, arguably, than the distance between few instances
+
+Determining the ideal value of $\sigma$, is not a trivial task. In fact, it is not even clear whether a single value of $\sigma$ should be used for the whole tree or if it should be adjusted for each node.
+
+% For instance, one could argue that nodes with a larger number of unlabeled instances should prioritize the unsupervised objective, since the supervised information is more likely to be unreliable.
+
+% One may also make the point that nodes with fewer instances in total (labeled or unlabeled) should favor the supervised objective, since the unsupervised impurity would be more prone to noise, and thus set larger values of $\sigma$ for smaller nodes or for deeper nodes in the tree structure.
+
+\textcite{alves2023semisupervised} argues that the unsupervised impurity should be more important for nodes with a larger number of unlabeled instances, since the supervised information would be more likely to be unreliable. Thus, they propose updating $\sigma$ according to the label density of each node, as defined by \autoref{eq:sigma density}.
+%
+\begin{equation}
+    \sigma = 0.1 + 0.9 \cdot Y_\text{node}\avg{ij}
+    \label{eq:sigma density}
 \end{equation}
 
-For tasks in which we have confirmed positive- and negative-labeled instances alongside missing entries, notice how $I_s$ can be calculated over the known labels only, so that the impurity function is not affected by the missing labels, while $I_u$ should always utilize both labeled and unlabeled instances. Nevertheless, in our present scenario of positive-unlabeled learning, it is unreasonable to apply such logic, given that known labels are completely homogeneous and would result in $I_s$ to be always null. Hence, we still consider the missing labels as zero entries for the calculation of $I_s$.
+% TODO move to discussion?
+However, we must recall that the prototype value of each node is only dependent on its partition of the label matrix. Therefore, if $Y_\text{node}$ is close to being homogeneous, a new split is less likely to cause a big change in the outputs for the instances involved. Specifically, the most drastic prototype change possible occurs if we perfectly separate the instances with positive labels from the instances with negative labels.
+When the node partition is very imbalanced, even this ideal separation will only greatly affect the very few instances with the minority label. Thus, using the heuristic of \autoref{eq:sigma density} prioritizes the unsupervised objective only in cases where no significant change in the output values is expected. Additionally, few new splits are possible in near-homogeneuous nodes, and we are more likely to achieve label homogeneity (and thus stop the split search) right after we achieve the cases in which $I_u$ is highly prioritized. In summary, the heuristic of \autoref{eq:sigma density} is likely to undermine the effect of the unsupervised objective.
 
-Determining the ideal value of $\sigma$, is not a trivial task. In fact, it is not even clear whether a single value of $\sigma$ should be used for the whole tree or if it should be adjusted for each node. For instance, one could argue that nodes with a larger number of unlabeled instances should prioritize the unsupervised objective, since the supervised information is more likely to be unreliable.
-One may also make the point that nodes with fewer instances in total (labeled or unlabeled) should favor the supervised objective, since the unsupervised impurity would be more prone to noise, and thus set larger values of $\sigma$ for smaller nodes or for deeper nodes in the tree structure.
-Furthermore, if the partition of $Y$ in a node is composed of a single type of label, further splitting is still able to generate improvements in terms of the unsupervised impurity, but all the descendant nodes would yield the same output, since the prototype value is still calculated over $Y$ alone. As such, one may define $\sigma=1$ for such nodes to avoid redundant splits. These arguments lead us to consider $\sigma$ as a function of $Y$ (the label partition at each node), experimenting with node-wise dynamic values of the supervision ratio.
+% less split to activate stopping
 
-We investigate several heuristics for $\sigma$.
+To test this hypothesis, we propose another heuristic for $\sigma$ that prioritizes the unsupervised objective in the earliest stages of the tree growing process and the supervised objective in nodes closer to the leaves (\autoref{eq:sigma size}).
+%
+\begin{equation}
+    \sigma = 1 - \frac{|Y_\text{node}|}{|Y_\text{root}|}
+    \label{eq:sigma size}
+\end{equation}
+%
+This way, we take advantage of the unsupervised impurity prior to when the label partitions are already homogeneous.
+
+We also speculate ... %XXX random, tree diversity
+
+%To illustrate this idea consider performing the training process in two steps: unsupervised and supervised.
+
+%and to investigate the impact of different $\sigma$ heuristics on the performance of semi-supervised decision trees, we propose the following heuristics for $\sigma$:
+
+%The size of each node can also be an informative parameter.
+
 
 % TODO list and describe our heuristics for sigma
 % XXX
 
-% trees naturally cluster
+\subsubsection{Unsupervised impurities}
+\label{sec:Iu}
 
 \subsection{Code and data availability}
 
