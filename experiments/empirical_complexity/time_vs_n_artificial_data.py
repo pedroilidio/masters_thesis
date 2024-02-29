@@ -101,10 +101,11 @@ def collect_run_times(outdir=Path.cwd(), n_jobs=1, random_state=None, cache_dir=
         return X, y
 
     def run_estimator(estimator_name, n):
-        print(f"Fitting {estimator_name=}, {n=}...")
+        print(f"Getting data for {estimator_name=}, {n=}...")
         X, y = cached_make_data(n)
         estimator = estimators[estimator_name]
 
+        print(f"Fitting {estimator_name=}, {n=}...")
         t0 = perf_counter()
         estimator.fit(X, y)
         record = {

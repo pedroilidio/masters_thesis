@@ -107,6 +107,7 @@ resulting matrix or vector.
 
 \subsection{Problem statement}
 \label{sec:problem_statement}
+% TODO disambiguate similar terms
 
 The supervised machine learning applications focus on modeling a function $f
 \colon \mathbb{R}^{n_f} \to \mathbb{R}^{n_o}$ whose exact underlying mechanism
@@ -171,837 +172,14 @@ utilized.
 % and $X_2\el j$.
 
 % $X$ in algorithms is $X_\text{SGSO}$ or ... all info about X
-\section{Datasets}
-\label{sec:datasets}
 
-We gathered ten publicly available interaction datasets to evaluate the performance of the proposed models. Quantitative information about the datasets is presented in table 2%\ref{main:tab:datasets}%
-, and more detailed descriptions are provided below.
-
-%\subsection{DPI-E, DPI-G, DPI-I, DPI-N~\cite{yamanishi2008}}
-%\subsection{DPI-E, DPI-G, DPI-I, DPI-N}
-
-These datasets comprise drug-protein interactions for four distinct classes of proteins: enzymes, GPCRs, ion channels, and nuclear receptors, respectively. Drug similarities were computed using the SIMCOMP metric, while protein similarities were computed as normalized scores of Smith-Waterman pairwise alignments~\cite{yamanishi2008}.
-
-%\subsection{ERN~\cite{faith2007} and SRN~\cite{macisaac2006, hughes2000, hu2007, chua2006, schrynemackers2015}}
-The datasets represent interactions between genes and transcription factors in \textit{E. coli} and \textit{S. cerevisiae}, respectively. Gene and TF features are initially composed of experimentally measured expression levels and, in SRN, gene motif features~\cite{brohee2011,schrynemackers2015}. We compute the RBF kernel of such values to obtain the final similarity matrices. %TODO rbf equation or cite
-
-%\subsection{DAVIS~\cite{davis2011,pahikkala2015}}
-The DAVIS dataset contains experimentally measured drug-kinase dissociation constants~\cite{davis2011}. The dataset was binarized by considering interactions with dissociation constants $\le 30 nM$ as the positive ones, as suggested by \cite{pahikkala2015}. Drug similarities were computed using the Extended Connectivity Fingerprints (ECFP4)~\cite{rogers2005, pahikkala2015} while protein similarities were taken as the normalized Smith-Waterman score~\cite{yamanishi2008,pahikkala2015}.
-
-%\subsection{KIBA~\cite{tang2014,he2017simboost,huang2020deeppurpose}}
-The KIBA dataset was initially built by \citeauthor{tang2014} and contains experimentally verified affinity scores between kinase and kinase inhibitors.
-
-\cite{he2017simboost} further processed the dataset by removing all drugs and targets with less than 10 observations. In alignment with \cite{tang2014,he2017simboost}, we consider positive interactions as those with $log_10$ KIBA-scores $\leq 3.0$ to reframe the task as binary classification.
-
-The utilized version of the dataset with corresponding amino acid sequences and SMILES representations were provided by \cite{huang2020deeppurpose}. From them, we generated the protein similarity matrix using the same procedure employed in the preprocessing of NPInter proteins. The drug similarities were computed similarly to how \cite{pahikkala2015} processed the DAVIS dataset, using the Tanimoto distances of ECFP4 fingerprints~\cite{rogers2005, pahikkala2015}. The Python library \texttt{rdkit}~\cite{rdkit} was used to this calculation.
-
-
-%\subsection{mirTarBase~\cite{hsu2011mirtarbase, huang2022mirtarbase}}
-The mirTarBase dataset contains experimentally validated microRNA-messengerRNA interactions. MicroRNA sequences were obtained from miRBase~\cite{griffiths2006mirbase} while transcript sequences were obtained from GENCODE~\cite{frankish2021gencode}. The longest transcript for each gene was selected and the 3' UTR exonic sequences were recovered from the genome and annotation files provided by GENCODE. The similarity matrices were then built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among microRNAs and among the genes' 3' UTRs. The alignments were performed using the BLASTN substitution matrix and no gap penalty, with the help of the Biopython package~\cite{cock2009biopython}.
-
-Each miRNA was required to have at least 10 interactions in the dataset, and each gene was required to have at least 100 interactions.
-
-%\subsection{NPInter~\cite{wu2006npinter, teng2020npinter}}
-Interactions between long non-coding RNAs (lncRNA) and proteins were recovered from NPInter~\cite{wu2006npinter, teng2020npinter}. The lncRNA sequences were obtained from NONCODE~\cite{zhao2016noncode} and the protein sequences were obtained from UniProt~\cite{uniprot2019}. The similarity matrices were built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among lncRNAs and among the proteins. Similarly to the preprocessing of mirTarBase, we leveraged the Biopython package~\cite{cock2009biopython} to perform the alignments. using the BLASTN and BLOSUM62 substitution matrices for the lncRNA and protein alignments, respectively, and no gap penalty in both cases.
-
-Each lncRNA was required to interact with 50 proteins or more in the dataset, and each protein was required to have at least 2 interactions.
-
-
-\section{Model evaluation protocol}
-\label{sec:evaluation_protocol}
-
-% stat testing, multiple comparisons, etc
-
-\subsection{Model validation}
-\label{sec:cross_validation}
-
-To evaluate machine learning models, the standard procedure consists of separating a subset of data samples not to be used in the training process. These samples are subsequently inputted to the trained model and its known labels are compared to the model's predictions in order to estimate the algorithm performance. The hold-out samples are collectively called the \emph{test set} while the remaining ones used for model building are called the \emph{training set}.
-
-Since bipartite interaction datasets present two distinct categories of instances and the model's input is a pair of them, one from each group, additionally to a traditional "unknown test set" there are two mixed training/test folds possible: we could test our model performance when predicting interactions between instances from $X_1$ that are present in the training set and instances from $X_2$ present in the test set, and vice-versa. Similarly to \ref{pliakos2018}, % TODO: did they invent it?
-we name those settings \emph{LT}, after "learned $X_1$, test $X_2$", and \emph{TL}, after "test $X_1$, learned $X_2$". The usual cross-validation setting with completely new test pairs is then called \emph{TT}, and the training set could alternatively be called the \emph{LL} set.
-
-In the present work, we make use of an adapted $k$-fold cross-validation procedure to evaluate our models' performance. With customary datasets formatted as $X_\text{SGSO}$ and $Y_\text{SGSO}$, $k$-fold cross-validation consists in equally and randomly dividing both $X_\text{SGSO}$ and $Y_\text{SGSO}$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, each time selecting a fold as the test set and the remaining ones as the training set (Figure \ref{}).
-
-In the interaction setting though, with a two-dimensional interaction matrix, fold division can be done in each of the two axis, corresponding to each of the two $X_a$ sample groups. Each of the $k_1$ "axis-folds" of $X_1$ can be combined with one of the $k_2$ axis-folds of $X_2$ to make up a $Y$ fold and split the dataset in the corresponding four LL, LT, TL and TT subsets. If all axis-fold combinations are explored, a $k_1$ by $k_2$ two-dimensional cross-validation naturally has a total of $k_1k_2$ folds. 
-
-However, an argument can be made about not sharing axis-folds between $Y$-folds, to ensure all folds are completely independent and no information is shared between models built on each fold. For instance, if a particular $X_1$ axis-fold happens by chance to be unrepresentative of the remaining instances in $X_1$, all $k_2$ folds that include this axis-fold are expected to yield poor prediction scores. A statistical test comparing two of such score populations then would be biased towards considering those $k_2$ anomalously distributed points as a significant difference, while in reality they come from a single stochastic event, not $k_2$ events as could be apparent.
-
-To achieve fold-independence, each fold must be built from a completely different pair of axis-folds, which can be simply done by selecting $k=k_1=k_2$ and pairing each $X_1$ axis-fold with a single $X_2$ axis-fold, yielding a total of $k$ folds, not $k^2$ as when all axis-fold combinations are used (Figure \ref{}). While $k_1\neq k_2$ is still theoretically possible, the total number of folds will always be equal to the least $k_a$ value, and the axis corresponding to the greater $k_a$ would have unexploited axis-folds when creating the test sets.
-
-We refer to the aforementioned two-dimensional cross-validation procedure built from a one-to-one mapping of $k$ $X_1$ axis-folds to $k$ $X_2$ axis-folds as $k$-fold \emph{diagonal} cross-validation.
-
-% TODO: why we don't use it.
-
-In order to maximize the amount of training data in each fold, several studies \ref{} perform LT and TL validation separately from the TT validation, employing 1 by $k$ and $k$ by 1 cross-validation procedures respectively for LT and TL settings. Nevertheless, this requires performing cross-validation three times for each estimator, while TT cross-validation already unavoidably generates LT and TL partitions that could be used for scoring. Furthermore, using separate LT, TL and TT validation procedures hinders score comparison between LT and TT and between TL and TT, since different amounts of training data would be used for validating TT in comparison to validating the partially-learned test sets.
-
-
-\subsection{Prediction scoring metrics}
-\label{sec:prediction_metrics}
-
-% TODO classification
-
-This section is concerned with defining the two metrics used throughout this work to evaluate the predictive performance of an estimator and enable comparison between them. Consider a test set of $N$ interaction labels to be inferred by a classifier (we are not concerned with the shape of $Y$ in this section, and $N=|Y|$). Let the classifier's predictions then be represented by a matrix $\hat Y$ of the same shape as $Y$, with $\hat Y\el{ij}$ being the predicted value for the ground-truth label $Y\el{ij}$. Since $Y$ and $\hat Y$ are both binary matrices, there are four possible outcomes when a prediction is made, traditionally quantified~\cite{} as follows:
-%
-\begin{itemize}
-    \item \textbf{True Positives (TP):} the number of positive labels correctly predicted, where both the predicted and actual labels are 1.
-    \begin{equation}
-        TP = \sum_{i,j} \mathbb{I}(Y\el{ij} = 1 \text{ and } \hat{Y}\el{ij} = 1)
-    \end{equation}
-
-    \item \textbf{True Negatives (TN):} the number of negative labels correctly predicted, where both the predicted and actual labels are 0.
-    \begin{equation}
-        TN = \sum_{i,j} \mathbb{I}(Y\el{ij} = 0 \text{ and } \hat{Y}\el{ij} = 0)
-    \end{equation}
-
-    \item \textbf{False Positives (FP):} the number of instances where the predicted label is positive (1), but the actual label is negative (0).
-    \begin{equation}
-        FP = \sum_{i,j} \mathbb{I}(Y\el{ij} = 0 \text{ and } \hat{Y}\el{ij} = 1)
-    \end{equation}
-
-    \item \textbf{False Negatives (FN):} the number of instances where the predicted label is negative (0), but the actual label is positive (1).
-    \begin{equation}
-        FN = \sum_{i,j} \mathbb{I}(Y\el{ij} = 1 \text{ and } \hat{Y}\el{ij} = 0)
-    \end{equation}
-\end{itemize}
-%
-where \(\mathbb{I}(A)\) is the indicator function that equals 1 if statement \(A\) is true and 0 otherwise:
-%
-\begin{equation}
-    \mathbb{I} = \begin{cases}
-        1 & \text{if } A\\
-        0 & \text{otherwise}
-    \end{cases}
-    \label{eq:indicator}
-\end{equation}
-%
-Notice that the sum of TP, TN, FP and FN is equal to the total number of instances $T$, and we also define $\text{P}=TP+FN$, the total number of \textit{a priori} positive labels in the test set, and $\text{N}=TN+FP$, the total number of \textit{a priori} negative labels. The total number of predicted positives is termed $\text{PP}=TP+FP$ and the remaining predicted negatives are called $\text{PN}=TN+FN$.%TODO cite
-%- \(n\) is the total number of instances.
-%- \(Y_i\) represents the ground-truth label for instance \(i\).
-%- \(\hat{Y}_i\) represents the predicted label for instance \(i\).
-
-% TODO: we use micro version of the metrics. should we use other forms?
-
-Those quantities can be organized in the so-called \emph{confusion matrix}, illustrated by \autoref{fig:scoring}.
-
-Naturally, one wants their estimator to maximize TP and TN while minimizing FP and FN. For the metrics to be comparable across different datasets of different numbers of instances, they are often normalized to the interval [0, 1] in numerous ways. Three of them are used in this work: 
-%
-\begin{itemize}
-    \item \textbf{True positive rate (TPR)} or \textbf{recall:} the ratio of correctly predicted positive labels to the total number of positive labels.
-    \begin{equation}
-        TPR = \frac{TP}{P} = \frac{TP}{TP + FN}
-        \label{eq:tpr}
-    \end{equation}
-    \item \textbf{True negative rate (TNR):} the ratio of correctly predicted negative labels to the total number of negative labels.
-    \begin{equation}
-        TNR = \frac{TN}{N} = \frac{TN}{TN + FP}
-        \label{eq:tnr}
-    \end{equation}
-    \item \textbf{False positive rate (FPR):} the ratio of incorrectly predicted positive labels to the total number of negative labels.
-    \begin{equation}
-        FPR = \frac{FP}{N} = \frac{FP}{FP + TN} = 1-TNR 
-        \label{eq:fpr}
-    \end{equation}
-    \item \textbf{Precision:} the ratio of correctly predicted positive labels to the total number of predicted positive labels.
-    \begin{equation}
-        Pr = \frac{TP}{PP} = \frac{TP}{TP + FP}
-    \end{equation}
-\end{itemize}
-These metrics are better visualized in \autoref{fig:scoring}.
-
-An optimal binary classifier will thus present high TPR, TNR and precision while minimizing FPR.
-In real-world scenarios, however, building estimators to simultaneously optimize all these metrics is not a straightforward problem. Often, the task manifests itself as a tradeoff between the abilities to effectively classify each of the classes, usually formulated as a balance between TPR and TNR. For instance, if a classifier trivially outputs positive labels for all instances irrespectively of the input features, it will achieve perfect TPR, but its TNR will be null. On the other hand, if a negative label is outputted every time, an ideal TNR will be achieved at the expense of a null TPR. Although seldom as extreme as those examples, classifiers will often lean into one of those directions, displaying a tendency towards yielding more positive
-%(\emph{sensitivity})
-or more negative
-%(\emph{specificity})
-labels.
-
-The preference for each of these tendencies is highly application-specific. For instance, in the process of diagnosing medical conditions, sensitivity (TPR) is often prioritized, favoring the identification of all true cases at the expense of some misleading positive results.
-In this case, the cost of missing a positive result is usually far greater than that of a false positive. In other scenarios, such as spam email filtering, specificity (TNR) might be favored to minimize the number of legitimate emails marked as spam, even if some spam emails go undetected. The choice between these tendencies reflects the trade-off between correctly identifying positive instances and correctly identifying negative instances and should align with the specific goals and constraints of the classification problem at hand.
-
-Deciding between those characteristics across a variety of learning tasks
-is thus a challenging factor to be taken into account, especially in cases where this balance can be finely adjusted.
-%
-Many estimators, such as those employed in the present study, do not directly output a binary label but instead provide us with a continuous decision value (such as a probability of interaction) that additionally depends on specifying a threshold point to establish the final predicted classes. This choice of threshold directly affects the propensity to positive or negative outputs, so that a single model can yield multiple different results with varying levels of TPR and TNR depending on the chosen thresholds.
-
-To avoid the trouble of defining threshold values, influencing each estimator's TPR-TNR balance and hindering fair comparison between them, it is common to consider TPR and TNR for all thresholds.
-Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible classification results of a model. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and TNR are each indicated by an axis. Conventionally, the TPR is plotted in the $y$ axis while the FPR values (representing the TNR, $FPR=1-TNR$) are presented as $x$ coordinates, which results in the traditional \emph{receiver operating characteristic} (ROC) curve, exemplified by \autoref{fig:roc}.
-An ideal threshold of an ideal estimator would then be close to the top-left corner of the plot, where TPR and TNR are both 1.
-On the other hand, consider a completely random classifier outputting uniformly random values $\hat Y\_\text{proba}\el{ij}$ in the 0-1 interval so that $\hat Y\el{ij} = \mathbb{I}(\hat Y_\text{proba}\el{ij} > t)$ for a given threshold $t$. This implies that the number of correctly guessed positive labels is $1-t$ (the probability of yielding 1) times the total number of positive labels: $TP = (1-t) (TP+FN)$, which results in $TPR = 1-t$ from the definition. Similarly, it is easily shown that $FPR = TPR = 1-t$, so that the ROC curve of a random classifier is a diagonal line from the bottom-left to the top-right corners.
-
-%$FP = (1-t)(TN + FP)$
-
-% TODO interpretation of roc
-% TODO its TPR and TNR balance, not TP and TN
-
-To summarize a classifier's performance across all thresholds, the area under the ROC curve (AUC ROC) is often employed, with values ranging from 0.5 to 1, where 1 represents a perfect classifier and 0.5 represents a random classifier. Although theoretically possible, values below 0.5 would signify the opposite label is being consistently predicted, most likely indicating misconfiguration of the estimator. If AUROC < 0.5, the result can be easily converted to a value greater than 0.5 by simply inverting the predicted labels (turning 0s into 1s and vice-versa).
-
-Despite considerably common, the use of ROC curves with heavily imbalanced classification datasets (where some classes are greatly overrepresented) requires additional considerations~\cite{he2009learning,saito2015precision,fernandez2018learning}.
-For instance,% let $p$ be the fraction of positive labels relative to the total number of labels: $p = \frac{TP + FN}{N}$.
-consider the case where $NEG \gg POS$. Since the denominator of TNR is far greater than the denominator of TPR, a change in TN (for example, missing one more negative label) will have a much smaller impact on TNR than a change in TP (missing a positive label) will have on TPR.
-Specifically, an increase of $k$ in TN will cause an increase in TNR $\frac{NEG}{POS}$ times greater than the increase in TPR caused by the same $k$ increase in TP.
-
-% Positive labels (the minority class) have more weight
-
-Given that ROC equally considers both metrics, classifiers that are more sensitive to positive labels will be favored over those prioritizing negative outputs. By the same logic, ROC will also be more lenient towards false positives (that decrease TNR) rather than false negatives (that decrease TPR).
-
-To address this issue, it is commonly suggested the usage of precision-recall (PR) curves instead~\cite{ozenne2015precision,he2009learning}, where the precision is plotted as the vertical coordinate while the \emph{recall} (another name for TPR, also called \emph{sensitivity}) is represented horizontally. In the PR space, considering fixed P and N, a simultaneous increase in TP and TN results in the following improvement in precision:
-%
-\begin{equation}
-    \Delta Pr =
-    \frac{TP + k}{TP + k + FP - k}
-    - \frac{TP}{TP + FP}
-    = \frac{k}{TP + FP}
-    % \frac{k}{TP + FN}
-    % PR area increase: \frac{k^2}{(TP + FP)(TP + FN)}
-    % PR area increase: \frac{k^2}{(TP + FP)(TP + FN)}
-    % PR area increase: \frac{k^2}{(TP + NEG - TN) POS}
-    % ROC area increase: \frac{k^2}{NEG POS}
-\end{equation}
-%
-which is arguably less sensitive to the strategy of increasing FP to obtain larger TP, in comparison with AUROC. %TODO better explanation
-
-% A formal explanation of the differences between ROC and PR curves is developed in the following section.  % TODO: better?
-The following section delves into those considerations with a higher level of detail, formally defining such metrics in the ideal scenario.
-
-% TODO FP represents TN (NEG - TN), so plot TP vs. FP. Precision and recall are similar for those two metrics.
-
-%TODO at least 3 of the 4 basic metrics must be included
-
-% Changes of precision as a function of TN and TP separately
-% \begin{equation}
-%     \frac{TP}{TP + FP - k}
-%     - \frac{TP}{TP + FP}
-%     = \frac{TP k}{(TP + FP)(TP + FP - k)}
-%     = \frac{TP k}{(TP + FP)^2 - (TP + FP) k}
-% \end{equation}
-% 
-% \begin{equation}
-%     \frac{TP + k}{TP + FP + k}
-%     - \frac{TP}{TP + FP}
-%     = \frac{(TP + k)(TP + FP) - (TP)(TP + FP + k)}{(TP + FP)(TP + FP + k)}
-%     = \frac{(TP^2 + TP*FP + kTP + kFP) - (TP^2 + TP*FP + kTP)}{(TP + FP)(TP + FP + k)}
-%     = \frac{k FP}{(TP + FP)(TP + FP + k)}
-%     = \frac{k (NEG - TN)}{(TP + FP)(TP + FP + k)}
-% \end{equation}
-
-
-% \begin{equation}
-%     \sum_t \Delta TPR_t \Delta FPR_t / 2 + TPR_t * FPR_t
-%     % = \sum_t \frac{k_t^2}{NEG * POS} / 2 + \frac{TP_t TN_t}{NEG * POS}
-%     = \sum_t \frac{k_t^2}{NEG * POS} / 2 + \Delta TNR_t * TPR_t
-%     = \sum_t \sum_t \frac{k_t^2}{NEG * POS} / 2
-% \end{equation}
-% 
-% \begin{equation}
-%     TPR = tp / pos
-%     FPR = fp / (1 - pos)
-%     Precision = tp / (tp + fp)
-% \end{equation}
-% 
-% \begin{equation}
-%     pos is not the ideal tp + fn, it is simply POS / N
-%     you cannot asume c = ppos
-% 
-%     TPR = (tp/(tp + fp)) * c / pos = prec * c / pos
-%     c = pos * TPR (tp + fp) / tp
-% 
-%     TPR = c - FPR
-% 
-%     FPR = fp/(fp + tp) * c / (1 - pos)
-%     FPR = fp / (fp + tp) * (pos * TPR * (tp + fp)) / ((1 - pos) * tp)
-%     FPR = fp * pos * TPR / ((1 - pos) * tp)
-%     TPR = ((1 - pos) * tp) * FPR / (pos * fp)
-% 
-%     Precision = tp / (tp + fp)
-%     Precision = 
-% \end{equation}
-% 
-% \begin{equation}
-%     TPR = p * c / pos
-%     p = pos * TPR / c
-%     Precision = p = pos * TPR / c
-% \end{equation}
-
-% qualquer estimador é descrito por uma matriz de confusão teórica. Para qualquer estimador, pode se calibá-lo, isso é, usar um parâmetro c que dá uma porcentagem de vezes que, aleatóriamente, mudamos uma predição negativa para positiva ou vice versa. as curvas são em função desse parâmetro. para uma determinada métrica agora em um conjunto de dados real, provemos que o melhor c é o correspondente á proba à priori do conjunto (desbalanceamento). O estimador então pode ajustá-la de acordo com essa proba que ele acha que é a certa. a questão é que ele não tem como saber, então consideramos todas as probas que ele poderia pensar.
-
-% TODO problems with imbalance
-% TODO aupr
-% TODO problems with imbalance of auroc maybe are not problems with PU learning
-
-%\section{Common approaches to build bipartite models}
-%\label{sec:common_approaches}
-
-\subsection{Ideal descriptions of AUROC and AUPRC}
-% TODO previous explanations restrained to specific examples and distant analogies. (hans2009 and davis2006 are nice exceptions)
-
-Consider a general estimator outputting a decision value $s \in \mathbb{R}$ for each input instance. The final class to be assigned is still to be defined by a threshold $s^*$ so that $\hat Y\el{ij} = \mathbb{I}(s\el{ij} > s^*)$. For the ideal case of an infinite number of test samples, the possible scoring results of the estimator would be fully determined by the two theoretical distributions of $s$ given the true label $Y\el{ij}$, i.e. the probability density functions $P(s \mid Y\el{ij} = 1)$ and $P(s \mid Y\el{ij} = 0)$. Similar to \textcite{hand2009measuring}, we thus define the probability density functions $f_k$ and their corresponding cumulative distribution functions $F_k$ for each of the two classes $k \in \{0, 1\}$:
-%
-\begin{gather}
-    f_0(s) = P(s \mid Y\el{ij} = 0) \\
-    f_1(s) = P(s \mid Y\el{ij} = 1) \\
-    F_0(s) = \int_{-\infty}^s f_0(u)\;du \\
-    F_1(s) = \int_{-\infty}^s f_1(u)\;du
-    \label{eq:ideal_confusion_matrix}
-\end{gather}
-%
-By further defining $p=\frac{P}{T}=P(Y_\text{test}\el{ij}=1)$ and $n=\frac{N}{T}=P(Y_\text{test}\el{ij}=0)$ as the fractions of positive and negative labels in the test set, respectively, we can express the expected values of the confusion matrix as functions of a given threshold $s^*$ for the decision value $s$:
-%
-\begin{gather}
-    \text{TP}(s^*) = p (1 - F_1(s^*)) \\
-    \text{TN}(s^*) = n F_0(s^*) \\
-    \text{FP}(s^*) = n (1 - F_0(s^*)) \\
-    \text{FN}(s^*) = p F_1(s^*)
-\end{gather}
-%
-which, in turn, yields
-%
-\begin{gather}
-    \text{TPR}(s^*) = 1 - F_1(s^*) \\
-    \text{TNR}(s^*) = F_0(s^*) \\
-    \text{FPR}(s^*) = 1 - F_0(s^*) \\
-    \text{Pr}(s^*) = \frac{p (1 - F_1(s^*))}{p (1 - F_1(s^*)) + n (1 - F_0(s^*))}
-\end{gather}
-
-The area under the ROC curve can now be expressed as
-%
-\begin{equation}
-    A_\text{ROC}
-    = \int_{0}^{1} \text{TPR}(\text{FPR}) \;d\text{FPR}
-    = \int_{\infty}^{-\infty} \text{TPR}(s) \frac{d\text{FPR}(s)}{ds} \;ds
-    = \int_{-\infty}^{\infty} (1 - F_1(s)) f_0(s) \;ds
-    \label{auroc0}
-\end{equation}
-%
-in which the integration limits arise from noticing that FPR is maximal when all instances are classified as positive, i.e. the decision threshold is as low as possible ($s^* = -\infty$), and minimal when all instances are classified as negative, i.e. $s^* = \infty$. This formulation of AUROC by \autoref{eq:auroc0} leads to the most commonly promoted intuition behind the metric.
-%
-The first factor ($1- F(s^*)$), represents the fraction of positive instances that are ranked higher than the threshold $s^*$, alternatively expressed as $\int_{s^*}^{\infty}f_1(s)\; ds$. $f_0$, as defined by \autoref{eq:ideal_decision_matrix}, represents the probability of finding a negative instance within $s^*$ and $s^* + ds$. Hence, the product of both factors represents the joint probability of having a negative instance between $s^*$ and $s^* + ds$ while also finding a positive instance with a higher decision value than that of the negative instance. 
-%
-Upon integration over all possible thresholds, we conclude that the AUROC score represents the overall probability of randomly selecting a positive instance ranked higher by the estimator than a randomly selected negative instance~\cite{}.
-
-From \autoref{eq:auroc0}, the baseline score of a random classifier is easily derived. In our current setting, a random classifier can be precisely defined as an estimator incapable of distinguishing between the true label distributions, that is, a classifier is a random classifier if and only if $f_0(s) = f_1(s) \forall s$. As a consequence,
-%
-\begin{equation}
-    A_\text{ROC}
-    = \int_{-\infty}^{\infty} (1 - F_0(s)) f_0(s) \;ds
-    = -\int_{-\infty}^{\infty} (1 - F_0) \;d(F_0)
-    = \left[\frac{(1-F_0)^2}{2}\right]_{-\infty}^{\infty}
-    = \frac{1}{2}
-    \label{auroc_random}
-\end{equation}
- 
-\autoref{eq:auroc0} also formally defines the disadvantage of AUROC for imbalanced datasets discussed in the previous section.
-%
-By definition of the training and test sets, the negative test instances are independent and identically distributed to the negative instances of the training set, with the same being held for the positive instances. Under this assumption, the probability density functions $f_0$ and $f_1$ are independent of the label imbalance of the test set, being solely determined by the nature of the learning algorithm and the training data. As a result, \autoref{eq:auroc0} lets clear that the AUROC score is independent of the relative prevalence of each class in the test set, with no influence of $p$ or $n$ and only the dependency on the learned decision value distributions.
-
-We can alternatively formulate this argument by expressing AUROC in terms of TN and TP themselves. While the variation of the decision values $ds$ is a considerably abstract concept in real-world scenarios, variations of TP and TN are directly related to the number of correctly classified instances of each class.
-%
-\begin{equation}
-    A_\text{ROC}
-        = \frac{1}{n} \int_{0}^{n} \frac{\text{TP}(\text{TN})}{p}\;d\text{TN}
-    \label{eq:auroc_tptn}
-\end{equation}
-%
-%Notice how TP and TN are respectively divided by $p$ and $n$ in \autoref{eq:auroc_tptn}. % TODO better?
-From \autoref{eq:auroc_tptn}, the AUROC can \emph{almost} be interpreted as the mean value of TP when TP is expressed in terms of TN, for all TN values, in which case $\frac{1}{n}$ is merely the normalization factor (the length of the integration interval). The only fact defying such interpretation is the division of TP by $p$. As a result, while TN is simply the integration variable, TP is weighted by $\frac{p}$, so that smaller values of $p$ attribute more importance to TP relative to TN, at each point of the ROC curve.
-
-This property precisely defines the specific implications of using AUROC for imbalanced datasets presented by \autoref{sec:evaluation_protocol}. In such cases, one must have in mind that misclassifications will effectively be inversely weighted by their respective true class prevalences, with misclassifications of the majority class being more tolerated individually than those of the minority class. In other words, if positives are the underrepresented class of a problem, AUROC will be more lenient towards false positives than false negatives.
-%TODO for an estimator with same TP and TN but different p and n, ...
-%TODO variational calculus, how to hack the auroc
-%TODO aucroc is proportional to the expected accuracy
-
-If the class distribution of the test set is not an inherent property of the problem under study and the main research interest lies in probing the underlying label distributions $f_0$ and $f_1$, this independence from $p$ may be a desired characteristic of AUROC. However, if the label imbalance is in fact a consistent feature of the learning task, taking it into consideration may report a more realistic portrait of the model performance in future studies. If the positive class is always heavily underrepresented in a given learning task, for example, one may intend to prioritize the correct classification of negative instances, since the overall number of correct classifications will be more influenced by them. More generally, the choice to be made is usually between scoring based on the absolute metrics TP and TN, directly related to the number of samples, or the relative metrics TPR and TNR, relying on fractions of negatives and positives.
-
-In scenarios of high class imbalance and where the absolute metrics are the main focus,
-% TODO maybe remove following
-i.e. constraining the number of false positives is as important as increasing the number of true positives,
-it is often recommended the usage of precision-recall (PR) curves as a replacement for ROC~\cite{ozenne2015precision,he2009learning,krawczyk2016learning,fernandez2018learning}.
-%TODO the precision weights fp as blablabl
-%XXX
-As one shall see, the area under the PR curve behaves slightly differently than AUROC under imbalanced circumstances. Let's define it.
-%
-\begin{multline}
-    A_\text{PRC}
-    = \int_{0}^{1} \text{Pr}(\text{TPR}) \;d\text{TPR}
-    = \int_{\infty}^{-\infty} \text{Pr}(s) \frac{d\text{TPR}(s)}{ds} \;ds
-    =\\
-    = \int_{-\infty}^{\infty} \text{Pr}(s) f_1(s)\;ds
-    = \int_{-\infty}^{\infty} \frac{p (1 - F_1(s)) f_1(s) \;ds}{p (1 - F_1(s)) + n (1 - F_0(s))}
-    \label{eq:auprc0}
-\end{multline}
-%
-Although less rich in interpretations in comparison to AUROC, in \autoref{eq:auprc0} we promptly see the main intuitive formulation of AUPRC as an average over precision as a function of the true positives. Here it may be useful to bring back the discrete scenario of real classification problems, where each sample of the training set defines a threshold $s*$. With the precision weighted by the positive samples' distribution in \autoref{eq:auprc0}, AUPRC would thus be the average precision considering only the threshold values $s*$ defined by a true positive sample.
-
-Furthermore, the true label cumulative distributions ($F_0$ and $F_1$) appear each weighted by their respective class prevalences ($p$ and $n$). As a result, expressing the AUPR in terms of TP and FP yields no dependence on $p$ or $n$ apart from dividing by the length of integration interval $\frac{1}{p}$ that characterizes the averaging procedure:
-%
-\begin{equation}
-    A_\text{PRC}
-    =
-        \frac{1}{p}
-        \int_{0}^{p}
-            \left(1-\frac{\text{FP}}{\text{TP}}\right)^{-1}
-        \;d\text{TP}
-    % =
-    %     \frac{1}{p}
-    %     \int_{0}^{p}
-    %         \left(1-\frac{n-\text{TN}}{\text{TP}}\right)^{-1}
-    %     \;d\text{TP}
-\end{equation}
-%
-% TODO why FP instead of TN write in the previous section
-% Another distinguishing characteristic of AUPR is its dependence on FP rather than TN.
-
-To better describe the differences between using the absolute metrics and the relative metrics, we can once again bring our theoretical formulation closer to real-world applications. When computing AUROC or AUPR for a given estimator on a test set, the values of the decision function $s$ are not directly used. Instead, the decision values outputted for each test instance are used to rank them from lowest to highest, and from these ranked test labels the curves and respective areas are obtained. The specific values of $s$ are thus indifferent to the scoring process, as long as the ranking is preserved. If the percentile ranking of each test instance is denoted by $r \in [0, 1]$ and each test instance is associated with a decision value, there is a one-to-one monotonic correspondence between $r$ and $s$ in the limit of an infinite number of test samples. While $s$ can often represent a rather abstract concept, $r$ is directly related to the number of instances below a given threshold. Formally, if we define $f(s)$ as the total distribution of decision values irrespectively of their true labels and $F(s)$ as the corresponding cumulative distribution, we have
-% TODO we take the freedom to represent f(r) = f(s(r))
-%
-%\begin{equation}
-%    f(s) = P(s) = pf_1(s) + nf_0(s)
-%\end{equation}
-%
-\begin{gather}
-    dr = f(s) ds = [pf_1(s) + nf_0(s)] ds\\
-    r = F(s) = pF_1(s) + nF_0(s)
-\end{gather}
-%
-%so that a change $dr$ represents a change in the number of instances between $s$ and $s+ds$. 
-AUPRC as defined in \autoref{eq:auprc0} can now be written as
-%
-\begin{multline}
-    A_\text{PRC}
-    = p \int_{0}^{1}
-        %\frac{1 - \int \frac{f_1(r)}{f(r)} \;dr}{(p+n) - [pF_1(r) + nF_0(r)]}
-        \frac{1 - F_1(r)}{(p+n) - [pF_1(r) + nF_0(r)]}
-        \; \frac{f_1(r)}{f(r)}
-    \;dr
-    = p \int_{0}^{1}
-        \frac{[1 - F_1(r)]f_1(r)}{[1 - F(r)]f(r)}
-    \;dr
-    =\\
-    = p \int_{0}^{1}
-    %\left[
-        \frac{1 - \int \frac{f_1(r)}{f(r)} \;dr}{1 - r}
-    %\right]
-    %\left[
-        \; \frac{f_1(r)}{f(r)}
-    %\right]
-    \;dr
-    = \int_{0}^{1}
-        \frac{1 - \frac{1}{p}C(r)}{1 - r}
-        \; c(r)
-    \;dr
-    \label{eq:auprc1}
-\end{multline}
-%
-where we define
-%
-\begin{gather}
-    c(r) = \frac{p f_1(r)}{f(r)} = \frac{p f_1(r)}{pf_1(r) + nf_0(r)}\\
-    C(r) = \int c(r) \;dr = p F_1(r)
-\end{gather}
-
-\begin{multline}
-    \int_{0}^{1}
-        \frac{1 - \frac{1}{p}C(r)}{1 - r}
-        \; c(r)
-    \;dr
-    = \int_{0}^{1}
-        \frac{1}{1 - r}
-        \; \left(-\frac{p}{2}\right)
-        \; \frac{d [1 - \frac{1}{p}C(r)]^2}{dr}
-    \;dr
-    =\\
-    =
-    - \frac{p}{2}
-    \left|
-        \frac{[1 - \frac{1}{p}C(r)]^2}{1 - r}
-    \right|_0^1
-    + \frac{p}{2}
-    \int_{0}^{1}
-        \left[\frac{1 - \frac{1}{p}C(r)}{1 - r}\right]^2
-    dr
-    =
-    \frac{p}{2} \left\{
-        1 - \lim_{r \to 1} \frac{[1 - \frac{1}{p}C(r)]^2}{1 - r}
-        + \int_{0}^{1}
-            \left[\frac{1 - \frac{1}{p}C(r)}{1 - r}\right]^2
-        dr
-    \right\}
-    =\\
-    =
-    \frac{p}{2}
-    \left\{
-        1 + \int_0^1 \left[\frac{1 - F_1(r)}{1 - r}\right]^2 dr
-    \right\}
-    \label{eq:auprc2}
-\end{multline}
-%
-in which the limit term is determined as follows, using L'Hôpital's rule and noticing that $\frac{C(1)}{p}= F_1(r=1) = 1$ and $c(r) \le 1 \forall r$:
-%
-\begin{equation*}
-    \lim_{r \to 1} \frac{[1 - \frac{1}{p}C(r)]^2}{1 - r}
-    %= \lim_{r \to 1} \frac{- 2 [1 - \frac{1}{p}C(r)] c(r)}{- p}
-    = \frac{2}{p} \lim_{r \to 1} \left[1 - \frac{1}{p}C(r)\right] c(r)
-    = \frac{2}{p} \lim_{r \to 1} (1 - 1) c(1)
-    = 0
-\end{equation*}
-
-\autoref{eq:auprc2} shows us that AUPRC, when expressed in terms of percentile rankings, has a simple linear dependency on the positive class prevalence $p$ of the test set. Although not completely independent, this simple relationship makes the comparison of AUPRC scores across test sets with different class distributions a straightforward task. % TODO predictable well-behaved Just a matter of rescaling.
-
-Another consequence of \autoref{eq:auprc2} is a new interpretation of AUPRC as a linear function over the average \emph{squared} precision across all possible thresholds.
-
-% TODO auroc becomes interesting again for PU
-
-% \subsection{AUROC as the normalized mean percentile ranking}
-The same does not hold for the area under the ROC curve. 
-
-% TODO:
-Consider the ranking of a binary classification test set produced by a given classifier (\autoref{}). Green dots represent positive labels while red dots represent negative labels. A threshold is still to be defined, so the only output of the classifier is the order of test instances represented in the figure, indicating which instances the classifier believes are more likely to belong to the positive class (instances to the right are thought to have higher probability to be positive than instances to the left). Splitting the produced ranking in several equally-sized windows, we call $c\el i$ the average fraction of positive labels in the $i$-th window:
-%
-\begin{equation}
-    c \el i = \frac{\text{# of positives in window }i}{\text{window length}\times \text{P}}
-\end{equation}
-
-%%% TODO: c(r) has a maximum value of 1/p, but it shouldn't depend on p?
-%%For a sufficiently large number of samples, $c\el i$ approximates a function $c(r)$ describing the density of positive labels as a function of the classifier's percentile ranking $r$. The probability of classifying a sample between $r$ and $r+dr$ as positive is then given by $c(r)dr$, while $\int_{0}^{1}c(r)\;dr = 1$. Notice that $c(r)$ is independent of the label imbalance of the test set, since it is normalized by the fraction of positive labels $P$ and depends only on the underlying probabilities of predicting a decision value given the true label. For instance, consider a classifier characterized by the distributions% as suggested by \textcite{saito2015precisionrecall}:
-%%%
-%%\begin{gather}
-%%    P(\hat Y\el{ij} = 1 | Y\el{ij} = 1) = \beta(1, 4) \\
-%%    P(\hat Y\el{ij} = 1 | Y\el{ij} = 0) = \beta(4, 1)
-%%\end{gather}
-%%%
-%%$c(r)$ will be given by
-%%%
-%%\begin{equation}
-%%    c(r) = P(\hat Y\el{ij} = 1 | r) = \frac{\beta(1, 4)}{\beta(4, 1) + \beta(1, 4)}
-%%\end{equation}
-%%%
-%%as illustrated by \autoref{fig:}.
-%%
-%%% TODO define confusion matrix
-%%Plotting $p \cdot c(r)$ as a function of the percentile ranking offers an interesting way of visualizing the confusion matrix generated by each threshold, since the threshold values naturally have a one-to-one monotonic relationship with the values of $r$ (\autoref{fig:}). Under this representation, we can define
-%%%
-%%\begin{equation}
-%%    tp(r) = \frac{TP}{N} = p\left(1 - \int_{0}^{r} c(r)\;dr\right)
-%%\end{equation}
-%%\begin{equation}
-%%    tn(r) = \frac{TN}{N} = r - p\int_{0}^{r} c(r)\;dr
-%%\end{equation}
-%%\begin{equation}
-%%    fp(r) = \frac{FP}{N} = n - r + p\int_{0}^{r} c(r)\;dr
-%%\end{equation}
-%%\begin{equation}
-%%    fn(r) = \frac{FN}{N} = p\int_{0}^{r} c(r)\;dr
-%%\end{equation}
-%%%
-%%which yields
-%%%
-%%\begin{equation}
-%%    tpr(r) = \frac{tp(r)}{p} = 1 - \int c(r)\;dr
-%%\end{equation}
-%%\begin{equation}
-%%    fpr(r) = \frac{fp(r)}{n} = 1 - \frac{r}{n} + \frac{p}{n}\int c(r)\;dr
-%%\end{equation}
-%%\begin{equation}
-%%    pr(r) = \frac{tp(r)}{1-r} = \frac{p}{1-r} \left(1 - \int c(r)\;dr\right)
-%%\end{equation}
-%%%
-%%As such, the area under the ROC curve (AUC ROC) is now given by
-%%%
-%%\begin{multline}
-%%    A_\text{ROC}
-%%    = \int_{0}^{1} tpr \;d(fpr)
-%%    = -\int_{fpr(1)}^{fpr(0)} tpr \frac{d(fpr)}{dr} \;dr
-%%    %= \int_{1}^{0} \left(1 - \int c(r)\;dr \right) \frac{1}{n} \left(-1 + p\,c(r)\right) \;dr
-%%    =\\
-%%    = \int_{0}^{1} \left(1 - \int c(r)\;dr \right) \frac{1}{n} \left(1 - p\,c(r)\right) \;dr
-%%    \label{eq:auroc1}
-%%\end{multline}
-%%%
-%%\autoref{eq:auroc1} leads to the most commonly promoted intuition behind AUROC. Notice that the analogous of the function $c(r)$ for the negative class can be found with 
-%%$\frac{1}{n} \left(1 - p\,c(r)\right)$, precisely the last factors of \autoref{eq:auroc1}.
-%%%
-%%The first factor ($1- \int c(r)\;dr $), on the other hand, represents the fraction of positive instances that are ranked higher than the threshold $r$.
-%%%
-%%As a consequence, both factors combined represent the probability of finding a negative instance between $r$ and $dr$ while also finding a positive instance with a higher rank than that of the negative instance.
-%%%
-%%Upon integration over all possible thresholds, we conclude that the AUC ROC score represents the overall probability of randomly selecting a positive instance ranked higher than a randomly selected negative instance.
-
-% Defining $C(r) = \int c(r) \; dr$, we can write
-%
-\begin{multline*}
-    A_\text{ROC}
-        = \frac{1}{n} \int_{0}^{1} (1 - \frac{1}{p}C(r)) \left(1 - C'(r)\right) \;dr
-    =\\
-        = \frac{1}{n} \int_{0}^{1} (1 - \frac{1}{p}C(r)) \;dr
-        + \frac{1}{n} \int_{0}^{1} (\frac{1}{p}C(r) - 1) C'(r) \;dr
-    =\\
-        = \frac{1}{n} - \frac{1}{np}\int_{0}^{1} C(r) \;dr
-        + \frac{1}{n} \left[p \frac{(\frac{1}{p}C(r)-1)^2}{2} \right]_0^1
-    %=\\
-        = \frac{1}{n} - \frac{1}{np}\int_{0}^{1} C(r) \;dr - \frac{p}{2n}
-    =\\
-        = \frac{1}{n} - \frac{1-n}{2n} - \frac{1}{np}\int_{0}^{1} C(r) \;dr
-        = \frac{1}{n} - \frac{1}{2n} + \frac{1}{2} - \frac{1}{np}\int_{0}^{1} C(r) \;dr
-    =\\
-        =  \frac{1}{2} + \frac{1}{n}\left[\frac{1}{2} - \frac{1}{p}\int_{0}^{1} C(r) \;dr\right]
-        =  \frac{1}{2} + \frac{1}{n}\left[\frac{1}{2} - \int_{0}^{1} F_1(r) \;dr\right]
-\end{multline*}
-% \begin{multline*}
-%     A_\text{ROC}
-%         = \frac{1}{n} \int_{0}^{1} (1 - C(r)) \left(1 - p C'(r)\right) \;dr
-%     =\\
-%     = \frac{1}{p}\int_0^1 (1 - C(r)) \;dr
-%         - \int_0^1 (1 - C(r)) C'(r)\;dr
-%     =\\
-%     = \frac{1}{p} \left[ 1 + \int_0^1 C(r) \;dr \right]
-%         - \int_{C(0)}^{C(1)} (1 - C(r)) \;dC
-%     =\\
-%         = \frac{1}{p} \left[ 1 + \int_0^1 C(r) \;dr \right]
-%         - \left[ \frac{(1 - C(r))^2}{2} \right]_0^1
-%     =\\
-%     % \frac{1}{2} + \frac{1}{p} \left[1 - \int_0^1 \int c(r) \;dr^2 \right]  % TODO: dr^2 notation?
-%     \frac{1}{2} + \frac{1}{p} \left[1 - \int_0^1 C(r) \;dr \right]  % TODO: dr^2 notation?
-% \end{multline*}
-%
-Integrating by parts we further have
-%
-\begin{multline}
-    A_\text{ROC}
-        =  \frac{1}{2} + \frac{1}{n}\left[\frac{1}{2} - \frac{1}{p}\int_{0}^{1} (r)'C(r)\;dr\right]
-        = \frac{1}{2}
-        + \frac{1}{n}\left[
-            \frac{1}{2}
-            - \left[rF_1(r)\right]_0^1
-            + \frac{1}{p} \int_{0}^{1} r\,c(r) \;dr
-        \right]
-        =\\
-        % = \frac{1}{2}
-        % + \frac{1}{n}\left[
-        %     \frac{1}{2}
-        %     - 1
-        %     + \frac{1}{p} \int_{0}^{1} r\,c(r) \;dr
-        % \right]
-        = \frac{1}{2}
-        +\frac{1}{n}\left[
-            \frac{1}{p} \int_{0}^{1} r\,c(r) \;dr
-            - \frac{1}{2}
-        \right]
-        % = 
-        % \frac{1}{1-p}\left[
-        %     \frac{1-p}{2}
-        %     - \frac{1}{2}
-        %     \int_{0}^{1} r\,c(r) \;dr
-        % \right]
-        % =\\
-        % =
-        % \frac{1}{1-p}\left[
-        %     \int_{0}^{1} r\,c(r) \;dr
-        %     -\frac{p}{2}
-        % \right]
-    \label{eq:auroc}
-\end{multline}
-%
-which offers a different perspective on AUC ROC.  % TODO XXX moment of inertia
-% TODO roc is again interesting for PU data, MPR
-%
-The term $\int_{0}^{1} r\,c(r) \;dr$ represents the average percentile ranking of positive labels, or the average distance of a positive label from the origin in the plot of $c(r)$. This quantity by itself, the mean percentile ranking (MPR), is a common metric in the realm of collaborative filtering for recommendation systems~\cite{hu2008collaborative,johnsonlogistic} and has also been proposed to bipartite interaction prediction~\cite{ezzat2019computational,hao2019opensource,yu2020fpscdti}.
-%
-\begin{equation}
-    \text{MPR} = \int_0^1 r\,c(r) \;dr
-\end{equation}
-%
-At first glance, MPR seems to offer some advantages over AUROC: besides simpler in formulation, MPR also seemingly does not depend on $p$ or $n$, the relative amounts of postive and negative labels in the test set, making comparisons across different test sets more direct. However, consider the maximum and minimum values of MPR, achieved for the ideal $c(r)$ distributions:
-%
-\begin{gather}
-    c_\text{max}(r) = \frac{\mathbb{I}(r > n)}{p}\\
-    c_\text{min}(r) = \frac{\mathbb{I}(r < p)}{p}
-\end{gather}
-%
-The extrema of MPR do in fact depend on $n$:
-%
-\begin{equation}
-    \text{MPR}_\text{max}
-        = \frac{1}{p}\int_n^1 r \;dr
-        = \frac{1 - n^2}{2p}
-        = \frac{1 + n}{2}
-\end{equation}
-%
-\begin{equation}
-    \text{MPR}_\text{min}
-        = \frac{1}{p}\int_0^p r \;dr
-        = \frac{p^2}{2p}
-        = \frac{p}{2}
-        = \frac{1 - n}{2}
-\end{equation}
-%
-If we then try to remedy this issue by normalizing MPR to the $[0, 1]$ interval, we obtain
-\begin{equation}
-    \text{MPR}_\text{norm}
-        = \frac{
-            \text{MPR} - \text{MPR}_\text{min}
-        }{
-            \text{MPR}_\text{max} - \text{MPR}_\text{min}
-        }
-        = \frac{\text{MPR} - \frac{1 - n}{2}}{n}
-        %= \frac{1}{n}\left(\text{MPR} - \frac{1 - n}{2}\right)
-        = \frac{1}{2} + \frac{1}{n}\left(\text{MPR} - \frac{1}{2}\right)
-        = A_\text{ROC}
-\end{equation}
-%
-precisely the expression for the AUROC (\autoref{eq:auroc}). To the best of our knowledge, we thus show for the first time that employing MPR as a metric is equivalent to using AUROC normalized to the $[0, 1]$ interval. Since the statistics for model comparison employed in this study consider only the order of the estimators based on their scores and not the score values themselves, MPR results would not differ in any way from AUROC and hence will not be further considered in this work.
-
-%TODO can borrow from physics the intuition of "moment of inertia"~\cite{}. It would represent the 
-
-% % ROC random estimator
-% \begin{multline}
-%     \frac{1}{2}
-%     +\frac{1}{n} \left(
-%         \frac{1}{p}\int_{n}^{1} r \;dr
-%         - \frac{1}{2}
-%     \right)
-%     = \frac{1}{2}
-%     +\frac{1}{n}\left[
-%         \frac{1}{p}\left(\frac{1}{2} - \frac{n^2}{2} \right)
-%         - \frac{1}{2}
-%     \right]
-%     =\\
-%     = \frac{1}{2}
-%     +\frac{1}{n}\left[
-%         \frac{(1-n)(1+n)}{2p}
-%         - \frac{1}{2}
-%     \right]
-%     = \frac{1}{2}
-%     +\frac{1}{n}\left(
-%         \frac{1+n}{2} - \frac{1}{2}
-%     \right)
-%     = 1
-%     % =
-%     % \frac{1}{2} + \frac{1}{2} + \frac{n}{2n} - \frac{1}{2}
-% \end{multline}
-
-% TODO why precision recall curve
-
-
-\begin{multline}
-    A_\text{PR}
-    = \int_{0}^{1} pr \;d(tpr)
-    = \int_{tpr(0)}^{tpr(1)} pr \frac{d(tpr)}{dr} \;dr
-    %= \int_{1}^{0} \left(1 - \int c(r)\;dr \right) \frac{1}{n} \left(-1 + p\,c(r)\right) \;dr
-    =\\
-    = \int_{0}^{1} \left(p\frac{1 - \int c(r)\;dr}{1-r} \right) (- c(r))\;dr
-    = -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
-    \label{eq:aupr}
-\end{multline}
-
-\begin{multline}
-    -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
-    = -n\int_{0}^{1}
-        \frac{1}{n}\frac{r-pC(r)}{r}
-        \frac{1}{n} \left(1 - p\,c(r)\right)
-    \;dr
-    =\\
-    = -\int_{0}^{1}
-        \frac{r-pC(r)}{r}
-        \left(1 - p\,c(r)\right)
-    \;dr
-    = -p\int_{0}^{1}
-        \left(
-            \frac{1}{p}-\frac{C(r)}{r}
-        \right)
-        \left(\frac{1}{p} - c(r)\right)
-    \;dr
-    =\\
-    =
-    -\int_{0}^{1}
-        \frac{1}{p}-\frac{C(r)}{r}
-    \;dr
-    -p\int_{0}^{1}
-        \left(
-            \frac{1}{p}-\frac{C(r)}{r}
-        \right)
-        \left(-c(r)\right)
-    \;dr
-\end{multline}
-
-\begin{multline}
-    -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
-    = -p \left[
-        \left[\frac{1 - C(r)}{1-r} C(r)\right]_{0}^{1}
-        - \int_{0}^{1} \left(\frac{1 - C(r)}{1-r}\right)' C(r)\;dr
-    \right]
-    =\\
-    = -p \left[
-        \left[\frac{1 - C(r)}{1-r} C(r)\right]_{0}^{1}
-        - \int_{0}^{1} \left(
-            \frac{- C'(r)C(r)}{1-r}
-            + \frac{(1-C(r))C(r)}{(1-r)^2}
-        \right)
-        \;dr
-    \right]
-    =\\
-    = -p \left[
-        \left[\frac{1 - C(r)}{2(1-r)} C(r)\right]_{0}^{1}
-        - \int_{0}^{1} \frac{1}{2}\left(
-            \frac{(1-C(r))C(r)}{(1-r)^2}
-        \right)
-        \;dr
-    \right]
-\end{multline}
-
-
-\begin{multline}
-    \int_{0}^{1} \frac{C(r)C'(r)}{1-r}\;dr
-    =
-        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
-        - \int_{0}^{1} \left(\frac{C(r)}{1-r}\right)' C(r)\;dr
-    =\\
-    =
-        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
-        - \int_{0}^{1} \left(
-            \frac{C'(r)C(r)}{1-r}
-            + \frac{C(r)^2}{(1-r)^2}
-        \right)
-        \;dr
-    =\\
-    =
-        \frac{1}{2}
-        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
-        -
-        \frac{1}{2}
-        \int_{0}^{1}
-            \frac{C(r)^2}{(1-r)^2}
-        \;dr
-\end{multline}
-
-\begin{multline}
-    \int_{0}^{1} \frac{C'(r)}{1-r}\;dr
-    =
-        \left[\frac{C(r)}{1-r}\right]_{0}^{1}
-        - \int_{0}^{1} C(r)\left(\frac{1}{1-r}\right)'\;dr
-    =\\
-    =
-        \left[\frac{C(r)}{1-r}\right]_{0}^{1}
-        - \int_{0}^{1} \frac{C(r)}{(1-r)^2}\;dr
-\end{multline}
-
-% \begin{multline}
-%     \frac{1}{n}\frac{f_1}{pf_1 + n f_0}
-%     =\frac{f_1}{(1-n)f_1 + n f_0}
-%     =\\
-%     =\frac{f_1}{f_1 + n (f_0 - f_1)}
-%     =\frac{1}{(1-n) + n f_0 / f_1}
-%     =\frac{1}{1 + n (f_0 / f_1 - 1)}
-%     \\
-%     =\frac{1}{(1 + n (f_0 / f_1 - 1))^2}
-%     =\frac{1}{(1 + 2n (f_0 / f_1 -1) + n^2(f_0 / f_1-1)^2)}
-%     =\frac{1}{1 + 2n (f - 1) + n^2(f^2 -2f + 1)}
-%     =\frac{1}{1 + 2nf - 2n + n^2f^2 - 2n^2f + n^2}
-% \end{multline}
 
 \section{Stablished algorithms for interaction prediction}
 \label{sec:literature_algorithms}
 
+% TODO native vs adaptations
 
-\section{Linear models}
+\subsection{Linear models}
 \label{sec:linear_models}
 
 One of the simplest approaches to learning problems in general is to assume a linear relationship between the input features and output labels. Formally, for the non-bipartite case, one assumes that the training output matrix $Y$ can be approximated as follows:
@@ -1034,7 +212,7 @@ We also define $W$ slightly differently, ommiting the $X\T$ factor as $W = (S + 
     \hat Y = S W = (S + \alpha I)^{-1} S
 \end{equation}
 
-For the bipartite interaction prediction case, besides standard adaptations as described in \autoref{sec:common_approaches}, a unique formulation is presented by \textcite{vanlaarhoven2011gaussian}. Similar in concept to the standard global single output procedure (\autoref{sec:common_approaches}), the authors consider each interaction pair as a unitary instance. The authors then propose building a kernel matrix relating each pair of instances to another pair, and not each interacting entity to another of the same domain. If $S_1 \in \mathbb{R}^{n_1 \times n_1}$ and $S_2 \in \mathbb{R}^{n_2 \times n_2}$ are the intra-domain similarity matrices, the global kernel matrix $S$ is defined as
+For the bipartite interaction prediction case, besides standard adaptations as described in \autoref{sec:standard adaptations}, a unique formulation is presented by \textcite{vanlaarhoven2011gaussian}. Similar in concept to the standard global single output procedure (\autoref{sec:standard adaptations}), the authors consider each interaction pair as a unitary instance. The authors then propose building a kernel matrix relating each pair of instances to another pair, and not each interacting entity to another of the same domain. If $S_1 \in \mathbb{R}^{n_1 \times n_1}$ and $S_2 \in \mathbb{R}^{n_2 \times n_2}$ are the intra-domain similarity matrices, the global kernel matrix $S$ is defined as
 %
 \begin{equation}
     S\el{(i_1n_2 + i_2)(j_1 n_2 + j_2)} = S_1\el{i_1j_1} S_2\el{i_2j_2}
@@ -1169,8 +347,9 @@ which summarizes to
 %TODO although nrlmf is fast, building a complete tree after is not
 %TODO grid search can be even detrimental in small sparse datasets, since test sets are not representative
 
-\section{Matrix factorization}
-\label{sec:matrix_factorization}
+\subsection{Neighborhood-Regularized Matrix Factorization}
+\subsubsection{Traditional matrix factorization}
+\label{sec:traditional matrix factorization}
 
 Several algorithm proposals have been made throughout the last decades to tackle the problem of bipartite interaction prediction. 
 %TODO collaborative filtering in the context of recommendation systems
@@ -1181,18 +360,18 @@ The idea behind matrix factorization is to find an approximation of the interact
 %
 \begin{equation}
     \hat Y = U V^T \approx Y
-    \label{eq:matrix_factorization}
+    \label{eq:traditional matrix_factorization}
 \end{equation}
 %
 The rows of $U$ and $V$ can be seen as learned representations in a new vector space (usually called \emph{latent} space) of each sample in the row and column domains, so that $U\el{i}$ represents $X_1\el{i}$ and $V\el{j}$ represents $X_2\el{j}$.
 %
-Notice that the number of latent features is constrained by \autoref{eq:matrix_factorization} to be the same for both instance domains: $|U|_j=|V|_j$, being an arbitrary hyperparameter to be defined by the user. Usually, the number of latent features is set to be much smaller than the number of original features ($|U|_j \ll |X_1|_j$ and $|V|_j \ll |X_2|_j$), requiring less computational labor and generating models less susceptible to overfitting.
+Notice that the number of latent features is constrained by \autoref{eq:traditional matrix_factorization} to be the same for both instance domains: $|U|_j=|V|_j$, being an arbitrary hyperparameter to be defined by the user. Usually, the number of latent features is set to be much smaller than the number of original features ($|U|_j \ll |X_1|_j$ and $|V|_j \ll |X_2|_j$), requiring less computational labor and generating models less susceptible to overfitting.
 
 The learning procedure of matrix factorization algorithms thus consists of obtaining such latent feature matrices $U$ and $V$ so to approximate $Y$ as best as possible. The most common approach is to define a loss function that penalizes the difference between the predicted and the true values of $Y$ and to employ gradient descent techniques to gradually change $U$ and $V$ in the direction that minimizes such loss.
 %
 % TODO For instance, 
 
-As can be deduced from \autoref{eq:matrix_factorization}, the dot product of each row of $U$ and $V$ approximates the corresponding element of $Y$:
+As can be deduced from \autoref{eq:traditional matrix_factorization}, the dot product of each row of $U$ and $V$ approximates the corresponding element of $Y$:
 %
 \begin{equation}
     \hat Y\el{ij} = U\el{i} \cdot V\el{j}
@@ -1350,6 +529,10 @@ Therefore, if multiple values of $U$ and $V$ possibly generate the same $\hat Y 
 One may have noticed that the original feature matrices $X_1$ and $X_2$ were not considered in any regard when describing matrix factorization and detailing the objective functions.
 Born in the context of recommendation systems where the relationship labels are usually the only information available, matrix factorization algorithms in general encounter a significant issue when brought to our current scenario of bipartite interaction prediction:
 in its canonic formulation, they do not take sample-level features into account, often called \emph{side information} or \emph{side features} in the recommendation field~\cite{}, possibly overlooking valuable data. As a consequence, they are unable to provide predictions for new samples that were not present in the training set, since no information about them is available to be inputted to the model. This is commonly regarded as the \emph{cold-start problem}~\cite{}. As such, matrix factorization usage is usually restricted to the task of matrix completion, in which the goal is to predict the missing values of a matrix given the values of the remaining elements, without receiving completely new rows or columns during model evaluation~\cite{}.
+
+
+\subsubsection{Neighborhood regularization}
+\label{sec:neighborhood regularization}
 
 Targeting these issues, \textcite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting} proposes a modification to LMF that incorporates side information into the model, successfully applying their method to interaction problems such as drug-target interaction prediction~\cite{liu2016neighborhood}, long non-coding RNA interactions~\cite{liu2017lpinrlmf} and microRNA interactions~\cite{liu2020predicting}.
 %
@@ -1558,9 +741,12 @@ the analogous being held for $V$, so that new predictions are made as usual with
 \end{gather}
 
 
+\subsubsection{Further developments on NRLMF}
+\label{sec:further nrlmf}
 
-\section{Applying monopartite estimators to bipartite data}
-\label{sec:common_approaches}
+
+\subsection{Applying traditional estimators to bipartite data}
+\label{sec:standard adaptations}
 
 As previously stated in \autoref{sec:problem_statement}, bipartite interaction problems fundamentally differ from the usual machine learning paradigm, in which input data represents a single entity to be labeled. Interaction tasks are instead concerned with labeling a relationship between two entities, and as such, each prediction is made upon a pair of feature vectors, each vector being specific to each of the two sample domains.
 
@@ -1590,8 +776,9 @@ Finally, the two most common ways of adapting monopartite estimators to bipartit
 Specific definitions and shortcomings of these procedures are now presented.
 
 
-\subsection{The standard global single-output adaptation}
+\subsubsection{The standard global single-output adaptation}
 \label{sec:sgso}
+
 % TODO define SGSO acronym
 %TODO literature (ben-hur? vert? pliakos? schynemackers?)
 Arguably the most straightforward and commonly used strategy of formatting bipartite data to be inputted into conventional monopartite estimators is through presenting concatenated pairs of row-column samples, labeled by each element of $Y$.
@@ -1636,10 +823,7 @@ Although unknown, the 0-labeled pairs are usually far more numerous than 1-label
 
 % TODO cross-validation is naively done
 
-\subsubsection{Previous work}
-\label{sec:sgso_previous_work}
-
-\subsection{The standard local multi-output adaptation}
+\subsubsection{The standard local multi-output adaptation}
 \label{sec:slmo}
 
 The local approaches, in contrast to global methods, propose training different models on $X_1$ and $X_2$, so that each single model only has access to information regarding either row samples or column samples.
@@ -1676,12 +860,9 @@ Due to each monopartite model being provided with a much lower number of instanc
 % gso receives x1x2 lines
 % matrix reconstruction algs dont predict by themselves
 
-\subsubsection{Previous work}
-\label{sec:slmo_previous_work}
 
-
-\section{Natively bipartite learning algorithms}
-\label{sec:native_bipartite_algorithms}
+\section{Bipartite decision forests}
+\label{sec:bipartite forests}
 
 \subsection{Interaction matrix approximation methods}
 %TODO
@@ -1745,7 +926,7 @@ We thus turn our attention onto such tree-based algorithms, proposing optimizati
 A more thorough description of traditional decision trees is now presented, as a theoretical foundation for the upcoming formal definition of bipartite decision trees.
 
 
-\subsection{Monopartite decision trees}
+\subsection{Traditional decision trees}  % TODO monopartite?
 \label{sec:dt}
 %TODO describe origin and benefits of trees
 % decision tree (DT)
@@ -1878,9 +1059,9 @@ Although each node locally performs the partitioning search on each axis, the re
 
 \algFindBipartiteSplit
 
-Interestingly, contrary to the other adaptation approaches of traditional machine learning algorithms (\autoref{sec:common_approaches}), the PBCT procedure does not require using multiple monopartite estimators and training steps (such as SLMO, \autoref{sec:slmo}) or converting bipartite datasets to the memory-expensive global format such as SGSO (\autoref{sec:sgso}). Nevertheless, considering each row or column of $Y$ as a separate output results that growing a PBCT still occurs in the same asymptotic time complexity of a decision tree under the SGSO adaptation (derived in \autoref{sec:complexity_analysis}). 
+Interestingly, contrary to the other adaptation approaches of traditional machine learning algorithms (\autoref{sec:standard adaptations}), the PBCT procedure does not require using multiple monopartite estimators and training steps (such as SLMO, \autoref{sec:slmo}) or converting bipartite datasets to the memory-expensive global format such as SGSO (\autoref{sec:sgso}). Nevertheless, considering each row or column of $Y$ as a separate output results that growing a PBCT still occurs in the same asymptotic time complexity of a decision tree under the SGSO adaptation (derived in \autoref{sec:complexity_analysis}). 
 
-Remarkably, we show that leveraging the single-output assumption (\autoref{sec:common_approaches}) in the tree impurity calculation can simplify the bipartite local split searching procedure introduced by \textcite{pliakos2018global}, yielding a new PBCT-based algorithm with expressive gains in training time efficiency. A formal description of our algorithm proposal is now presented.
+Remarkably, we show that leveraging the single-output assumption (\autoref{sec:standard adaptations}) in the tree impurity calculation can simplify the bipartite local split searching procedure introduced by \textcite{pliakos2018global}, yielding a new PBCT-based algorithm with expressive gains in training time efficiency. A formal description of our algorithm proposal is now presented.
 
 %Nevertheless, an argument could be made in opposition to this idea.
 
@@ -2615,7 +1796,7 @@ One of the notable features of decision forests that contribute to their express
 
 We refer the reader to \textcite{sagi2018ensemble} and \textcite{fawagreh2014random} for a more in-depth description of prominent decision forest strategies and previous work in the field. \textcite{amasyali2011comparison} provides an experimental comparison of the most popular ensemble methods.  % XXX more (preferably newer) experimental comparisons
 
-Regarding interaction problems, \textcite{schrynemackers2015classifying} explores the use of decision forests under the standard global multi-output and local single-output adaptations presented by \autoref{sec:common_approaches}.
+Regarding interaction problems, \textcite{schrynemackers2015classifying} explores the use of decision forests under the standard global multi-output and local single-output adaptations presented by \autoref{sec:standard adaptations}.
 
 However, the same tree-diversification and forest building techniques discussed in this section can also be applied to bipartite decision trees, with very small modifications regarding the data sampling procedures: instance sampling and feature sampling must now occurr on both domains of the interaction dataset. Under this assumption, the adptation to bipartite problems can thus occur at the tree level, not at the ensemble level as would be the case with SLMO and SGSO strategies.
 
@@ -2655,7 +1836,8 @@ In the present work, we refine such comparisons and inroduce ensembles of our ne
 %\subsection{Dataset}
 %In this work, we use data from Drug-Target interactions in the experimental validation of the proposed model. DTI is an area of the literature that has been the focus of several recent advances and consists of methods for predicting interactions between drugs and targets (Proteins, Diseases, Ligands). This area has already been investigated in several applications present in the literature, such as~\cite{Fattahi2019,Nasution2019}. In this context, the dataset used is the Drug-Protein Interaction Networks, defined in~\cite{Yamanishi2008}. This dataset consists of four bipartite interaction networks between proteins and drugs: Ion channels (DPI-I), Nuclear receptors (DPI-N), protein-coupled receptors G (DPI-G), and Enzymes (DPI-E). Both networks of interactions form datasets, and the interaction prediction in these contexts and applying them to the real world can bring innovations and discoveries.
 
-\subsection{Semi-supervised decision trees}
+%\subsection{Semi-supervised decision trees}
+\subsection{Incorporating semi-supervision in decision trees}
 \label{sec:ss trees}
 
 The tree algorithms presented up until this point disregard the positive-unlabeled characteristic of our datasets of interest, either ignoring the possibility of abscence of labels in the training set, or, equivalently, considering all non-occurring interactions as unknown interactions.
@@ -2712,8 +1894,8 @@ To address semi-supervised scenarios, we can consider both supervised and unsupe
 %
 We divide each term by the corresponding impurities on the root node, thus calculated over the entire training set. The reason is to avoid the influence of possible differences in scale between the values in $X$ and in $Y$. It also compensates relative scale differences that could arise when choosing different functions for $I_u$ and $I_s$.
 %
-The parameter $\sigma \in [0, 1]$, called supervision ratio,  % TODO consider alternative names
-balances the relative importance given to each objective, with $\sigma = 0$ corresponding to a fully unsupervised tree and $\sigma = 1$ to a fully supervised tree. Strategies for adjusting $\sigma$ are discussed in \autoref{sec:sigma heuristics}.
+The parameter $\sigma \in [0, 1]$, that we call supervision balance,  % TODO consider alternative names: supervision fraction, ratio, importance, 
+weights the relative importance given to each objective, with $\sigma = 0$ corresponding to a fully unsupervised tree and $\sigma = 1$ to a fully supervised tree. Strategies for adjusting $\sigma$ are discussed in \autoref{sec:sigma heuristics}.
 
 For semi-supervised tasks in general, where we have confirmed positive and confirmed negative annotations alongside missing entries, notice how $I_s$ can only be calculated over the non-missing annotations, while $I_u$ can always utilize both labeled and unlabeled instances.
 %
@@ -2721,7 +1903,7 @@ Nevertheless, please notice that all confirmed annotations are positive in our p
 that decreasing the relative importance of the supervised objective can compensate the label uncertainty and improve generalization. The idea is to encourage the tree to appreciate the structures in the feature space. For example, it should select splits that isolate very compact groups of instances, even if the labels in a given group are not satisfactorily homogeneous.
 
 A caveat of using a semi-supervised impurity as in \autoref{eq:I ss} is that trees could continue to find splits even if all instances in a given node have the same label. This is because we could keep reducing the unsupervised impurity by further splitting even if the supervised impurity is already zero.
-However, since the output value of each node is still calculated over $Y_\text{node}$ alone, all nodes descending from a homogeneous node would yield the same output. We avoid such redundant splits by forcefully stopping the split search for a node when $I_s(Y_\text{node})=0$.
+However, the output value of each node is still calculated over $Y_\text{node}$ alone, so all nodes descending from a homogeneous node would yield the same output. We avoid such redundant splits by forcefully stopping the split search for a node when $I_s(Y_\text{node})=0$.
 
 Another important notice is that features must be normalized before training the tree: the impurity function $I_u$ (\autoref{eq:I unsup}) is most often sensitive to the relative scale of the different columns of $X$. This is normally not a requirement for decision trees, since the split search procedure is performed separately for each feature and usually only depends on the order of the values, not on their specific magnitude.
 
@@ -2733,7 +1915,7 @@ Another important notice is that features must be normalized before training the
 \label{sec:sigma heuristics}
 % TODO: the smaller the partition, the smaller we should set the sigma, contrary to what we did. few labels are less informative, arguably, than the distance between few instances
 
-Determining the ideal value of $\sigma$, is not a trivial task. In fact, it is not even clear whether a single value of $\sigma$ should be used for the whole tree or if it should be adjusted for each node.
+Determining the ideal value of $\sigma$ is not a trivial task. In fact, it is not even clear whether a single constant $\sigma$ for the whole tree is enough or it should be adjusted for each node.
 
 % For instance, one could argue that nodes with a larger number of unlabeled instances should prioritize the unsupervised objective, since the supervised information is more likely to be unreliable.
 
@@ -2742,12 +1924,12 @@ Determining the ideal value of $\sigma$, is not a trivial task. In fact, it is n
 \textcite{alves2023semisupervised} argues that the unsupervised impurity should be more important for nodes with a larger number of unlabeled instances, since the supervised information would be more likely to be unreliable. Thus, they propose updating $\sigma$ according to the label density of each node, as defined by \autoref{eq:sigma density}.
 %
 \begin{equation}
-    \sigma = 0.1 + 0.9 \cdot Y_\text{node}\avg{ij}
+    \sigma = 0.1 + 0.9 \cdot Y_\text{node}\mel{ij}
     \label{eq:sigma density}
 \end{equation}
-
+%
 % TODO move to discussion?
-However, we must recall that the prototype value of each node is only dependent on its partition of the label matrix. Therefore, if $Y_\text{node}$ is close to being homogeneous, a new split is less likely to cause a big change in the outputs for the instances involved. Specifically, the most drastic prototype change possible occurs if we perfectly separate the instances with positive labels from the instances with negative labels.
+However, we must recall that the prototype value of each node is only dependent on its partition of the label matrix. Therefore, if $Y_\text{node}$ is close to being homogeneous, a new split is unable to cause a big overall change in the outputs for the instances involved. Specifically, the most drastic prototype change possible occurs if we perfectly separate the instances with positive labels from the instances with negative labels.
 When the node partition is very imbalanced, even this ideal separation will only greatly affect the very few instances with the minority label. Thus, using the heuristic of \autoref{eq:sigma density} prioritizes the unsupervised objective only in cases where no significant change in the output values is expected. Additionally, few new splits are possible in near-homogeneuous nodes, and we are more likely to achieve label homogeneity (and thus stop the split search) right after we achieve the cases in which $I_u$ is highly prioritized. In summary, the heuristic of \autoref{eq:sigma density} is likely to undermine the effect of the unsupervised objective.
 
 % less split to activate stopping
@@ -2759,29 +1941,1012 @@ To test this hypothesis, we propose another heuristic for $\sigma$ that prioriti
     \label{eq:sigma size}
 \end{equation}
 %
-This way, we take advantage of the unsupervised impurity prior to when the label partitions are already homogeneous.
+This way, we take advantage of the unsupervised impurity prior to when the label partitions are already homogeneous. Essentially, we start by performing clustering in the feature space, and then gradually move towards separating instances based on their labels.
+This process should be similar to a two step procedure: we first identify large structures in the feature space (when a large number of instances is still available) and then apply the label clustering separately to each of these structures. The difference is that each of our semi-supervised trees represents a gradual transition between the two steps.
 
-We also speculate ... %XXX random, tree diversity
+We also speculate that the observed benefit of a dynamic $\sigma$ could emerge from the diversity it promotes in tree learners. As discussed in \autoref{sec:bipartite_forests}, the diversity of the individual estimators is a key factor for the success of ensemble models. In this sense, ensuring variety of the $\sigma$ parameter could even be more important than estimating its "correct" value for each partition. Therefore, we also evaluate the strategy of selecting a random $\sigma$ at each node, drawn from a uniform distribution in the interval $[0, 1]$ (\autoref{eq:sigma random}).
+%
+\begin{equation}
+    \sigma \sim \mathcal{U}(0, 1)
+    \label{eq:sigma random}
+\end{equation}
 
-%To illustrate this idea consider performing the training process in two steps: unsupervised and supervised.
-
-%and to investigate the impact of different $\sigma$ heuristics on the performance of semi-supervised decision trees, we propose the following heuristics for $\sigma$:
-
-%The size of each node can also be an informative parameter.
-
-
-% TODO list and describe our heuristics for sigma
-% XXX
 
 \subsubsection{Unsupervised impurities}
 \label{sec:Iu}
 
-\subsection{Code and data availability}
+The initial proposal of a semi-supervised impurity function~\cite{levatic2017semisupervised} employed the variance of the feature matrix $X$ as the unsupervised term (\autoref{eq:I unsup}). The main concern with this strategy is that it considerably slows the training procedure of bipartite trees. This results from the fact that the number of features to be considered in each node is the same ... % XXX
 
-\section{Results and Discussion}
+% % TODO andre solves this by...
+
+Exploiting the fact that we are working with kernel matrices as input features, we propose an efficient unsupervised impurity function based on the mean pairwise distance between the samples in the tree node (equation \ref{eq:mean_distance_impurity}). $\mathbf{s}_\text{node}$ denotes the set of indices representing the samples in the tree node, and since distances from samples outside the node are disregarded, the number of operations required drops more steeply with respect to the node size in comparison to $I_\text{MSE GMO}$ or similar impurities, which is especially beneficial in our case of large $X$ matrices.
+% only upper triangle is used, X symmetric
+%
+\begin{equation}
+    I_\text{MeanDistance}(X) = \frac{1}{|\mathbf{s}_\text{node}|}
+        \sum_{j \in \mathbf{s}_\text{node}}
+        \sum_{i \in \mathbf{s}_\text{node}} (1 - X\el{ij})
+        % \sum_{(i, j) \in \mathbf{s}_\text{node}} (1 - X\el{ij})
+    \label{eq:mean_distance_impurity}
+\end{equation}
+
+
+
+\section{Assessing the performance of bipartite models}
+\label{sec:experiments}
+
+\subsection{Datasets}
+\label{sec:datasets}
+
+We gathered ten publicly available interaction datasets to evaluate the performance of the proposed models. Quantitative information about the datasets is presented in table 2%\ref{main:tab:datasets}%
+, and more detailed descriptions are provided below.
+
+%\subsection{DPI-E, DPI-G, DPI-I, DPI-N~\cite{yamanishi2008}}
+%\subsection{DPI-E, DPI-G, DPI-I, DPI-N}
+
+These datasets comprise drug-protein interactions for four distinct classes of proteins: enzymes, GPCRs, ion channels, and nuclear receptors, respectively. Drug similarities were computed using the SIMCOMP metric, while protein similarities were computed as normalized scores of Smith-Waterman pairwise alignments~\cite{yamanishi2008}.
+
+%\subsection{ERN~\cite{faith2007} and SRN~\cite{macisaac2006, hughes2000, hu2007, chua2006, schrynemackers2015}}
+The datasets represent interactions between genes and transcription factors in \textit{E. coli} and \textit{S. cerevisiae}, respectively. Gene and TF features are initially composed of experimentally measured expression levels and, in SRN, gene motif features~\cite{brohee2011,schrynemackers2015}. We compute the RBF kernel of such values to obtain the final similarity matrices. %TODO rbf equation or cite
+
+%\subsection{DAVIS~\cite{davis2011,pahikkala2015}}
+The DAVIS dataset contains experimentally measured drug-kinase dissociation constants~\cite{davis2011}. The dataset was binarized by considering interactions with dissociation constants $\le 30 nM$ as the positive ones, as suggested by \cite{pahikkala2015}. Drug similarities were computed using the Extended Connectivity Fingerprints (ECFP4)~\cite{rogers2005, pahikkala2015} while protein similarities were taken as the normalized Smith-Waterman score~\cite{yamanishi2008,pahikkala2015}.
+
+%\subsection{KIBA~\cite{tang2014,he2017simboost,huang2020deeppurpose}}
+The KIBA dataset was initially built by \citeauthor{tang2014} and contains experimentally verified affinity scores between kinase and kinase inhibitors.
+
+\cite{he2017simboost} further processed the dataset by removing all drugs and targets with less than 10 observations. In alignment with \cite{tang2014,he2017simboost}, we consider positive interactions as those with $log_10$ KIBA-scores $\leq 3.0$ to reframe the task as binary classification.
+
+The utilized version of the dataset with corresponding amino acid sequences and SMILES representations were provided by \cite{huang2020deeppurpose}. From them, we generated the protein similarity matrix using the same procedure employed in the preprocessing of NPInter proteins. The drug similarities were computed similarly to how \cite{pahikkala2015} processed the DAVIS dataset, using the Tanimoto distances of ECFP4 fingerprints~\cite{rogers2005, pahikkala2015}. The Python library \texttt{rdkit}~\cite{rdkit} was used to this calculation.
+
+
+%\subsection{mirTarBase~\cite{hsu2011mirtarbase, huang2022mirtarbase}}
+The mirTarBase dataset contains experimentally validated microRNA-messengerRNA interactions. MicroRNA sequences were obtained from miRBase~\cite{griffiths2006mirbase} while transcript sequences were obtained from GENCODE~\cite{frankish2021gencode}. The longest transcript for each gene was selected and the 3' UTR exonic sequences were recovered from the genome and annotation files provided by GENCODE. The similarity matrices were then built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among microRNAs and among the genes' 3' UTRs. The alignments were performed using the BLASTN substitution matrix and no gap penalty, with the help of the Biopython package~\cite{cock2009biopython}.
+
+Each miRNA was required to have at least 10 interactions in the dataset, and each gene was required to have at least 100 interactions.
+
+%\subsection{NPInter~\cite{wu2006npinter, teng2020npinter}}
+Interactions between long non-coding RNAs (lncRNA) and proteins were recovered from NPInter~\cite{wu2006npinter, teng2020npinter}. The lncRNA sequences were obtained from NONCODE~\cite{zhao2016noncode} and the protein sequences were obtained from UniProt~\cite{uniprot2019}. The similarity matrices were built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among lncRNAs and among the proteins. Similarly to the preprocessing of mirTarBase, we leveraged the Biopython package~\cite{cock2009biopython} to perform the alignments. using the BLASTN and BLOSUM62 substitution matrices for the lncRNA and protein alignments, respectively, and no gap penalty in both cases.
+
+Each lncRNA was required to interact with 50 proteins or more in the dataset, and each protein was required to have at least 2 interactions.
+
+
+\subsection{Evaluating bipartite models}
+\label{sec:evaluation_protocol}
+
+% stat testing, multiple comparisons, etc
+
+\subsection{Model validation}
+\label{sec:cross_validation}
+
+To evaluate machine learning models, the standard procedure consists of separating a subset of data samples not to be used in the training process. These samples are subsequently inputted to the trained model and its known labels are compared to the model's predictions in order to estimate the algorithm performance. The hold-out samples are collectively called the \emph{test set} while the remaining ones used for model building are called the \emph{training set}.
+
+Since bipartite interaction datasets present two distinct categories of instances and the model's input is a pair of them, one from each group, additionally to a traditional "unknown test set" there are two mixed training/test folds possible: we could test our model performance when predicting interactions between instances from $X_1$ that are present in the training set and instances from $X_2$ present in the test set, and vice-versa. Similarly to \ref{pliakos2018}, % TODO: did they invent it?
+we name those settings \emph{LT}, after "learned $X_1$, test $X_2$", and \emph{TL}, after "test $X_1$, learned $X_2$". The usual cross-validation setting with completely new test pairs is then called \emph{TT}, and the training set could alternatively be called the \emph{LL} set.
+
+In the present work, we make use of an adapted $k$-fold cross-validation procedure to evaluate our models' performance. With customary datasets formatted as $X_\text{SGSO}$ and $Y_\text{SGSO}$, $k$-fold cross-validation consists in equally and randomly dividing both $X_\text{SGSO}$ and $Y_\text{SGSO}$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, each time selecting a fold as the test set and the remaining ones as the training set (Figure \ref{}).
+
+In the interaction setting though, with a two-dimensional interaction matrix, fold division can be done in each of the two axis, corresponding to each of the two $X_a$ sample groups. Each of the $k_1$ "axis-folds" of $X_1$ can be combined with one of the $k_2$ axis-folds of $X_2$ to make up a $Y$ fold and split the dataset in the corresponding four LL, LT, TL and TT subsets. If all axis-fold combinations are explored, a $k_1$ by $k_2$ two-dimensional cross-validation naturally has a total of $k_1k_2$ folds. 
+
+However, an argument can be made about not sharing axis-folds between $Y$-folds, to ensure all folds are completely independent and no information is shared between models built on each fold. For instance, if a particular $X_1$ axis-fold happens by chance to be unrepresentative of the remaining instances in $X_1$, all $k_2$ folds that include this axis-fold are expected to yield poor prediction scores. A statistical test comparing two of such score populations then would be biased towards considering those $k_2$ anomalously distributed points as a significant difference, while in reality they come from a single stochastic event, not $k_2$ events as could be apparent.
+
+To achieve fold-independence, each fold must be built from a completely different pair of axis-folds, which can be simply done by selecting $k=k_1=k_2$ and pairing each $X_1$ axis-fold with a single $X_2$ axis-fold, yielding a total of $k$ folds, not $k^2$ as when all axis-fold combinations are used (Figure \ref{}). While $k_1\neq k_2$ is still theoretically possible, the total number of folds will always be equal to the least $k_a$ value, and the axis corresponding to the greater $k_a$ would have unexploited axis-folds when creating the test sets.
+
+We refer to the aforementioned two-dimensional cross-validation procedure built from a one-to-one mapping of $k$ $X_1$ axis-folds to $k$ $X_2$ axis-folds as $k$-fold \emph{diagonal} cross-validation.
+
+% TODO: why we don't use it.
+
+In order to maximize the amount of training data in each fold, several studies \ref{} perform LT and TL validation separately from the TT validation, employing 1 by $k$ and $k$ by 1 cross-validation procedures respectively for LT and TL settings. Nevertheless, this requires performing cross-validation three times for each estimator, while TT cross-validation already unavoidably generates LT and TL partitions that could be used for scoring. Furthermore, using separate LT, TL and TT validation procedures hinders score comparison between LT and TT and between TL and TT, since different amounts of training data would be used for validating TT in comparison to validating the partially-learned test sets.
+
+
+\subsection{Prediction scoring metrics}
+\label{sec:prediction_metrics}
+
+% TODO classification
+
+This section is concerned with defining the two metrics used throughout this work to evaluate the predictive performance of an estimator and enable comparison between them. % TODO and explain, justify, etc
+
+Consider a test set of $N$ interaction labels to be inferred by a classifier (we are not concerned with the shape of $Y$ in this section, and $N=|Y|$). Let the classifier's predictions then be represented by a matrix $\hat Y$ of the same shape as $Y$, with $\hat Y\el{ij}$ being the predicted value for the ground-truth label $Y\el{ij}$. Since $Y$ and $\hat Y$ are both binary matrices, there are four possible outcomes when a prediction is made, traditionally quantified~\cite{} as follows:
+%
+\begin{itemize}
+    \item \textbf{True Positives (TP):} the number of positive labels correctly predicted, where both the predicted and actual labels are 1.
+    \begin{equation}
+        TP = \sum_{i,j} \mathbb{I}(Y\el{ij} = 1 \text{ and } \hat{Y}\el{ij} = 1)
+    \end{equation}
+
+    \item \textbf{True Negatives (TN):} the number of negative labels correctly predicted, where both the predicted and actual labels are 0.
+    \begin{equation}
+        TN = \sum_{i,j} \mathbb{I}(Y\el{ij} = 0 \text{ and } \hat{Y}\el{ij} = 0)
+    \end{equation}
+
+    \item \textbf{False Positives (FP):} the number of instances where the predicted label is positive (1), but the actual label is negative (0).
+    \begin{equation}
+        FP = \sum_{i,j} \mathbb{I}(Y\el{ij} = 0 \text{ and } \hat{Y}\el{ij} = 1)
+    \end{equation}
+
+    \item \textbf{False Negatives (FN):} the number of instances where the predicted label is negative (0), but the actual label is positive (1).
+    \begin{equation}
+        FN = \sum_{i,j} \mathbb{I}(Y\el{ij} = 1 \text{ and } \hat{Y}\el{ij} = 0)
+    \end{equation}
+\end{itemize}
+%
+where \(\mathbb{I}(A)\) is the indicator function that equals 1 if statement \(A\) is true and 0 otherwise:
+%
+\begin{equation} % TODO define in general (sec:definitions) or consider always binary
+    \mathbb{I} = \begin{cases}
+        1 & \text{if } A\\
+        0 & \text{otherwise}
+    \end{cases}
+    \label{eq:indicator}
+\end{equation}
+%
+Notice that the sum of TP, TN, FP and FN is equal to the total number of instances $T$, and we also define $\text{P}=TP+FN$, the total number of \textit{a priori} positive labels in the test set, and $\text{N}=TN+FP$, the total number of \textit{a priori} negative labels. The total number of predicted positives is termed $\text{PP}=TP+FP$ and the remaining predicted negatives are called $\text{PN}=TN+FN$.%TODO cite
+%- \(n\) is the total number of instances.
+%- \(Y_i\) represents the ground-truth label for instance \(i\).
+%- \(\hat{Y}_i\) represents the predicted label for instance \(i\).
+
+% TODO: we use micro version of the metrics. should we use other forms?
+
+Those quantities can be organized in the so-called \emph{confusion matrix}, illustrated by \autoref{fig:scoring}.
+%
+Naturally, one wants their estimator to maximize TP and TN while minimizing FP and FN.
+
+Most commonly, we do not use these metrics directly, but instead normalize them to the interval [0, 1] in numerous ways. This enables score comparisons across datasets with different numbers of samples and different densities of positive annotations. Below we list the most common normalized scoring metrics for binary classification problems, from which the metrics used in this work are derived.
+%
+\begin{itemize}
+    \item \textbf{True positive rate (TPR)} or \textbf{recall:} the ratio of correctly predicted positive labels to the total number of positive labels.
+    \begin{equation}
+        TPR = \frac{TP}{P} = \frac{TP}{TP + FN}
+        \label{eq:tpr}
+    \end{equation}
+    \item \textbf{True negative rate (TNR):} the ratio of correctly predicted negative labels to the total number of negative labels.
+    \begin{equation}
+        TNR = \frac{TN}{N} = \frac{TN}{TN + FP}
+        \label{eq:tnr}
+    \end{equation}
+    \item \textbf{False positive rate (FPR):} the ratio of incorrectly predicted positive labels to the total number of negative labels.
+    \begin{equation}
+        FPR = \frac{FP}{N} = \frac{FP}{FP + TN} = 1-TNR 
+        \label{eq:fpr}
+    \end{equation}
+    \item \textbf{False negative rate (FNR):} the ratio of incorrectly predicted negative labels to the total number of positive labels.
+    \begin{equation}
+        FNR = \frac{FN}{P} = \frac{FN}{FN + TP} = 1-TPR
+        \label{eq:fnr}
+    \end{equation}
+    \item \textbf{Precision:} the ratio of correctly predicted positive labels to the total number of predicted positive labels.
+    \begin{equation}
+        Pr = \frac{TP}{PP} = \frac{TP}{TP + FP}
+    \end{equation}
+\end{itemize}
+%
+These metrics are better visualized in \autoref{fig:scoring}.
+
+An optimal binary classifier will thus present high TPR, TNR and precision while minimizing FPR and FNR.
+% TODO note that recall is not affected by PU, point for AUROC
+
+Notice that each of these metrics still allows trivial solutions: if a classifier outputs positive labels for all instances irrespectively of the input features, it will achieve perfect TPR, FNR and Pr, but its TNR and FNR will be null. On the other hand, if a negative label is outputted every time, the opposite will happen.
+Thus, we will consider pairs of these metrics simultaneously, such as TPR and TNR.
+The selected pair must include at least three of TP, TN, FP, or FN to ensure the whole confusion matrix is taken into account.
+
+Minimizing all the four components of the confusion matrix is not always possible.
+%
+Most often, the learning algorithms are subject to a tradeoff between the ability to correctly infer positive annotations and the ability to correctly infer negative annotations, that we express as a balance between TPR and TNR. When evaluating models, we must be aware of the relative importances being assigned to each of these tendencies.
+%This balance between effective classification of each class is usually formulated as a balance between TPR and TNR.
+%
+%In real-world scenarios, however, building estimators to simultaneously optimize all these metrics is not a straightforward problem.
+%
+%In general, classifiers will often lean into one of those directions, displaying a tendency towards yielding more positive
+%%(\emph{sensitivity})
+%or more negative
+%%(\emph{specificity})
+%labels.
+%
+%
+This choice is highly application-specific. For instance, in the process of diagnosing medical conditions, TPR is often prioritized~\cite{}, favoring the identification of all true cases at the expense of some misleading positive results.
+In this case, the cost of missing a positive result is usually far greater than that of a false positive. In other scenarios such as spam email filtering~\cite{}, TNR might be favored, minimizing the number of legitimate emails marked as spam even if some spam emails go undetected.
+%The choice between these tendencies reflects the trade-off between correctly identifying positive instances and correctly identifying negative instances and should align with the specific goals and constraints of the classification problem at hand.
+
+Considering this balance across a variety of learning tasks
+is a challenging factor to be taken into account, especially in cases where the estimators can be easily adjusted to favor each class.
+%
+Many estimators, such as those employed in the present study, do not directly output a binary label but instead provide us with a continuous decision value (such as a probability of interaction) that additionally depends on a threshold parameter to establish the final predicted classes. Formally, the predicted labels $\hat Y$ are obtained from a threshold $t$ applied to the decision values $\tilde Y$:
+%
+\begin{equation}
+    \hat Y\el{ij} = \mathbb{I}(\tilde Y\el{ij} > t)
+\end{equation}
+%
+The selection of $t$ directly affects the propensity to positive or negative outputs, so that a single model can yield multiple different results with varying levels of TPR and TNR depending on the chosen thresholds.
+A common practice is then to consider TPR and TNR for all $t$, avoiding the influence of threshold selection on the estimator comparisons.
+%Otherwise, the score comparisons could be compromised.
+
+% TODO especially important for our test sets with diffenent density than the training sets
+Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible classification results of a model. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and TNR are each indicated by an axis. Conventionally, the TPR is plotted in the $y$ axis while the FPR values (representing the TNR, $FPR=1-TNR$) are presented as $x$ coordinates, which results in the traditional \emph{receiver operating characteristic} (ROC) curve, exemplified by \autoref{fig:roc}.
+%
+An ideal threshold of an ideal estimator would then be close to the top-left corner of the plot, where TPR and TNR are both 1.
+On the other hand, consider a completely random classifier outputting uniformly random values $\hat Y\_\text{proba}\el{ij}$ in the 0-1 interval. We would have $\hat Y\el{ij} = \mathbb{I}(\hat Y_\text{proba}\el{ij} > t)$ for a given threshold $t$. This implies that the number of correctly guessed positive labels is $1-t$ (the probability of yielding 1) times the total number of positive labels: $TP = (1-t) (TP+FN)$, which results in $TPR = 1-t$ from the definition. Similarly, $FPR = TPR = 1-t$, so that the ROC curve of a random classifier is a diagonal line from the bottom-left to the top-right corners.
+
+%$FP = (1-t)(TN + FP)$
+
+% TODO interpretation of roc
+% TODO its TPR and TNR balance, not TP and TN
+
+To summarize a classifier's performance across all thresholds, the area under the ROC curve (AUC ROC) is often employed, with values ranging from 0.5 to 1, where 1 represents a perfect classifier and 0.5 represents a random classifier. Although theoretically possible, values below 0.5 would signify the opposite label is being consistently predicted, most likely indicating misconfiguration of the estimator. If AUROC < 0.5, the result can be easily converted to a value greater than 0.5 by simply inverting the predicted labels (turning 0s into 1s and vice-versa).
+
+Despite considerably common, the use of ROC curves requires additional considerations when dealing with heavily imbalanced classification datasets (where some classes are greatly overrepresented)~\cite{he2009learning,saito2015precision,fernandez2018learning}.
+For instance,% let $p$ be the fraction of positive labels relative to the total number of labels: $p = \frac{TP + FN}{N}$.
+consider the case where $NEG \gg POS$. Since the denominator of TNR is far greater than the denominator of TPR, a change in TN (for example, missing one more negative label) will have a much smaller impact on TNR than a change in TP (missing a positive label) will have on TPR.
+Specifically, an increase of $k$ in TN will cause an increase in TNR $\frac{NEG}{POS}$ times greater than the increase in TPR caused by the same $k$ increase in TP.
+
+% Positive labels (the minority class) have more weight
+
+Given that ROC equally considers both metrics, classifiers that are more sensitive to positive labels will arguably be favored over those prioritizing negative outputs. By the same logic, ROC will also be more lenient towards false positives (that decrease TNR) rather than false negatives (that decrease TPR)~\cite{}.
+
+To address this issue, it is commonly suggested the usage of precision-recall (PR) curves instead~\cite{ozenne2015precision,he2009learning}, where the precision is plotted as the vertical coordinate while the \emph{recall} (another name for TPR) is represented horizontally.
+%
+We can see the FP term in \autoref{} as the proxy for the true negatives (FP = N - TN). Notice that FP in the definition of precision (\autoref{}) is not divided by the total number of negative labels, as TN is in TNR. Thus, it is argued that AUPR is less likely than AUROC to prioritize the minority class in imbalanced scenarios~\cite{ozenne2015precision,he2009learning}.
+
+We explore these claims in further detail in the following section, formally defining the ROC and PR curves in terms of ideal label probability distributions.
+
+%In the PR space, considering fixed P and N, a simultaneous increase in TP and TN results in the following improvement in precision:
+%%
+%\begin{equation}
+%    \Delta Pr =
+%    \frac{TP + k}{TP + k + FP - k}
+%    - \frac{TP}{TP + FP}
+%    = \frac{k}{TP + FP}
+%    % \frac{k}{TP + FN}
+%    % PR area increase: \frac{k^2}{(TP + FP)(TP + FN)}
+%    % PR area increase: \frac{k^2}{(TP + FP)(TP + FN)}
+%    % PR area increase: \frac{k^2}{(TP + NEG - TN) POS}
+%    % ROC area increase: \frac{k^2}{NEG POS}
+%\end{equation}
+%%
+%which is arguably less sensitive to the strategy of increasing FP to obtain larger TP, in comparison with AUROC. %TODO better explanation
+
+% A formal explanation of the differences between ROC and PR curves is developed in the following section.  % TODO: better?
+% The following section delves into those considerations with a higher level of detail, formally defining such metrics in the ideal scenario.
+
+% TODO FP represents TN (NEG - TN), so plot TP vs. FP. Precision and recall are similar for those two metrics.
+
+%TODO at least 3 of the 4 basic metrics must be included
+
+% Changes of precision as a function of TN and TP separately
+% \begin{equation}
+%     \frac{TP}{TP + FP - k}
+%     - \frac{TP}{TP + FP}
+%     = \frac{TP k}{(TP + FP)(TP + FP - k)}
+%     = \frac{TP k}{(TP + FP)^2 - (TP + FP) k}
+% \end{equation}
+% 
+% \begin{equation}
+%     \frac{TP + k}{TP + FP + k}
+%     - \frac{TP}{TP + FP}
+%     = \frac{(TP + k)(TP + FP) - (TP)(TP + FP + k)}{(TP + FP)(TP + FP + k)}
+%     = \frac{(TP^2 + TP*FP + kTP + kFP) - (TP^2 + TP*FP + kTP)}{(TP + FP)(TP + FP + k)}
+%     = \frac{k FP}{(TP + FP)(TP + FP + k)}
+%     = \frac{k (NEG - TN)}{(TP + FP)(TP + FP + k)}
+% \end{equation}
+
+
+% \begin{equation}
+%     \sum_t \Delta TPR_t \Delta FPR_t / 2 + TPR_t * FPR_t
+%     % = \sum_t \frac{k_t^2}{NEG * POS} / 2 + \frac{TP_t TN_t}{NEG * POS}
+%     = \sum_t \frac{k_t^2}{NEG * POS} / 2 + \Delta TNR_t * TPR_t
+%     = \sum_t \sum_t \frac{k_t^2}{NEG * POS} / 2
+% \end{equation}
+% 
+% \begin{equation}
+%     TPR = tp / pos
+%     FPR = fp / (1 - pos)
+%     Precision = tp / (tp + fp)
+% \end{equation}
+% 
+% \begin{equation}
+%     pos is not the ideal tp + fn, it is simply POS / N
+%     you cannot asume c = ppos
+% 
+%     TPR = (tp/(tp + fp)) * c / pos = prec * c / pos
+%     c = pos * TPR (tp + fp) / tp
+% 
+%     TPR = c - FPR
+% 
+%     FPR = fp/(fp + tp) * c / (1 - pos)
+%     FPR = fp / (fp + tp) * (pos * TPR * (tp + fp)) / ((1 - pos) * tp)
+%     FPR = fp * pos * TPR / ((1 - pos) * tp)
+%     TPR = ((1 - pos) * tp) * FPR / (pos * fp)
+% 
+%     Precision = tp / (tp + fp)
+%     Precision = 
+% \end{equation}
+% 
+% \begin{equation}
+%     TPR = p * c / pos
+%     p = pos * TPR / c
+%     Precision = p = pos * TPR / c
+% \end{equation}
+
+% qualquer estimador é descrito por uma matriz de confusão teórica. Para qualquer estimador, pode se calibá-lo, isso é, usar um parâmetro c que dá uma porcentagem de vezes que, aleatóriamente, mudamos uma predição negativa para positiva ou vice versa. as curvas são em função desse parâmetro. para uma determinada métrica agora em um conjunto de dados real, provemos que o melhor c é o correspondente á proba à priori do conjunto (desbalanceamento). O estimador então pode ajustá-la de acordo com essa proba que ele acha que é a certa. a questão é que ele não tem como saber, então consideramos todas as probas que ele poderia pensar.
+
+% TODO problems with imbalance
+% TODO aupr
+% TODO problems with imbalance of auroc maybe are not problems with PU learning
+
+%\section{Common approaches to build bipartite models}
+%\label{sec:standard adaptations}
+
+\subsubsection{Ideal descriptions of AUROC and AUPRC}
+% TODO previous explanations restrained to specific examples and distant analogies. (hans2009 and davis2006 are nice exceptions)
+
+Consider a general estimator outputting a decision value $s \in \mathbb{R}$ for each input instance. The final class to be assigned is still to be defined by a threshold $s^*$ so that $\hat Y\el{ij} = \mathbb{I}(s\el{ij} > s^*)$. For the ideal case of an infinite number of test samples, the possible scoring results of the estimator would be fully determined by the two theoretical distributions of $s$ given the true label $Y\el{ij}$, i.e. the probability density functions $P(s \mid Y\el{ij} = 1)$ and $P(s \mid Y\el{ij} = 0)$. Similar to \textcite{hand2009measuring}, we thus define the probability density functions $f_k$ and their corresponding cumulative distribution functions $F_k$ for each of the two classes $k \in \{0, 1\}$:
+%
+\begin{gather}
+    f_0(s) = P(s \mid Y\el{ij} = 0) \\
+    f_1(s) = P(s \mid Y\el{ij} = 1) \\
+    F_0(s) = \int_{-\infty}^s f_0(u)\;du \\
+    F_1(s) = \int_{-\infty}^s f_1(u)\;du
+    \label{eq:ideal_confusion_matrix}
+\end{gather}
+%
+We further define $p=\frac{P}{T}=P(Y_\text{test}\el{ij}=1)$ and $n=\frac{N}{T}=P(Y_\text{test}\el{ij}=0)$, the fractions of positive and negative labels in the test set, respectively. We can then express the expected values of the confusion matrix as functions of a given threshold $s^*$ for the decision value $s$:
+%
+\begin{gather}
+    \text{TP}(s^*) = p (1 - F_1(s^*)) \\
+    \text{TN}(s^*) = n F_0(s^*) \\
+    \text{FP}(s^*) = n (1 - F_0(s^*)) \\
+    \text{FN}(s^*) = p F_1(s^*)
+\end{gather}
+%
+which, in turn, yields
+%
+\begin{gather}
+    \text{TPR}(s^*) = 1 - F_1(s^*) \\
+    \text{TNR}(s^*) = F_0(s^*) \\
+    \text{FPR}(s^*) = 1 - F_0(s^*) \\
+    \text{Pr}(s^*) = \frac{p (1 - F_1(s^*))}{p (1 - F_1(s^*)) + n (1 - F_0(s^*))}
+\end{gather}
+
+The area under the ROC curve can now be expressed as
+%
+\begin{equation}
+    A_\text{ROC}
+    = \int_{0}^{1} \text{TPR}(\text{FPR}) \;d\text{FPR}
+    = \int_{\infty}^{-\infty} \text{TPR}(s) \frac{d\text{FPR}(s)}{ds} \;ds
+    = \int_{-\infty}^{\infty} (1 - F_1(s)) f_0(s) \;ds
+    \label{auroc0}
+\end{equation}
+%
+The integration limits arise from the fact that FPR is maximal when all instances are classified as positives
+%i.e. the decision threshold is as low as possible ($s^* \to -\infty$),
+and minimal when all instances are classified as negatives, which respective corresponds to $s^* \to -\infty$ and $s^* \to \infty$. This formulation of AUROC by \autoref{eq:auroc0} leads to the most common intuition behind the metric.
+%
+The first factor ($1- F(s^*)$), represents the fraction of positive instances that are ranked higher than the threshold $s^*$, alternatively expressed as $\int_{s^*}^{\infty}f_1(s)\; ds$. $f_0$, as defined by \autoref{eq:ideal_decision_matrix}, represents the probability of finding a negative instance within $s^*$ and $s^* + ds$. Hence, the product of both factors represents the joint probability of having a negative instance between $s^*$ and $s^* + ds$ while also finding a positive instance with $s > s^\ast$. 
+%
+After integration over all possible thresholds, we conclude that the AUROC score represents the overall probability of randomly selecting a positive instance ranked higher than a randomly selected negative instance~\cite{}.
+
+The baseline score $0.5$ can be derived as follows. A random classifier is defined as an estimator incapable of distinguishing between the true label distributions of each class. That is, a classifier is a random classifier if and only if $f_0(s) = f_1(s) \forall s$. As a consequence,
+%
+\begin{equation}
+    A_\text{ROC}
+    = \int_{-\infty}^{\infty} (1 - F_0(s)) f_0(s) \;ds
+    = -\int_{-\infty}^{\infty} (1 - F_0) \;d(F_0)
+    = \left[\frac{(1-F_0)^2}{2}\right]_{-\infty}^{\infty}
+    = \frac{1}{2}
+    \label{auroc_random}
+\end{equation}
+ 
+\autoref{eq:auroc0} also shows a characteristic of AUROC discussed in the previous section: the AUROC score is independent of the relative prevalence of each class in the test set. There is no influence of $p$ or $n$ and only the dependency on the learned decision value distributions.
+%it can be desirable to account for this relative importance.
+% However, in imbalanced datasets, misclassifying instances of the majority class would  TODO
+%
+%By definition of the training and test sets, the negative test instances are independent and identically distributed to the negative instances of the training set, with the same being held for the positive instances. Under this assumption, the probability density functions $f_0$ and $f_1$ are independent of the label imbalance of the test set, being solely determined by the nature of the learning algorithm and the training data. As a result, 
+
+% TODO maybe:
+%%  We can make this property more clear by expressing AUROC in terms of TN and TP directly (\autoref{eq:auroc_tptn}).
+%%  Variations of TP and TN directly represent the number of correctly classified instances of each class, unlike the variation of the decision values $ds$ that is often a more abstract concept.
+%%  %While the variation of the decision values $ds$ is a considerably abstract concept in real-world scenarios,
+%%  %Variations of TP and TN are directly related to the number of correctly classified instances of each class.
+%%  %
+%%  \begin{equation}
+%%      A_\text{ROC}
+%%          = \frac{1}{n} \int_{0}^{n} \frac{\text{TP}(\text{TN})}{p}\;d\text{TN}
+%%      \label{eq:auroc_tptn}
+%%  \end{equation}
+%%  %
+%%  %Notice how TP and TN are respectively divided by $p$ and $n$ in \autoref{eq:auroc_tptn}. % TODO better?
+%%  From \autoref{eq:auroc_tptn}, the AUROC can \emph{almost} be interpreted as the mean value of TP when TP is expressed in terms of TN, for all TN values. In that case $\frac{1}{n}$ is the normalization factor, the length of the integration interval. This only fact defying that interpretation is the division of TP by $p$. As a result, 
+%%  %while TN is simply the integration variable,
+%%  TP is weighted by $\frac{p}$, so that smaller values of $p$ attribute more importance to TP relative to TN at each point of the ROC curve.
+%  
+%  This property, however, can be seen as a disadvantage in imbalanced datasets.
+%  
+
+
+% NOTE: I don't think so.
+%  This property precisely defines the specific implications of using AUROC for imbalanced datasets presented by \autoref{sec:evaluation_protocol}. In such cases, one must have in mind that misclassifications will effectively be inversely weighted by their respective true class prevalences, with misclassifications of the majority class being more tolerated individually than those of the minority class. In other words, AUROC will be more lenient towards false positives than false negatives if positives are the underrepresented class of a problem.
+%  %TODO for an estimator with same TP and TN but different p and n, ...
+%  %TODO variational calculus, how to hack the auroc
+%  %TODO aucroc is proportional to the expected accuracy
+%  
+%  If the class distribution of the test set is not an inherent property of the problem under study and the main research interest lies in probing the underlying label distributions $f_0$ and $f_1$, this independence from $p$ may be a desired characteristic of AUROC. However, if the label imbalance is in fact a consistent feature of the learning task, taking it into consideration may report a more realistic portrait of the model performance in future studies. If the positive class is always heavily underrepresented in a given learning task, for example, one may intend to prioritize the correct classification of negative instances, since the overall number of correct classifications will be more influenced by them. More generally, the choice to be made is usually between scoring based on the absolute metrics TP and TN, directly related to the number of samples, or the relative metrics TPR and TNR, relying on fractions of negatives and positives.
+%  
+%  In scenarios of high class imbalance and where the absolute metrics are the main focus,
+%  % TODO maybe remove following
+%  i.e. constraining the number of false positives is as important as increasing the number of true positives,
+%  it is often recommended the usage of precision-recall (PR) curves as a replacement for ROC~\cite{ozenne2015precision,he2009learning,krawczyk2016learning,fernandez2018learning}.
+%  %TODO the precision weights fp as blablabl
+%  %XXX
+
+The area under the PR curve (AUPRC) is defined as
+%
+\begin{multline}
+    A_\text{PRC}
+    = \int_{0}^{1} \text{Pr}(\text{TPR}) \;d\text{TPR}
+    = \int_{\infty}^{-\infty} \text{Pr}(s) \frac{d\text{TPR}(s)}{ds} \;ds
+    =\\
+    = \int_{-\infty}^{\infty} \text{Pr}(s) f_1(s)\;ds
+    = \int_{-\infty}^{\infty} \frac{p (1 - F_1(s)) f_1(s) \;ds}{p (1 - F_1(s)) + n (1 - F_0(s))}
+    \label{eq:auprc0}
+\end{multline}
+%
+From \autoref{eq:auprc0}, AUPRC can be interpreted as the average precision weighted by the distribution of positive instances. Analogously, it corresponds to collecting the decision values attributed to each positive instance, and then calculating the average precision considering only these values as classification thresholds.
+Furthermore, unlike AUROC, the true label cumulative distributions ($F_0$ and $F_1$) appear each weighted by their respective class prevalences ($p$ and $n$).
+%Here it may be useful to bring back the discrete scenario of real classification problems, where each sample of the training set defines a threshold $s*$. With the precision weighted by the positive samples' distribution in \autoref{eq:auprc0}, AUPRC would thus be the average precision considering only the threshold values $s*$ defined by a true positive sample.
+
+% TODO maybe:
+%% Furthermore, the true label cumulative distributions ($F_0$ and $F_1$) appear each weighted by their respective class prevalences ($p$ and $n$). As a result, expressing the AUPR in terms of TP and FP yields no dependence on $p$ or $n$ apart from dividing by the length of integration interval $\frac{1}{p}$ that characterizes the averaging procedure:
+%% %
+%% \begin{equation}
+%%     A_\text{PRC}
+%%     =
+%%         \frac{1}{p}
+%%         \int_{0}^{p}
+%%             \left(1-\frac{\text{FP}}{\text{TP}}\right)^{-1}
+%%         \;d\text{TP}
+%%     % =
+%%     %     \frac{1}{p}
+%%     %     \int_{0}^{p}
+%%     %         \left(1-\frac{n-\text{TN}}{\text{TP}}\right)^{-1}
+%%     %     \;d\text{TP}
+%% \end{equation}
+%
+% TODO why FP instead of TN write in the previous section
+% Another distinguishing characteristic of AUPR is its dependence on FP rather than TN.
+
+
+\subsubsection{AUPR and AUROC in terms of ranked decision values}
+
+%To better describe the differences between using the absolute metrics and the relative metrics, we can once again bring our theoretical formulation closer to real-world applications.
+When computing AUROC or AUPR for a given estimator on a test set, the values of the decision function $s$ are usually not directly considered. Instead, the decision values outputted for each test instance are used to rank them from lowest to highest, and from these ranked test labels the curves and respective areas are obtained. The specific values of $s$ are thus indifferent to the scoring process, as long as the ranking is preserved. If the percentile rank of each test instance is denoted by $r \in [0, 1]$ and each test instance is associated with a decision value, there is a one-to-one monotonic correspondence between $r$ and $s$ in the limit of an infinite number of test samples.
+% While $s$ can often represent a rather abstract concept, $r$ is directly related to the number of instances below a given threshold.
+Formally, we have
+% TODO we take the freedom to represent f(r) = f(s(r))
+%
+%\begin{equation}
+%    f(s) = P(s) = pf_1(s) + nf_0(s)
+%\end{equation}
+%
+\begin{gather}
+    r(s) = pF_1(s) + nF_0(s)\\
+    dr = [pf_1(s) + nf_0(s)] \; ds
+\end{gather}
+
+We also take the liberty to represent $g(r) = g(s(r))$, so that
+%Therefore, %$\frac{d F_1(r)}{dr} = \frac{f_1(r)}{pf_1(s) + nf_0(s)}$.
+\begin{gather}
+    F_1(r) = \int_0^r \frac{f_1(r)}{pf_1(r) + nf_0(r)} \; dr\\
+    \frac{d F_1(r)}{dr} = \frac{f_1(r)}{pf_1(r) + nf_0(r)}
+\end{gather}
+%
+%so that a change $dr$ represents a change in the number of instances between $s$ and $s+ds$. 
+AUPRC as defined in \autoref{eq:auprc0} can now be written as
+%
+\begin{multline}
+    A_\text{PRC}
+    = p \int_{0}^{1}
+        %\frac{1 - \int \frac{f_1(r)}{f(r)} \;dr}{(p+n) - [pF_1(r) + nF_0(r)]}
+        \frac{1 - F_1(r)}{(p+n) - [pF_1(r) + nF_0(r)]}
+        \; \frac{f_1(r)}{[pf_1(s) + nf_0(s)]}
+    \;dr
+    =\\
+    = p \int_{0}^{1}
+        \frac{[1 - F_1(r)]}{[1 - r]}\frac{d F_1(r)}{dr}
+    \;dr
+    %=\\
+    = -\frac{p}{2} \int_{0}^{1}
+        \frac{1}{1 - r}
+        \; \frac{d [1 - F_1(r)]^2}{dr}
+    \;dr
+    =\\
+    =
+    - \frac{p}{2}
+    \left|
+        \frac{[1 - F_1(r)]^2}{1 - r}
+    \right|_0^1
+    + \frac{p}{2}
+    \int_{0}^{1}
+        \left[\frac{1 - F_1(r)}{1 - r}\right]^2
+    dr
+    % =
+    % \frac{p}{2} \left\{
+    %     1 - \lim_{r \to 1} \frac{[1 - F_1(r)]^2}{1 - r}
+    %     + \int_{0}^{1}
+    %         \left[\frac{1 - F_1(r)}{1 - r}\right]^2
+    %     dr
+    % \right\}
+    =\\
+    =
+    \frac{p}{2}
+    \left\{
+        1 + \int_0^1 \left[\frac{1 - F_1(r)}{1 - r}\right]^2 dr
+    \right\}
+    =
+    \frac{p}{2}
+    \left\{
+        1 + \int_0^1 [\text{Pr}(r)]^2 dr
+    \right\}
+    \label{eq:aupr ranks}
+\end{multline}
+%
+% where we define
+% %
+% \begin{gather}
+%     c(r) = \frac{p f_1(r)}{f(r)} = \frac{p f_1(r)}{pf_1(r) + nf_0(r)}\\
+%     C(r) = \int c(r) \;dr = p F_1(r)
+% \end{gather}
+%
+% \begin{multline}
+%     \int_{0}^{1}
+%         \frac{1 - \frac{1}{p}C(r)}{1 - r}
+%         \; c(r)
+%     \;dr
+%     = \int_{0}^{1}
+%         \frac{1}{1 - r}
+%         \; \left(-\frac{p}{2}\right)
+%         \; \frac{d [1 - \frac{1}{p}C(r)]^2}{dr}
+%     \;dr
+%     =\\
+%     =
+%     - \frac{p}{2}
+%     \left|
+%         \frac{[1 - \frac{1}{p}C(r)]^2}{1 - r}
+%     \right|_0^1
+%     + \frac{p}{2}
+%     \int_{0}^{1}
+%         \left[\frac{1 - \frac{1}{p}C(r)}{1 - r}\right]^2
+%     dr
+%     % =
+%     % \frac{p}{2} \left\{
+%     %     1 - \lim_{r \to 1} \frac{[1 - \frac{1}{p}C(r)]^2}{1 - r}
+%     %     + \int_{0}^{1}
+%     %         \left[\frac{1 - \frac{1}{p}C(r)}{1 - r}\right]^2
+%     %     dr
+%     % \right\}
+%     =\\
+%     =
+%     \frac{p}{2}
+%     \left\{
+%         1 + \int_0^1 \left[\frac{1 - F_1(r)}{1 - r}\right]^2 dr
+%     \right\}
+%     \label{eq:auprc2}
+% \end{multline}
+%
+in which the upper boundary term is determined by using L'Hôpital's rule and noticing that $F_1(r=1) = 1$ and
+%$\frac{d F_1(r)}{dr} = \frac{f_1(r)}{pf_1(r) + n f_0(r)} \le \frac{1}{p}$.
+$\frac{d F_1(r)}{dr} \le \frac{1}{p}$.
+%
+\begin{equation*}
+    \lim_{r \to 1} \frac{[1 - F_1(r)]^2}{1 - r}
+    %= \lim_{r \to 1} \frac{- 2 [1 - F_1(r)] c(r)}{- p}
+    = 2 \cdot \lim_{r \to 1} \left[1 - F_1(r)\right] \frac{d F_1(r)}{dr}
+    % = (2)\lim_{r \to 1} (1 - 1) \frac{d F_1(r)}{dr}
+    = 0
+\end{equation*}
+%
+\autoref{eq:aupr ranks} reveals that AUPRC is closely related to the average squared precision across all ranks.
+%\autoref{eq:auprc2} shows us that AUPRC, when expressed in terms of percentile rankings, has a simple linear dependency on the positive class prevalence $p$ of the test set. Although not completely independent, this simple relationship makes the comparison of AUPRC scores across test sets with different class distributions a straightforward task. % TODO predictable well-behaved Just a matter of rescaling.
+
+%Another consequence of \autoref{eq:auprc2} is a new interpretation of AUPRC as a linear function over the average \emph{squared} precision across all possible thresholds.
+
+% TODO auroc becomes interesting again for PU
+
+%  The same does not hold for the area under the ROC curve. 
+%  
+%  % TODO:
+%  Consider the ranking of a binary classification test set produced by a given classifier (\autoref{}). Green dots represent positive labels while red dots represent negative labels. A threshold is still to be defined, so the only output of the classifier is the order of test instances represented in the figure, indicating which instances the classifier believes are more likely to belong to the positive class (instances to the right are thought to have higher probability to be positive than instances to the left). Splitting the produced ranking in several equally-sized windows, we call $c\el i$ the average fraction of positive labels in the $i$-th window:
+%  %
+%  \begin{equation}
+%      c \el i = \frac{\text{# of positives in window }i}{\text{window length}\times \text{P}}
+%  \end{equation}
+
+%%% TODO: c(r) has a maximum value of 1/p, but it shouldn't depend on p?
+%%For a sufficiently large number of samples, $c\el i$ approximates a function $c(r)$ describing the density of positive labels as a function of the classifier's percentile ranking $r$. The probability of classifying a sample between $r$ and $r+dr$ as positive is then given by $c(r)dr$, while $\int_{0}^{1}c(r)\;dr = 1$. Notice that $c(r)$ is independent of the label imbalance of the test set, since it is normalized by the fraction of positive labels $P$ and depends only on the underlying probabilities of predicting a decision value given the true label. For instance, consider a classifier characterized by the distributions% as suggested by \textcite{saito2015precisionrecall}:
+%%%
+%%\begin{gather}
+%%    P(\hat Y\el{ij} = 1 | Y\el{ij} = 1) = \beta(1, 4) \\
+%%    P(\hat Y\el{ij} = 1 | Y\el{ij} = 0) = \beta(4, 1)
+%%\end{gather}
+%%%
+%%$c(r)$ will be given by
+%%%
+%%\begin{equation}
+%%    c(r) = P(\hat Y\el{ij} = 1 | r) = \frac{\beta(1, 4)}{\beta(4, 1) + \beta(1, 4)}
+%%\end{equation}
+%%%
+%%as illustrated by \autoref{fig:}.
+%%
+%%% TODO define confusion matrix
+%%Plotting $p \cdot c(r)$ as a function of the percentile ranking offers an interesting way of visualizing the confusion matrix generated by each threshold, since the threshold values naturally have a one-to-one monotonic relationship with the values of $r$ (\autoref{fig:}). Under this representation, we can define
+%%%
+%%\begin{equation}
+%%    tp(r) = \frac{TP}{N} = p\left(1 - \int_{0}^{r} c(r)\;dr\right)
+%%\end{equation}
+%%\begin{equation}
+%%    tn(r) = \frac{TN}{N} = r - p\int_{0}^{r} c(r)\;dr
+%%\end{equation}
+%%\begin{equation}
+%%    fp(r) = \frac{FP}{N} = n - r + p\int_{0}^{r} c(r)\;dr
+%%\end{equation}
+%%\begin{equation}
+%%    fn(r) = \frac{FN}{N} = p\int_{0}^{r} c(r)\;dr
+%%\end{equation}
+%%%
+%%which yields
+%%%
+%%\begin{equation}
+%%    tpr(r) = \frac{tp(r)}{p} = 1 - \int c(r)\;dr
+%%\end{equation}
+%%\begin{equation}
+%%    fpr(r) = \frac{fp(r)}{n} = 1 - \frac{r}{n} + \frac{p}{n}\int c(r)\;dr
+%%\end{equation}
+%%\begin{equation}
+%%    pr(r) = \frac{tp(r)}{1-r} = \frac{p}{1-r} \left(1 - \int c(r)\;dr\right)
+%%\end{equation}
+%%%
+%%As such, the area under the ROC curve (AUC ROC) is now given by
+%%%
+%%\begin{multline}
+%%    A_\text{ROC}
+%%    = \int_{0}^{1} tpr \;d(fpr)
+%%    = -\int_{fpr(1)}^{fpr(0)} tpr \frac{d(fpr)}{dr} \;dr
+%%    %= \int_{1}^{0} \left(1 - \int c(r)\;dr \right) \frac{1}{n} \left(-1 + p\,c(r)\right) \;dr
+%%    =\\
+%%    = \int_{0}^{1} \left(1 - \int c(r)\;dr \right) \frac{1}{n} \left(1 - p\,c(r)\right) \;dr
+%%    \label{eq:auroc1}
+%%\end{multline}
+%%%
+%%\autoref{eq:auroc1} leads to the most commonly promoted intuition behind AUROC. Notice that the analogous of the function $c(r)$ for the negative class can be found with 
+%%$\frac{1}{n} \left(1 - p\,c(r)\right)$, precisely the last factors of \autoref{eq:auroc1}.
+%%%
+%%The first factor ($1- \int c(r)\;dr $), on the other hand, represents the fraction of positive instances that are ranked higher than the threshold $r$.
+%%%
+%%As a consequence, both factors combined represent the probability of finding a negative instance between $r$ and $dr$ while also finding a positive instance with a higher rank than that of the negative instance.
+%%%
+%%Upon integration over all possible thresholds, we conclude that the AUC ROC score represents the overall probability of randomly selecting a positive instance ranked higher than a randomly selected negative instance.
+
+We can also express the AUROC in terms of the percentile ranks:
+%
+\begin{multline*}
+    A_\text{ROC}
+    = \frac{1}{n} \int_{0}^{1}
+        (1 - F_1(r)) \left(\frac{n f_0(r)}{nf_0(r) + pf_1(r)}\right) \;dr
+    =\\
+    =  \frac{p}{n} \int_{0}^{1}
+        (1 - F_1(r)) \left(1 - \frac{pf_1(r)}{nf_0(r) + pf_1(r)}\right) \;dr
+    =\\
+        = \frac{1}{n} \int_{0}^{1} (1 - F_1(r)) \left(1 - p \frac{dF_1(r)}{dr}\right) \;dr
+    =\\
+    =
+        \frac{1}{n} \int_{0}^{1} (1 - F_1(r)) \;dr
+        - \frac{p}{n} \int_{0}^{1}
+            (1 - F_1(r)) \;d(F_1(r))
+    =\\
+    =
+        \frac{1}{n} \int_{0}^{1} (1 - F_1(r)) \;dr
+        + \frac{p}{n} \left[
+            \frac{(1 - F_1(r))^2}{2}
+        \right]^1_0
+    =\\
+    =
+        \frac{1}{n} \left\{
+            \int_{0}^{1} (1 - F_1(r)) \;dr - \frac{p}{2}
+        \right\}
+    \label{eq:auroc ranks}
+\end{multline*}
+
+Equations \ref{eq:aupr ranks} and \ref{eq:auroc ranks} put AUPR and AUROC in a similar format, better delineating the differences between the two metrics. Consider expressing both now in terms of the TPR.
+%
+%\begin{gather}
+%    A_\text{ROC} = \frac{1}{n} \left\{
+%        \int_{0}^{1} (1 - F_1(r)) \;dr - \frac{p}{2}
+%    \right\}\\
+%    A_\text{PR} = \frac{p}{2} \left\{
+%        1 + \int_0^1 \left[\frac{1 - F_1(r)}{1 - r}\right]^2 dr
+%    \right\}
+%\end{gather}
+%
+\begin{gather}
+    A_\text{ROC} = \frac{1}{n} \left\{
+        \int_{0}^{1} \text{TPR}(r) \;dr - \frac{p}{2}
+    \right\}\\
+    A_\text{PR} = \frac{p}{2} \left\{
+        1 + \int_0^1 \left[\frac{\text{TPR}(r)}{1 - r}\right]^2 dr
+    \right\}
+\end{gather}
+%
+% Using precision, also interesting:
+%
+% \begin{gather}
+%     A_\text{ROC} = \frac{1}{n} \left\{
+%         \frac{1}{p}\int_{0}^{1} (1 - r)\text{Pr}(r) \;dr - \frac{p}{2}
+%     \right\}\\
+%     A_\text{PR} = \frac{1}{2} \left\{
+%         p + \frac{1}{p}\int_0^1 (\text{Pr}(r))^2 dr
+%     \right\}
+% \end{gather}
+%
+Ignoring constant terms and factors, both metrics are centered on integrating the TPR over all possible ranks, each rank representing a classification threshold. The crucial difference is that AUROC equally considers all TPR values, while AUPR weights each TPR value by the inverse of the reversed ranks.
+%
+Therefore, the AUPR metric emphasizes the effect of the highest ranked instances. 
+%
+Additionally, the square exponent in AUPR's integrand further prioritizes high values of $\frac{\text{TPR}(r)}{1-r}$, likely reinforcing the effect.
+%
+In other words, AUPR's penalty for having false positives is much higher when the rank is also high ($\text{TPR} = 1 - \text{FPR}$).
+
+% Keeping the same number of selected instances, FPR = PPOS - TPR
+% Therefore, AUPR tends to ensure that the highest ranked instances are indeed true positives,
+On the other side, AUROC is more concerned with the overall ranking, being more likely to allow a few highly-ranked false positives.
+%This effect is more pronounced if only a few positive annotations are present in the test set, since it is probabilistic easier to achieve higher TPR values for 
+%
+Using AUPR is then more suited when one is interested in selecting a restricted number of top-ranked instances from a pool of predictions, such as in recommendation systems or drug discovery tasks.
+On the other hand, AUROC should be favored when the goal is to rank a large batch of interactions. Examples would be modeling genetic interactions in a genome-wide fashion or building interaction databases.
+
+We also argue that AUROC could be preferable for comparing models under the PU assumption, at least in purely theoretical settings. For PU datasets, we naturally expect some negative-labeled instances to be very highly ranked since they could be, in fact, unannotated positives. AUPR would strictly penalize such predictions, favoring models that consider the labeling mechanism itself rather than only the underlying interaction mechanism. AUPR could thus undermine the model's potential to discover new interactions, likely failing to gauge the generalization capabilities of algorithms in a PU context.
+%
+In fact, we show in the next section that AUROC is closely related to the Mean Percentile Rank metric, which has been suggested for PU learning contexts of interaction prediction and recommendation systems~\cite{pahikkala2015more,johnsonlogistic}.
+%AUPR, for instance, could emphasize a model that simply predicts higher probabilities for more frequently interacting samples
+%
+Conversely, the importance of AUPR lies in applied scenarios where selecting false positives could be costly or have significant negative impacts. For instance, when selecting a small number of drug candidates for further testing.
+
+%Even in this scenario, if one has beforehand the number $k$ of candidates to be selected, one could consider $k$ when building new estimators for the task. For instance, using the precision on the best $k$ probabilities could be more informative than the AUPR or AUROC scores, ensuring that the same importance is given to all the $k$ candidates.  % TODO: this is not a good idea, too volatile and failing to generalize
+
+
+% TODO indeed the results tend to change less with AUROC across ILR in comparison to AUPR
+% if we have the number of prediction, eavluate it
+
+
+\subsubsection{AUROC is the normalized mean percentile ranks}
+\label{sec:auroc mpr}
+
+From \autoref{eq:auroc ranks}, we can express AUROC as
+% Defining $C(r) = \int c(r) \; dr$, we can write
+%
+\begin{multline}
+    A_\text{ROC}
+        = \frac{1}{n} \left\{
+            \int_{0}^{1} (1 - F_1(r)) \;dr - \frac{p}{2}
+        \right\}
+    =\\
+        = \frac{1}{n} \left\{
+            1 - \int_{0}^{1} F_1(r) \;dr - \frac{p}{2}
+        \right\}
+    %=\\
+        = \frac{1}{n} \left\{
+            1 - \int_{0}^{1} \frac{d(r)}{dr}F_1(r) \;dr - \frac{p}{2}
+        \right\}
+    =\\
+        = \frac{1}{n} \left\{
+            1 - \left[rF_1(r)\right]_0^1 + \int_{0}^{1} r \frac{d F_1(r)}{dr} \;dr - \frac{p}{2}
+        \right\}
+    %=\\
+        = \frac{1}{n} \left[
+            \int_{0}^{1} r \frac{d F_1(r)}{dr} \;dr - \frac{p}{2}
+            %\int_{0}^{1} r \tilde f_1 \;dr - \frac{p}{2}
+        \right]
+    \label{eq:auroc mpr}
+\end{multline}
+%
+which offers a different perspective on AUC ROC.  % TODO XXX moment of inertia
+% TODO roc is again interesting for PU data, MPR
+%
+The term $\int_{0}^{1} r\,c(r) \;dr$ represents the average percentile ranking of positive labels, or the average distance of a positive label from the origin in the plot of $c(r)$. This quantity by itself, the mean percentile ranking (MPR), is a common metric in the realm of collaborative filtering for recommendation systems~\cite{hu2008collaborative,johnsonlogistic} and has also been proposed to bipartite interaction prediction~\cite{ezzat2019computational,hao2019opensource,yu2020fpscdti}.
+%
+\begin{equation}
+    \text{MPR} = \int_0^1 r\,c(r) \;dr
+\end{equation}
+%
+At first glance, MPR seems to offer some advantages over AUROC: besides simpler in formulation, MPR also seemingly does not depend on $p$ or $n$, the relative amounts of postive and negative labels in the test set, making comparisons across different test sets more direct. However, consider the maximum and minimum values of MPR, achieved for the ideal $c(r)$ distributions:
+%
+\begin{gather}
+    c_\text{max}(r) = \frac{\mathbb{I}(r > n)}{p}\\
+    c_\text{min}(r) = \frac{\mathbb{I}(r < p)}{p}
+\end{gather}
+%
+The extrema of MPR do in fact depend on $n$:
+%
+\begin{equation}
+    \text{MPR}_\text{max}
+        = \frac{1}{p}\int_n^1 r \;dr
+        = \frac{1 - n^2}{2p}
+        = \frac{1 + n}{2}
+\end{equation}
+%
+\begin{equation}
+    \text{MPR}_\text{min}
+        = \frac{1}{p}\int_0^p r \;dr
+        = \frac{p^2}{2p}
+        = \frac{p}{2}
+        = \frac{1 - n}{2}
+\end{equation}
+%
+If we then try to remedy this issue by normalizing MPR to the $[0, 1]$ interval, we obtain
+\begin{equation}
+    \text{MPR}_\text{norm}
+        = \frac{
+            \text{MPR} - \text{MPR}_\text{min}
+        }{
+            \text{MPR}_\text{max} - \text{MPR}_\text{min}
+        }
+        = \frac{\text{MPR} - \frac{1 - n}{2}}{n}
+        %= \frac{1}{n}\left(\text{MPR} - \frac{1 - n}{2}\right)
+        = \frac{1}{2} + \frac{1}{n}\left(\text{MPR} - \frac{1}{2}\right)
+        = A_\text{ROC}
+\end{equation}
+%
+precisely the expression for the AUROC (\autoref{eq:auroc}). To the best of our knowledge, we thus show for the first time that employing MPR as a metric is equivalent to using AUROC normalized to the $[0, 1]$ interval. Since the statistics for model comparison employed in this study consider only the order of the estimators based on their scores and not the score values themselves, MPR results would not differ in any way from AUROC and hence will not be further considered in this work.
+
+%TODO can borrow from physics the intuition of "moment of inertia"~\cite{}. It would represent the 
+
+% % ROC random estimator
+% \begin{multline}
+%     \frac{1}{2}
+%     +\frac{1}{n} \left(
+%         \frac{1}{p}\int_{n}^{1} r \;dr
+%         - \frac{1}{2}
+%     \right)
+%     = \frac{1}{2}
+%     +\frac{1}{n}\left[
+%         \frac{1}{p}\left(\frac{1}{2} - \frac{n^2}{2} \right)
+%         - \frac{1}{2}
+%     \right]
+%     =\\
+%     = \frac{1}{2}
+%     +\frac{1}{n}\left[
+%         \frac{(1-n)(1+n)}{2p}
+%         - \frac{1}{2}
+%     \right]
+%     = \frac{1}{2}
+%     +\frac{1}{n}\left(
+%         \frac{1+n}{2} - \frac{1}{2}
+%     \right)
+%     = 1
+%     % =
+%     % \frac{1}{2} + \frac{1}{2} + \frac{n}{2n} - \frac{1}{2}
+% \end{multline}
+
+% TODO why precision recall curve
+
+
+\begin{multline}
+    A_\text{PR}
+    = \int_{0}^{1} pr \;d(tpr)
+    = \int_{tpr(0)}^{tpr(1)} pr \frac{d(tpr)}{dr} \;dr
+    %= \int_{1}^{0} \left(1 - \int c(r)\;dr \right) \frac{1}{n} \left(-1 + p\,c(r)\right) \;dr
+    =\\
+    = \int_{0}^{1} \left(p\frac{1 - \int c(r)\;dr}{1-r} \right) (- c(r))\;dr
+    = -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
+    \label{eq:aupr}
+\end{multline}
+
+\begin{multline}
+    -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
+    = -n\int_{0}^{1}
+        \frac{1}{n}\frac{r-pC(r)}{r}
+        \frac{1}{n} \left(1 - p\,c(r)\right)
+    \;dr
+    =\\
+    = -\int_{0}^{1}
+        \frac{r-pC(r)}{r}
+        \left(1 - p\,c(r)\right)
+    \;dr
+    = -p\int_{0}^{1}
+        \left(
+            \frac{1}{p}-\frac{C(r)}{r}
+        \right)
+        \left(\frac{1}{p} - c(r)\right)
+    \;dr
+    =\\
+    =
+    -\int_{0}^{1}
+        \frac{1}{p}-\frac{C(r)}{r}
+    \;dr
+    -p\int_{0}^{1}
+        \left(
+            \frac{1}{p}-\frac{C(r)}{r}
+        \right)
+        \left(-c(r)\right)
+    \;dr
+\end{multline}
+
+\begin{multline}
+    -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
+    = -p \left[
+        \left[\frac{1 - C(r)}{1-r} C(r)\right]_{0}^{1}
+        - \int_{0}^{1} \left(\frac{1 - C(r)}{1-r}\right)' C(r)\;dr
+    \right]
+    =\\
+    = -p \left[
+        \left[\frac{1 - C(r)}{1-r} C(r)\right]_{0}^{1}
+        - \int_{0}^{1} \left(
+            \frac{- C'(r)C(r)}{1-r}
+            + \frac{(1-C(r))C(r)}{(1-r)^2}
+        \right)
+        \;dr
+    \right]
+    =\\
+    = -p \left[
+        \left[\frac{1 - C(r)}{2(1-r)} C(r)\right]_{0}^{1}
+        - \int_{0}^{1} \frac{1}{2}\left(
+            \frac{(1-C(r))C(r)}{(1-r)^2}
+        \right)
+        \;dr
+    \right]
+\end{multline}
+
+
+\begin{multline}
+    \int_{0}^{1} \frac{C(r)C'(r)}{1-r}\;dr
+    =
+        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
+        - \int_{0}^{1} \left(\frac{C(r)}{1-r}\right)' C(r)\;dr
+    =\\
+    =
+        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
+        - \int_{0}^{1} \left(
+            \frac{C'(r)C(r)}{1-r}
+            + \frac{C(r)^2}{(1-r)^2}
+        \right)
+        \;dr
+    =\\
+    =
+        \frac{1}{2}
+        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
+        -
+        \frac{1}{2}
+        \int_{0}^{1}
+            \frac{C(r)^2}{(1-r)^2}
+        \;dr
+\end{multline}
+
+\begin{multline}
+    \int_{0}^{1} \frac{C'(r)}{1-r}\;dr
+    =
+        \left[\frac{C(r)}{1-r}\right]_{0}^{1}
+        - \int_{0}^{1} C(r)\left(\frac{1}{1-r}\right)'\;dr
+    =\\
+    =
+        \left[\frac{C(r)}{1-r}\right]_{0}^{1}
+        - \int_{0}^{1} \frac{C(r)}{(1-r)^2}\;dr
+\end{multline}
+
+% \begin{multline}
+%     \frac{1}{n}\frac{f_1}{pf_1 + n f_0}
+%     =\frac{f_1}{(1-n)f_1 + n f_0}
+%     =\\
+%     =\frac{f_1}{f_1 + n (f_0 - f_1)}
+%     =\frac{1}{(1-n) + n f_0 / f_1}
+%     =\frac{1}{1 + n (f_0 / f_1 - 1)}
+%     \\
+%     =\frac{1}{(1 + n (f_0 / f_1 - 1))^2}
+%     =\frac{1}{(1 + 2n (f_0 / f_1 -1) + n^2(f_0 / f_1-1)^2)}
+%     =\frac{1}{1 + 2n (f - 1) + n^2(f^2 -2f + 1)}
+%     =\frac{1}{1 + 2nf - 2n + n^2f^2 - 2n^2f + n^2}
+% \end{multline}
+
 
 \subsection{General experimental settings}
 
+\section{Experiments}
 
 \subsection{Empirical time complexity analysis}
 \label{sec:empirical_complexity}
@@ -2972,7 +3137,7 @@ We then select the squared weighting strategy and the fully grown trees to be fu
 \subsection{Comparison between adaptation strategies}
 \label{sec:adaptation_comparison}
 
-We now compare each of the described approaches for adapting decision forests to bipartite data (\autoref{sec:common_approaches}, \autoref{sec:bipartite_trees} and \autoref{sec:bgso_trees}). The suffixes in the model names of this section indicating the employed bipartite adaptations are briefly described below.
+We now compare each of the described approaches for adapting decision forests to bipartite data (\autoref{sec:standard adaptations}, \autoref{sec:bipartite_trees} and \autoref{sec:bgso_trees}). The suffixes in the model names of this section indicating the employed bipartite adaptations are briefly described below.
 
 % TODO: contribution: ensembles of gmo (not gmosa) were nevel built!
 
@@ -3729,9 +3894,6 @@ This result points bipartite ExtraTree ensembles as state-of-the-art regression 
 %    \caption{Model performance on the DAVIS dataset.}
 %    \label{fig:davis_mse}
 %\end{figure*}
-
-
-\subsection{Estimated impact of missing labels}
 
 
 \section{Final remarks}
