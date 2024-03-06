@@ -2,8 +2,99 @@
 % ---
 % Conclusão
 % ---
-\chapter{Conclusão}
-% ---
-% O comando abaixo insere parágrafos aleatórios só para exemplificar
-Apresentar as conclusões correspondentes aos objetivos ou hipóteses propostos para o desenvolvimento do trabalho, podendo incluir  sugestões para novas pesquisas.
+\chapter{Conclusion}
 
+What we discovered
+what have we learned
+
+\begin{enumerate}
+    \item \textbf{Can bipartite trees be faster?}
+
+    Yes, we developed significantly faster-growing bipartite trees by exploiting the bipartite nature of the problem.
+
+    We demonstrate both theoretically (\autoref{sec:complexity_analysis}) and empirically (\autoref{sec:empirical_complexity}) that our proposed bipartite tree algorithm achieves a $\log n$ improvement in training time complexity relative to its predecessors, with comparable predictive performance (\autoref{sec:comparison literature}).
+    %maintaining comparable predictive performance.
+    %, $n$ being the number of samples in each domain.
+    %\item \textbf{How do different bipartite adaptations compare}
+
+    \item \textbf{Are semi-supervised techniques beneficial for bipartite forests?}
+
+    % Yes, we show that some semi-supervised impurities improve the predictive performance of a bipartite global single output forest.
+    Yes. Overall, we show that both semi-supervised impurities and label imputation by matrix factorization improve the predictions of bipartite forests.% in the majority of cases.
+
+    For most scenarios, using our proposed semi-supervised impurity improves the predictive performance relative to the corresponding supervised model (\autoref{sec:best_forests}).
+    %However, it is not clear if this improvement arises the diversity it introduces to %the ensemble. a general and further investigation is needed.
+    % However, the reason for this improvement could arise mainly from the diversity it introduces to the ensemble. a general and further investigation is needed.
+    However, further investigation is needed to evaluate the benefits of other impurity functions.
+    Additional experiments would also be interesting to investigate the effect of the methods that define the supervision balance parameter.
+    %as well as to understand the effect of the strategies for defining the supervision balance parameter.  % TODO
+    %to elucidate the reasons for this improvement, as it could arise mainly from the diversity it introduces to the ensemble.
+    
+    In any case, the most significant improvements were achieved by reconstructing the interaction matrix.
+    As proposed by \cite{pliakos2020drugtarget}, we employ neighborhood-regularized matrix factorization~\cite{liu2016neighborhood} (NRLMF) to impute positive annotations prior to training the forests, and show that this approach consistently improves the scores in almost all settings (\autoref{sec:y_reconstruction} and \autoref{sec:best_forests}).
+    %we employ neighborhood-regularized matrix factorization~\cite{liu2016neighborhood},As proposed by \cite{pliakos2020drugtarget},
+    % to impute positive annotations prior to training the forests, and show that this approach consistently improves the scores in almost all settings (\autoref{sec:y_reconstruction} and \autoref{sec:best_forests}).
+
+    \item \textbf{How do AUROC and AUPR differ in their assessment of model performance?}
+
+    AUPR prioritizes a smaller number of highest-ranked interactions, while AUROC considers a larger number of both highest and lowest ranks.
+
+    We show that AUPR is very sensitive to which interactions from the test set the estimator selects as the most likely to occur. Also, AUPR mostly disregards the interactions selected as unlikely by the estimator. On the other hand, AUROC equally considers both the highest and lowest ranked interactions, and is less influenced by the extremal ranks in comparison to AUPR (\autoref{sec:comparing auroc aupr}).
+
+    %In accordance, our analyses suggest that AUROC is more consistent across different fractions of missing positive annotations (\autoref{sec:literature_algorithms}). 
+    %Therefore, AUROC should be favored in most cases for model comparison under %positive-unlabeled settings. The AUPR can be 
+    Therefore, we argue that AUROC should be generally favored for model comparison under positive-unlabeled settings. One should favor AUPR instead when the main goal is to select a small number of most likely interactions.
+
+    %\item \textbf{Are bipartite forests competitive with proficient models in the field?}
+    \item \textbf{How do bipartite forests compare with proficient models in the field?}
+    %\item \textbf{How do models from the literature compare under a consistent evaluation framework?}
+
+    %Yes, bipartite forests showed the best results in our experimental comparisons.
+    The bipartite forests showed the best results in our experimental comparisons.
+
+    Notably, the BXT GMO NRLMF model stood out in most test settings analysed, especially when predicting interactions between unknown instances (\autoref{sec:comparison literature}). This model employs NRLMF label imputation and our proposed prototype function, demonstrating the effectiveness of these techniques in improving generalization.
+
+    %best overall scores were achieved by the
+    %global multi-output
+
+
+    %\item \textbf{How the missing positive annotations impact the performance of bipartite models?}
+
+    %\item \textbf{Are application-specific deep learning models always superior to similarity based methods?}
+    %No. We show that bipartite forests consistently outperform deep learning models in a case study.
+
+    %We compared the models performance on the DAVIS dataset, representing a regressive bipartite task of drug-target affinity prediction. 
+    %Bipartite forests achieve significantly better scores than the state-of-the-art models DeepDTA~\cite{ozturk2018deepdta} and MolTrans~\cite{huang2020moltrans}. Notwithstanding, training times were significantly lower for the forests (\autoref{sec:case_study}).
+\end{enumerate}
+
+main contributions
+
+\begin{enumerate}
+    \item \textbf{Faster bipartite trees}
+    \item \textbf{Semi-supervised bipartite forests}
+    \item \textbf{New semi-supervised impurity}
+    for kernels
+    \item \textbf{New prototype function}
+    \item \textbf{Forests with new prototypes}
+    \item \textbf{Two new datasets formatted to bipartite learning}
+    \item \textbf{AUPR and AUROC comparison}
+    \item \textbf{Model comparison under a consistent evaluation framework}
+    \item \textbf{Accessible implementation}
+\end{enumerate}
+
+\section{Future Work}
+
+\begin{enumerate}
+    \item \textbf{Totally random unsupervised impurity.}
+    \item \textbf{There are a lot of semi-supervised impurities to explore.}
+    Single feature. 
+    \item \textbf{Semi-supervised impurities with the other forest models.}
+    \item \textbf{Other matrix reconstruction approaches.}
+    Self-learning, simple random walk, other MF (neighborhood regularization is not strictly needed).
+    \item \textbf{Compression of the dataset.} 2D Histograms?
+    \item \textbf{BGSO in combination with weighted-neighbors prototypes.}
+    \item \textbf{Other forest algorithms.} Gradient boosting, Rotation Forests, Fuzzy Forests, Oblique Random Forests, Deep forests
+    \item \textbf{Other fields.} Multi-label and weak-label learning, recommendation systems (talk about vertical feature extraction).
+    \item \textbf{Specific applications.} miRNA and lncRNA, etc
+    \item \textbf{Explainable artificial intelligence} miRNA and lncRNA, etc
+\end{enumerate}

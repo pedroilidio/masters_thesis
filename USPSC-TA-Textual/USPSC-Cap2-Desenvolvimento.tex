@@ -1837,7 +1837,7 @@ In the present work, we refine such comparisons and inroduce ensembles of our ne
 %In this work, we use data from Drug-Target interactions in the experimental validation of the proposed model. DTI is an area of the literature that has been the focus of several recent advances and consists of methods for predicting interactions between drugs and targets (Proteins, Diseases, Ligands). This area has already been investigated in several applications present in the literature, such as~\cite{Fattahi2019,Nasution2019}. In this context, the dataset used is the Drug-Protein Interaction Networks, defined in~\cite{Yamanishi2008}. This dataset consists of four bipartite interaction networks between proteins and drugs: Ion channels (DPI-I), Nuclear receptors (DPI-N), protein-coupled receptors G (DPI-G), and Enzymes (DPI-E). Both networks of interactions form datasets, and the interaction prediction in these contexts and applying them to the real world can bring innovations and discoveries.
 
 %\subsection{Semi-supervised decision trees}
-\subsection{Incorporating semi-supervision in decision trees}
+\subsection{Incorporating semi-supervision into decision trees}
 \label{sec:ss trees}
 
 The tree algorithms presented up until this point disregard the positive-unlabeled characteristic of our datasets of interest, either ignoring the possibility of abscence of labels in the training set, or, equivalently, considering all non-occurring interactions as unknown interactions.
@@ -1878,7 +1878,7 @@ With that in mind, decision trees can be naturally adapted to unsupervised or se
 In a purely unsupervised context, an example would be to utilize the average of column variances in $X_\text{node}$ as the impurity function (\autoref{eq:I unsup}). This would result in a tree that groups instances with similar features together, regardless of their labels. This idea is the main concept behind the CLUS algorithm~\cite{boley1998unsupervised}.
 %
 \begin{equation}
-    I_\text{unsupervised MSE}(X) = \text{MSE}(X) = \left( X\el{ij} - X^{\ang{i}[j]} \right)^{\ang{i}2\ang{j}}
+    I_\text{u, MSE}(X) = \text{MSE}(X) = \left( X\el{ij} - X^{\ang{i}[j]} \right)^{\ang{i}2\ang{j}}
     \label{eq:I unsup}
 \end{equation}
 
@@ -1910,12 +1910,48 @@ Another important notice is that features must be normalized before training the
 % assumes true 0 is more likely
 % TODO: impurity that considers 0 as both 0 and 1 (with relative proba (c estimation))
 
+\subsubsection{Unsupervised impurities}
+\label{sec:Iu}
+
+We explore two different unsupervised impurity functions for the semi-supervised decision trees: the mean feature variance (\autoref{eq:I unsup}) and the mean pairwise distance between the samples (\autoref{eq:mean distance impurity}). We describe and motivate them in this section.
+
+The initial proposal of a semi-supervised impurity function~\cite{levatic2017semisupervised} employed the mean variance of the feature matrix $X$ as the unsupervised term (\autoref{eq:I unsup}), being concerned with traditional decision trees.
+The strategy, however, does not scale well with the number of features.
+%which is especially a concern for bipartite trees working 
+%main concern with this strategy is that it considerably slows down the training procedure of bipartite trees.
+This results from each node having to always consider the same number of features, even though the number of instances decrease.
+The scalability is especially a concern in the scenarios under study, in which the feature matrices are square similarity matrices.
+
+% % TODO andre solves this by...
+%To remedy this issue, \citet{alves2023semisupervised} proposes to calculate the unsupervised impurity only twice in each node, as a way to choose between the best split axis 
+
+Notice that, in the learning tasks under study, the $X$ matrix already represents similarities between samples, and an additional metric such as the variance of each feature is not necessary to capture how close the samples are to each other. 
+%
+Exploring this property, we propose a more efficient unsupervised impurity function based on the average similarity between the samples in the tree node (equation \ref{eq:mean distance impurity}).
+% only upper triangle is used, X symmetric
+%
+\begin{equation}
+    I_\text{MeanDistance}(X) = \frac{1}{|\mathbf{s}_\text{node}|}
+        \sum_{j \in \mathbf{s}_\text{node}}
+        \sum_{i \in \mathbf{s}_\text{node}} (1 - X\el{ij})
+        % \sum_{(i, j) \in \mathbf{s}_\text{node}} (1 - X\el{ij})
+    \label{eq:mean distance impurity}
+\end{equation}
+%
+$\mathbf{s}_\text{node}$ denotes the set of indices representing the samples in the node.
+Notice that the number of features to consider equals the number of samples in the node: we always consider a square partition of $X$.
+As such, the number of operations required by $I_u$ drops more steeply with respect to the node size in comparison to $I_\text{MSE GMO}$ or similar impurities, 
+which is especially beneficial in our case of large $X$ matrices. We can reduce even further the number of operations by considering only the upper or lower triangle of $X$, exploiting $X$'s symmetry.
+
+We note that the subset of features is only used to calculate the impurity function, and not to select split points. The split search procedure is still performed considering all features as usual.
+
+
 
 \subsubsection{Heuristics for $\sigma$}
 \label{sec:sigma heuristics}
 % TODO: the smaller the partition, the smaller we should set the sigma, contrary to what we did. few labels are less informative, arguably, than the distance between few instances
 
-Determining the ideal value of $\sigma$ is not a trivial task. In fact, it is not even clear whether a single constant $\sigma$ for the whole tree is enough or it should be adjusted for each node.
+Determining the ideal value of $\sigma$ is not a trivial task. In fact, it is not even clear whether a single constant $\sigma$ for the whole tree is enough or it should be adjusted for each node. We explore four different strategies for setting $\sigma$, that we present in this section.
 
 % For instance, one could argue that nodes with a larger number of unlabeled instances should prioritize the unsupervised objective, since the supervised information is more likely to be unreliable.
 
@@ -1952,47 +1988,75 @@ We also speculate that the observed benefit of a dynamic $\sigma$ could emerge f
 \end{equation}
 
 
-\subsubsection{Unsupervised impurities}
-\label{sec:Iu}
-
-The initial proposal of a semi-supervised impurity function~\cite{levatic2017semisupervised} employed the variance of the feature matrix $X$ as the unsupervised term (\autoref{eq:I unsup}). The main concern with this strategy is that it considerably slows the training procedure of bipartite trees. This results from the fact that the number of features to be considered in each node is the same ... % XXX
-
-% % TODO andre solves this by...
-
-Exploiting the fact that we are working with kernel matrices as input features, we propose an efficient unsupervised impurity function based on the mean pairwise distance between the samples in the tree node (equation \ref{eq:mean_distance_impurity}). $\mathbf{s}_\text{node}$ denotes the set of indices representing the samples in the tree node, and since distances from samples outside the node are disregarded, the number of operations required drops more steeply with respect to the node size in comparison to $I_\text{MSE GMO}$ or similar impurities, which is especially beneficial in our case of large $X$ matrices.
-% only upper triangle is used, X symmetric
-%
-\begin{equation}
-    I_\text{MeanDistance}(X) = \frac{1}{|\mathbf{s}_\text{node}|}
-        \sum_{j \in \mathbf{s}_\text{node}}
-        \sum_{i \in \mathbf{s}_\text{node}} (1 - X\el{ij})
-        % \sum_{(i, j) \in \mathbf{s}_\text{node}} (1 - X\el{ij})
-    \label{eq:mean_distance_impurity}
-\end{equation}
-
-
 
 \section{Assessing the performance of bipartite models}
 \label{sec:experiments}
 
 \subsection{Datasets}
 \label{sec:datasets}
+% TODO: detailed description of similarity metrics
+% TODO: detailed description of biological concepts
 
-We gathered ten publicly available interaction datasets to evaluate the performance of the proposed models. Quantitative information about the datasets is presented in table 2%\ref{main:tab:datasets}%
-, and more detailed descriptions are provided below.
+We gathered ten publicly available interaction datasets to evaluate the performance of the proposed models. Quantitative information about each of them is presented by \autoref{tab:datasets}, and more detailed descriptions are provided in this section.
+
+% TODO: organize
+\begin{table}[tb]
+    \centering
+    \footnotesize
+    \begin{tabular}{lrrr}%r}
+        \toprule
+        Dataset & Type of interaction & $Y$ shape & Density\\% & References\\
+        \midrule
+        DPI-E & Drug-enzyme & $664 \times 445$ & 0.9902\%\\% &\cite{yamanishi2008}\\
+        DPI-G & Drug-GPCR & $95 \times 223$ & 2.997\%\\% &\cite{yamanishi2008}\\
+        DPI-G & Drug-GPCR & $95 \times 223$ & 2.997\%\\% &\cite{yamanishi2008}\\
+        DPI-I & Drug-ion channel & $204 \times 210$ & 3.445\%\\% &\cite{yamanishi2008}\\
+        DPI-N & Drug-nuclear receptor & $26 \times 54$ & 6.410\%\\% &\cite{yamanishi2008}\\
+        ERN & Gene-transcription factor & $1164 \times 154$ & 1.837\%\\% &\cite{faith2007}\\
+        SRN & Gene-transcription factor & $1821 times 113$ & 1.780\%\\% &\cite{macisaac2006, hughes2000, hu2007, chua2006, schrynemackers2015}\\
+        %SRN & Gene-transcription factor & $1821 \times 113$ & 1.780\% &\cite{macisaac2006}\\
+        DAVIS & Inhibitor-kinase & $68 \times 442$ & 5.011\%\\% &\cite{davis2011,he2017simboost,huang2020deeppurpose}\\
+        KIBA & Inhibitor-kinase & $2111 \times 229$ & 19.74\%\\% &\cite{tang2014,he2017simboost,huang2020deeppurpose}\\
+        NPInter & lncRNA-protein & $586 \times 446$ & 18.12\%\\% &\cite{wu2006npinter, teng2020npinter}\\
+        %NPInter & lncRNA-protein & $586 \times 446$ & 18.12\% &\cite{teng2020npinter}\\
+        mirTarBase & miRNA-mRNA & $1873 \times 415$ & 7.065\%\\% &\cite{hsu2011mirtarbase, huang2022mirtarbase}\\
+        %mirTarBase & miRNA-mRNA & $1873 \times 415$ & 7.065\% &\cite{huang2022mirtarbase}\\
+        \bottomrule
+    \end{tabular}
+    \caption{Summary of the datasets used in this study. The similarity scores for mirTarBase and NPInter were obtained from the raw sequences as their normalized Smith-Waterman alignment scores. %substitution matrices and density filters
+    %
+    Original references are:
+        DPI~\cite{yamanishi2008},
+        ERN~\cite{faith2007},
+        SRN~\cite{macisaac2006}, %, hughes2000, hu2007, chua2006, schrynemackers2015},
+        DAVIS~\cite{davis2011}, %,he2017simboost,huang2020deeppurpose},
+        KIBA~\cite{tang2014}, %,he2017simboost,huang2020deeppurpose},
+        %NPInter~\cite{wu2006npinter, teng2020npinter},
+        NPInter~\cite{teng2020npinter}, 
+        %mirTarBase~\cite{hsu2011mirtarbase, huang2022mirtarbase}.
+        mirTarBase~\cite{huang2022mirtarbase}. 
+        DAVIS and KIBA are provided by \citet{huang2020deeppurpose}. DPI datasets, SRN, and ERN are provided by \citet{schrynemackers2015}.
+}
+    \label{tab:datasets}
+\end{table}
+
 
 %\subsection{DPI-E, DPI-G, DPI-I, DPI-N~\cite{yamanishi2008}}
-%\subsection{DPI-E, DPI-G, DPI-I, DPI-N}
+\subsubsection{DPI-E, DPI-G, DPI-I, DPI-N}
 
 These datasets comprise drug-protein interactions for four distinct classes of proteins: enzymes, GPCRs, ion channels, and nuclear receptors, respectively. Drug similarities were computed using the SIMCOMP metric, while protein similarities were computed as normalized scores of Smith-Waterman pairwise alignments~\cite{yamanishi2008}.
 
-%\subsection{ERN~\cite{faith2007} and SRN~\cite{macisaac2006, hughes2000, hu2007, chua2006, schrynemackers2015}}
-The datasets represent interactions between genes and transcription factors in \textit{E. coli} and \textit{S. cerevisiae}, respectively. Gene and TF features are initially composed of experimentally measured expression levels and, in SRN, gene motif features~\cite{brohee2011,schrynemackers2015}. We compute the RBF kernel of such values to obtain the final similarity matrices. %TODO rbf equation or cite
+\subsubsection{ERN and SRN}
+%\subsubsection{ERN~\cite{faith2007} and SRN~\cite{macisaac2006, hughes2000, hu2007, chua2006, schrynemackers2015}}
+The datasets represent interactions between genes and transcription factors in \textit{E. coli} and \textit{S. cerevisiae}, respectively. Features for genes and trasncription factors are initially composed of experimentally measured expression levels and, in SRN, gene motif features~\cite{brohee2011,schrynemackers2015}. We compute the RBF kernel of such values to obtain the final similarity matrices. %TODO rbf equation or cite
 
 %\subsection{DAVIS~\cite{davis2011,pahikkala2015}}
+\subsubsection{DAVIS}
 The DAVIS dataset contains experimentally measured drug-kinase dissociation constants~\cite{davis2011}. The dataset was binarized by considering interactions with dissociation constants $\le 30 nM$ as the positive ones, as suggested by \cite{pahikkala2015}. Drug similarities were computed using the Extended Connectivity Fingerprints (ECFP4)~\cite{rogers2005, pahikkala2015} while protein similarities were taken as the normalized Smith-Waterman score~\cite{yamanishi2008,pahikkala2015}.
 
 %\subsection{KIBA~\cite{tang2014,he2017simboost,huang2020deeppurpose}}
+\subsubsection{KIBA}
+
 The KIBA dataset was initially built by \citeauthor{tang2014} and contains experimentally verified affinity scores between kinase and kinase inhibitors.
 
 \cite{he2017simboost} further processed the dataset by removing all drugs and targets with less than 10 observations. In alignment with \cite{tang2014,he2017simboost}, we consider positive interactions as those with $log_10$ KIBA-scores $\leq 3.0$ to reframe the task as binary classification.
@@ -2001,14 +2065,19 @@ The utilized version of the dataset with corresponding amino acid sequences and 
 
 
 %\subsection{mirTarBase~\cite{hsu2011mirtarbase, huang2022mirtarbase}}
+\subsubsection{mirTarBase}
+
 The mirTarBase dataset contains experimentally validated microRNA-messengerRNA interactions. MicroRNA sequences were obtained from miRBase~\cite{griffiths2006mirbase} while transcript sequences were obtained from GENCODE~\cite{frankish2021gencode}. The longest transcript for each gene was selected and the 3' UTR exonic sequences were recovered from the genome and annotation files provided by GENCODE. The similarity matrices were then built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among microRNAs and among the genes' 3' UTRs. The alignments were performed using the BLASTN substitution matrix and no gap penalty, with the help of the Biopython package~\cite{cock2009biopython}.
 
 Each miRNA was required to have at least 10 interactions in the dataset, and each gene was required to have at least 100 interactions.
 
-%\subsection{NPInter~\cite{wu2006npinter, teng2020npinter}}
-Interactions between long non-coding RNAs (lncRNA) and proteins were recovered from NPInter~\cite{wu2006npinter, teng2020npinter}. The lncRNA sequences were obtained from NONCODE~\cite{zhao2016noncode} and the protein sequences were obtained from UniProt~\cite{uniprot2019}. The similarity matrices were built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among lncRNAs and among the proteins. Similarly to the preprocessing of mirTarBase, we leveraged the Biopython package~\cite{cock2009biopython} to perform the alignments. using the BLASTN and BLOSUM62 substitution matrices for the lncRNA and protein alignments, respectively, and no gap penalty in both cases.
 
-Each lncRNA was required to interact with 50 proteins or more in the dataset, and each protein was required to have at least 2 interactions.
+% \subsubsection{NPInter~\cite{wu2006npinter, teng2020npinter}}
+\subsubsection{NPInter}
+
+Interactions between long non-coding RNAs (lncRNA) and proteins were recovered from NPInter~\cite{wu2006npinter, teng2020npinter}. The lncRNA sequences were obtained from NONCODE~\cite{zhao2016noncode} and the protein sequences were obtained from UniProt~\cite{uniprot2019}. The similarity matrices were built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among lncRNAs and among the proteins. Similarly to the preprocessing of mirTarBase, we utilized the Biopython package~\cite{cock2009biopython} to perform the alignments. using the BLASTN and BLOSUM62 substitution matrices for the lncRNA and protein alignments, respectively, and no gap penalty in both cases.
+
+Each lncRNA was required to interact with 50 proteins or more to be incorporated in the dataset, and each protein was required to have at least 2 interactions.
 
 
 \subsection{Evaluating bipartite models}
@@ -2303,6 +2372,7 @@ which, in turn, yields
     \text{TPR}(s^*) = 1 - F_1(s^*) \\
     \text{TNR}(s^*) = F_0(s^*) \\
     \text{FPR}(s^*) = 1 - F_0(s^*) \\
+    \text{FNR}(s^*) = F_1(s^*) \\
     \text{Pr}(s^*) = \frac{p (1 - F_1(s^*))}{p (1 - F_1(s^*)) + n (1 - F_0(s^*))}
 \end{gather}
 
@@ -2415,6 +2485,7 @@ Furthermore, unlike AUROC, the true label cumulative distributions ($F_0$ and $F
 
 
 \subsubsection{AUPR and AUROC in terms of ranked decision values}
+\label{sec:metrics from ranks}
 
 %To better describe the differences between using the absolute metrics and the relative metrics, we can once again bring our theoretical formulation closer to real-world applications.
 When computing AUROC or AUPR for a given estimator on a test set, the values of the decision function $s$ are usually not directly considered. Instead, the decision values outputted for each test instance are used to rank them from lowest to highest, and from these ranked test labels the curves and respective areas are obtained. The specific values of $s$ are thus indifferent to the scoring process, as long as the ranking is preserved. If the percentile rank of each test instance is denoted by $r \in [0, 1]$ and each test instance is associated with a decision value, there is a one-to-one monotonic correspondence between $r$ and $s$ in the limit of an infinite number of test samples.
@@ -2654,7 +2725,16 @@ We can also express the AUROC in terms of the percentile ranks:
     \label{eq:auroc ranks}
 \end{multline*}
 
-Equations \ref{eq:aupr ranks} and \ref{eq:auroc ranks} put AUPR and AUROC in a similar format, better delineating the differences between the two metrics. Consider expressing both now in terms of the TPR.
+Equations \ref{eq:aupr ranks} and \ref{eq:auroc ranks} put AUPR and AUROC in a similar format, better delineating the differences between the two metrics. Consider expressing both now in terms of the precision.
+%
+\begin{gather}
+    A_\text{ROC} = \frac{1}{n} \left\{
+        \frac{1}{p}\int_{0}^{1} (1 - r)\text{Pr}(r) \;dr - \frac{p}{2}
+    \right\}\\
+    A_\text{PR} = \frac{1}{2} \left\{
+        p + \frac{1}{p}\int_0^1 \text{Pr}(r)^2 dr
+    \right\}
+\end{gather}
 %
 %\begin{gather}
 %    A_\text{ROC} = \frac{1}{n} \left\{
@@ -2665,53 +2745,105 @@ Equations \ref{eq:aupr ranks} and \ref{eq:auroc ranks} put AUPR and AUROC in a s
 %    \right\}
 %\end{gather}
 %
-\begin{gather}
-    A_\text{ROC} = \frac{1}{n} \left\{
-        \int_{0}^{1} \text{TPR}(r) \;dr - \frac{p}{2}
-    \right\}\\
-    A_\text{PR} = \frac{p}{2} \left\{
-        1 + \int_0^1 \left[\frac{\text{TPR}(r)}{1 - r}\right]^2 dr
-    \right\}
-\end{gather}
-%
-% Using precision, also interesting:
+%\begin{gather}
+%    A_\text{ROC} = \frac{1}{n} \left\{
+%        \int_{0}^{1} \text{TPR}(r) \;dr - \frac{p}{2}
+%    \right\}\\
+%    A_\text{PR} = \frac{p}{2} \left\{
+%        1 + \int_0^1 \left[\frac{\text{TPR}(r)}{1 - r}\right]^2 dr
+%    \right\}
+%\end{gather}
+
+% As a function of F_0:
 %
 % \begin{gather}
-%     A_\text{ROC} = \frac{1}{n} \left\{
-%         \frac{1}{p}\int_{0}^{1} (1 - r)\text{Pr}(r) \;dr - \frac{p}{2}
-%     \right\}\\
-%     A_\text{PR} = \frac{1}{2} \left\{
-%         p + \frac{1}{p}\int_0^1 (\text{Pr}(r))^2 dr
+%     A_\text{PR}
+%     = \frac{p}{2} \left\{
+%         1 + \int_0^1 \left[\frac{\text{TPR}(r)}{1 - r}\right]^2 dr
+%     \right\}
+%     =\\
+%     = \frac{1}{2} \left\{
+%         p + \frac{1}{p}\int_0^1 \left[\frac{p - pF_1(r)}{1 - r}\right]^2 dr
+%     \right\}
+%     = \frac{1}{2} \left\{
+%         p + \frac{1}{p}\int_0^1 \left[\frac{p - r + nF_0(r)}{1 - r}\right]^2 dr
+%     \right\}
+%     =\\
+%     = \frac{1}{2} \left\{
+%         p + \frac{1}{p}\int_0^1 \left[\frac{1 - r - n(1 - F_0(r))}{1 - r}\right]^2 dr
+%     \right\}
+%     =\\
+%     = \frac{1}{2} \left\{
+%         p + \frac{1}{p}\int_0^1 \left[1 - \frac{n(1 - F_0(r))}{1 - r}\right]^2 dr
 %     \right\}
 % \end{gather}
 %
-Ignoring constant terms and factors, both metrics are centered on integrating the TPR over all possible ranks, each rank representing a classification threshold. The crucial difference is that AUROC equally considers all TPR values, while AUPR weights each TPR value by the inverse of the reversed ranks.
+% Using precision, also interesting:
 %
-Therefore, the AUPR metric emphasizes the effect of the highest ranked instances. 
 %
-Additionally, the square exponent in AUPR's integrand further prioritizes high values of $\frac{\text{TPR}(r)}{1-r}$, likely reinforcing the effect.
-%
-In other words, AUPR's penalty for having false positives is much higher when the rank is also high ($\text{TPR} = 1 - \text{FPR}$).
+%Ignoring constant terms and factors, both metrics are centered on integrating the TPR over all possible ranks, each rank representing a classification threshold. The crucial difference is that AUROC equally considers all TPR values, while AUPR weights each TPR value by the inverse of the reversed ranks.
+Ignoring constant terms and factors, both metrics are centered on integrating the precision over all possible ranks, each rank representing a classification threshold. The crucial difference is that AUPR equally considers all precision values, while AUROC weights each $\text{Pr}(r)$ value by the the reversed ranks.
 
+%Notice that $\text{Pr}(r^\ast)$ for a given $r^\ast$ sums $f_1(r)$ over all $r > r^\ast$ values, only considering the ranks higher than $r^\ast$. As a result, the $r$ values closer to $1$ will have a larger influence when integrating over the precisions (a sum of sums of $f_1$), since $r\approx 1$ will be considered for a larger number of terms.
+
+The precision metric is normalized by the number of instances it considers, so precision values in different $r$ have comparable magnitude.
+%
+With this in mind, notice that the precision values calculated for $r\approx 1$ are obtained from a very small number of labeled instances. As a result, each label considered when $r \approx 1$ has a large influence on the $Pr(r)$ value, and precisions will tend to have larger variances when $r\approx 1$.
+%
+Therefore, the AUPR metric is more influenced by the label value of the highest ranked instances, since it equally considers all precision values.
+
+Additionally, the quadratic exponent of AUPR's integrand emphasizes higher precision values overall, independently of the number of samples on which they were calculated ($1 - r$). This would amplify the effect of high $Pr(r)$ values for $r \approx 1$ resulting from stochastic label variations.
+Hence, we suggest that the AUPR metric is more prone to noise in the labels of higly ranked samples, prioritizing models that strictly maintain high precision for a smaller selection of highest ranks.
+
+%Notice that the TPR reduces as $r$ is increased (\autoref{eq:}). Therefore, equally considering all TPR values in the integration interval naturally prioritizes ranks that are closer to 0.
+%TODO:
+%Another formulation is possible by expressing AUROC in terms of the precision. When $r$ is closer to $0$, $Pr(r)$ is calculated over a larger number of samples, so that . AUROC emphasizes the precision values
+%
+%On the other hand, AUPR compensates this effect, dividing each TPR value by $1 - r$. 
+%At first sight, one could think that this would lead to considering all ranks on a mo
+%
+%Each TPR(r) thus will have the same weight on the score regardless of $r$.
+%  In this case, notice that the precision values calculated for $r\approx 1$ are obtained from a very small number of labeled instances. As a result, the $Pr(r)$ values for $r\approx 1$ will tend to have larger variances.
+%  Furthermore, the quadratic exponent of AUPR's integrand emphasizes higher precision values overall, independently of the number os samples on which they were calculated. This would amplify the effect of high $Pr(r)$ values for $r \approx 1$, that could be primarily resulting from stochastic variations.
+%  Therefore, we hypothesize that the AUPR metric is more prone to stochastic variations in the labels of higly ranked samples, prioritizing models that strictcly maintain high precision for a smaller selection of higher ranks.
+% Even though they receive the same weight as the TPR values for larger $r$.
+%
+%
+%Therefore, the AUPR metric emphasizes the effect of the highest ranked instances. 
+%
+%Additionally, the square exponent in AUPR's integrand further prioritizes high values of $\frac{\text{TPR}(r)}{1-r}$, likely reinforcing the effect.
+%
+% In other words, AUPR's penalty for having false negatives is much higher when the rank is also high ($\text{TPR} = 1 - \text{FNR}$).
+%
 % Keeping the same number of selected instances, FPR = PPOS - TPR
 % Therefore, AUPR tends to ensure that the highest ranked instances are indeed true positives,
-On the other side, AUROC is more concerned with the overall ranking, being more likely to allow a few highly-ranked false positives.
-%This effect is more pronounced if only a few positive annotations are present in the test set, since it is probabilistic easier to achieve higher TPR values for 
-%
-Using AUPR is then more suited when one is interested in selecting a restricted number of top-ranked instances from a pool of predictions, such as in recommendation systems or drug discovery tasks.
-On the other hand, AUROC should be favored when the goal is to rank a large batch of interactions. Examples would be modeling genetic interactions in a genome-wide fashion or building interaction databases.
+%On the other side, AUROC is more concerned with precision values calculated for higher ranks, being more likely to allow some highly-ranked false positives.
+On the other side, AUROC compensates this effect by weighting each $\text{Pr}(r)$ value by $1 - r$, so that precision values calculated for lower ranks are prioritized. The prioritized precision values ($r\approx 0$) are calculated from a larger number of labels, having lower variances and being more robust to label noise. Each label considered when $r \approx 0$ has a smaller influence on the $Pr(r)$ value relative to the other labels being considered. However, AUROC assigns a larger weight to these precision values, so the influence of smaller ranks also tend to increase.
 
-We also argue that AUROC could be preferable for comparing models under the PU assumption, at least in purely theoretical settings. For PU datasets, we naturally expect some negative-labeled instances to be very highly ranked since they could be, in fact, unannotated positives. AUPR would strictly penalize such predictions, favoring models that consider the labeling mechanism itself rather than only the underlying interaction mechanism. AUPR could thus undermine the model's potential to discover new interactions, likely failing to gauge the generalization capabilities of algorithms in a PU context.
+%is more concerned with precision values calculated for higher ranks, being more likely to allow some highly-ranked false positives.
+%This effect is more pronounced if only a few positive annotations are present in the test set, since it is probabilistic easier to achieve higher TPR values for 
+
+% MOVED TO RESULTS
+%Overall, using AUPR is more suited when one is interested in selecting a restricted number of top-ranked instances from a pool of predictions, such as in recommendation systems or drug discovery tasks.
+%Conversely, AUROC should be favored when the goal is to rank a large batch of interactions. Examples would be modeling genetic interactions in a genome-wide fashion or building interaction databases.
 %
-In fact, we show in the next section that AUROC is closely related to the Mean Percentile Rank metric, which has been suggested for PU learning contexts of interaction prediction and recommendation systems~\cite{pahikkala2015more,johnsonlogistic}.
-%AUPR, for instance, could emphasize a model that simply predicts higher probabilities for more frequently interacting samples
+%We also argue that AUROC could be preferable for comparing models under the PU assumption, at least in purely theoretical settings. For PU datasets, we naturally expect some negative-labeled instances to be very highly ranked since they could be, in fact, unannotated positives. AUPR would more strictly penalize such predictions, favoring models that consider the labeling mechanism itself rather than only the underlying interaction mechanism. AUPR could thus undermine the model's potential to discover new interactions, likely failing to gauge the generalization capabilities of algorithms in a PU context.
 %
-Conversely, the importance of AUPR lies in applied scenarios where selecting false positives could be costly or have significant negative impacts. For instance, when selecting a small number of drug candidates for further testing.
+%
+%%AUPR, for instance, could emphasize a model that simply predicts higher probabilities for more frequently interacting samples
+%
+%Conversely, the importance of AUPR lies in applied scenarios where selecting false positives could be costly or have significant negative impacts. For instance, when selecting a small number of drug candidates for further testing.
 
 %Even in this scenario, if one has beforehand the number $k$ of candidates to be selected, one could consider $k$ when building new estimators for the task. For instance, using the precision on the best $k$ probabilities could be more informative than the AUPR or AUROC scores, ensuring that the same importance is given to all the $k$ candidates.  % TODO: this is not a good idea, too volatile and failing to generalize
 
+This characteristic of AUROC might be more suitable for model comparison under the Positive-Unlabeled (PU) assumption, even though AUPR is usually reccomended for imbalanced scenarios~\cite{he2009learning,saito2015precision,fernandez2018learning}.
+In PU datasets, it is common for negative-labeled instances to rank highly due to the possibility of them being unannotated positives. These highly-ranked negatives would have a larger influence on the AUPR score in comparison to the AUROC score.
+In fact, we show in the next section that AUROC is closely related to the Mean Percentile Rank metric, which has been suggested for PU learning contexts of interaction prediction and recommendation systems~\cite{pahikkala2015more,johnsonlogistic}. \autoref{sec:comparing auroc aupr} presents further discussion on the specific usecases of AUPR and AUROC, besides a numerical analysis of their dependence on the percentile ranks.
+
 
 % TODO indeed the results tend to change less with AUROC across ILR in comparison to AUPR
+% TODO which metric is better for PU
+% TODO what are the differences in each metric
 % if we have the number of prediction, eavluate it
 
 
@@ -2740,213 +2872,142 @@ From \autoref{eq:auroc ranks}, we can express AUROC as
         \right\}
     %=\\
         = \frac{1}{n} \left[
-            \int_{0}^{1} r \frac{d F_1(r)}{dr} \;dr - \frac{p}{2}
+            \int_{0}^{1} r \;d F_1 - \frac{p}{2}
+            %\int_{0}^{1} r \frac{d F_1(r)}{dr} \;dr - \frac{p}{2}
             %\int_{0}^{1} r \tilde f_1 \;dr - \frac{p}{2}
         \right]
     \label{eq:auroc mpr}
 \end{multline}
 %
-which offers a different perspective on AUC ROC.  % TODO XXX moment of inertia
+\autoref{eq:auroc mpr} offers another perspective on AUC ROC. The term $\int_{0}^{1} r\,d F_1(r)$ represents the expected percentile rank of the positive samples:
+%
+\begin{equation}
+    \int_{0}^{1} r\,d F_1(r) = E[r \mid y = 1] = \text{MPR}
+    \label{eq:mpr}    
+\end{equation}
+%
+% TODO XXX moment of inertia
 % TODO roc is again interesting for PU data, MPR
 %
-The term $\int_{0}^{1} r\,c(r) \;dr$ represents the average percentile ranking of positive labels, or the average distance of a positive label from the origin in the plot of $c(r)$. This quantity by itself, the mean percentile ranking (MPR), is a common metric in the realm of collaborative filtering for recommendation systems~\cite{hu2008collaborative,johnsonlogistic} and has also been proposed to bipartite interaction prediction~\cite{ezzat2019computational,hao2019opensource,yu2020fpscdti}.
+%The term $\int_{0}^{1} r\,c(r) \;dr$ represents the average percentile ranking of positive labels, or the average distance of a positive label from the origin in the plot of $c(r)$. This quantity by itself, the mean percentile ranking (MPR), is a common metric in the realm of collaborative filtering for recommendation systems~\cite{hu2008collaborative,johnsonlogistic} and has also been proposed to bipartite interaction prediction~\cite{ezzat2019computational,hao2019opensource,yu2020fpscdti}.
+%or the average distance of a positive label from the origin in the plot of $c(r)$.
+This quantity is sometimes referred to as the \emph{mean percentile ranking} (MPR) in the previous literature~\cite{johnsonlogistic}, being proposed in contexts of recommendation systems~\cite{hu2008collaborative,johnsonlogistic} and bipartite interaction prediction~\cite{ezzat2019computational,hao2019opensource,yu2020fpscdti}.
 %
-\begin{equation}
-    \text{MPR} = \int_0^1 r\,c(r) \;dr
-\end{equation}
+%\begin{equation}
+%    \text{MPR} = \int_0^1 r\,c(r) \;dr
+%\end{equation}
 %
-At first glance, MPR seems to offer some advantages over AUROC: besides simpler in formulation, MPR also seemingly does not depend on $p$ or $n$, the relative amounts of postive and negative labels in the test set, making comparisons across different test sets more direct. However, consider the maximum and minimum values of MPR, achieved for the ideal $c(r)$ distributions:
+%At first glance, MPR seems to offer some advantages over AUROC: besides simpler in formulation, MPR also seemingly does not depend on $p$ or $n$, the relative amounts of postive and negative labels in the test set, making comparisons across different test sets more direct. However, consider the maximum and minimum values of MPR, achieved for the ideal $c(r)$ distributions:
+%
+
+Consider now the maximum and minimum values of MPR, achieved, respectively, for the ideal $f_1(r)$ distributions:
 %
 \begin{gather}
-    c_\text{max}(r) = \frac{\mathbb{I}(r > n)}{p}\\
-    c_\text{min}(r) = \frac{\mathbb{I}(r < p)}{p}
+    f_{1, \text{max}}(r) = \frac{1}{p}\mathbb{I}(r > n)\\
+    f_{0, \text{max}}(r) = \frac{1}{n}\mathbb{I}(r < n)\\
+    f_{1, \text{min}}(r) = \frac{1}{p}\mathbb{I}(r < p)\\
+    f_{0, \text{min}}(r) = \frac{1}{n}\mathbb{I}(r > p)
 \end{gather}
 %
-The extrema of MPR do in fact depend on $n$:
+Applying these definitions to determine $\frac{dF_1(r)}{dr}$ and using the results in \autoref{eq:mpr}, we obtain
 %
-\begin{equation}
+%%\begin{gather}
+%%    \frac{d F_1(r)}{dr} = \frac{f_1(r)}{pf_1(r) + nf_0(r)} \le \frac{1}{p}\\
+%%\end{gather}
+%
+%\begin{gather}
+%    c_\text{max}(r) = \frac{\mathbb{I}(r > n)}{p}\\
+%    c_\text{min}(r) = \frac{\mathbb{I}(r < p)}{p}
+%\end{gather}
+%
+% The extrema of MPR do in fact depend on $n$:
+% %
+% \begin{equation}
+%     \text{MPR}_\text{max}
+%         = \int_(1-p)^1 r\;dr
+%         = \frac{1 - n^2}{2p}
+%         = \frac{1 + n}{2}
+% \end{equation}
+% %
+% \begin{equation}
+%     \text{MPR}_\text{min}
+%         = \frac{1}{p}\int_0^p r \;dr
+%         = \frac{p^2}{2p}
+%         = \frac{p}{2}
+%         = \frac{1 - n}{2}
+% \end{equation}
+%
+% If we then try to remedy this issue by normalizing MPR to the $[0, 1]$ interval, we obtain
+%
+\begin{gather}
     \text{MPR}_\text{max}
-        = \frac{1}{p}\int_n^1 r \;dr
+        = \frac{1}{p} \int_n^1 r\;dr
         = \frac{1 - n^2}{2p}
         = \frac{1 + n}{2}
-\end{equation}
+    \\
+    \text{MPR}_\text{min} = \frac{1}{p} \int_0^p r\;dr = \frac{p}{2}
+\end{gather}
+%
+from which is straightforward to show that
 %
 \begin{equation}
-    \text{MPR}_\text{min}
-        = \frac{1}{p}\int_0^p r \;dr
-        = \frac{p^2}{2p}
-        = \frac{p}{2}
-        = \frac{1 - n}{2}
-\end{equation}
-%
-If we then try to remedy this issue by normalizing MPR to the $[0, 1]$ interval, we obtain
-\begin{equation}
-    \text{MPR}_\text{norm}
+    A_\text{ROC}
         = \frac{
             \text{MPR} - \text{MPR}_\text{min}
         }{
             \text{MPR}_\text{max} - \text{MPR}_\text{min}
         }
-        = \frac{\text{MPR} - \frac{1 - n}{2}}{n}
-        %= \frac{1}{n}\left(\text{MPR} - \frac{1 - n}{2}\right)
-        = \frac{1}{2} + \frac{1}{n}\left(\text{MPR} - \frac{1}{2}\right)
-        = A_\text{ROC}
 \end{equation}
 %
-precisely the expression for the AUROC (\autoref{eq:auroc}). To the best of our knowledge, we thus show for the first time that employing MPR as a metric is equivalent to using AUROC normalized to the $[0, 1]$ interval. Since the statistics for model comparison employed in this study consider only the order of the estimators based on their scores and not the score values themselves, MPR results would not differ in any way from AUROC and hence will not be further considered in this work.
+Therefore, the AUROC can also be interpreted as the normalized MPR.
+To the best of our knowledge, this relationship is not clearly shown in previous explorations.  % TODO
+
+This result corroborates the argument that the AUROC could be preferable for PU learning scenarios, since the closely-related MPR is a known metric specifically recommended for this context~\cite{pahikkala2015more,johnsonlogistic}.
+%
+Furthermore, the normalization enables the comparison across different tasks, ensuring that the scores on each dataset are always in the same range. Hence, the AUROC should be preferred over the MPR for the majority of cases.
+%This is especially valid in our test configurations, % TODO dropout
+
+%The normalization makes the comparison across different datasets
+%
+%precisely the expression for the AUROC (\autoref{eq:auroc}). To the best of our knowledge, we thus show for the first time that employing MPR as a metric is equivalent to using AUROC normalized to the $[0, 1]$ interval. Since the statistics for model comparison employed in this study consider only the order of the estimators based on their scores and not the score values themselves, MPR results would not differ in any way from AUROC and hence will not be further considered in this work.
 
 %TODO can borrow from physics the intuition of "moment of inertia"~\cite{}. It would represent the 
-
-% % ROC random estimator
-% \begin{multline}
-%     \frac{1}{2}
-%     +\frac{1}{n} \left(
-%         \frac{1}{p}\int_{n}^{1} r \;dr
-%         - \frac{1}{2}
-%     \right)
-%     = \frac{1}{2}
-%     +\frac{1}{n}\left[
-%         \frac{1}{p}\left(\frac{1}{2} - \frac{n^2}{2} \right)
-%         - \frac{1}{2}
-%     \right]
-%     =\\
-%     = \frac{1}{2}
-%     +\frac{1}{n}\left[
-%         \frac{(1-n)(1+n)}{2p}
-%         - \frac{1}{2}
-%     \right]
-%     = \frac{1}{2}
-%     +\frac{1}{n}\left(
-%         \frac{1+n}{2} - \frac{1}{2}
-%     \right)
-%     = 1
-%     % =
-%     % \frac{1}{2} + \frac{1}{2} + \frac{n}{2n} - \frac{1}{2}
-% \end{multline}
-
-% TODO why precision recall curve
-
-
-\begin{multline}
-    A_\text{PR}
-    = \int_{0}^{1} pr \;d(tpr)
-    = \int_{tpr(0)}^{tpr(1)} pr \frac{d(tpr)}{dr} \;dr
-    %= \int_{1}^{0} \left(1 - \int c(r)\;dr \right) \frac{1}{n} \left(-1 + p\,c(r)\right) \;dr
-    =\\
-    = \int_{0}^{1} \left(p\frac{1 - \int c(r)\;dr}{1-r} \right) (- c(r))\;dr
-    = -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
-    \label{eq:aupr}
-\end{multline}
-
-\begin{multline}
-    -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
-    = -n\int_{0}^{1}
-        \frac{1}{n}\frac{r-pC(r)}{r}
-        \frac{1}{n} \left(1 - p\,c(r)\right)
-    \;dr
-    =\\
-    = -\int_{0}^{1}
-        \frac{r-pC(r)}{r}
-        \left(1 - p\,c(r)\right)
-    \;dr
-    = -p\int_{0}^{1}
-        \left(
-            \frac{1}{p}-\frac{C(r)}{r}
-        \right)
-        \left(\frac{1}{p} - c(r)\right)
-    \;dr
-    =\\
-    =
-    -\int_{0}^{1}
-        \frac{1}{p}-\frac{C(r)}{r}
-    \;dr
-    -p\int_{0}^{1}
-        \left(
-            \frac{1}{p}-\frac{C(r)}{r}
-        \right)
-        \left(-c(r)\right)
-    \;dr
-\end{multline}
-
-\begin{multline}
-    -p\int_{0}^{1} \frac{1 - C(r)}{1-r} C'(r)\;dr
-    = -p \left[
-        \left[\frac{1 - C(r)}{1-r} C(r)\right]_{0}^{1}
-        - \int_{0}^{1} \left(\frac{1 - C(r)}{1-r}\right)' C(r)\;dr
-    \right]
-    =\\
-    = -p \left[
-        \left[\frac{1 - C(r)}{1-r} C(r)\right]_{0}^{1}
-        - \int_{0}^{1} \left(
-            \frac{- C'(r)C(r)}{1-r}
-            + \frac{(1-C(r))C(r)}{(1-r)^2}
-        \right)
-        \;dr
-    \right]
-    =\\
-    = -p \left[
-        \left[\frac{1 - C(r)}{2(1-r)} C(r)\right]_{0}^{1}
-        - \int_{0}^{1} \frac{1}{2}\left(
-            \frac{(1-C(r))C(r)}{(1-r)^2}
-        \right)
-        \;dr
-    \right]
-\end{multline}
-
-
-\begin{multline}
-    \int_{0}^{1} \frac{C(r)C'(r)}{1-r}\;dr
-    =
-        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
-        - \int_{0}^{1} \left(\frac{C(r)}{1-r}\right)' C(r)\;dr
-    =\\
-    =
-        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
-        - \int_{0}^{1} \left(
-            \frac{C'(r)C(r)}{1-r}
-            + \frac{C(r)^2}{(1-r)^2}
-        \right)
-        \;dr
-    =\\
-    =
-        \frac{1}{2}
-        \left[\frac{(C(r))^2}{1-r}\right]_{0}^{1}
-        -
-        \frac{1}{2}
-        \int_{0}^{1}
-            \frac{C(r)^2}{(1-r)^2}
-        \;dr
-\end{multline}
-
-\begin{multline}
-    \int_{0}^{1} \frac{C'(r)}{1-r}\;dr
-    =
-        \left[\frac{C(r)}{1-r}\right]_{0}^{1}
-        - \int_{0}^{1} C(r)\left(\frac{1}{1-r}\right)'\;dr
-    =\\
-    =
-        \left[\frac{C(r)}{1-r}\right]_{0}^{1}
-        - \int_{0}^{1} \frac{C(r)}{(1-r)^2}\;dr
-\end{multline}
-
-% \begin{multline}
-%     \frac{1}{n}\frac{f_1}{pf_1 + n f_0}
-%     =\frac{f_1}{(1-n)f_1 + n f_0}
-%     =\\
-%     =\frac{f_1}{f_1 + n (f_0 - f_1)}
-%     =\frac{1}{(1-n) + n f_0 / f_1}
-%     =\frac{1}{1 + n (f_0 / f_1 - 1)}
-%     \\
-%     =\frac{1}{(1 + n (f_0 / f_1 - 1))^2}
-%     =\frac{1}{(1 + 2n (f_0 / f_1 -1) + n^2(f_0 / f_1-1)^2)}
-%     =\frac{1}{1 + 2n (f - 1) + n^2(f^2 -2f + 1)}
-%     =\frac{1}{1 + 2nf - 2n + n^2f^2 - 2n^2f + n^2}
-% \end{multline}
 
 
 \subsection{General experimental settings}
 
 \section{Experiments}
+
+\subsection{Comparing AUROC and AUPR}
+\label{sec:comparing auroc aupr}
+
+This experiment was designed to evaluate the hypetheses raised in \autoref{sec:metrics from ranks}. Our main objective is to elucidate how much importance each metric assigns to each percentile rank. To do so, we perform a Monte Carlo simulation. First, we select $R$ equally spaced rank values between $0$ and $1$ (excluding $0$ and $1$). For each rank, we generate $N$ random binary values to be used as labels. Therefore, each of the $N$ iterations of the simulation will produce a random set of $R$ binary labels, corresponding to each percentile rank. In each iteration, we use the $R$ labels and $R$ percentile ranks to calculate AUROC and AUPR, resulting in $N$ values for each metric. Finally, for each of the $R$ ranks, we calculate the point biserial correlation~\cite{kornbrot2014point} between the $N$ random labels and the $N$ AUROC and AUPR values. The result is displayed in \autoref{fig:correlation ranks}.
+
+% TODO p-values
+
+\begin{figure*}[bth]
+    \includegraphics[width=\textwidth]{
+        experiments/theoretical_scoring/results/rank_correlation.pdf
+    }
+    \caption{
+        Point biserial correlation between the binary labels at each percentile rank and the AUROC and AUPR scores. The correlation was calculated between the ranks and the scores for $N=10^5$ random sets of $R=10^3$ binary labels. The results show that AUPR is very sensitive to a small group of highest ranks, while AUROC has a more distributed weigthing profile. For AUROC, both higher and lower ranks have a higher impact than ranks around $0.5$, contributing in opposite directions to the final metric. The results confirm the theoretical analyses from \autoref{sec:metrics from ranks}.
+    }
+    \label{fig:correlation ranks}
+\end{figure*}
+
+The plot shows that AUPR is highly sensitive to a small set of highest ranks, while ranks closer to $0$ have little influence on the metric. On the other hand, the correlations with the AUROC score are more distributed across ranks. Also, for AUROC, both higher and lower ranks have a higher impact, but in opposite directions.
+This behaviour in agreement with the theoretical analyses from \autoref{sec:metrics from ranks}.
+The correlation with AUROC is also symmetrical around the median ($r=0.5$), linearly increasing from arround $-0.05$ at $r=0$ to around $0.05$ in $r=1$. This demonstrates the class symmetry of the AUROC metric described in \autoref{sec:metrics from ranks}, meaning that negative and positive labels could be swapped without affecting the final results.
+% TODO show that
+
+Overall, these results demonstrate that using AUPR is more suited when one is interested in selecting a restricted number of top-ranked instances from a pool of predictions, such as in recommendation systems or drug discovery tasks.
+Conversely, AUROC should be favored when the goal is to rank a large batch of interactions. Examples would be modeling genetic interactions in a genome-wide fashion or building interaction databases.
+
+If one intends to select a small number of negative instances instead, a possible strategy would be to swap the binary labels and use AUPR.
+However, one should prioritize AUROC over AUPR if the goal is to select both negative and positive predictions with the highest confidences. This conclusion results from AUPR disregarding ranks close to $0$, so models selected with AUPR are not guaranteed to yield the most confident true negatives.
+
+We also argue that AUROC could be preferable for comparing models under the PU assumption, at least in purely theoretical settings. For PU datasets, we naturally expect some negative-labeled instances to be very highly ranked since they could be, in fact, unannotated positives. AUPR would more strictly penalize such predictions, favoring models that consider the labeling mechanism itself rather than only the underlying interaction mechanism. AUPR could thus undermine the model's potential to discover new interactions, possibly failing to gauge the generalization capabilities of algorithms in a PU context. The results from \autoref{sec:comparison literature} seem to corroborate this hypothesis, with AUROC ranking estimators more consistently than AUPR across different levels of label noise.
+
 
 \subsection{Empirical time complexity analysis}
 \label{sec:empirical_complexity}
@@ -2987,33 +3048,33 @@ In spite of that, the empirical complexity of \texttt{bdt\_gso} is still observe
 \end{figure}
 
 
-\subsection{Comparison between GSO models}  % TODO
-
-To assess the impact of global single-output optimizations in bipartite decision tree growing, we compare three slightly different training methods for BXT and BRF models.
-
-\begin{itemize}
-    \item \textbf{ngso}: Naive global single output implementation (Section \ref{});
-    \item \textbf{ngsous}: Naive global single output implementation with undersampling of the non-interacting pairs to yield a balanced training set (Section \ref{});
-    \item \textbf{gso}: Optimized implementation of global single output trees (Section \ref{}).
-\end{itemize}
-
-While no significant divergence was measured among the GSO models using the entirety of the training data, undersampling revealed to significantly degrade the predictive performance of both forests in terms of AUPR and MCC (Figure \ref{fig:cdd_gso_models}), even though it is arguably the most common procedure when dealing with this kind of data \cite{}.
-
-On the other hand, AUROC is significantly improved by the undersampling procedure, which is most likely an artifact of the highly imbalanced nature of the present data, as explained as follows. The models grown on the undersampled datasets are naturally the most likely to assign positive labels to new interactions in general, improving TPR at the expense of also increasing FPR. However, since negative labels greatly outnumbers positive labels in the test sets of our current scenario, an increase in FPR impacts a much larger number of predictions than the same increase in TPR. In spite of that, AUROC equally treats TPR and FPR, so that the impact of a high FPR is underestimated. As such, AUROC results could be deemed as unrepresentative of model performance in this setup.
-
-
-% TODO: talk about pairwise CV
-
-When comparing training times, the common choice for undersampling in previous works is justified, as an expressive reduction of training time is observed for both forests (Table \ref{}) relative to naive GSO training. Nevertheless, it is remarkable that the optimized implementation of GSO forests achieves similar training times in comparison to undersampled GSO without the AUPR and MCC burden of undersampling, keeping the higher scores resulting from employing the entirety of the dataset. For larger and less imbalanced datasets, the optimized implementation of GSO forests is expected to be even more advantageous, in agreement with the theoretical time complexity analysis (Section \ref{}).
-
-%\begin{table}[h]
-%    \input{
-%        figures/experiments/gso_optimization/%
-%        latex_tables/fit.tex
-%    }
-%\end{table}
-
-In conclusion, the proposed approach confidently enables the use of the entire training data in a much shorter time frame than naive implementations without the need for data undersampling, which is statistically expected to yield better prediction scores for forest predictors.
+% \subsection{Comparison between GSO models}  % TODO
+% 
+% To assess the impact of global single-output optimizations in bipartite decision tree growing, we compare three slightly different training methods for BXT and BRF models.
+% 
+% \begin{itemize}
+%     \item \textbf{ngso}: Naive global single output implementation (Section \ref{});
+%     \item \textbf{ngsous}: Naive global single output implementation with undersampling of the non-interacting pairs to yield a balanced training set (Section \ref{});
+%     \item \textbf{gso}: Optimized implementation of global single output trees (Section \ref{}).
+% \end{itemize}
+% 
+% While no significant divergence was measured among the GSO models using the entirety of the training data, undersampling revealed to significantly degrade the predictive performance of both forests in terms of AUPR and MCC (Figure \ref{fig:cdd_gso_models}), even though it is arguably the most common procedure when dealing with this kind of data \cite{}.
+% 
+% On the other hand, AUROC is significantly improved by the undersampling procedure, which is most likely an artifact of the highly imbalanced nature of the present data, as explained as follows. The models grown on the undersampled datasets are naturally the most likely to assign positive labels to new interactions in general, improving TPR at the expense of also increasing FPR. However, since negative labels greatly outnumbers positive labels in the test sets of our current scenario, an increase in FPR impacts a much larger number of predictions than the same increase in TPR. In spite of that, AUROC equally treats TPR and FPR, so that the impact of a high FPR is underestimated. As such, AUROC results could be deemed as unrepresentative of model performance in this setup.
+% 
+% 
+% % TODO: talk about pairwise CV
+% 
+% When comparing training times, the common choice for undersampling in previous works is justified, as an expressive reduction of training time is observed for both forests (Table \ref{}) relative to naive GSO training. Nevertheless, it is remarkable that the optimized implementation of GSO forests achieves similar training times in comparison to undersampled GSO without the AUPR and MCC burden of undersampling, keeping the higher scores resulting from employing the entirety of the dataset. For larger and less imbalanced datasets, the optimized implementation of GSO forests is expected to be even more advantageous, in agreement with the theoretical time complexity analysis (Section \ref{}).
+% 
+% %\begin{table}[h]
+% %    \input{
+% %        figures/experiments/gso_optimization/%
+% %        latex_tables/fit.tex
+% %    }
+% %\end{table}
+% 
+% In conclusion, the proposed approach confidently enables the use of the entire training data in a much shorter time frame than naive implementations without the need for data undersampling, which is statistically expected to yield better prediction scores for forest predictors.
 
 
 \subsection{Comparison between GMO prediction weights}
@@ -3693,9 +3754,25 @@ Regarding LT+TL AP, in ILR=50 and ILR=70 bxt gso nrlmf and bxt gmosa nrlmf signi
 We notice that the highest ranked bipartite forests in each evaluation setting are always able to significantly surpass NRLMF alone. This demonstrates that the forests are able to capture different patterns than the NRLMF model, even though they are trained on NRLMF's outputs. If this result were to not hold, one could argue that the forests might be merely approximating the predictive function learned by NRLMF, rather than expanding on the information extracted in the matrix factorization step.
 
 We also note that the competitiveness of the kron rls model for TT AP 0\% and LT+TL AP 0\% is remarkable, since kron rls has notably low training times in comparison to the other models.  %TODO figure
-However, the algorithm seems to not perform as well when a larger number of positive annotations is missing.
+However, the algorithm seems to not perform as well when a larger number of positive annotations is missing. This can be seen when comparing those same test metrics under higher ILR: TT AP 70, TT AP 90, LT+TL AP 70 LT+TL AP 90.
+Furthermore, Kron-RLS seems to be prioritized by AP in comparison to AUROC. This is especially suggested when observing the four TT AUROC, in which Kron-RLS performs poorly in comparison to the other cases.
+According to the discussion in \autoref{sec:comparing auroc aupr}, this could mean that Kron-RLS is mostly effective when considering a restricted number of top predictions.
+%This would suggest that only a small number of interactions in the dataset can be modeled by a linear relationship, and that 
+
+Conversely, the performance of BXT GMO NRLMF for the LT+TL AP setting seems to improve relative to the other models as the number of missing annotations increases. A possible explanation comes from BXT GMO having higher generalization capabilities, as demonstrated in the TT AUROC setting. Notice that the LT+TL setting could possibly still benefit from some form of overfitting, since it considers instances that are present in the training set (\autoref{sec:cross_validation}). However, being able to generalize becomes more important as the number of missing annotations increases, since the model has to rely on less information to make predictions. And that could be why we see the BXT GMO NRLMF model being more valued in the LT+TL AP setting for higher ILR.
+Additionally, we hypothesize that the AP metric could be less sensitive than AUROC to this ability of discovering missing positives \autoref{sec:comparing auroc aupr}, which explains why AUROC does not show the same pattern as AP in the LT+TL setting.
 
 % one could use c estimation to choose the best model based on the amout of missing annotations
+
+% linear models underfitted. previous good results in TL an LT are likely partial data leakage due to network feature extraction
+
+% even in TT, data leakage could occur if cv is performed by masking positives
+
+% partial conclusions:
+% no need for matrix factorization step
+% calibration is needed
+% gso is competing in the top, even if theorically faster
+% extratrees are better than rf for these datasets
 
 
 \begin{figure*}[tb]
@@ -3805,16 +3882,6 @@ However, the algorithm seems to not perform as well when a larger number of posi
     \label{fig:comparison literature}
 \end{figure*}
 
-
-% linear models underfitted. previous good results in TL an LT are likely partial data leakage due to network feature extraction
-
-% even in TT, data leakage could occur if cv is performed by masking positives
-
-% partial conclusions:
-% no need for matrix factorization step
-% calibration is needed
-% gso is competing in the top, even if theorically faster
-% extratrees are better than rf for these datasets
 
 \subsection{Drug-Target affinity prediction}
 
