@@ -11,6 +11,37 @@
  	\end{flushleft}
 	\OnehalfSpacing 
 	
+	The present study investigates decision forest algorithms for predicting interactions in bipartite networks.
+	%
+	We concentrate on examples of such problems in the biological domain, such as drug-protein interactions, microRNA-gene interactions or long non-coding RNA-protein interactions.
+	%
+	Notwithstanding, the proposed methodologies encompass
+	the broad range of tasks satisfying i) the goal is to predict interactions between two entities; ii) the interacting pairs are composed of two different types of entities; and iii) each type of entity has its own set of input features. We refer to this paradigm as \emph{bipartite interaction learning}.  % TODO only two domains
+	%
+	%consisting of link prediction between two types of objects, with each of them having its own set of features.
+	%
+	%for link prediction tasks where side 
+	%
+	%problems are characterized by two separate domains of objects 
+	%
+	Predicting interactions in such networks has fundamental challenges. For instance, the number of possible interactions is often very large in comparison to the number of known interactions. As a result, the data is frequently sparse, and negative annotations are unreliable.
+	%, as the absence of a relationship between two objects is much harder to validate than its presence.
+	%
+	%as it requires the simultaneous consideration of two very dissimilar types of objects, each with its own set of features.
+	%
+	%Furthermore, the number of interactions to be processed is usually very numerous, and no amount of research efforts in characterizing new interactions can keep up with the rate at which possible relationships appear, resulting in a fundamental sparsity of confidently verified interactions.
+	%
+	%In many cases, the absence of a relationship between two objects is much harder to validate than its presence, resulting in a general lack of high-quality negative data in interaction datasets.
+	%
+	We explore a class of decision forest models specifically designed to address these challenges, that we broadly call \emph{bipartite forests}. First, we demonstrate how these trees can be adapted to yield a $\log n$ speedup in training time. We also propose using weighted-neighbors approaches to determine each leaf's output, which resulted in improved generalization. Finally, we introduce semi-supervised impurity functions to bipartite forests. These functions result in trees that also consider clusters of instances in the feature space, rather than only their labels. This is shown to improve the forests' resilience to the missing annotations.
+	%
+	%Our models display state-of-the-art performance across ten interaction prediction datasets.
+	Our models display highly-competitive performance across ten interaction prediction datasets.
+	%In this context, we propose a new method for growing decision tree-based models from bipartite interaction data, called Biclustering Random Forests. We introduce three main methodology refinements to address the challenges imposed by our learning setup: more scalable trees, weighted neighbors prototypes, and semi-supervised impurities.
+	%
+	%We demonstrate that our proposed method can significantly improve the model's resilience to unknown interactions by measuring their performance under random masking of positive labels in the training set. We also show that our method can achieve a $\log n$ speedup in asymptotic training time while generating models identical to GSO-adapted trees built on all possible dyads in the training set.
+	We believe the proposed methods can be a crucial step in developing effective and scalable machine learning models for interaction prediction.
+	Further adaptations of these models could also impact other domains, such as recommendation systems, multilabel learning and weak-label learning.
 
 
    \vspace{\onelineskip}

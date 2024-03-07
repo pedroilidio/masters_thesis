@@ -1,11 +1,5 @@
 %% USPSC-Introducao.tex
 
-\chapter[Abstract]{Abstract}
-
-A variety of phenomena can be represented as a bipartite network, in which two distinct groups of objects interact with one another. Predicting interactions in such networks is a challenging task, as it requires the simultaneous consideration of two very dissimilar types of objects, each with its own set of features. Furthermore, the number of interactions to be processed is usually very numerous, and no amount of research efforts in characterizing new interactions can keep up with the rate at which possible relationships appear, resulting in a fundamental sparsity of confidently verified interactions. In many cases, the absence of a relationship between two objects is much harder to validate than its presence, resulting in a general lack of high-quality negative data in interaction datasets. In this context, we propose a new method for growing decision tree-based models from bipartite interaction data, called Biclustering Random Forests. We introduce three main methodology refinements to address the challenges imposed by our learning setup: more scalable trees, weighted neighbors prototypes, and semi-supervised impurities. We demonstrate that our proposed method can significantly improve the model's resilience to unknown interactions by measuring their performance under random masking of positive labels in the training set. We also show that our method can achieve a $\log n$ speedup in asymptotic training time while generating models identical to GSO-adapted trees built on all possible dyads in the training set. We believe that our proposed method can be a crucial step in developing successful and scalable machine learning models for interaction prediction.
-
-
-
 % ----------------------------------------------------------
 % Introdução (exemplo de capítulo sem numeração, mas presente no Sumário)
 % ----------------------------------------------------------
@@ -120,12 +114,12 @@ All those scenarios share the same underlying structure: there are two distinct 
 %objects from distinct groups holds a set of attributes describing their
 %interaction.
 
-MORE IMPORTANT BLABLA STUFF
+{MORE STUFF}
 
-Frequently, great importance lies in computationally describing such relationships. For instance, {} are known to be spent in drug development every year. A large portion of that cost derives from the large \textit{in vitro} screening experiments, extensive clinical trials and {}. Therefore, being able to predict beforehand the interactions in a large dataset of drugs and protein targets holds a remarkable potential to accelerate drug development and reduce its costs, enabling the concentration of financial resources and human expertise to a set of most promising candidates. On the other hand, being able to characterize on a large scale the relationships between microRNAs and genes or other biomolecular entities can greatly aid the understanding of regulatory mechanisms of gene expression, a valuable step towards the discovery and development of new therapies. 
+Frequently, great importance lies in computationally describing such relationships. For instance, developing new drug molecules is a costly and time consuming process. A large portion of that cost derives from the large \textit{in vitro} screening experiments, extensive clinical trials and {}. Therefore, being able to predict beforehand the interactions in a large dataset of drugs and protein targets holds a remarkable potential to accelerate drug development and reduce its costs, enabling the concentration of financial resources and human expertise to a set of most promising candidates. On the other hand, being able to characterize on a large scale the relationships between microRNAs and genes or other biomolecular entities can greatly aid the understanding of regulatory mechanisms of gene expression, a valuable step towards the discovery and development of new therapies. 
 
 % TODO machine learning
-Therefore, numerous machine learning algorithms have been proposed to predict interactions in bipartite networks. 
+Therefore, it is natural that numerous machine learning algorithms have been proposed to predict interactions in bipartite networks. 
 The role of a learning algorithm in this setting is to receive a feature vector describing the heterogeneous pair, and characterize their interaction through a binary label. Additionally, we focus on cases where the input vector can be split into two: one vector representing each interacting entity.
 %The role of a learning algorithm in this setting is to receive a feature vector describing the heterogeneous pair, and characterize their interaction through, namely, a binary label, affinity score or predicted user-item rating. Additionally, we focus on cases where the input vector can be split into two: one vector representing each interacting entity.
 %often composed of independent representations of each interacting entity,
@@ -174,6 +168,7 @@ In conclusion, acknowledging such defining aspects and incorporating the biparti
 
 
 % RELATED TERMS section
+%one-class classification
 %While \emph{link prediction} and \emph{dyadic prediction} are common terms in the literature referring to similar concepts, they are not specific to the presence of two distinct groups of objects nor make clear the presence of describing attributes for both of them (often called \emph{side-features} or \emph{side-information} in the context of recommendation systems). While \emph{interaction prediction} seems a closer alternative,
 %usually assuming side-features, % TODO I do not think so
 %it is also not concerned with the heterogeneity of the network.
