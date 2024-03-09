@@ -30,6 +30,17 @@ from .kron_rls import KronRLSRegressor
 RSTATE = np.random.RandomState(0)
 N_JOBS = 4
 
+# Controls the balance between the similarity kernel and network-based kernel.
+ALPHA_OPTIONS = [  
+    0.0,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    0.9,
+    1.0,
+]
+
 kfold_5_shuffle_diag = make_multipartite_kfold(
     n_parts=2,  # Bipartite
     cv=5,
@@ -58,15 +69,7 @@ blmnii_rls = MultipartiteGridSearchCV(
         ),
     ),
     param_grid={
-        "targetkernellinearcombiner__samplers__alpha": [
-            0.0,
-            0.1,
-            0.25,
-            0.5,
-            0.75,
-            0.9,
-            1.0,
-        ],
+        "targetkernellinearcombiner__samplers__alpha": ALPHA_OPTIONS,
     },
     cv=kfold_5_shuffle_diag,
     n_jobs=N_JOBS,
@@ -93,15 +96,7 @@ blmnii_svm = MultipartiteGridSearchCV(
         ),
     ),
     param_grid={
-        "targetkernellinearcombiner__samplers__alpha": [
-            0.0,
-            0.1,
-            0.25,
-            0.5,
-            0.75,
-            0.9,
-            1.0,
-        ],
+        "targetkernellinearcombiner__samplers__alpha": ALPHA_OPTIONS,
     },
     cv=kfold_5_shuffle_diag,
     n_jobs=N_JOBS,
@@ -146,15 +141,7 @@ lmo_rls = MultipartiteGridSearchCV(
         ),
     ),
     param_grid={
-        "targetkernellinearcombiner__samplers__alpha": [
-            0.0,
-            0.1,
-            0.25,
-            0.5,
-            0.75,
-            0.9,
-            1.0,
-        ],
+        "targetkernellinearcombiner__samplers__alpha": ALPHA_OPTIONS,
     },
     cv=kfold_5_shuffle_diag,
     n_jobs=N_JOBS,
@@ -168,16 +155,7 @@ kron_rls = MultipartiteGridSearchCV(
         KronRLSRegressor(),
     ),
     param_grid={
-        "targetkernellinearcombiner__samplers__alpha": [
-            0.0,
-            0.1,
-            0.25,
-            0.5,
-            0.75,
-            0.9,
-            1.0,
-        ],
-        # "kronrlsregressor__alpha": [0.25, 0.5, 1.0, 2.0, 4.0, 8.0],
+        "targetkernellinearcombiner__samplers__alpha": ALPHA_OPTIONS,
     },
     cv=kfold_5_shuffle_diag,
     n_jobs=N_JOBS,

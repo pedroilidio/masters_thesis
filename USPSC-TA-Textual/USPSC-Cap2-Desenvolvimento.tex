@@ -27,15 +27,16 @@ $M\el{i\cdot}$ the vector containing $M$'s $i$-th row so that $M\el{i\cdot}\el j
 = M\el{ij}$ and by $M\el{\cdot j}$ the column vector
 $((M^\intercal)\el{j\cdot})^\intercal$ referring to the $j$-th column of $M$ so
 that $M\el{\cdot j}\el{i1} = M\el{ij}$. Defining the index notations as
-superscripts frees the subscripts to be used only as indentifiers, naming the
-matrix or vector as a whole and not in an element-wise fashion. Indices are also
+superscripts enables the subscripts to be used only as indentifiers, naming the
+matrix or vector as a whole and not each element. Indices are also
 always represented by a single letter, to dispense the use of separators between
 them.
 
 % If multiple characters are needed, a comma or parentheses can be used
 % $X\el{25,389}$ $X\el{(25)(389)}$
 
-Inspired by the usual notation $|\cdot|$ for the cardinality of a set, we write
+%Inspired by the usual notation $|\cdot|$ for the cardinality of a set,
+We write
 the total number of $M$'s rows as $|M|_i$ and its number of columns as $|M|_j$.
 The total number of elements in $M$ is written $|M| = |M|_j|M|_i$, not to be
 confused with the determinant of $M$.
@@ -139,10 +140,13 @@ domain forms a different $X$ matrix, that we term $X_1$ and $X_2$. Only
 inter-domain interactions are allowed, that is, instances are restricted from
 interacting with others in the same sample group, so that the interaction
 network constitutes an undirected bipartite graph.
+%
+Each interacting pair of instances is also called a \emph{dyad}.
 
 The output, in our case, is any scalar piece of information describing the
 interaction between a given instance pair, such as the rating of a movie given
-by a user or a kinetic parameter of an enzyme-substrate reaction. The labels are
+by a user or a kinetic parameter of an enzyme-substrate reaction.
+The labels are
 then disposed in a $|X_1|_i$ by $|X_2|_i$ adjacency matrix $Y$ (also called
 interaction matrix) so that the function to be modeled can now be formulated as
 mapping the pair's vector representations to the interaction label $f\colon
@@ -151,9 +155,9 @@ mapping the pair's vector representations to the interaction label $f\colon
 Since each sample in $X_1$ refers to a \emph{row} of $Y$ and each sample in
 $X_2$ corresponds to a \emph{column} of $Y$, we sometimes refer to the sample
 domains of $X_1$ and $X_2$ as \emph{row samples} and \emph{column samples},
-respectively. We call these datasets \emph{bipartite}, to differentiate from the
-more common \emph{monopartite} problems, in which a single $X$ matrix is
-utilized.
+respectively.
+%We call these datasets \emph{bipartite}, to differentiate from the more common \emph{monopartite} problems, in which a single $X$ matrix is utilized.
+We call these datasets \emph{bipartite}, to differentiate from the more common problems in which a single $X$ matrix is utilized.
 %TODO monopartite?
 
 %PU data, binary, drug-target
@@ -174,8 +178,124 @@ utilized.
 % $X$ in algorithms is $X_\text{SGSO}$ or ... all info about X
 
 
-\section{Stablished algorithms for interaction prediction}
-\label{sec:literature_algorithms}
+% \section{Learning algorithms for bipartite interaction prediction}
+% \label{sec:literature_algorithms}
+
+\section{Data-centered adaptations of learning algorithms to bipartite interaction prediction}
+\label{sec:standard adaptations}
+
+As previously stated in \autoref{sec:problem_statement}, bipartite interaction problems fundamentally differ from the usual machine learning paradigm, in which input data represents a single entity to be labeled. Interaction tasks are instead concerned with labeling a relationship between two entities, and as such, each prediction is made upon a pair of feature vectors, each vector being specific to each of the two sample domains.
+
+Such subtlety is most often bypassed by reformulating a bipartite dataset into the traditional machine learning setting~\cite{vert2008reconstruction}.
+%
+These strategies can be encompassed under two general approaches, initially termed \emph{global} and \emph{local} by \textcite{vert2008reconstruction} and later adopted and extended by \textcite{sschrynemackers2015}.  %TODO cite more
+% TODO maybe direct citation to specify our changes
+Aiming to enhance clarity and generalization, we further refine these categories by defining \emph{global} and \emph{local} as general properties of bipartite estimators, rather than specific training procedures:
+
+\begin{itemize}
+    \item \emph{\textbf{Global}} estimators are those aware of both instance domains during the training procedure ($X_1$ and $X_2$).
+    \item \emph{\textbf{Local}} estimators are those which only have access to feature information from one of the two instance domains during training (either $X_1$ or $X_2$).
+    As such, they are often employed in compositions, combining the predictions of several local models to produce the final output.
+\end{itemize}
+
+%We refer to \emph{monopartite} estimators as those who are not specifically designed to deal with bipartite data, and \emph{bipartite} estimators as those who are. This distinction is important to differentiate between estimators that are naturally able to deal with bipartite data and those who are not, but can be adapted to do so.
+Furthermore, to be consistent with \textcite{pliakos2018,pliakos2019,pliakos2020}, in our current context of bipartite interactions we assume that:
+
+\begin{itemize}
+    \item \emph{\textbf{Single-output}} estimators are those which consider all labels, i.e. all $Y\el{ij}$ elements, irrespectively of the column $j$ or row $i$ they are in. They are all regarded as a single type of output\footnote{Notice that the label matrix $Y$ could be still represented in two dimensions even if the model is single-output in this sense, contrary to the usual case where bidimensionality of $Y$ is a defining characteristic of a multi-output problem.}.
+    \item \emph{\textbf{Multi-output}} estimators, on the other hand, are those which consider each instance, each row or column of $Y$, as a separate task, for example by defining a composite loss function formed by the combination of losses over each row or column.
+\end{itemize}
+%TODO another term for multi-output, please. This is too confusing with multi-output in the monopartite sense. bipartite multi-output are local models that use multi-output monopartite estimators? or 3D interaction matrices with multiple labels for each interaciton?
+
+Finally, the two most common ways of adapting monopartite estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \textcite{pliakos2018,pliakos2019,pliakos2020}. We further denote them \empth{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
+
+Specific definitions and shortcomings of these procedures are now presented.
+
+
+\subsubsection{The standard global single-output adaptation}
+\label{sec:sgso}
+
+% TODO define SGSO acronym
+%TODO literature (ben-hur? vert? pliakos? schynemackers?)
+Arguably the most straightforward and commonly used strategy of formatting bipartite data to be inputted into conventional monopartite estimators is through presenting concatenated pairs of row-column samples, labeled by each element of $Y$.
+%
+The interacting pair itself is what we abstract as a sample
+in this case, with its attributes being its component objects' attributes
+combined. This is usually done by converting the two $X$ matrices and the
+interaction matrix $Y$ to a single design matrix we call $X_\text{SGSO}$ and a column-vector
+ of labels we refer to as $Y_\text{SGSO}$.
+
+One way of
+doing so is by choosing indices as described by \autoref{eq:gsodata}, where
+$\begin{bmatrix} x_1 & x_2\end{bmatrix}$ denotes concatenation and all $i_1$ and
+$i_2$ combinations are explored (see \autoref{fig:sgso}).
+%$f\colon (X_1\el{i\cdot},\; X_2\el{k\cdot}) \mapsto Y\el{ik}$.  To make use of
+%traditional learning algorithms, one would combine instances from both $X_a$
+%sets in a matrix we hereafter call $X_\text{SGSO}$, where each row is built by
+%concatenating a row from $X_1$ followed by a row from $X_2$. $Y_\text{SGSO}$ can then
+%take the shape of a one-dimensional column vector labeling each instance pair,
+%as usual for single-output problems.
+
+%This way of formatting interaction datasets is named by \ref{pliakos2018} as
+%\emph{global single output} (GSO) scenario, and a possible definition is
+%presented by \ref{eq:gsodata}, where $\lceil \cdot \rceil$ is the ceil function
+%and $\concat$ denotes vector concatenation.
+%
+\begin{equation}
+    \begin{split}
+    i_g &= (i_1-1)|X_2|_i+i_2-1\\
+    X_\text{SGSO} \el{i_g\cdot} &= \begin{bmatrix} X_1 \el{i_1\cdot} & X_2\el{i_2\cdot}\end{bmatrix}\\
+    Y_\text{SGSO} \el{i_g1} &= Y\el{i_1i_2}
+    %X_\text{SGSO} \el{i} &= X_1 \el{\lceil i/|X_1|_j \rceil} \concat X_2\el{i \mod |X_2|_j}\\
+    %Y_\text{SGSO} \el{i} &= Y\el{\lceil i/|X_1|_j \rceil,\; i \mod |X_2|_j}
+    \end{split}
+    \label{eq:gsodata}
+\end{equation}
+
+Notice that, in order to consider the interactions of all possible pairs, $X_\text{SGSO}$ would have $|X_1|_i|X_2|_i$ rows and $|X_1|_j+|X_2|_j$ columns, with $Y_\text{SGSO}$ having a single column but all the same $|X_1|_i|X_2|_i$ elements as $Y$. Thus, while reformatting $Y$ has no impact in memory usage, $X_\text{SGSO}$ as defined by \autoref{eq:gsodata} is highly redundant.
+%However, as stated in section \ref{sec:definitions}, $X_\text{SGSO}$ would be a $|X_1|_i|X_2|_i$ by $|X_1|_j+|X_2|_j$ matrix if one intends to consider all interactions in $Y$, which
+As a result, naively dealing with such a large $X_\text{SGSO}$ matrix is impeditive in many cases, both in terms of memory usage and computation time. Therefore, a commonly used workaround is to subsample the 0-labeled interactions, yielding a dataset with equal amounts of interacting (1-labeled) and unknown (0-labeled) pairs~\cite{}.
+Although unknown, the 0-labeled pairs are usually far more numerous than 1-labeled and much more likely to be truly negative interactions than false negatives (see Section \ref{}), justifying the negatives-undersampling strategy. Despite such reasoning, we demonstrate in \autoref{} that taking all negative samples into consideration instead has significant benefits, and we propose new model optimizations to enable it (\autoref{}).
+
+% TODO cross-validation is naively done
+
+\subsubsection{The standard local multi-output adaptation}
+\label{sec:slmo}
+
+The local approaches, in contrast to global methods, propose training different models on $X_1$ and $X_2$, so that each single model only has access to information regarding either row samples or column samples.
+
+As such, multiple monopartite models need to be used in conjunction to predict interactions between new row samples and new column samples. The standard local multi-output (SLMO) approach uses four monopartite models, two for each axis, that we here refer to as \emph{primary} and \emph{secondary} rows (or columns) estimators. In general, they must be multi-output estimators, each being able to receive $X_\text{train}$ and $Y_\text{train}$ bi-dimensional matrices in the training step, receive an $X_\text{new}$ in the prediction step such that $|X_\text{new}|_j=|X_\text{train}|_j$, and outputting $Y_\text{pred}$ with $|Y_\text{pred}|_i=|X_\text{new}|_i$ newly predicted rows and $|Y_\text{pred}|_j = |Y_\text{train}|_j$ output columns.
+
+The procedure for training the estimators in an SLMO setting consists of simply training the primary estimators, the primary rows estimator being trained on $X_1$ and $Y$, and the primary columns estimator on $X_2$ and $Y^\intercal$ (\autoref{alg:train_local_model}). The prediction step is however more complicated, involving the training of the secondary models on the newly predicted labels by the primary estimators, optionally combined with the original training data. The procedure is described in details by \autoref{alg:predict_local_model} and illustrated by \autoref{fig:slmo}. The \KwCombine function used in line \autoref{ln:combine_local_outputs} of the \autoref{alg:predict_local_model} procedure can be arbitrarily chosen, and is usually defined as the simple element-wise average of both matrices (\KwCombine{$Y_1$, $Y_2$} $= \frac{1}{2}(Y_1 + Y_2)$).
+
+\algTrainLocalModel
+\algPredictLocalModel
+
+Notice that, if the secondary multi-output estimators treat each label independently, including the $Y_\text{train}$ labels in their training will make no difference, and one should use only the predictions from the primary estimators.
+
+A specific case of a model with multiple independent-outputs occurs when a collection of single-output models is utilized as a unified entity, each being trained on each column of $Y_\text{train}$. This setup was present in the first proposal of a local model \cite{}, and enables a wider range of learning algorithms, not just multi-output strategies, to be employed in interaction prediction.
+
+If, however, the secondary estimator is indeed able to take advantage of relationships between outputs, one might consider concatenating the primary estimators' predictions to $Y_\text{train}$ and use both to train the secondary estimators (see lines \ref{} of Function \ref{alg:predict_local_model}). This setting would enable the secondary models to explore the output relationships involving the original training set, which are arguably more reliable than those between the primary predictions alone.
+
+That said, another consideration regarding the use of dependent-outputs secondary estimators is whether or not to provide the whole $X_{1\text{new}}$ and $X_{2\text{new}}$ at once, since doing so would increase the amount of primarily-predicted data used to train the secondary estimators, and it may be desirable to have more columns coming directly from $Y_\text{train}$ rather than inferred by the primary models. The ideal scenario then would be to run \ref{alg:predict_local_model} once for every $X_{1\text{new}}$ and $X_{2\text{new}}$ row combination, in a total of $|X_{1\text{new}}|_i|X_{2\text{new}}|_i$ iterations, with possible performance drawbacks for most learning algorithms. The natural intermediate idea would be to provide $X_{1\text{new}}$'s and $X_{2\text{new}}$'s rows in batches, possibly increasing the prediction time but ensuring the $|X_{a\text{new}}|_i/|X_{a\text{train}}|_i$ ratio is not detrimentally high. Additionally, some algorithms allow for output weights to be used in the training procedure, enabling us to assign lower importance to the $Y_{\text{new}}$ columns inferred by the primary estimators.
+
+In any case, contrary to what is usually observed, the amount of test data and specific combinations of test instances provided to the SLMO ensemble clearly affect the resulting predictions when the secondary models have inter-dependent outputs. This characteristic should thus be taken into consideration when developing, evaluating and comparing bipartite estimators under the SLMO configuration, although seldomly addressed by previous authors in our experience.%TODO: harsh?
+
+Due to each monopartite model being provided with a much lower number of instances in comparison to the SGSO procedure, SLMO models tends to be naturally faster to train than SGSO models. However, a striking limitation of the SLMO procedure is caused by its inference phase, which requires traing of the secondary models whenever new instances are inputted. The resulting large prediction times hinders the application of SLMO models on online learning scenarios.
+
+% problems of predicting.
+
+%provide examples of each case (dependent vs independent outputs)
+% we try to join multiple similar ideas under a single framework
+
+%The idea was first proposed by \cite{}, and \cite{} expanded the concept to multioutput models to predict completely new pairs. The \cite{}
+
+%examples of estimators in each category DNLMF, DNILMF BLM BLM-NII, etc.
+
+%list characteristics of each main category:
+% gso receives x1x2 lines
+% matrix reconstruction algs dont predict by themselves
+
 
 % TODO native vs adaptations
 
@@ -347,564 +467,51 @@ which summarizes to
 %TODO although nrlmf is fast, building a complete tree after is not
 %TODO grid search can be even detrimental in small sparse datasets, since test sets are not representative
 
-\subsection{Neighborhood-Regularized Matrix Factorization}
-\subsubsection{Traditional matrix factorization}
-\label{sec:traditional matrix factorization}
-
-Several algorithm proposals have been made throughout the last decades to tackle the problem of bipartite interaction prediction. 
-%TODO collaborative filtering in the context of recommendation systems
-
-
-% Traditional in the context of recommendation systems, matrix 
-The idea behind matrix factorization is to find an approximation of the interaction matrix $Y$ by decomposing it into two matrices $U$ and $V$ of lower dimensions, such that %TODO not decomposing
-%
-\begin{equation}
-    \hat Y = U V^T \approx Y
-    \label{eq:traditional matrix_factorization}
-\end{equation}
-%
-The rows of $U$ and $V$ can be seen as learned representations in a new vector space (usually called \emph{latent} space) of each sample in the row and column domains, so that $U\el{i}$ represents $X_1\el{i}$ and $V\el{j}$ represents $X_2\el{j}$.
-%
-Notice that the number of latent features is constrained by \autoref{eq:traditional matrix_factorization} to be the same for both instance domains: $|U|_j=|V|_j$, being an arbitrary hyperparameter to be defined by the user. Usually, the number of latent features is set to be much smaller than the number of original features ($|U|_j \ll |X_1|_j$ and $|V|_j \ll |X_2|_j$), requiring less computational labor and generating models less susceptible to overfitting.
-
-The learning procedure of matrix factorization algorithms thus consists of obtaining such latent feature matrices $U$ and $V$ so to approximate $Y$ as best as possible. The most common approach is to define a loss function that penalizes the difference between the predicted and the true values of $Y$ and to employ gradient descent techniques to gradually change $U$ and $V$ in the direction that minimizes such loss.
-%
-% TODO For instance, 
-
-As can be deduced from \autoref{eq:traditional matrix_factorization}, the dot product of each row of $U$ and $V$ approximates the corresponding element of $Y$:
-%
-\begin{equation}
-    \hat Y\el{ij} = U\el{i} \cdot V\el{j}
-\end{equation}
-%
-Logistic matrix factorization (LMF) slightly redefines the problem by introducing one more step to obtain $\hat Y$ from $U$ and $V$~\cite{johnsonlogistic}: it assumes that the interaction matrix $Y$ is the result of the logistic function applied to $UV\T$ and not only $UV\T$ anymore.
-%
-\begin{equation}
-    \hat Y\el{ij} = \text{logistic}(U\el{i} \cdot V\el{j})
-    = \frac{\exp(U\el{i} \cdot V\el{j})}{1 + \exp(U\el{i} \cdot V\el{j})}
-    \label{eq:lmf_prediction}
-\end{equation}
-%
-where $\mathbf{a} \cdot \mathbf{b}$ represents the dot product between the vectors $\mathbf{a}$ and $\mathbf{b}$. When applied to a matrix, we assume that $\log$ and $\exp$ functions operate element-wise:
-%
-\begin{equation*}
-    (\log M)\el{ij} = \log M\el{ij}
-\end{equation*}
-
-If $\hat Y$ is interpreted as the probability of being positive as predicted by the model ($\hat Y\el{ij} = P(Y\el{ij} = 1)$ and $1-\hat Y\el{ij} = P(Y\el{ij} = 0)$),
-the optimization objective is usually based on maximizing the joint probability of correctly guessing all interactions in $Y$:
-%
-\begin{equation}
-    P(\hat Y = Y) = \prod_{ij} | \hat Y\el{ij} + Y\el{ij} - 1|
-    \label{eq:lmf_objective_raw}
-\end{equation}
-%
-in which $|a|$ represents the absolute value of $a$. A few modifications are then further made:
-%
-\begin{enumerate}
-    \item The logarithm of the objective function is taken to simplify the expression without affecting the optimization problem, since $\log$ is a monotonic function;
-    \item Since positive interactions are usually less numerous but more important in matrix completion problems, a factor $\alpha$ is introduced to prioritize them, multiplying the terms corresponding to $Y\el{ij}=1$ in the objective function. It results as if $alpha$ copies of each positive interaction are present in the training set;
-    \item To discourage overfitting and avoid $U$ and $V$ being arbitrarily large, quadratic regularization terms are added, penalizing the magnitude of the elements of $U$ and $V$.
-    \item Similarity information between samples is incorporated by NRLMF,%TODO
-\end{enumerate}
-%
-%The resulting objective function is then given by
-To simplify notation, we define matrices $J$ whose combined sum of all elements corresponds to the objective function $\mathcal{J}$:
-%
-\begin{equation}
-    \mathcal{J} =
-        \sum J_\text{labels}
-        + \sum J_\text{1, regularization}
-        + \sum J_\text{2, regularization}
-        + \sum J_\text{1, neighborhood}
-        + \sum J_\text{2, neighborhood}
-    \label{eq:lmf_objective_matrices}
-\end{equation}
-%
-where by $\sum J$ we denote $\sum_i^{|J|i}\sum_j^{|J|_j} J$. The sums must be performed individually due to the $J$ matrices having different dimensions.
-
-Applying the logarithm to \autoref{eq:lmf_objective_raw} we have our first term of $\mathcal{J}$:
-%
-\begin{equation*}
-    J_\text{labels} = \log |\hat Y + Y - 1| = Y \odot \log \hat Y + (1 - Y) \odot \log (1 - \hat Y)
-\end{equation*}
-%
-where we separate the cases in which $Y\el{ij} = 1$ and $Y\el{ij} = 0$. $\odot$ represents the Hadamard product (element-wise multiplication) between matrices:
-%
-\begin{equation*}
-    (A \odot B)\el{ij} = A\el{ij} B\el{ij}
-\end{equation*}
-%
-Adding the aforementioned positive importance factor $\alpha$ and expanding $\hat Y$ according to \autoref{eq:lmf_prediction} we have
-%
-%%% Using indices instead of J matrix
-% \begin{multline}
-%     %- \lambda \|U\|^2 - \|V\|^2
-%     \mathcal{L} =
-%         \sum_{ij} \alpha Y\el{ij} \log \hat Y\el{ij}
-%         + (1 - Y\el{ij}) \log (1 - \hat Y\el{ij})
-%     =\\
-%     =
-%     \sum_{ij}
-%         \alpha Y\el{ij} \left\{W\el{ij} - \log\left[1 + \exp(W\el{ij})\right]\right\} 
-%         - (1 - Y\el{ij}) \log \left[1 + \exp(W\el{ij})\right]
-%     =\\
-%     =
-%     \sum_{ij}
-%         \alpha Y\el{ij} W\el{ij}
-%         + [(1 - \alpha) Y\el{ij} - 1] \log \left[1+\exp(W\el{ij})\right]
-% \end{multline}
-%
-\begin{multline}
-    J_\text{labels} =
-        \alpha Y \odot \left\{UV\T - \log\left[1 + \exp(UV\T)\right]\right\} 
-        - (1 - Y) \odot \log \left[1 + \exp(UV\T)\right]
-    =\\
-    =
-        \alpha Y \odot UV\T
-        + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]
-\end{multline}
-
-To discourage large values in $U$ and $V$, we consider quadratic regularization terms weighted by hyperparameters $\lambda_1$ and $\lambda_2$:
-%
-\begin{gather}
-    J_\text{1, regularization}
-        = -\frac{\lambda_1}{2} U \odot U
-        = -\frac{\lambda_1}{2} \mathbb{I} \odot (UU\T)\\
-    J_\text{2, regularization}
-        = - \frac{\lambda_2}{2} V \odot V
-        = - \frac{\lambda_2}{2} \mathbb{I} \odot (VV\T)
-    \label{eq:lmf_regularization}
-\end{gather}
-%
-%In the LMF context of \autoref{eq:lmf_prediction}, the regularization terms can be interpreted as a Gaussian prior on the latent features, centered at the origin with variance $\lambda_1$ and $\lambda_2$ for $U$ and $V$, respectively~\cite{johnsonlogistic}.
-If the initial objective proposal can be interpreted as maximizing the probability of guessing all labels correctly given specific $U$ and $V$ ($\sum J_\text{labels} = \log P(\hat Y=Y\mid U,V)$), adding the regularization terms is equivalent to introduce prior assumptions about $U$ and $V$ distributions and define a slightly different objective: maximizing the posterior probability to obtain the current $U$ and $V$ given that $\hat Y = Y$. Applying Bayes' theorem and assuming $P(Y) = 1$ we have
-%
-\begin{equation}
-    P(U,V\mid \lambda_1, \lambda_2, Y) = P(Y\mid U,V)\; P(U\mid \lambda_1) \; P(V\mid \lambda_2)
-\end{equation}
-%
-Under the assumption that the values in $U$ and $V$ follow zero-centered spherical gaussian distributions with variances given by $\frac{1}{\lambda}$, that is, $U\el{ij}\sim\mathcal{N}(0, \lambda_1^{-1}\mathbf{I})$ and $V\el{ij}\sim\mathcal{N}(0, \lambda_2^{-1}\mathbf{I})$, we recover the regularized objective function of \autoref{eq:lmf_regularization}~\cite{johnsonlogistic}.
-%
-\begin{multline}
-    \log P(U,V\mid \lambda_1, \lambda_2, Y)
-    =\\
-    = \log P(Y\mid U,V)
-        + \sum \log(\exp(-\frac{\lambda_1}{2} U \odot U))
-        + \sum \log(\exp(-\frac{\lambda_2}{2} V \odot V))
-    =\\
-    = \sum J_\text{labels}
-        - \sum \frac{\lambda_1}{2} U \odot U
-        - \sum \frac{\lambda_2}{2} V \odot V
-\end{multline}
-%
-Therefore, if multiple values of $U$ and $V$ possibly generate the same $\hat Y = Y$, applying the regularization can be understood as not only finding one of such combinations but, between those $U$ and $V$ that satisfy $\hat Y = Y$, finding the $U$ and $V$ that are most likely to be randomly sampled. If $P(U, V\mid \lambda_1, \lambda_2, Y)$ continuously varies as a function of $U$ and $V$, pooling $U$ and $V$ from a region of maximal $P(U, V\mid \lambda_1, \lambda_2, Y)$ should improve generality, arguably ensuring that stochastic deviations of $U$ and $V$ would still result in high $P(\hat Y = Y)$ and justifying the use of regularization as a way to avoid overfitting. %TODO confuso?
-
-% Being bounded by $[0, 1]$, the predictions $\hat Y$ are interpreted as the probabilities of each interaction to be positive.
-% %
-% \begin{equation}
-%     \hat Y\el{ij} = P(Y\el{ij} = 1)
-% \end{equation}
-% %
-% The probability of correctly guessing the label $Y\el{ij}$ is then given by
-% \begin{equation}
-%     P(\hat Y\el{ij} = Y\el{ij})
-%     =
-%     \begin{cases}
-%         \hat Y\el{ij} & \text{if } Y\el{ij} = 1\\
-%         1 - \hat Y\el{ij} & \text{if } Y\el{ij} = 0
-%     \end{cases}
-% \end{equation}
-% %
-% alternatively formulated as
-% %
-% \begin{equation}
-%     P(\hat Y\el{ij} = Y\el{ij})
-%     = \hat Y\el{ij}^{Y\el{ij}} (1 - \hat Y\el{ij})^{1 - Y\el{ij}}
-% \end{equation}
-% 
-% We will then define the objective function based on the probability of correctly guessing all interactions in $Y$:
-% TODO must assume independent Y
-
-One may have noticed that the original feature matrices $X_1$ and $X_2$ were not considered in any regard when describing matrix factorization and detailing the objective functions.
-Born in the context of recommendation systems where the relationship labels are usually the only information available, matrix factorization algorithms in general encounter a significant issue when brought to our current scenario of bipartite interaction prediction:
-in its canonic formulation, they do not take sample-level features into account, often called \emph{side information} or \emph{side features} in the recommendation field~\cite{}, possibly overlooking valuable data. As a consequence, they are unable to provide predictions for new samples that were not present in the training set, since no information about them is available to be inputted to the model. This is commonly regarded as the \emph{cold-start problem}~\cite{}. As such, matrix factorization usage is usually restricted to the task of matrix completion, in which the goal is to predict the missing values of a matrix given the values of the remaining elements, without receiving completely new rows or columns during model evaluation~\cite{}.
-
-
-\subsubsection{Neighborhood regularization}
-\label{sec:neighborhood regularization}
-
-Targeting these issues, \textcite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting} proposes a modification to LMF that incorporates side information into the model, successfully applying their method to interaction problems such as drug-target interaction prediction~\cite{liu2016neighborhood}, long non-coding RNA interactions~\cite{liu2017lpinrlmf} and microRNA interactions~\cite{liu2020predicting}.
-%
-The core idea of their technique lies in adding one more term to the objective function, penalizing instances regarded as close when considering the original features but were separated by $U$ and $V$, placed far from each other in the latent space. As such, the algorithm is called \emph{Neighborhood-Regularized Logistic Matrix Factorization} (NRLMF).
-%
-To precisely define it, let's consider similarity-weighted adjacency matrices $A_1$ and $A_2$ referring to each sample domain that specifies neighborhood relationships between samples. If $S_1\el{ij}$ denotes a similarity score between $X_1\el i$ and $X_1\el j$, $A_1\el{ij}$ is set to this similarity value if $X_1\el{j}$ belongs to the neighborhood of $X_1\el{i}$, denoted $N(X_1\el i)$, and 0 otherwise:
-%
-\begin{equation}
-    A_1\el{ij} =
-    \begin{cases}
-        S_1\el{ij} & \text{if } X_1\el{j} \in N(X_1\el i)\\
-        0 & \text{otherwise}
-    \end{cases}
-    \label{eq:nrlmf_A}
-\end{equation}
-%
-Multiple options are available for the definition of neighborhoods, such as considering all samples within a certain radius of each other or only the $k$ nearest neighbors of each sample. In this work, following the original proposal of NRLMF~\cite{liu2016neighborhood}, we will consider the latter, defining $A_1$ and $A_2$ as the adjacency matrices of the $k$-nearest neighbors graphs of $X_1$ and $X_2$, respectively. In other words, $N(X_1\el{i})$ is the set formed by the $k$ rows $X_1\el{j}$ with the $k$ highest $s_ij$. In the interaction prediction problems we analyze, similarities are precalculated so that the $X$ matrices directly provide the distance metric over which the nearest neighbors are selected. That is, $X_1$ and $X_2$ themselves already constitute pairwise similarity matrices: $S_1\el{ij} = X_1\el{ij}$. In general, however, one may need to define a kernel matrix $S$ as a preprocessing step, choosing a distance metric over the original features to be used in the nearest neighbors search such as the Euclidean distance or a radial basis function~\cite{vanlaarhoven2011gaussian}. In any case, notice that $A$ is a function of $X$ alone for NRLMF. While $Y$ may also be considered in similar scenarios (as will be discussed ahead), $A$ does not depend on $U$ or $V$ and can be built as a single pre-training step.
-
-The loss term proposed by NRLMF is then given by the sum of the Euclidean distances in the latent space between samples in the same neighborhood, weighted by their similarities:
-%
-\begin{gather}
-    \mathcal{J}_\text{1, neighborhood} =
-    - \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
-    \\
-    \mathcal{J}_\text{2, neighborhood} =
-    - \sum_{ij}A_2\el{ij} \|V\el{i} - V\el{j}\|^2
-    \label{eq:neighborhood_regularization}
-\end{gather}
-%
-in which $\|\mathbf{v}\|$ represents the Euclidean norm of a vector $\mathbf{v}$.
-Concentrating on the row instances and expanding the last definition we have
-%
-\begin{multline*}
-    \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
-    = \sum_{ij} A\el{ij}
-    \left(
-        U\el{i}\cdot U\el{i} + U\el{j}\cdot U\el{j} - 2 U\el{i}\cdot U\el{j}
-    \right)
-    =\\
-    =
-        \sum_i \left(\sum_j A_1\el{ij}\right) U\el{i}\cdot U\el{i}
-        + \sum_j \left(\sum_i A_1\el{ij}\right) U\el{j}\cdot U\el{i}
-\end{multline*}
-%
-The terms in which $U$ appears with the same index ($U\el{i}\cdot U\el{i}$ and $U\el{j}\cdot U\el{j}$) can be rewritten to include both by multiplying them by the identity matrix $\mathbb{I}$. Essentially, we consider $\sum_i U\el{i}\cdot U\el{i} = \text{trace}(U U\T) = \sum_{ij} (\mathbb{I} \odot UU\T)\el{ij}$.
-%
-\begin{equation*}
-    \sum_i \left(\sum_j A_1\el{ij}\right) U\el{i}\cdot U\el{i}
-    = \sum_i \left(\sum_j A_1\el{ij}\right) \sum_k \mathbb{I}\el{ik}U\el{i}\cdot U\el{k}
-    = \sum_{ij} \left(\sum_k A_1\el{ik}\right) \mathbb{I}\el{ij} U\el{i}\cdot U\el{j}
-\end{equation*}
-%
-This allows us to write
-%
-\begin{multline*}
-    \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
-    =\\
-    = \sum_{ij}
-        \left[
-            \left(\sum_k A_1\el{ik} + \sum_l A_1\el{lj}\right)
-            \mathbb{I}\el{ij}
-            - 2 A_1\el{ij} 
-        \right]
-        U\el{i}\cdot U\el{j}
-    =\\
-    = \sum L_1 \odot (UU\T)
-    %= tr ( U L U\T )
-\end{multline*}
-%
-in which we define
-%
-\begin{equation}
-    L_1\el{ij}
-    = \left(\sum_k A_1\el{ik} + \sum_l A_1\el{lj}\right)
-        \mathbb{I}\el{ij}
-        - 2 A_1\el{ij} 
-    %
-    = \left(\sum_k A_1\el{ik} + A_1\el{kj}\right)
-        \mathbb{I}\el{ij}
-        - 2 A_1\el{ij} 
-    \label{eq:laplacian}
-\end{equation}
-%
-Notice that taking $A_1\T$ instead of $A_1$ has no effect on the final result, since $\sum A_1 UU\T = \sum A_1\T UU\T$. We could then work with a symmetrized version of $A_1$ from the start:
-%
-\begin{equation*}
-    \tilde A_1 = A_1 + A_1\T
-\end{equation*}
-yielding
-%
-\begin{equation*}
-    L_1 = \left(\sum_k \tilde A_1\el{ik}\right)
-        \mathbb{I}\el{ij}
-        - \tilde A_1\el{ij} 
-\end{equation*}
-%
-We can see that the first term of $L_1$ acts in a similar way to the quadratic regularization terms presented by \autoref{eq:lmf_regularization}, multiplying the main diagonal of $UU\T$ and thus penalizing the model for latent vectors with large Euclidean norms (the diagonal of $UU\T$ holds the squared norms $U\el{i}\cdot U\el{i}$). The amount of regularization is however pondered by the weighted number of neighbors of each sample in this case: $\sum_k A_1\el{ik}$ represents the sum of similarities of $X_1\el{i}$ with all its neighbors, also called the \emph{degree} of a sample. This results in samples with larger and more compact neighborhoods being more heavily penalized for having large norms in the latent space. The second term of \autoref{eq:laplacian}, on the other hand, rewards the model for placing close neighbors colinear to each other in the latent space, summing over $S\el{ij} U\el{i}\cdot U\el{j}$ terms
-%(a metric of vector colinearity)
-between each sample and its neighbors ($A_1\el{ij}$ is $0$ if $U\el{i}$ and $U\el{j}$ are not neighbors).
-%TODO more on interpretation and properties of laplacian matrix
-
-Finally, the neighborhood regularization terms are written as
-%
-\begin{gather}
-    J_\text{1, neighborhood} = -\frac{\beta_1}{2} L_1 \odot (UU\T)\\
-    J_\text{2, neighborhood} = -\frac{\beta_2}{2} L_2 \odot (VV\T)
-\end{gather}
-%
-%
-% \begin{equation}
-%     \begin{split}
-%         \mathcal{L} &=\\
-%             &= \alpha Y \odot UV\T
-%             + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]\\
-%             &- \frac{\lambda_1}{2} U \odot U
-%             - \frac{\lambda_2}{2} V \odot V\\
-%             &- \frac{\beta_1}{2} L_1 \odot (UU\T)
-%             - \frac{\beta_2}{2} L_2 \odot (VV\T)
-%     \end{split}
-% \end{equation}
-
-Combining the matrix terms as in \autoref{eq:lmf_objective_matrices}, NRLMF's objective function is given by
-%
-\begin{equation}
-    \begin{split}
-        \mathcal{J} = &\; \sum
-                \alpha Y \odot UV\T
-                + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]\\
-            &- \sum \frac{1}{2} (\lambda_1\mathbb{I} + \beta_1 L_1) \odot (U U\T)\\
-            &- \sum \frac{1}{2} (\lambda_2\mathbb{I} + \beta_2 L_2) \odot (V V\T)
-    \end{split}
-    \label{eq:nrlmf_objective}
-\end{equation}
-%
-and the derivatives of the objective function with respect to $U$ and $V$ to be used in the gradient descent procedure are given by
-% \begin{equation}
-%     \begin{split}
-%         \mathcal{L} =
-%             \alpha Y \odot UV\T
-%             + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]
-%             - \frac{\lambda_1}{2} U \odot U
-%             - \frac{\lambda_2}{2} V \odot V
-%             - \frac{\beta_1}{2} L_1 \odot (UU\T)
-%             - \frac{\beta_2}{2} L_2 \odot (VV\T)
-%     \end{split}
-% \end{equation}
-% TODO: appendix showing d(A \odot U V\T) / dU = A V
-% TODO: appendix showing d(A \odot U V\T) / dV = A\T U
-% TODO: appendix showing d(A \odot U U\T) / dU = A U + A\T U
-\begin{gather}
-    G_U = \frac{\partial \mathcal{J}}{\partial U} =
-        \{[(1 - \alpha) Y - 1] \odot \hat Y + \alpha Y\}V
-        - (\lambda_1\mathbb{I} + \beta_1 L_1) U
-    \label{eq:nrlmf_gradient_U}
-    \\
-    G_V = \frac{\partial \mathcal{J}}{\partial V} =
-        \{[(1 - \alpha) Y - 1] \odot \hat Y + \alpha Y\}\T U
-        - (\lambda_2\mathbb{I} + \beta_2 L_2) V
-    \label{eq:nrlmf_gradient_V}
-\end{gather}
-%
-The training procedure of NRLMF is presented by \autoref{alg:nrlmf_train}, and consists of alternated updates on $U$ and $V$ in the gradient's direction until certain stop criteria are satisfied. Common choices for stopping conditions are a maximum number of iterations or a minimum change in the objective function between iterations.
-
-Since faster convergence is reported by the original authors~\cite{johnsonlogistic}, we follow \textcite{johnsonlogistic,liu2016neighborhooda} by implementing the AdaGrad procedure~\cite{duchi2011adaptive}, in which the length of each gradient step is divided by the square-root sum of squared previous steps:
-%
-\begin{equation}
-    U_{t+1} = U_t + \frac{\eta G_{U,t}}{\sqrt{\sum_{t'=0}^t G_{U,t'}^2}}
-\end{equation}
-%
-where $G_{U,t}$ is the partial derivative $\frac{\partial\mathcal{J}}{\partial U}$ of the objective function with respect to $U$ at step $t$, and $\eta$ is the user-defined learning rate. The same is done for $V$.
-
-\algNRLMFTrain
-
-The main importance of NRLMF however lies in the inference phase. As mentioned, matrix factorization methods are not designed to deal with new input samples, that are not present in the training set. Specifically, traditional matrix factorization is incapable of generating latent vectors for the unseen samples to be used for label prediction. An idea that may seem natural at first glance is to delay training to the arrival of new instances, including them in the training set with zero-only labels before performing the optimization. But even then, using an objective function based only on $Y$ as is traditionally done, no new information is brought by the new instances and adding new zeroed rows or columns to $Y$ will mainly introduce noise to the training data and likely degrade the model's predictive performance.
-
-NRLMF, however, leverages proximity information encoded by $X$ to remarkably enable determining latent feature vectors for completely new instances. The neighborhood regularization terms in the objective function now reveal their full importance: they support proximity as a transferable property between the original and the latent spaces. By encouraging that neighbors in $X_1$ and $X_2$ remain close in $U$ and $V$, we can infer latent features of new instances based on their neighborhood.
-
-Consider the test similarity matrices $S_{1\text{, test}}$ and $S_{2\text{, test}}$ respectively derived from $X_\text{1, test}$ and $X_\text{2, test}$, relating the new instances to the known training samples. For instance, $S_{1\text{, test}}\el{ij}$ represents the similarity between $X_\text{1, test}\el{i}$ and $X_\text{1, train}\el{j}$. If $A_\text{1, test}$, like before in \autoref{eq:nrlmf_A}, accordingly restricts the similarity matrix to the neighborhood of each sample,
-%
-\begin{equation}
-    A_\text{1, test}\el{ij} =
-    \begin{cases}
-        S_\text{1, test}\el{ij} & \text{if } X_\text{1, train}\el{j} \in N(X_\text{1, test}\el i)\\
-        0 & \text{otherwise}
-    \end{cases}
-    \label{eq:nrlmf_A_test}
-\end{equation}
-%
-the latent feature vector of a new instance is simply estimated as the weighted average of its neighbors' latent representations:
-% \begin{equation}
-%     U_\text{test} = A_\text{1, test} U_\text{train}
-% \end{equation}
-%
-\begin{equation}
-    U_\text{test}\el{i} = \frac{A_\text{1, test}\el{i} U_\text{train}}{\sum A_\text{1, test}\el{i}}
-\end{equation}
-%
-the analogous being held for $V$, so that new predictions are made as usual with \autoref{eq:lmf_prediction}, where $U_\text{test}$, $U_\text{train}$, $V_\text{test}$ and $V_\text{train}$ can be used in accordance with the prediction task under study (see \autoref{sec:cross_validation} for details on the different prediction scenarios):
-%
-\begin{gather}
-    \begin{aligned}
-        \hat Y_\text{TT} = \frac{\exp(U_\text{test} V_\text{test}\T)}{1 + \exp(U_\text{test} V_\text{test}\T)}&&
-        \hat Y_\text{TL} = \frac{\exp(U_\text{test} V_\text{train}\T)}{1 + \exp(U_\text{test} V_\text{train}\T)}&&
-        \hat Y_\text{LT} = \frac{\exp(U_\text{train} V_\text{test}\T)}{1 + \exp(U_\text{train} V_\text{test}\T)}
-    \end{aligned}
-\end{gather}
-
-
-\subsubsection{Further developments on NRLMF}
-\label{sec:further nrlmf}
-
-
-\subsection{Applying traditional estimators to bipartite data}
-\label{sec:standard adaptations}
-
-As previously stated in \autoref{sec:problem_statement}, bipartite interaction problems fundamentally differ from the usual machine learning paradigm, in which input data represents a single entity to be labeled. Interaction tasks are instead concerned with labeling a relationship between two entities, and as such, each prediction is made upon a pair of feature vectors, each vector being specific to each of the two sample domains.
-
-Such subtlety is most often bypassed by reformulating a bipartite dataset into the traditional machine learning setting~\cite{vert2008reconstruction}.
-%
-These strategies can be encompassed under two general approaches, initially termed \emph{global} and \emph{local} by \textcite{vert2008reconstruction} and later adopted and extended by \textcite{sschrynemackers2015}.  %TODO cite more
-% TODO maybe direct citation to specify our changes
-Aiming to enhance clarity and generalization, we further refine these categories by defining \emph{global} and \emph{local} as general properties of bipartite estimators, rather than specific training procedures:
-
-\begin{itemize}
-    \item \emph{\textbf{Global}} estimators are those aware of both instance domains during the training procedure ($X_1$ and $X_2$).
-    \item \emph{\textbf{Local}} estimators are those which only have access to feature information from one of the two instance domains during training (either $X_1$ or $X_2$).
-    As such, they are often employed in compositions, combining the predictions of several local models to produce the final output.
-\end{itemize}
-
-%We refer to \emph{monopartite} estimators as those who are not specifically designed to deal with bipartite data, and \emph{bipartite} estimators as those who are. This distinction is important to differentiate between estimators that are naturally able to deal with bipartite data and those who are not, but can be adapted to do so.
-Furthermore, to be consistent with \textcite{pliakos2018,pliakos2019,pliakos2020}, in our current context of bipartite interactions we assume that:
-
-\begin{itemize}
-    \item \emph{\textbf{Single-output}} estimators are those which consider all labels, i.e. all $Y\el{ij}$ elements, irrespectively of the column $j$ or row $i$ they are in. They are all regarded as a single type of output\footnote{Notice that the label matrix $Y$ could be still represented in two dimensions even if the model is single-output in this sense, contrary to the usual case where bidimensionality of $Y$ is a defining characteristic of a multi-output problem.}.
-    \item \emph{\textbf{Multi-output}} estimators, on the other hand, are those which consider each instance, each row or column of $Y$, as a separate task, for example by defining a composite loss function formed by the combination of losses over each row or column.
-\end{itemize}
-%TODO another term for multi-output, please. This is too confusing with multi-output in the monopartite sense. bipartite multi-output are local models that use multi-output monopartite estimators? or 3D interaction matrices with multiple labels for each interaciton?
-
-Finally, the two most common ways of adapting monopartite estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \textcite{pliakos2018,pliakos2019,pliakos2020}. We further denote them \empth{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
-
-Specific definitions and shortcomings of these procedures are now presented.
-
-
-\subsubsection{The standard global single-output adaptation}
-\label{sec:sgso}
-
-% TODO define SGSO acronym
-%TODO literature (ben-hur? vert? pliakos? schynemackers?)
-Arguably the most straightforward and commonly used strategy of formatting bipartite data to be inputted into conventional monopartite estimators is through presenting concatenated pairs of row-column samples, labeled by each element of $Y$.
-%
-The interacting pair itself is what we abstract as a sample
-in this case, with its attributes being its component objects' attributes
-combined. This is usually done by converting the two $X$ matrices and the
-interaction matrix $Y$ to a single design matrix we call $X_\text{SGSO}$ and a column-vector
- of labels we refer to as $Y_\text{SGSO}$.
-
-One way of
-doing so is by choosing indices as described by \autoref{eq:gsodata}, where
-$\begin{bmatrix} x_1 & x_2\end{bmatrix}$ denotes concatenation and all $i_1$ and
-$i_2$ combinations are explored (see \autoref{fig:sgso}).
-%$f\colon (X_1\el{i\cdot},\; X_2\el{k\cdot}) \mapsto Y\el{ik}$.  To make use of
-%traditional learning algorithms, one would combine instances from both $X_a$
-%sets in a matrix we hereafter call $X_\text{SGSO}$, where each row is built by
-%concatenating a row from $X_1$ followed by a row from $X_2$. $Y_\text{SGSO}$ can then
-%take the shape of a one-dimensional column vector labeling each instance pair,
-%as usual for single-output problems.
-
-%This way of formatting interaction datasets is named by \ref{pliakos2018} as
-%\emph{global single output} (GSO) scenario, and a possible definition is
-%presented by \ref{eq:gsodata}, where $\lceil \cdot \rceil$ is the ceil function
-%and $\concat$ denotes vector concatenation.
-%
-\begin{equation}
-    \begin{split}
-    i_g &= (i_1-1)|X_2|_i+i_2-1\\
-    X_\text{SGSO} \el{i_g\cdot} &= \begin{bmatrix} X_1 \el{i_1\cdot} & X_2\el{i_2\cdot}\end{bmatrix}\\
-    Y_\text{SGSO} \el{i_g1} &= Y\el{i_1i_2}
-    %X_\text{SGSO} \el{i} &= X_1 \el{\lceil i/|X_1|_j \rceil} \concat X_2\el{i \mod |X_2|_j}\\
-    %Y_\text{SGSO} \el{i} &= Y\el{\lceil i/|X_1|_j \rceil,\; i \mod |X_2|_j}
-    \end{split}
-    \label{eq:gsodata}
-\end{equation}
-
-Notice that, in order to consider the interactions of all possible pairs, $X_\text{SGSO}$ would have $|X_1|_i|X_2|_i$ rows and $|X_1|_j+|X_2|_j$ columns, with $Y_\text{SGSO}$ having a single column but all the same $|X_1|_i|X_2|_i$ elements as $Y$. Thus, while reformatting $Y$ has no impact in memory usage, $X_\text{SGSO}$ as defined by \autoref{eq:gsodata} is highly redundant.
-%However, as stated in section \ref{sec:definitions}, $X_\text{SGSO}$ would be a $|X_1|_i|X_2|_i$ by $|X_1|_j+|X_2|_j$ matrix if one intends to consider all interactions in $Y$, which
-As a result, naively dealing with such a large $X_\text{SGSO}$ matrix is impeditive in many cases, both in terms of memory usage and computation time. Therefore, a commonly used workaround is to subsample the 0-labeled interactions, yielding a dataset with equal amounts of interacting (1-labeled) and unknown (0-labeled) pairs~\cite{}.
-Although unknown, the 0-labeled pairs are usually far more numerous than 1-labeled and much more likely to be truly negative interactions than false negatives (see Section \ref{}), justifying the negatives-undersampling strategy. Despite such reasoning, we demonstrate in \autoref{} that taking all negative samples into consideration instead has significant benefits, and we propose new model optimizations to enable it (\autoref{}).
-
-% TODO cross-validation is naively done
-
-\subsubsection{The standard local multi-output adaptation}
-\label{sec:slmo}
-
-The local approaches, in contrast to global methods, propose training different models on $X_1$ and $X_2$, so that each single model only has access to information regarding either row samples or column samples.
-
-As such, multiple monopartite models need to be used in conjunction to predict interactions between new row samples and new column samples. The standard local multi-output (SLMO) approach uses four monopartite models, two for each axis, that we here refer to as \emph{primary} and \emph{secondary} rows (or columns) estimators. In general, they must be multi-output estimators, each being able to receive $X_\text{train}$ and $Y_\text{train}$ bi-dimensional matrices in the training step, receive an $X_\text{new}$ in the prediction step such that $|X_\text{new}|_j=|X_\text{train}|_j$, and outputting $Y_\text{pred}$ with $|Y_\text{pred}|_i=|X_\text{new}|_i$ newly predicted rows and $|Y_\text{pred}|_j = |Y_\text{train}|_j$ output columns.
-
-The procedure for training the estimators in an SLMO setting consists of simply training the primary estimators, the primary rows estimator being trained on $X_1$ and $Y$, and the primary columns estimator on $X_2$ and $Y^\intercal$ (\autoref{alg:train_local_model}). The prediction step is however more complicated, involving the training of the secondary models on the newly predicted labels by the primary estimators, optionally combined with the original training data. The procedure is described in details by \autoref{alg:predict_local_model} and illustrated by \autoref{fig:slmo}. The \KwCombine function used in line \autoref{ln:combine_local_outputs} of the \autoref{alg:predict_local_model} procedure can be arbitrarily chosen, and is usually defined as the simple element-wise average of both matrices (\KwCombine{$Y_1$, $Y_2$} $= \frac{1}{2}(Y_1 + Y_2)$).
-
-\algTrainLocalModel
-\algPredictLocalModel
-
-Notice that, if the secondary multi-output estimators treat each label independently, including the $Y_\text{train}$ labels in their training will make no difference, and one should use only the predictions from the primary estimators.
-
-A specific case of a model with multiple independent-outputs occurs when a collection of single-output models is utilized as a unified entity, each being trained on each column of $Y_\text{train}$. This setup was present in the first proposal of a local model \cite{}, and enables a wider range of learning algorithms, not just multi-output strategies, to be employed in interaction prediction.
-
-If, however, the secondary estimator is indeed able to take advantage of relationships between outputs, one might consider concatenating the primary estimators' predictions to $Y_\text{train}$ and use both to train the secondary estimators (see lines \ref{} of Function \ref{alg:predict_local_model}). This setting would enable the secondary models to explore the output relationships involving the original training set, which are arguably more reliable than those between the primary predictions alone.
-
-That said, another consideration regarding the use of dependent-outputs secondary estimators is whether or not to provide the whole $X_{1\text{new}}$ and $X_{2\text{new}}$ at once, since doing so would increase the amount of primarily-predicted data used to train the secondary estimators, and it may be desirable to have more columns coming directly from $Y_\text{train}$ rather than inferred by the primary models. The ideal scenario then would be to run \ref{alg:predict_local_model} once for every $X_{1\text{new}}$ and $X_{2\text{new}}$ row combination, in a total of $|X_{1\text{new}}|_i|X_{2\text{new}}|_i$ iterations, with possible performance drawbacks for most learning algorithms. The natural intermediate idea would be to provide $X_{1\text{new}}$'s and $X_{2\text{new}}$'s rows in batches, possibly increasing the prediction time but ensuring the $|X_{a\text{new}}|_i/|X_{a\text{train}}|_i$ ratio is not detrimentally high. Additionally, some algorithms allow for output weights to be used in the training procedure, enabling us to assign lower importance to the $Y_{\text{new}}$ columns inferred by the primary estimators.
-
-In any case, contrary to what is usually observed, the amount of test data and specific combinations of test instances provided to the SLMO ensemble clearly affect the resulting predictions when the secondary models have inter-dependent outputs. This characteristic should thus be taken into consideration when developing, evaluating and comparing bipartite estimators under the SLMO configuration, although seldomly addressed by previous authors in our experience.%TODO: harsh?
-
-Due to each monopartite model being provided with a much lower number of instances in comparison to the SGSO procedure, SLMO models tends to be naturally faster to train than SGSO models. However, a striking limitation of the SLMO procedure is caused by its inference phase, which requires traing of the secondary models whenever new instances are inputted. The resulting large prediction times hinders the application of SLMO models on online learning scenarios.
-
-% problems of predicting.
-
-%provide examples of each case (dependent vs independent outputs)
-% we try to join multiple similar ideas under a single framework
-
-%The idea was first proposed by \cite{}, and \cite{} expanded the concept to multioutput models to predict completely new pairs. The \cite{}
-
-%examples of estimators in each category DNLMF, DNILMF BLM BLM-NII, etc.
-
-%list characteristics of each main category:
-% gso receives x1x2 lines
-% matrix reconstruction algs dont predict by themselves
-
 
 \section{Bipartite decision forests}
 \label{sec:bipartite forests}
 
-\subsection{Interaction matrix approximation methods}
-%TODO
-
-The first we call \emph{matrix reconstruction approaches} and
-includes the usage of matrix factorization or other procedures that convert the
-sparse label matrix $Y$ into a dense representation, employing sample
-attributes, sample similarities or network characteristics to replace 0-valued
-unknown interactions by more meaningful, often real-valued numbers. These new
-values can be used directly as a probability of interaction, of can serve as
-input to downstream learning methods in the pipeline.
-
-An important consideration is that these techniques are often stateless
-estimators, meaning that all calculations must be redone for each new sample
-that is presented to have its label predicted. To avoid this, some methods
-include the test instances in the training set, but substituting their labels by
-0, so that the only their numerical features are available. Examples are
-\cite{}. We argue that this approach, even if not abrupt, can still pose some
-data leakage effect, since the estimator is not refrained from the extra
-information about the feature space. An estimator in this setting, for instance
-could give more attention to achieving better results in denser regions of the
-sample space, information which would be clearly affected by the proposed
-approach. As such, the estimator performance metrics on new data could be ever
-so slightly biased.
-
-Another idea to circumvent this limitation is through the use of other,
-traditionally monopartite, estimators in specific steps. \cite{} and \cite{},
-for instance, after learning the $U$ and $V$ latent vectors in a matrix
-factorization procedure, utilize nearest neighbors estimators to compute new
-samples' latent vectors as a linear combination of the vectors generated for the
-training set, optionally weighting neighbors with similarity metrics.
-
-Still, without monopartite models, these matrix reconstruction approaches cannot
-deal with new samples without retraining the model on the whole training data
-plus the new instances. We thus consider these techniques more inclined to the
-preprocessing realm rather than constituting machine learning models by
-themselves.
-
-%The second category of methods we define is that of adapted monopartite models.
-%They were among the first proposals to address the problem of DTI as presently
-%formulated, and represent the methods that reframe the problem of bipartite
-%interactions in a way that customary machine learning models are able to tackle.
+%\subsection{Interaction matrix approximation methods}
+%%TODO
+%
+%The first we call \emph{matrix reconstruction approaches} and
+%includes the usage of matrix factorization or other procedures that convert the
+%sparse label matrix $Y$ into a dense representation, employing sample
+%attributes, sample similarities or network characteristics to replace 0-valued
+%unknown interactions by more meaningful, often real-valued numbers. These new
+%values can be used directly as a probability of interaction, of can serve as
+%input to downstream learning methods in the pipeline.
+%
+%An important consideration is that these techniques are often stateless
+%estimators, meaning that all calculations must be redone for each new sample
+%that is presented to have its label predicted. To avoid this, some methods
+%include the test instances in the training set, but substituting their labels by
+%0, so that the only their numerical features are available. Examples are
+%\cite{}. We argue that this approach, even if not abrupt, can still pose some
+%data leakage effect, since the estimator is not refrained from the extra
+%information about the feature space. An estimator in this setting, for instance
+%could give more attention to achieving better results in denser regions of the
+%sample space, information which would be clearly affected by the proposed
+%approach. As such, the estimator performance metrics on new data could be ever
+%so slightly biased.
+%
+%Another idea to circumvent this limitation is through the use of other,
+%traditionally monopartite, estimators in specific steps. \cite{} and \cite{},
+%for instance, after learning the $U$ and $V$ latent vectors in a matrix
+%factorization procedure, utilize nearest neighbors estimators to compute new
+%samples' latent vectors as a linear combination of the vectors generated for the
+%training set, optionally weighting neighbors with similarity metrics.
+%
+%Still, without monopartite models, these matrix reconstruction approaches cannot
+%deal with new samples without retraining the model on the whole training data
+%plus the new instances. We thus consider these techniques more inclined to the
+%preprocessing realm rather than constituting machine learning models by
+%themselves.
+%
+%%The second category of methods we define is that of adapted monopartite models.
+%%They were among the first proposals to address the problem of DTI as presently
+%%formulated, and represent the methods that reframe the problem of bipartite
+%%interactions in a way that customary machine learning models are able to tackle.
 
 
 \subsection{Bipartite forests}
@@ -1830,7 +1437,7 @@ In the present work, we refine such comparisons and inroduce ensembles of our ne
 %%The estimators we tested, with its criterion functions and other hyperparameters are described by Table \ref{}.
 %
 
-\subsection{Implementation details}
+%\subsection{Implementation details}  % TODO
 
 
 %\subsection{Dataset}
@@ -1986,6 +1593,409 @@ We also speculate that the observed benefit of a dynamic $\sigma$ could emerge f
     \sigma \sim \mathcal{U}(0, 1)
     \label{eq:sigma random}
 \end{equation}
+
+
+\section{Other estimator-centered strategies}
+
+\subsection{Neighborhood-Regularized Matrix Factorization}
+\label{sec:nrlmf}
+
+\subsubsection{Traditional matrix factorization}
+\label{sec:traditional matrix factorization}
+
+% Several algorithm proposals have been made throughout the last decades to tackle the problem of bipartite interaction prediction. 
+%TODO collaborative filtering in the context of recommendation systems
+
+
+% Traditional in the context of recommendation systems, matrix 
+The idea behind matrix factorization is to find an approximation of the interaction matrix $Y$ by decomposing it into two matrices $U$ and $V$ of lower dimensions, such that %TODO not decomposing
+%
+\begin{equation}
+    \hat Y = U V^T \approx Y
+    \label{eq:traditional matrix_factorization}
+\end{equation}
+%
+The rows of $U$ and $V$ can be seen as learned representations in a new vector space (usually called \emph{latent} space) of each sample in the row and column domains, so that $U\el{i}$ represents $X_1\el{i}$ and $V\el{j}$ represents $X_2\el{j}$.
+%
+Notice that the number of latent features is constrained by \autoref{eq:traditional matrix_factorization} to be the same for both instance domains: $|U|_j=|V|_j$, being an arbitrary hyperparameter to be defined by the user. Usually, the number of latent features is set to be much smaller than the number of original features ($|U|_j \ll |X_1|_j$ and $|V|_j \ll |X_2|_j$), requiring less computational labor and generating models less susceptible to overfitting.
+
+The learning procedure of matrix factorization algorithms thus consists of obtaining such latent feature matrices $U$ and $V$ so to approximate $Y$ as best as possible. The most common approach is to define a loss function that penalizes the difference between the predicted and the true values of $Y$ and to employ gradient descent techniques to gradually change $U$ and $V$ in the direction that minimizes such loss.
+%
+% TODO For instance, 
+
+As can be deduced from \autoref{eq:traditional matrix_factorization}, the dot product of each row of $U$ and $V$ approximates the corresponding element of $Y$:
+%
+\begin{equation}
+    \hat Y\el{ij} = U\el{i} \cdot V\el{j}
+\end{equation}
+%
+Logistic matrix factorization (LMF) slightly redefines the problem by introducing one more step to obtain $\hat Y$ from $U$ and $V$~\cite{johnsonlogistic}: it assumes that the interaction matrix $Y$ is the result of the logistic function applied to $UV\T$ and not only $UV\T$ anymore.
+%
+\begin{equation}
+    \hat Y\el{ij} = \text{logistic}(U\el{i} \cdot V\el{j})
+    = \frac{\exp(U\el{i} \cdot V\el{j})}{1 + \exp(U\el{i} \cdot V\el{j})}
+    \label{eq:lmf_prediction}
+\end{equation}
+%
+where $\mathbf{a} \cdot \mathbf{b}$ represents the dot product between the vectors $\mathbf{a}$ and $\mathbf{b}$. When applied to a matrix, we assume that $\log$ and $\exp$ functions operate element-wise:
+%
+\begin{equation*}
+    (\log M)\el{ij} = \log M\el{ij}
+\end{equation*}
+
+If $\hat Y$ is interpreted as the probability of being positive as predicted by the model ($\hat Y\el{ij} = P(Y\el{ij} = 1)$ and $1-\hat Y\el{ij} = P(Y\el{ij} = 0)$),
+the optimization objective is usually based on maximizing the joint probability of correctly guessing all interactions in $Y$:
+%
+\begin{equation}
+    P(\hat Y = Y) = \prod_{ij} | \hat Y\el{ij} + Y\el{ij} - 1|
+    \label{eq:lmf_objective_raw}
+\end{equation}
+%
+in which $|a|$ represents the absolute value of $a$. A few modifications are then further made:
+%
+\begin{enumerate}
+    \item The logarithm of the objective function is taken to simplify the expression without affecting the optimization problem, since $\log$ is a monotonic function;
+    \item Since positive interactions are usually less numerous but more important in matrix completion problems, a factor $\alpha$ is introduced to prioritize them, multiplying the terms corresponding to $Y\el{ij}=1$ in the objective function. It results as if $alpha$ copies of each positive interaction are present in the training set;
+    \item To discourage overfitting and avoid $U$ and $V$ being arbitrarily large, quadratic regularization terms are added, penalizing the magnitude of the elements of $U$ and $V$.
+    \item Similarity information between samples is incorporated by NRLMF,%TODO
+\end{enumerate}
+%
+%The resulting objective function is then given by
+To simplify notation, we define matrices $J$ whose combined sum of all elements corresponds to the objective function $\mathcal{J}$:
+%
+\begin{equation}
+    \mathcal{J} =
+        \sum J_\text{labels}
+        + \sum J_\text{1, regularization}
+        + \sum J_\text{2, regularization}
+        + \sum J_\text{1, neighborhood}
+        + \sum J_\text{2, neighborhood}
+    \label{eq:lmf_objective_matrices}
+\end{equation}
+%
+where by $\sum J$ we denote $\sum_i^{|J|i}\sum_j^{|J|_j} J$. The sums must be performed individually due to the $J$ matrices having different dimensions.
+
+Applying the logarithm to \autoref{eq:lmf_objective_raw} we have our first term of $\mathcal{J}$:
+%
+\begin{equation*}
+    J_\text{labels} = \log |\hat Y + Y - 1| = Y \odot \log \hat Y + (1 - Y) \odot \log (1 - \hat Y)
+\end{equation*}
+%
+where we separate the cases in which $Y\el{ij} = 1$ and $Y\el{ij} = 0$. $\odot$ represents the Hadamard product (element-wise multiplication) between matrices:
+%
+\begin{equation*}
+    (A \odot B)\el{ij} = A\el{ij} B\el{ij}
+\end{equation*}
+%
+Adding the aforementioned positive importance factor $\alpha$ and expanding $\hat Y$ according to \autoref{eq:lmf_prediction} we have
+%
+%%% Using indices instead of J matrix
+% \begin{multline}
+%     %- \lambda \|U\|^2 - \|V\|^2
+%     \mathcal{L} =
+%         \sum_{ij} \alpha Y\el{ij} \log \hat Y\el{ij}
+%         + (1 - Y\el{ij}) \log (1 - \hat Y\el{ij})
+%     =\\
+%     =
+%     \sum_{ij}
+%         \alpha Y\el{ij} \left\{W\el{ij} - \log\left[1 + \exp(W\el{ij})\right]\right\} 
+%         - (1 - Y\el{ij}) \log \left[1 + \exp(W\el{ij})\right]
+%     =\\
+%     =
+%     \sum_{ij}
+%         \alpha Y\el{ij} W\el{ij}
+%         + [(1 - \alpha) Y\el{ij} - 1] \log \left[1+\exp(W\el{ij})\right]
+% \end{multline}
+%
+\begin{multline}
+    J_\text{labels} =
+        \alpha Y \odot \left\{UV\T - \log\left[1 + \exp(UV\T)\right]\right\} 
+        - (1 - Y) \odot \log \left[1 + \exp(UV\T)\right]
+    =\\
+    =
+        \alpha Y \odot UV\T
+        + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]
+\end{multline}
+
+To discourage large values in $U$ and $V$, we consider quadratic regularization terms weighted by hyperparameters $\lambda_1$ and $\lambda_2$:
+%
+\begin{gather}
+    J_\text{1, regularization}
+        = -\frac{\lambda_1}{2} U \odot U
+        = -\frac{\lambda_1}{2} \mathbb{I} \odot (UU\T)\\
+    J_\text{2, regularization}
+        = - \frac{\lambda_2}{2} V \odot V
+        = - \frac{\lambda_2}{2} \mathbb{I} \odot (VV\T)
+    \label{eq:lmf_regularization}
+\end{gather}
+%
+%In the LMF context of \autoref{eq:lmf_prediction}, the regularization terms can be interpreted as a Gaussian prior on the latent features, centered at the origin with variance $\lambda_1$ and $\lambda_2$ for $U$ and $V$, respectively~\cite{johnsonlogistic}.
+If the initial objective proposal can be interpreted as maximizing the probability of guessing all labels correctly given specific $U$ and $V$ ($\sum J_\text{labels} = \log P(\hat Y=Y\mid U,V)$), adding the regularization terms is equivalent to introduce prior assumptions about $U$ and $V$ distributions and define a slightly different objective: maximizing the posterior probability to obtain the current $U$ and $V$ given that $\hat Y = Y$. Applying Bayes' theorem and assuming $P(Y) = 1$ we have
+%
+\begin{equation}
+    P(U,V\mid \lambda_1, \lambda_2, Y) = P(Y\mid U,V)\; P(U\mid \lambda_1) \; P(V\mid \lambda_2)
+\end{equation}
+%
+Under the assumption that the values in $U$ and $V$ follow zero-centered spherical gaussian distributions with variances given by $\frac{1}{\lambda}$, that is, $U\el{ij}\sim\mathcal{N}(0, \lambda_1^{-1}\mathbf{I})$ and $V\el{ij}\sim\mathcal{N}(0, \lambda_2^{-1}\mathbf{I})$, we recover the regularized objective function of \autoref{eq:lmf_regularization}~\cite{johnsonlogistic}.
+%
+\begin{multline}
+    \log P(U,V\mid \lambda_1, \lambda_2, Y)
+    =\\
+    = \log P(Y\mid U,V)
+        + \sum \log(\exp(-\frac{\lambda_1}{2} U \odot U))
+        + \sum \log(\exp(-\frac{\lambda_2}{2} V \odot V))
+    =\\
+    = \sum J_\text{labels}
+        - \sum \frac{\lambda_1}{2} U \odot U
+        - \sum \frac{\lambda_2}{2} V \odot V
+\end{multline}
+%
+Therefore, if multiple values of $U$ and $V$ possibly generate the same $\hat Y = Y$, applying the regularization can be understood as not only finding one of such combinations but, between those $U$ and $V$ that satisfy $\hat Y = Y$, finding the $U$ and $V$ that are most likely to be randomly sampled. If $P(U, V\mid \lambda_1, \lambda_2, Y)$ continuously varies as a function of $U$ and $V$, pooling $U$ and $V$ from a region of maximal $P(U, V\mid \lambda_1, \lambda_2, Y)$ should improve generality, arguably ensuring that stochastic deviations of $U$ and $V$ would still result in high $P(\hat Y = Y)$ and justifying the use of regularization as a way to avoid overfitting. %TODO confuso?
+
+% Being bounded by $[0, 1]$, the predictions $\hat Y$ are interpreted as the probabilities of each interaction to be positive.
+% %
+% \begin{equation}
+%     \hat Y\el{ij} = P(Y\el{ij} = 1)
+% \end{equation}
+% %
+% The probability of correctly guessing the label $Y\el{ij}$ is then given by
+% \begin{equation}
+%     P(\hat Y\el{ij} = Y\el{ij})
+%     =
+%     \begin{cases}
+%         \hat Y\el{ij} & \text{if } Y\el{ij} = 1\\
+%         1 - \hat Y\el{ij} & \text{if } Y\el{ij} = 0
+%     \end{cases}
+% \end{equation}
+% %
+% alternatively formulated as
+% %
+% \begin{equation}
+%     P(\hat Y\el{ij} = Y\el{ij})
+%     = \hat Y\el{ij}^{Y\el{ij}} (1 - \hat Y\el{ij})^{1 - Y\el{ij}}
+% \end{equation}
+% 
+% We will then define the objective function based on the probability of correctly guessing all interactions in $Y$:
+% TODO must assume independent Y
+
+One may have noticed that the original feature matrices $X_1$ and $X_2$ were not considered in any regard when describing matrix factorization and detailing the objective functions.
+Born in the context of recommendation systems where the relationship labels are usually the only information available, matrix factorization algorithms in general encounter a significant issue when brought to our current scenario of bipartite interaction prediction:
+in its canonic formulation, they do not take sample-level features into account, often called \emph{side information} or \emph{side features} in the recommendation field~\cite{}, possibly overlooking valuable data. As a consequence, they are unable to provide predictions for new samples that were not present in the training set, since no information about them is available to be inputted to the model. This is commonly regarded as the \emph{cold-start problem}~\cite{}. As such, matrix factorization usage is usually restricted to the task of matrix completion, in which the goal is to predict the missing values of a matrix given the values of the remaining elements, without receiving completely new rows or columns during model evaluation~\cite{}.
+
+
+\subsubsection{Neighborhood regularization}
+\label{sec:neighborhood regularization}
+
+Targeting these issues, \textcite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting} proposes a modification to LMF that incorporates side information into the model, successfully applying their method to interaction problems such as drug-target interaction prediction~\cite{liu2016neighborhood}, long non-coding RNA interactions~\cite{liu2017lpinrlmf} and microRNA interactions~\cite{liu2020predicting}.
+%
+The core idea of their technique lies in adding one more term to the objective function, penalizing instances regarded as close when considering the original features but were separated by $U$ and $V$, placed far from each other in the latent space. As such, the algorithm is called \emph{Neighborhood-Regularized Logistic Matrix Factorization} (NRLMF).
+%
+To precisely define it, let's consider similarity-weighted adjacency matrices $A_1$ and $A_2$ referring to each sample domain that specifies neighborhood relationships between samples. If $S_1\el{ij}$ denotes a similarity score between $X_1\el i$ and $X_1\el j$, $A_1\el{ij}$ is set to this similarity value if $X_1\el{j}$ belongs to the neighborhood of $X_1\el{i}$, denoted $N(X_1\el i)$, and 0 otherwise:
+%
+\begin{equation}
+    A_1\el{ij} =
+    \begin{cases}
+        S_1\el{ij} & \text{if } X_1\el{j} \in N(X_1\el i)\\
+        0 & \text{otherwise}
+    \end{cases}
+    \label{eq:nrlmf_A}
+\end{equation}
+%
+Multiple options are available for the definition of neighborhoods, such as considering all samples within a certain radius of each other or only the $k$ nearest neighbors of each sample. In this work, following the original proposal of NRLMF~\cite{liu2016neighborhood}, we will consider the latter, defining $A_1$ and $A_2$ as the adjacency matrices of the $k$-nearest neighbors graphs of $X_1$ and $X_2$, respectively. In other words, $N(X_1\el{i})$ is the set formed by the $k$ rows $X_1\el{j}$ with the $k$ highest $s_ij$. In the interaction prediction problems we analyze, similarities are precalculated so that the $X$ matrices directly provide the distance metric over which the nearest neighbors are selected. That is, $X_1$ and $X_2$ themselves already constitute pairwise similarity matrices: $S_1\el{ij} = X_1\el{ij}$. In general, however, one may need to define a kernel matrix $S$ as a preprocessing step, choosing a distance metric over the original features to be used in the nearest neighbors search such as the Euclidean distance or a radial basis function~\cite{vanlaarhoven2011gaussian}. In any case, notice that $A$ is a function of $X$ alone for NRLMF. While $Y$ may also be considered in similar scenarios (as will be discussed ahead), $A$ does not depend on $U$ or $V$ and can be built as a single pre-training step.
+
+The loss term proposed by NRLMF is then given by the sum of the Euclidean distances in the latent space between samples in the same neighborhood, weighted by their similarities:
+%
+\begin{gather}
+    \mathcal{J}_\text{1, neighborhood} =
+    - \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
+    \\
+    \mathcal{J}_\text{2, neighborhood} =
+    - \sum_{ij}A_2\el{ij} \|V\el{i} - V\el{j}\|^2
+    \label{eq:neighborhood_regularization}
+\end{gather}
+%
+in which $\|\mathbf{v}\|$ represents the Euclidean norm of a vector $\mathbf{v}$.
+Concentrating on the row instances and expanding the last definition we have
+%
+\begin{multline*}
+    \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
+    = \sum_{ij} A\el{ij}
+    \left(
+        U\el{i}\cdot U\el{i} + U\el{j}\cdot U\el{j} - 2 U\el{i}\cdot U\el{j}
+    \right)
+    =\\
+    =
+        \sum_i \left(\sum_j A_1\el{ij}\right) U\el{i}\cdot U\el{i}
+        + \sum_j \left(\sum_i A_1\el{ij}\right) U\el{j}\cdot U\el{i}
+\end{multline*}
+%
+The terms in which $U$ appears with the same index ($U\el{i}\cdot U\el{i}$ and $U\el{j}\cdot U\el{j}$) can be rewritten to include both by multiplying them by the identity matrix $\mathbb{I}$. Essentially, we consider $\sum_i U\el{i}\cdot U\el{i} = \text{trace}(U U\T) = \sum_{ij} (\mathbb{I} \odot UU\T)\el{ij}$.
+%
+\begin{equation*}
+    \sum_i \left(\sum_j A_1\el{ij}\right) U\el{i}\cdot U\el{i}
+    = \sum_i \left(\sum_j A_1\el{ij}\right) \sum_k \mathbb{I}\el{ik}U\el{i}\cdot U\el{k}
+    = \sum_{ij} \left(\sum_k A_1\el{ik}\right) \mathbb{I}\el{ij} U\el{i}\cdot U\el{j}
+\end{equation*}
+%
+This allows us to write
+%
+\begin{multline*}
+    \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
+    =\\
+    = \sum_{ij}
+        \left[
+            \left(\sum_k A_1\el{ik} + \sum_l A_1\el{lj}\right)
+            \mathbb{I}\el{ij}
+            - 2 A_1\el{ij} 
+        \right]
+        U\el{i}\cdot U\el{j}
+    =\\
+    = \sum L_1 \odot (UU\T)
+    %= tr ( U L U\T )
+\end{multline*}
+%
+in which we define
+%
+\begin{equation}
+    L_1\el{ij}
+    = \left(\sum_k A_1\el{ik} + \sum_l A_1\el{lj}\right)
+        \mathbb{I}\el{ij}
+        - 2 A_1\el{ij} 
+    %
+    = \left(\sum_k A_1\el{ik} + A_1\el{kj}\right)
+        \mathbb{I}\el{ij}
+        - 2 A_1\el{ij} 
+    \label{eq:laplacian}
+\end{equation}
+%
+Notice that taking $A_1\T$ instead of $A_1$ has no effect on the final result, since $\sum A_1 UU\T = \sum A_1\T UU\T$. We could then work with a symmetrized version of $A_1$ from the start:
+%
+\begin{equation*}
+    \tilde A_1 = A_1 + A_1\T
+\end{equation*}
+yielding
+%
+\begin{equation*}
+    L_1 = \left(\sum_k \tilde A_1\el{ik}\right)
+        \mathbb{I}\el{ij}
+        - \tilde A_1\el{ij} 
+\end{equation*}
+%
+We can see that the first term of $L_1$ acts in a similar way to the quadratic regularization terms presented by \autoref{eq:lmf_regularization}, multiplying the main diagonal of $UU\T$ and thus penalizing the model for latent vectors with large Euclidean norms (the diagonal of $UU\T$ holds the squared norms $U\el{i}\cdot U\el{i}$). The amount of regularization is however pondered by the weighted number of neighbors of each sample in this case: $\sum_k A_1\el{ik}$ represents the sum of similarities of $X_1\el{i}$ with all its neighbors, also called the \emph{degree} of a sample. This results in samples with larger and more compact neighborhoods being more heavily penalized for having large norms in the latent space. The second term of \autoref{eq:laplacian}, on the other hand, rewards the model for placing close neighbors colinear to each other in the latent space, summing over $S\el{ij} U\el{i}\cdot U\el{j}$ terms
+%(a metric of vector colinearity)
+between each sample and its neighbors ($A_1\el{ij}$ is $0$ if $U\el{i}$ and $U\el{j}$ are not neighbors).
+%TODO more on interpretation and properties of laplacian matrix
+
+Finally, the neighborhood regularization terms are written as
+%
+\begin{gather}
+    J_\text{1, neighborhood} = -\frac{\beta_1}{2} L_1 \odot (UU\T)\\
+    J_\text{2, neighborhood} = -\frac{\beta_2}{2} L_2 \odot (VV\T)
+\end{gather}
+%
+%
+% \begin{equation}
+%     \begin{split}
+%         \mathcal{L} &=\\
+%             &= \alpha Y \odot UV\T
+%             + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]\\
+%             &- \frac{\lambda_1}{2} U \odot U
+%             - \frac{\lambda_2}{2} V \odot V\\
+%             &- \frac{\beta_1}{2} L_1 \odot (UU\T)
+%             - \frac{\beta_2}{2} L_2 \odot (VV\T)
+%     \end{split}
+% \end{equation}
+
+Combining the matrix terms as in \autoref{eq:lmf_objective_matrices}, NRLMF's objective function is given by
+%
+\begin{equation}
+    \begin{split}
+        \mathcal{J} = &\; \sum
+                \alpha Y \odot UV\T
+                + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]\\
+            &- \sum \frac{1}{2} (\lambda_1\mathbb{I} + \beta_1 L_1) \odot (U U\T)\\
+            &- \sum \frac{1}{2} (\lambda_2\mathbb{I} + \beta_2 L_2) \odot (V V\T)
+    \end{split}
+    \label{eq:nrlmf_objective}
+\end{equation}
+%
+and the derivatives of the objective function with respect to $U$ and $V$ to be used in the gradient descent procedure are given by
+% \begin{equation}
+%     \begin{split}
+%         \mathcal{L} =
+%             \alpha Y \odot UV\T
+%             + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]
+%             - \frac{\lambda_1}{2} U \odot U
+%             - \frac{\lambda_2}{2} V \odot V
+%             - \frac{\beta_1}{2} L_1 \odot (UU\T)
+%             - \frac{\beta_2}{2} L_2 \odot (VV\T)
+%     \end{split}
+% \end{equation}
+% TODO: appendix showing d(A \odot U V\T) / dU = A V
+% TODO: appendix showing d(A \odot U V\T) / dV = A\T U
+% TODO: appendix showing d(A \odot U U\T) / dU = A U + A\T U
+\begin{gather}
+    G_U = \frac{\partial \mathcal{J}}{\partial U} =
+        \{[(1 - \alpha) Y - 1] \odot \hat Y + \alpha Y\}V
+        - (\lambda_1\mathbb{I} + \beta_1 L_1) U
+    \label{eq:nrlmf_gradient_U}
+    \\
+    G_V = \frac{\partial \mathcal{J}}{\partial V} =
+        \{[(1 - \alpha) Y - 1] \odot \hat Y + \alpha Y\}\T U
+        - (\lambda_2\mathbb{I} + \beta_2 L_2) V
+    \label{eq:nrlmf_gradient_V}
+\end{gather}
+%
+The training procedure of NRLMF is presented by \autoref{alg:nrlmf_train}, and consists of alternated updates on $U$ and $V$ in the gradient's direction until certain stop criteria are satisfied. Common choices for stopping conditions are a maximum number of iterations or a minimum change in the objective function between iterations.
+
+Since faster convergence is reported by the original authors~\cite{johnsonlogistic}, we follow \textcite{johnsonlogistic,liu2016neighborhooda} by implementing the AdaGrad procedure~\cite{duchi2011adaptive}, in which the length of each gradient step is divided by the square-root sum of squared previous steps:
+%
+\begin{equation}
+    U_{t+1} = U_t + \frac{\eta G_{U,t}}{\sqrt{\sum_{t'=0}^t G_{U,t'}^2}}
+\end{equation}
+%
+where $G_{U,t}$ is the partial derivative $\frac{\partial\mathcal{J}}{\partial U}$ of the objective function with respect to $U$ at step $t$, and $\eta$ is the user-defined learning rate. The same is done for $V$.
+
+\algNRLMFTrain
+
+The main importance of NRLMF however lies in the inference phase. As mentioned, matrix factorization methods are not designed to deal with new input samples, that are not present in the training set. Specifically, traditional matrix factorization is incapable of generating latent vectors for the unseen samples to be used for label prediction. An idea that may seem natural at first glance is to delay training to the arrival of new instances, including them in the training set with zero-only labels before performing the optimization. But even then, using an objective function based only on $Y$ as is traditionally done, no new information is brought by the new instances and adding new zeroed rows or columns to $Y$ will mainly introduce noise to the training data and likely degrade the model's predictive performance.
+
+NRLMF, however, leverages proximity information encoded by $X$ to remarkably enable determining latent feature vectors for completely new instances. The neighborhood regularization terms in the objective function now reveal their full importance: they support proximity as a transferable property between the original and the latent spaces. By encouraging that neighbors in $X_1$ and $X_2$ remain close in $U$ and $V$, we can infer latent features of new instances based on their neighborhood.
+
+Consider the test similarity matrices $S_{1\text{, test}}$ and $S_{2\text{, test}}$ respectively derived from $X_\text{1, test}$ and $X_\text{2, test}$, relating the new instances to the known training samples. For instance, $S_{1\text{, test}}\el{ij}$ represents the similarity between $X_\text{1, test}\el{i}$ and $X_\text{1, train}\el{j}$. If $A_\text{1, test}$, like before in \autoref{eq:nrlmf_A}, accordingly restricts the similarity matrix to the neighborhood of each sample,
+%
+\begin{equation}
+    A_\text{1, test}\el{ij} =
+    \begin{cases}
+        S_\text{1, test}\el{ij} & \text{if } X_\text{1, train}\el{j} \in N(X_\text{1, test}\el i)\\
+        0 & \text{otherwise}
+    \end{cases}
+    \label{eq:nrlmf_A_test}
+\end{equation}
+%
+the latent feature vector of a new instance is simply estimated as the weighted average of its neighbors' latent representations:
+% \begin{equation}
+%     U_\text{test} = A_\text{1, test} U_\text{train}
+% \end{equation}
+%
+\begin{equation}
+    U_\text{test}\el{i} = \frac{A_\text{1, test}\el{i} U_\text{train}}{\sum A_\text{1, test}\el{i}}
+\end{equation}
+%
+the analogous being held for $V$, so that new predictions are made as usual with \autoref{eq:lmf_prediction}, where $U_\text{test}$, $U_\text{train}$, $V_\text{test}$ and $V_\text{train}$ can be used in accordance with the prediction task under study (see \autoref{sec:cross_validation} for details on the different prediction scenarios):
+%
+\begin{gather}
+    \begin{aligned}
+        \hat Y_\text{TT} = \frac{\exp(U_\text{test} V_\text{test}\T)}{1 + \exp(U_\text{test} V_\text{test}\T)}&&
+        \hat Y_\text{TL} = \frac{\exp(U_\text{test} V_\text{train}\T)}{1 + \exp(U_\text{test} V_\text{train}\T)}&&
+        \hat Y_\text{LT} = \frac{\exp(U_\text{train} V_\text{test}\T)}{1 + \exp(U_\text{train} V_\text{test}\T)}
+    \end{aligned}
+\end{gather}
+
+
+%\subsubsection{Further developments on NRLMF}
+%\label{sec:further nrlmf}
+
 
 
 
@@ -2976,12 +2986,25 @@ Furthermore, the normalization enables the comparison across different tasks, en
 
 \subsection{General experimental settings}
 
+
+
 \section{Experiments}
 
-\subsection{Comparing AUROC and AUPR}
+\subsection{What are the differences between AUROC and AUPR?}
 \label{sec:comparing auroc aupr}
 
-This experiment was designed to evaluate the hypetheses raised in \autoref{sec:metrics from ranks}. Our main objective is to elucidate how much importance each metric assigns to each percentile rank. To do so, we perform a Monte Carlo simulation. First, we select $R$ equally spaced rank values between $0$ and $1$ (excluding $0$ and $1$). For each rank, we generate $N$ random binary values to be used as labels. Therefore, each of the $N$ iterations of the simulation will produce a random set of $R$ binary labels, corresponding to each percentile rank. In each iteration, we use the $R$ labels and $R$ percentile ranks to calculate AUROC and AUPR, resulting in $N$ values for each metric. Finally, for each of the $R$ ranks, we calculate the point biserial correlation~\cite{kornbrot2014point} between the $N$ random labels and the $N$ AUROC and AUPR values. The result is displayed in \autoref{fig:correlation ranks}.
+\begin{mdframed}
+    %\textbf{How do AUROC and AUPR differ in their assessment of model performance?}
+    \textbf{Key findings:}
+    \begin{itemize}
+        \item AUPR prioritizes a smaller number of highest-ranked interactions, while AUROC considers a larger number of both highest and lowest ranks.
+        %\textbf{When to use each metric?}
+        \item AUPR should be used when the goal is to select a small number of most-likely interactions. AUROC should be used i) when both likely-positive and likely-negative interactions are important; or ii) when interested in a large fraction of the predictions.
+        \item AUROC could be also preferable for PU learning.
+    \end{itemize}
+\end{mdframed}
+
+This experiment was designed to evaluate the hypotheses raised in \autoref{sec:metrics from ranks}. Our main objective is to elucidate how much importance each metric assigns to each percentile rank. To do so, we perform a Monte Carlo simulation. First, we select $R$ equally spaced rank values between $0$ and $1$ (excluding $0$ and $1$). For each rank, we generate $N$ random binary values to be used as labels. Therefore, each of the $N$ iterations of the simulation will produce a random set of $R$ binary labels, corresponding to each percentile rank. In each iteration, we use the $R$ labels and $R$ percentile ranks to calculate AUROC and AUPR, resulting in $N$ values for each metric. Finally, for each of the $R$ ranks, we calculate the point biserial correlation~\cite{kornbrot2014point} between the $N$ random labels and the $N$ AUROC and AUPR values. The result is displayed in \autoref{fig:correlation ranks}.
 
 % TODO p-values
 
@@ -3009,10 +3032,23 @@ However, one should prioritize AUROC over AUPR if the goal is to select both neg
 We also argue that AUROC could be preferable for comparing models under the PU assumption, at least in purely theoretical settings. For PU datasets, we naturally expect some negative-labeled instances to be very highly ranked since they could be, in fact, unannotated positives. AUPR would more strictly penalize such predictions, favoring models that consider the labeling mechanism itself rather than only the underlying interaction mechanism. AUPR could thus undermine the model's potential to discover new interactions, possibly failing to gauge the generalization capabilities of algorithms in a PU context. The results from \autoref{sec:comparison literature} seem to corroborate this hypothesis, with AUROC ranking estimators more consistently than AUPR across different levels of label noise.
 
 
-\subsection{Empirical time complexity analysis}
+\subsection{Are BGSO models indeed faster than GMO models?}
+%\subsection{Empirical time complexity analysis}
 \label{sec:empirical_complexity}
 
-To empirically assess the training time complexity of the tree models under study, we artificially generate a series of bipartite datasets by filling three $n$ by $n$ matrices with pseudo-random values, representing the two $X$ matrices and the $y$ matrix on each interaction. Values were taken uniformly from the interval $[0, 1]$ for the feature matrices and from the interval $[0, 100]$ for the target matrix. We thus represent interactions between $n$ drugs and $n$ proteins, each being described by $n$ features.
+\begin{mdframed}
+    \textbf{Key findings:}
+    \begin{itemize}
+        \item The GMO complexity is measured to be $O(n^3\log n)$, while the BGSO complexity is measured to be $O(n^3)$.
+
+        \item The empiral results match the theoretical expectations from \autoref{sec:complexity_analysis}.
+        
+        \item The difference in complexity between GMO and GSO is less pronounced for the ExtraTrees, but the GSO models still present significantly lower complexity than the GMO models.
+    \end{itemize}
+\end{mdframed}
+
+This experiment empirically measures the training time complexity of the tree models under study. We artificially generate a series of bipartite datasets by filling three $n$ by $n$ matrices with pseudo-random values, representing the two $X$ matrices and the $Y$ matrix on each interaction. Values were taken uniformly from the interval $[0, 1]$ for the feature matrices and from the interval $[0, 100]$ for the target matrix.
+%We thus represent interactions between $n$ drugs and $n$ proteins, each being described by $n$ features.
 
 We then train the GMO and the optimized GSO versions of a single bipartite decision tree (BDT) and a single bipartite ExtraTree (BXT) on each of the generated datasets, measuring their training duration in seconds. The results are shown in Figure \ref{fig:empirical_complexity}. From the least squares linear regression on the log-log plot, we see that the estimated training time complexities closely follow the theoretical expectations developed under Section \ref{sec:complexity_analysis}, with slopes referring to the GSO models (predicted to be $O(n^3)$) approaching 3 while the GMO models (predicted to be $O(n^3\log(n))$) produce slope between 3 and 4.
 
@@ -3077,13 +3113,23 @@ In spite of that, the empirical complexity of \texttt{bdt\_gso} is still observe
 % In conclusion, the proposed approach confidently enables the use of the entire training data in a much shorter time frame than naive implementations without the need for data undersampling, which is statistically expected to yield better prediction scores for forest predictors.
 
 
-\subsection{Comparison between GMO prediction weights}
+\subsection{Which prototype should a GMO forest use?}
+%\subsection{Comparison between GMO prediction weights}
+
 \label{sec:prototype_comparison}
 %TODO: why we did not use BGSO here?
 
+\begin{mdframed}
+    \textbf{Key findings:}
+    \begin{itemize}
+        \item The \texttt{square} strategy is the best for both BXT and BRF models, except for the LT+TL average precision score, for which the fully-grown trees are the best.
+        \item The weighted-neighbors strategies seem to improve generalization.
+    \end{itemize}
+\end{mdframed}
+
 In this work we propose a different prototyping strategy to determine the output value of each leaf in a GMO decision tree, taking the similarity matrices of our use cases into consideration (\autoref{sec:prototype}).
 %
-We here compare such strategies, building BXT and BRF models for every option. The minimum rows per leaf and minimum columns per leaf were both set to 5, ensuring that at least 5 samples of each domain are considered when calculating the prototype values.
+In this experiment we compare such strategies, building BXT and BRF models for every option. The minimum rows per leaf and minimum columns per leaf were both set to 5, ensuring that at least 5 samples of each domain are considered when calculating the prototype values.
 %in a weighted-neighbors fashion during evaluation (Section \ref{}).
 %
 To observe the effect of this early-stopping criterion by itself, we also include forests of fully-grown trees in the comparison. The compared models are described below.
@@ -3091,7 +3137,9 @@ To observe the effect of this early-stopping criterion by itself, we also includ
 \begin{itemize}
     \item \textbf{\texttt{gmosa}:} proposed by \textcite{pliakos2018global}, the output of each leaf is the average of the labels of the learned samples that reach that leaf (\autoref{eq:prototype1}).
     \item \textbf{\texttt{uniform}:} also proposed by \textcite{pliakos2018global}, the only difference from the \texttt{gmosa} strategy occurs in TL or LT test settings, when the average is taken only among the labels of the known sample of the pair being predicted (\autoref{eq:prototype2}).
-    \item \textbf{\texttt{precomputed}:} introduced by us (as also \texttt{square} and \texttt{softmax}), the labels in each leaf are weighted by the similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
+    \item \textbf{\texttt{precomputed}:}
+    %introduced by us (as also \texttt{square} and \texttt{softmax}),
+    the labels in each leaf are weighted by the similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
     \item \textbf{\texttt{square}:} the labels in each leaf are weighted by the squared similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
     \item \textbf{\texttt{softmax}:} the labels in each leaf are weighted by the exponential of the similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
     \item \textbf{\texttt{full}:} the trees are grown until a single interaction remains in each leaf. %, so that the prediction for each pair is the label of the single learned sample in the leaf.
@@ -3105,16 +3153,23 @@ outputs of the learned samples (known from the training set) in each leaf. With 
 The fully-grown versions of both forest algorithms are shown to be especially advantageous when considering the LT+TL average precision. This suggests that building trees to their maximum depth is the best strategy for learning tasks in which
 %
 \begin{enumerate}
-    \item one of the domains is fixed, with the final goal being to model how new instances will bind to this known set of entities and
-    \item controlling the number of false positives is equally important to correctly ranking the positive interactions.  % TODO: review
+    \item one of the domains is fixed, with the final goal being to model how new instances will bind to this known set of entities;
+    \item the goal is to select a small number of top-ranked interactions (see \autoref{sec:comparing auroc aupr}).
 \end{enumerate}
+%
+%Examples that satisfy the first condition are drug repositioning~\cite{} or dyadic prediction~\cite{}. % TODO check
+%
+On the other hand, weighted averages seem to improve the forest's generalization ability, as they seem to perform best under the AUROC metric and TT contexts.
 
-Examples that satisfy the first condition are drug repositioning~\cite{} or dyadic prediction~\cite{}. % TODO check
-
-We propose that this behaviour results from the ability of a fully-grown tree to independently consider the labels of each learned instance when calculating the prototype, while the methods using weighted averages ivariably mix the labels of a pool of neighbors in each leaf. This hypothesis is supported by the fact that the second-best model regarding LT+TL average precision is the \texttt{uniform} strategy, which also uses the labels of individual learned samples to generate the predictions. The hypothesis alone, however, do not explain the superiority of the deeper trees over the \texttt{uniform} weights. In this case, the larger tree depth is likely beneficial through i) an increase in the predictive power of each individual tree, and/or ii) an increase in tree diversity, both of which would improve the ensemble's performance as discussed in \autoref{sec:ensembles}. We let to future work the more specific investigation of these effects.
+We propose that this distinction results from the ability of a fully-grown tree to independently consider the labels of each learned instance when calculating the prototype.
+However, the methods using weighted averages ivariably mix the labels of a pool of neighbors in each leaf.
+This hypothesis is supported by the fact that the second-best model regarding LT+TL average precision is the \texttt{uniform} strategy, which also uses the labels of individual learned samples to generate the predictions.
+%
+The hypothesis alone, however, do not explain the superiority of the deeper trees over the \texttt{uniform} weights. In this case, the larger tree depth is likely beneficial through i) an increase in the predictive power of each individual tree, and/or ii) an increase in tree diversity, both of which would improve the ensemble's performance as discussed in \autoref{sec:ensembles}. We let to future work the more specific investigation of these effects.
 
 %The fact the opposite result is found in the TT scenario
-On the other hand, \texttt{full} and \texttt{uniform} show notable inferior performance in the TT evaluation settings, suggesting that the weighting strategy used by the other prototype functions could be an important technique to improve generalization.
+On the other hand, \texttt{full} and \texttt{uniform} show notable inferior performance in the TT evaluation settings, suggesting that these strategies have inferior ability to consider completely new interacting pairs.
+%the weighting strategy used by the other prototype functions could be an important technique to improve generalization.
 
 %The maximum depth, however, may impact the model's generalization ability, since the same superiority is not shown for the TT average precision score, where both entities of the pair being predicted are unknown to the model. Our squared-similarity weights seemingly display the best generalization in this regard.
 
@@ -3122,7 +3177,7 @@ On the other hand, \texttt{full} and \texttt{uniform} show notable inferior perf
 %The full models are also seemingly affected
 
 % FIXME: gmosa vs gmo uniform on TT: indicates there are duplicated samples in the dataset, so training samples are leaking to test set.
-We then select the squared weighting strategy and the fully grown trees to be further investigated in the downstream analyses. %, keeping 5 by 5 as the minimum leaf partition size besides.
+We select the squared weighting strategy and the fully grown trees to be further investigated in the downstream analyses. %, keeping 5 by 5 as the minimum leaf partition size besides.
 
 
 \begin{figure*}[tbh]
@@ -3195,10 +3250,20 @@ We then select the squared weighting strategy and the fully grown trees to be fu
 \end{figure*}
 
 
-\subsection{Comparison between adaptation strategies}
+
+\subsection{Which adaptation strategy is the best for decision forests?}
 \label{sec:adaptation_comparison}
 
-We now compare each of the described approaches for adapting decision forests to bipartite data (\autoref{sec:standard adaptations}, \autoref{sec:bipartite_trees} and \autoref{sec:bgso_trees}). The suffixes in the model names of this section indicating the employed bipartite adaptations are briefly described below.
+\begin{mdframed}
+    \textbf{Key findings:}
+    \begin{itemize}
+        \item SLMO is the best strategy for BRF models on LT+TL sets.
+        \item GMO is the best strategy for completely new dyads.
+        \item Undersampling of negative annotations is beneficial for GSO BXT in terms of AUROC, but should be avoided if the goal is to select the highest ranked interactions.
+    \end{itemize}
+\end{mdframed}
+
+We now compare each of the described approaches for adapting decision forests to bipartite data, including data-centered adaptations (\autoref{sec:standard adaptations}) and the natively bipartite forests (\autoref{sec:bipartite_trees} and \autoref{sec:bgso_trees}). We briefly describe below the suffixes in the model names of this section, indicating the employed bipartite adaptations.
 
 % TODO: contribution: ensembles of gmo (not gmosa) were nevel built!
 
@@ -3213,7 +3278,7 @@ We now compare each of the described approaches for adapting decision forests to
 
 All the global models were built with 100 trees. For SLMO, each of the four forests used 50 trees, while for LSO 50 trees were used for each row or column of the interaction matrix.
 
-In the LT+TL AP evaluation setting, the pattern observed in \autoref{sec:prototype_comparison} again emerges: the label averaging strategy employed by GMO performs considerably worse in comparison to forests that separately consider each known instance. In particular, the SLMO and SLSO adaptations yield the clear best BRF models in terms of LT+TL AP, and these adaptations interpret each instance as a separate output to be predicted. Among the local adaptations, SLMO significantly ouperforms SLSO. SLSO treats each training instance as a completely independent task, building a separate forests for each row and column of the interaction matrix. As such, the previous result shows that this complete independence is not desirable for the learning problems under study, and exploring label correlations between instances of the same domain, as performed by SLMO, is beneficial. This result could partially be a consequence of the very sparse nature of our problems: if the interaction information of each instance is limited, it becomes advantageus to aggregate information from other instances with correlated interactomes. We then speculate that the advantage of SLMO over SLSO could become less prominent once the number of known interactions per instance increases and more data are available for training.
+In the LT+TL AP evaluation setting, the pattern observed in \autoref{sec:prototype_comparison} again emerges: the label averaging strategy employed by GMO performs considerably worse in comparison to forests that separately consider each known instance. In particular, the SLMO and SLSO adaptations yield the clear best BRF models in terms of LT+TL AP, and these adaptations interpret each instance as a separate output to be predicted. Among the local adaptations, SLMO significantly ouperforms SLSO. SLSO treats each training instance as a completely independent task, building a separate forest for each row and column of the interaction matrix. As such, the previous result shows that this complete independence is not desirable for the learning problems under study, and exploring label correlations between instances of the same domain is beneficial (as demonstrated by SLMO). This result could partially be a consequence of the very sparse nature of our problems: if the interaction information of each instance is limited, it becomes advantageus to aggregate information from other instances with correlated interactomes. We then speculate that the advantage of SLMO over SLSO could become less prominent once the number of known interactions per instance increases and more data are available for training.
 
 Still considering LT+TL AP but focusing on BXT models instead, we notice that SLMO loses the advantage to the fully-grown bipartite trees GMO and GSO. A possible explanation comes from the fact that local approaches yield shallower trees, and much more randomized trees could be required to achieve comparable performance. In more detail, first notice that the individual performance of each tree in a BXT forest is lower than that of a tree in a BRF. Thus, a BXT ensemble requires a larger number of trees to reach satisfactory performance. Additionally, if the trees are shallow, they tend to be less representative of the training data (each tree node brings a little more information on the dataset).
 Even more trees then should be required to compensate the randomness of each individual. Finally, building a forest locally as in SLMO or SLSO results that each tree is trained on a much smaller number of samples in comparison to considering each dyad as a separate instance. Therefore, local approaches generate smaller and less representative trees. We then suggest that the advantage of SLMO could also manifest for BXT estimators if the number of trees in the ensemble were to be increased.
@@ -3222,8 +3287,12 @@ For both BXT and BRF in all the TT settings, the GMO model significantly outperf
 %
 We also highlight SLMO as a prominent strategy for BRFs under TT AUROC and TT AP, being the second best model in both cases.
 
-The SGSO strategy employing undersampling of negative annotations performed consistently worse than the others under the AP metric. Conversely, it was the second best BXT model in both LT+TL and TT AUROC settings, while surpassing BRF GMOSA also under both AUROC test sets. The explanation would be that the undersampling procedure naturally causes the model to equally prioritize the positive and negative labels, which matches the AUROC's behaviour of equally treating TPR and FPR.
-More specifically, these models tend to produce a larger number of false positives since they are unaware of the large label imabalance of our test sets. While this substantially affects AP, the AUROC metric is agnostic to the label imbalance (\autoref{sec:prediction_metrics}), being much more forgiving with the number of false positives given the large total number of negative labels in the test sets.
+The SGSO US strategy performed consistently worse than the others under the AP metric. Conversely, it was significantly the second best BXT model in both LT+TL and TT AUROC settings, while surpassing BRF GMOSA also under both AUROC test sets.
+This shows that unsersampling is a viable technique when when considering the overall ranking of interactions. However, it is detrimental when the goal is to select the most likely interactions. That is, SGSO US allows a larger number of false positives in the highest ranked positions.
+
+This behaviour is expected. Notice that SGSO US models are trained in a balanced dataset, while the other models are trained in the original dataset where negative annotations are much more frequent. With more training examples, the other models tend to be considerably better in correctly classifying negative annotations. This suggests that AUPR tends to favor models of high specificity, that are strictly avoid predicting false positives.
+%The explanation would be that the undersampling procedure naturally causes the model to equally prioritize the positive and negative labels, which matches the AUROC's behaviour of equally treating TPR and FPR.
+%More specifically, these models tend to produce a larger number of false positives since they are unaware of the large label imabalance of our test sets. While this substantially affects AP, the AUROC metric is agnostic to the label imbalance (\autoref{sec:prediction_metrics}), being much more forgiving with the number of false positives given the large total number of negative labels in the test sets.
 
 % TODO sgso us is popular but not good
 
@@ -3313,28 +3382,48 @@ We select LMO, GMO, GSO, and GMOSA to be further analysed in the next section.
 \end{figure*}
 
 
-\subsection{Effect of interaction matrix reconstruction}
+\subsection{Can label imputation aid bipartite forests?}
 \label{sec:y_reconstruction}
 
-It was previously suggested that employing logistic matrix factorization to create a denser representation of the interaction matrix and using this representation as the training data for a BXT forest could improve their performance on DTI datasets \cite{Pliakos_2020}. To test this hypothesis, we compare the bipartite forests cross-validation scores with and without the interaction matrix reconstruction step. As done by \cite{Pliakos_2020}, the reconstruction step was performed using neighborhood-regularized logistic matrix factorization (NRLMF)\cite{}.
+\begin{mdframed}
+    \textbf{Key findings:}
+    \begin{itemize}
+        \item Imputing positive annotations with NRLMF improves the performance of bipartite forests in the majority of cases.
+        \item For LT+TL AP, the best BRF is BRF LMO and the best BXT is BXT GMOSA NRLMF.
+        % \item For LT+TL AUROC, the best BRF is BRF LMO NRLMF
+        \item GMO NRLMF is the overall best model for TT.
+    \end{itemize}
+\end{mdframed}
+
+It was previously suggested to employ logistic matrix factorization to create a dense representation of the interaction matrix. Using this representation as the training data for a BXT forest could improve the performance on DTI datasets \cite{pliakos2020drugtarget}.
+To test this hypothesis, we compare the bipartite forests cross-validation scores with and without the interaction matrix reconstruction step. As done by \cite{pliakos2020drugtarget}, the reconstruction step was performed using neighborhood-regularized logistic matrix factorization (NRLMF)\cite{liu2016neighborhood}.
 
 %\subsubsection{Hyperparameter selection}
 %\subsubsection{Experimental settings}
-To select hyperparameters for the NRLMF algorithm, we performed a randomized search in which 100 different combinations of hyperparameters were evaluated in terms of their resulting mean squared error over a (nested) bipartite 5-fold diagnonal cross-validation. The best combination found in the inner CV loop was then used to reconstruct the interaction matrix of each outer CV fold, and the resulting matrices were used as the training data for the bipartite forests. Note that a single forest was built by outer CV fold, so that the NRLMF hyperparameter seach was performed independently to the downstream forest performance. The hyperparameters \texttt{lambda\_rows}, \texttt{lambda\_cols}, \texttt{alpha\_cols}, \texttt{alpha\_cols}, and \texttt{learning\_rate} were all independently sampled from a log-uniform distribution bounded by $\frac{1}{4}$ and $2$. the number of latent vector components was set to be equal among both axes, and chosen between 50 and 100. The number of neighbors was randomly selected as 3, 5 or 10 in each iteration, and the maximum number of optimization steps was always set to 100.  % TODO check
+We performed a randomized search to select hyperparameters for the NRLMF algorithm. 100 different combinations of hyperparameters were evaluated
+in terms of their resulting mean squared error in a nested bipartite 5-fold diagnonal cross-validation.
+The best combination of parameters according to the inner CV loop was then used to reconstruct the interaction matrix of each outer CV fold. Only then the resulting matrices were used as the training data for the bipartite forests. Note that a single forest was built per outer CV fold, so that the NRLMF hyperparameter search was performed independently from the downstream forest performance. The hyperparameters \texttt{lambda\_rows}, \texttt{lambda\_cols}, \texttt{alpha\_cols}, \texttt{alpha\_cols}, and \texttt{learning\_rate} were all independently sampled from a log-uniform distribution bounded by $\frac{1}{4}$ and $2$. The number of latent vector components was set to be equal for both axes, and chosen between 50 and 100. The number of neighbors was randomly selected as 3, 5 or 10 in each iteration, and the maximum number of optimization steps was always set to 100. The parameter $c$, as in the original paper, was set to $5$. This parameter specifies the emphasis on positive annotations, so each positive annotation contributes $5$ times more to the loss function in our settings, as if 5 copies of each positive interaction were present in the training set.
+%
+See \autoref{sec:adaptation_comparison} for descriptions on the bipartite forests being compared.
 
-The results for BRF and BXT are shown by figures \ref{fig:brf_y_reconstruction} and \ref{fig:bxt_y_reconstruction}, respectively. The \texttt{nrlmf} suffix to a model indicates that it was constructed on the output of NRLMF for each fold.
+The results for BRF and BXT are shown by figures \ref{fig:brf_y_reconstruction} and \ref{fig:bxt_y_reconstruction}, respectively. The \texttt{nrlmf} suffix to a model indicates that it was built on the output of NRLMF.
 
-The interaction matrix reconstruction step is shown to be especially beneficial in terms of ROC AUC scores, improving this score for almost all forest algorithms investigated. The only exceptions were \texttt{bxt\_gmo} and \texttt{brf\_gmo} in LT+TL ROC AUC, where the improvement is still observed but not statistically significant. As discussed in \autoref{sec:prediction_metrics}, ROC AUC is characterized by leniency towards false positives, which explains the advantage posed by NRLMF in this setting: NRLMF explicitly defines a parameter to prioritize outputting positive interactions (\autoref{sec}). % TODO
-In accordance with previous investigations~\cite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting,pliakos2020drugtarget}, this parameter was set to 5, meaning that the loss function employed in the gradient descent procedure of NRLMF is weighted 5 times more for positive interactions than for negative interactions, as if 5 copies of each positive interaction were present in the training set.
+The interaction matrix reconstruction step is shown to be especially beneficial in terms of AUROC scores, improving this score for almost all forest algorithms investigated. The only exceptions were \texttt{bxt\_gmo} and \texttt{brf\_gmo} in LT+TL ROC AUC, where the improvement is still observed but not statistically significant.
+%
+%As discussed in \autoref{sec:comparing auroc aupr}, ROC AUC is characterized by more leniency towards highly-ranked false positives, which explains the advantage posed by NRLMF in this setting: NRLMF explicitly defines a parameter to prioritize outputting positive interactions (\autoref{sec}). % TODO
+%
+%In accordance with previous investigations~\cite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting,pliakos2020drugtarget},
+%this parameter was set to 5, meaning that the loss function employed in the gradient descent procedure of NRLMF is weighted 5 times more for positive interactions than for negative interactions, as if 5 copies of each positive interaction were present in the training set.
 
-Even so, the \texttt{bxt\_gmo} and \texttt{brf\_gmo} models employing our squared similarities output weighting (sections \autoref{sec:prototype} and \autoref{sec:prototype_comparison}) are placed second in their corresponding TT ROC AUC results, both significantly outperforming all NRLMF-combined models except for their own versions, \texttt{bxt\_gmo\_\_nrlmf} and \texttt{brf\_gmo\_\_nrlmf} (as aforementioned).
+Even without the help from NRLMF, the \texttt{bxt\_gmo} and \texttt{brf\_gmo} models employing our squared similarities output weighting (sections \autoref{sec:prototype} and \autoref{sec:prototype_comparison}) are placed second in their corresponding TT ROC AUC results, both significantly outperforming all NRLMF-combined models except for their own versions, \texttt{bxt\_gmo\_\_nrlmf} and \texttt{brf\_gmo\_\_nrlmf}. % (as aforementioned).
 \texttt{brf\_gmo} was also the top performing BRF model in terms of TT average precision, significantly surpassing all but \texttt{brf\_gmo\_\_nrlmf} and \texttt{brf\_lmo\_\_nrlmf}.
-Similarly, \texttt{bxt\_gmo} was the top performing BXT model under the same metric, significantly surpassing all estimator but \texttt{brf\_gmo\_\_nrlmf}, \texttt{brf\_lmo\_\_nrlmf} and BXT GMOSA NRLMF.
+Similarly, \texttt{bxt\_gmo} was the top performing BXT model under the same metric, significantly surpassing all estimators but \texttt{brf\_gmo\_\_nrlmf}, \texttt{brf\_lmo\_\_nrlmf} and BXT GMOSA NRLMF.
 
 Regarding TT AP, NRLMF still provides a significant improvement for all models except \texttt{brf\_gmo}, \texttt{bxt\_gmo} and \texttt{bxt\_lmo}. While both BRF GMO and BXT GMO resulted in the highest average ranks for TT AP, the top position could not be statistically resolved between the BRFs using GMO, GMO NRLMF, and LMO NRLMF, nor between the BXTs using GMO, GMO NRLMF, LMO NRLMF, and GMOSA NRLMF.
 
-In the LT+TL AP setting for BXT ensembles, NRLMF is shown to significantly degrade the performance of \texttt{bxt\_gmo}.
-We attribute this effect to the aforementioned increase in false positives caused by NRLMF, especially since such degradation is not observed under LT+TL AUROC. Notwithstanding, we note that this degradation of LT+TL AP is exclusive to the GMO adaptation, as all other BXT models are significantly improved by NRLMF in this setting. Moreover, we highlight the differences between the LT+TL AUROC and LT+TL AP results considering BXT GMO and BXT GMO NRLMF: while these models are the best ranked in the former setting, they are the clear worst in the latter. We thus argue that both the GMO strategy and the NRLMF reconstruction step, each in and of itself, have the effect of increasing the tendency towards false positives in the predictions. Their summed effects could thus impair predictive performance especially under LT+TL AP evaluation, whereas in other settings they could  missing positives or AUROC evaluation in general, the combina...  % TODO finish this discussion
+In the LT+TL AP setting for BXT ensembles, NRLMF is shown to significantly degrade the performance of \texttt{bxt\_gmo}. Therefore, the combination of the squared neighbors prototype and NRLMF likely results in more high-rank false positives under LT+TL, especially since such degradation is not observed under LT+TL AUROC.  % TODO name prototype
+%
+%We attribute this effect to the aforementioned increase in false positives caused by NRLMF, especially since such degradation is not observed under LT+TL AUROC. Notwithstanding, we note that this degradation of LT+TL AP is exclusive to the GMO adaptation, as all other BXT models are significantly improved by NRLMF in this setting. Moreover, we highlight the differences between the LT+TL AUROC and LT+TL AP results considering BXT GMO and BXT GMO NRLMF: while these models are the best ranked in the former setting, they are the clear worst in the latter. We thus argue that both the GMO strategy and the NRLMF reconstruction step, each in and of itself, have the effect of increasing the tendency towards false positives in the predictions. Their summed effects could thus impair predictive performance especially under LT+TL AP evaluation, whereas in other settings they could  missing positives or AUROC evaluation in general, the combina...  % TODO finish this discussion
 
 %This suggests that the combination of GMO's label averaging method 
 
@@ -3361,12 +3450,14 @@ For BRF models under LT+TL AP, the advantage of employing NRLMF is not clear. GS
 
 %So why does NRLMF seem detrimental to \texttt{brf\_gmo}, \texttt{bxt\_gmo} and \text{brf\_lmo} in terms of LT+TL average precision? For any tree, if one of the interacting entities is known from the training data (let's call it $x_\text{known}$), the leaf at which the interaction from the TL or LT sets arrives is guaranteed to hold a partition of $Y_\text{train}$ with a column corresponding to $x_\text{known}$. The GMO and LMO models are the only ones to emphasize the effect of this column: LMO will output the average of only the labels in this column (see \autoref{sec:slmo}), while GMO will weight it considerably higher than the other columns when computing the leaf's prototype (\autoref{sec:prototype}). The usage of NRLMF however, causes the negative labels in such column of $Y_\text{leaf}$ to be influenced by neighbors from the training set. While this should improve generalization, we speculate that the LT+TL setting could benefit from this "partial overfitting" that occurs when NRLMF is not employed. We thus hypothesize this effect is less pronounced in BXT due to the naturally lower tendency to overfit of ExtraTrees, resulting from the randomized selection of thresholds (\autoref{sec:bipartite_forests}). We also suppose that this effect in LT+TL ROC AUC is overruled by the sensitivity improvement brought by NRLMF, as discussed above, hence it not being apparent from the results.
 
-Another hypothesis can be formulated based on the fact that the dense reconstructed matrix will cause trees to grow to a much deeper extent, as homogeneity of leaves is harder to obtain. As such, this could favor overfitting of BRF models to the output of NRLMF, carrying the generalization error of the NRLMF reconstruction to the results. At the same time, NRLMF being a better model than BRF on TT sets would generate, as observed, the inverse effect, with NRLMF improving performance in this case. % TODO discuss this in model comparison section
-% this would cause BRF to be equal or worse than NRLMF alone
-Again, BXT's randomized split search procedure likely makes it more resilient to this influence, building uncorrelated individual estimators even if the trees are large and thus more generally benefitting from NRLMF.
+%Another hypothesis can be formulated based on the fact that the dense reconstructed matrix will cause trees to grow to a much deeper extent.
+%%as homogeneity of leaves is harder to obtain.
+%As such, this could favor overfitting of BRF models to the output of NRLMF, carrying the generalization error of the NRLMF reconstruction to the results. At the same time, NRLMF being a better model than BRF on TT sets would generate, as observed, the inverse effect, with NRLMF improving performance in this case. % TODO discuss this in model comparison section
+%% this would cause BRF to be equal or worse than NRLMF alone
+%Again, BXT's randomized split search procedure likely makes it more resilient to this influence, building uncorrelated individual estimators even if the trees are large and thus more generally benefitting from NRLMF.
 
 % TODO
-%On BXT, Based on these hypothesis, we predict that the impact of NRLMF will be less prominent on a greater number of t
+%On BXT, Based on these hypothesis, we predict that the impact of NRLMF will be less prominent on a greater number of trees
 
 % Additionally, imputting the negative labels allows the trees to grow deeper
 
@@ -3380,8 +3471,7 @@ Again, BXT's randomized split search procedure likely makes it more resilient to
 % TODO: future testing with less positive importance and larger trees
 % some of the estimators are definitely not calibrated (explain)
 
-% TODO: rewrite
-In summary, interaction matrix reconstruction by matrix factorization seems to consistently improve BRF and BXT results in terms of ROC AUC and also the results of BXT regarding LT+TL average precision. On TT average precision, while less evidence is found, the results still seem to point in the same direction of a beneficial NRLMF transformation step. On the other hand, the comparisons of BRF under LT+TL average precision evaluation indicate the opposite conclusion, disfavoring usage of NRLMF especially for \texttt{brf\_lmo} and \texttt{brf\_gmo}. We thus discourage the application of NRLMF with BRF in scenarios where one of the entities of the interacting pair being predicted is always known to the model, such as in drug repositioning.
+In summary, interaction matrix reconstruction by NRLMF seems to consistently improve BRF and BXT results in terms of AUROC and also the results of BXT regarding LT+TL AP. On TT AP, while less evidence is found, the results still seem to point in the same direction of a beneficial NRLMF transformation step. On the other hand, the comparisons of BRF under LT+TL average precision evaluation indicate the opposite conclusion, disfavoring usage of NRLMF especially for \texttt{brf\_lmo} and \texttt{brf\_gmo}. We thus discourage the application of NRLMF with BRF in scenarios where i) one of the entities of the dyad is always known to the model, such as in drug repositioning; and ii) the main interest is to select a small set of most-likely interactions.
 
 % TODO: remake the following explanation after displaying the rank boxplots
 
@@ -3462,11 +3552,37 @@ In summary, interaction matrix reconstruction by matrix factorization seems to c
 
 
 
-\subsection{Comparison between semi-supervised forests}
+\subsection{What is the best way of building semi-supervised forests?}
 \label{sec:ss_comparison}
 
-The comparison results are displayed by \autoref{fig:ss_comparison}.
+\begin{mdframed}
+    \textbf{Key findings:}
+    \begin{itemize}
+        \item The MD unsupervised impurity is the best option for LT+TL.
+        \item AD is the most promising strategy for TT.
+        \item The best strategy for determining the supervision balance seems to be either size or fixed, but further investigation is needed.
+    \end{itemize}
+\end{mdframed}
 
+In this experiment, we compare the performances of semi-supervised bipartite forests \autoref{sec:ss trees}. All forests in this section are based on the BGSO BXT, as described in \autoref{sec:adaptation_comparison}. We evaluate all combinations of the three strategies for calculating the unsupervised impurity and the four strategies for determining the supervision balance at each node.
+
+\paragraph*{Strategies for determining the unsupervised impurity:}
+\begin{itemize}
+    \item \textbf{\texttt{mse}:} it refers to forests using the mean squared error as the unsupervised impurity (\autoref{eq:mse impurity}).
+    \item \textbf{\texttt{md}:} corresponds forests employing the mean distance unsupervised impurity (\autoref{eq:mean distance impurity}).
+    \item \textbf{\texttt{ad}:} also uses the mean squared error (\autoref{eq:mse impurity}), however, the semi-supervised impurity is only calulated twice on each tree node. The search for the best feature and split point in each instance domain uses the supervised impurity only. Then, the semi-supervised impurity is only used to evaluate the best split in each domain. Finally, the two resulting values for the semi-supervised impurity are used to select between the horizontal and vertical split.
+\end{itemize}
+
+\paragraph*{Strategies for determining the supervision balance ($\sigma$):}
+\begin{itemize}
+    \item \textbf{\texttt{fixed}:} the supervision balance ($\sigma$) is fixed at $0.5$ for mse and md and at $0$ for ad.
+    \item \textbf{\texttt{density}:} $\sigma$ is determined by the density of positive annotations in each tree node (\autoref{eq:sigma density}). 
+    \item \textbf{\texttt{size}:} $\sigma$ is determined by the total number of interactions current in the tree node (\autoref{eq:sigma size}).
+    \item \textbf{\texttt{random}:} $\sigma$ is set to a random value between $0$ and $1$ drawn at each tree node (\autoref{eq:sigma random}).
+\end{itemize}
+
+The comparison results are displayed by \autoref{fig:ss_comparison}.
+%
 Regarding LT+TL AUROC, the 0\% ILR and 50\% ILR do not result in statistically significant differences in performance. For ILR=70\%, md random and md size significantly outperform the remaining models, while under IRL=90\%, md random, md size, and md density are shown to surpass the others. These results indicate that the MD unsupervised impurity is the most suited to the LT+TL AUROC evaluation setting. Furthermore, we see that the random strategy to select the supervision amount %TODO
 is among the best in both ILR=70\% and ILR=90\%, suggesting that increasing diversity among the trees could be the main mechanism behind the improvement of the semi-supervised models, rather than necessarily guessing the best $\sigma$ at each tree node. Since md size is also among the best, it is not clear if the advantage of md size over the other models is due to a better choice of $\sigma$ or to a more stochastic nature of the $\sigma$s it selects.
 %
@@ -3478,8 +3594,11 @@ As for TT AUROC, only ILR=90\% yielded significant comparisons. In this case, th
 
 Under LT+TL AP, md fixed significantly outperformed the other models for ILR=50\% and ILR=70\%. For ILR=0\%, md fixed is also the first place, but could not be statistically resolved from the second place ad size. AD size was also the second best model for ILR=0\%, 50\%, 70\%, statistically outperforming all but md fixed in ILR=70\%.
 
-Finally, with respect to TT AP, the AD strategies prevail, being the best four models for ILR=50\% and ILR=70\%, and being among the five best models for ILR=0\%. The presence of AD random among the best models again suggests that the main factor for performance improvement is tree-diversity.
+With respect to TT AP, the AD strategies prevail, being the best four models for ILR=50\% and ILR=70\%, and being among the five best models for ILR=0\%. The presence of AD random among the best models again suggests that tree-diversity is an important factor for performance improvement.
+%
+It seems that AD models perform overall better according to AP in comparison to AUROC. This is consistent with the discussion in \autoref{sec:comparing auroc aupr}: AP tends to prioritize models more tighly related to the observed labels, assuming less risk of false positives. AD is the strategy that is less influenced by the unsupervised impurity function.
 
+In conclusion, the best unsupervised impurity under LT+TL seems to be the mean distance, and AD seems to be the best for AP TT. The best strategy for determining $\sigma$ seems to be either size or fixed, but more experiments are needed to confirm this finding.
 % TODO more discussion
 % TODO size vs fixed
 
@@ -3594,10 +3713,36 @@ Finally, with respect to TT AP, the AD strategies prevail, being the best four m
 \end{figure*}
 
 
-\subsection{Comparison between different forests}  % TODO
+\subsection{Which forests are the best?}
 \label{sec:best_forests}
 
-Based on the results of \autoref{sec:y_reconstruction}, we select the following models for further comparison:
+\begin{mdframed}
+    \textbf{Key findings:}
+    \begin{itemize}
+        \item Semi-supervised impurities are beneficial in terms of AUROC, especially when more annotations are missing.  % And not exactly for AP
+        \item Label imputation with NRLMF is better than semi-supervised impurities.
+        \item BXT are superior to BRF in all settings.
+    \end{itemize}
+\end{mdframed}
+
+% TODO bxt better than brf?
+In this experiment, we compare the performances of various models from the previous sections. For more information on each model see the corresponding section in the list bellow.
+
+\begin{itemize}
+    \item \textbf{BXT-GSO, BRF-LMO:}
+    Bipartite forests without label imputation.
+    See \autoref{sec:adaptation_comparison} for more information.
+    \item \textbf{MD SIZE, MD FIXED, AD SIZE, AD FIXED:}
+    Bipartite forests employing semi-supervised impurities.
+    See \autoref{sec:ss_comparison}.
+    %\item \textbf{BRF GMO NRLMF, BXT GMO NRLMF, BXT GSO NRLMF, BXT GMOSA NRLMF:} 
+    \item \textbf{Models with the NRLMF suffix:} 
+    Bipartite forests using NRLMF to impute positive annotations.
+    See \autoref{sec:y_reconstruction}.
+\end{itemize}
+%For information on models BXT GSO and BRF LMO, see \autoref{sec:adaptation_comparison}. For information on MD SIZE, MD FIXED, AD SIZE and AD FIXED, see \autoref{sec:ss_comparison}. For information on 
+
+%Based on the results of \autoref{sec:y_reconstruction}, we select the following models for further comparison:
 
 % TODO: nrlmf very efficient for missing data
 % gmo is faster than full trees
@@ -3742,10 +3887,54 @@ When comapring the BXT against the BRF models, we notice that BXT GMO NRLMF sign
 % \end{table}
 
 
-\subsection{Comparison with previous works}
+%\subsection{Comparison with previous algorithms}
+%\subsection{Can bipartite forests compete with the state-of-the-art?}
+\subsection{Can bipartite forests compete with other proposals?}
 \label{sec:comparison literature}
 
+\begin{mdframed}
+    \textbf{Key findings:}
+    \begin{itemize}
+        \item Forests with NRLMF surpass NRLMF alone.
+        \item BXT GMO NRLMF is the best overall performer, with the exception of LT+TL AP. 
+        \item For LT+TL AP, BXT GSO NRLMF and BXT GMOSA NRLMF are the best models overall.
+        % TODO \item who is more affected by missing labels? gso and gmo
+    \end{itemize}
+\end{mdframed}
+
+In this section we compare the two most promising methods we developed (BXT GMO NRLMF and BXT GSO NRLMF) with several prominent models from the literature. 
+%
 The algorithms being considered in this section are listed below, and their scoring results are shown by \autoref{fig:comparison literature}.
+
+\begin{itemize}
+    \item \textbf{BXT GSO NRLMF, BXT GMOSA NRLMF, BXT-GMO-NRLMF:} Ensembles of randomized trees using the NRLMF model to impute missing annotations. The GSO model implements our optimized method for growing the trees. GMOSA uses the global multi output strategy developed by \cite{pliakos2018global}. Both GSO and GMOSA grows the trees to their maximum depth. GMO uses the weighted-neighbors prototype we developed in \autoref{sec:prototype}, and enforces at least 5 samples of each domain in each leaf. See \autoref{sec:prototype_comparison} and \autoref{sec:y_reconstruction} for more information.
+    % \item \textbf{BXT GMO NRLMF:} Bipartite ensemble of randomized trees using the NRLMF model to impute missing annotations. 
+    % \item \textbf{BXT GSO NRLMF:}
+    % \item \textbf{BXT GMOSA NRLMF:}
+
+    \item \textbf{NRLMF:} Neighborhood-Regularized Logistic Matrix Factorization, as proposed by \cite{liu2016neighborhood} and described in \autoref{sec:neighborhood regularization}. See \autoref{sec:y_reconstruction} for the hyperparameters we utilized.
+
+     % TODO other section
+    \item \textbf{Kron-RLS:} Kronecker Regularized Least Squares, as proposed by \cite{vanlaarhoven2011gaussian} and described in \autoref{sec:kron rls}.
+    Each of the two input kernel matrices was taken as a linear combination of the similarity matrix and the gaussian interaction profiles~\cite{vanlaarhoven2011gaussian} (\autoref{eq:}).
+    The weight of the similarity kernel in this combination (the $\alpha$ parameter), was selected between the values \{0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0\}.
+    The selection was performed in each fold by an internal 5 by 5 bipartite diagonal CV procedure (\autoref{sec:cross_validation}).
+
+    \item \textbf{LMO RLS:} SLMO adaptation (\autoref{sec:slmo}) of Regularized Least Squares, as proposed by \cite{vanlaarhoven2011gaussian} as RLS-avg. Both the primary and secondary models were multi-output kernel Ridge regressors~\cite{}. 
+    As Kron-RLS, the input features were linear combinations of similarity matrices and gaussian interactions profiles. The $\alpha$ parameter was selected in the same way as in Kron-RLS.
+
+    % TODO: section for weighted nearest neighbors
+    \item \textbf{BLMNII RLS:} Bipartite local models~\cite{yamanishi2008prediction,bleakley2009supervised} with neighbor-based interaction-profile inferring~\cite{mei2013drug}. They use the SLMO strategy (\autoref{sec:slmo}), employing a weighted-neighbors technique (\autoref{sec:dwnn}) for the primary estimators and kernel Ridge regression~\cite{} models as secondary estimators.
+    As Kron-RLS, the input features were linear combinations of similarity matrices and gaussian interactions profiles~\cite{vanlaarhoven2011gaussian}. The $\alpha$ parameter was selected in the same way as in Kron-RLS.
+
+    \item \textbf{BLMNII SVM:} The same as BLMNII RLS, but using support vector machines~\cite{} as secondary estimators instead of regularized least squares.
+
+    \item \textbf{DTHybrid:} Method proposed by \cite{dthybrid} that combines the similarity kernels with network features of each domain calculated from the interaction matrix. A weighted-neighbors approach is then used to predict new interactions.  % TODO I think it is not originally proposed for new instances
+
+    \item \textbf{MLP:} Multi-layer perceptron~\cite{} model adapted with the SGSO strategy (\autoref{sec:sgso}). We performed random undersampling of negative annotations so that the model was trained on equal number of negative and positive labels. 
+    The architecture was selected at each fold between four options: 5 hidden layers of 100 neurons; 10 hidden layers of 50 neurons; 5 hidden layers with [200, 100, 100, 100, 50] neurons; and 6 hidden layers of [1024, 512, 256, 128, 64, 32] neurons. The architecture selection in each fold was performed by an internal 5 by 5 bipartite diagonal CV procedure (\autoref{sec:cross_validation}).
+    The activation function was always the rectified linear unit, and ADAM~\cite{adam} was the chosen optimizer. Other parameters were kept as the defaults from the scikit-learn library~\cite{sklearn}.
+\end{itemize}
 
 BXT GMO NRLMF was the best ranked model in 11 out of the 16 test settings analysed. The exceptions were the four LT+TL AP configurations and TT AP 0\%. In TT AP 0\%, BXT GMO NRLMF was only behind lmo rls, and among the three models that could not be statistically distinguished from lmo rls (the others being kron rls bxt and gmosa nrlmf). In LT+TL AUROC 0\%, the comparison between BXT GMO NRLMF and the second best model, bxt gmosa nrlmf, was also not statistically significant. In the remaining 10 cases where BXT GMO NRLMF prevails, it was significantly better than all other learning algorithms analysed.
 
@@ -3760,7 +3949,7 @@ According to the discussion in \autoref{sec:comparing auroc aupr}, this could me
 %This would suggest that only a small number of interactions in the dataset can be modeled by a linear relationship, and that 
 
 Conversely, the performance of BXT GMO NRLMF for the LT+TL AP setting seems to improve relative to the other models as the number of missing annotations increases. A possible explanation comes from BXT GMO having higher generalization capabilities, as demonstrated in the TT AUROC setting. Notice that the LT+TL setting could possibly still benefit from some form of overfitting, since it considers instances that are present in the training set (\autoref{sec:cross_validation}). However, being able to generalize becomes more important as the number of missing annotations increases, since the model has to rely on less information to make predictions. And that could be why we see the BXT GMO NRLMF model being more valued in the LT+TL AP setting for higher ILR.
-Additionally, we hypothesize that the AP metric could be less sensitive than AUROC to this ability of discovering missing positives \autoref{sec:comparing auroc aupr}, which explains why AUROC does not show the same pattern as AP in the LT+TL setting.
+Additionally, we argue that the AP metric is less sensitive than AUROC to this ability of discovering missing positives \autoref{sec:comparing auroc aupr}, which explains why AUROC does not show the same pattern as AP in the LT+TL setting.
 
 % one could use c estimation to choose the best model based on the amout of missing annotations
 
@@ -3883,101 +4072,88 @@ Additionally, we hypothesize that the AP metric could be less sensitive than AUR
 \end{figure*}
 
 
-\subsection{Drug-Target affinity prediction}
-
-In this section, we evaluate bipartite forests performance in a bipartite regression dataset, comparing them to state of the art deep neural networks.
-
-\begin{itemize}
-    \item deep\_dta\_raw: Uses convolutional layers to encode raw amino acid sequences and SMILES strings of drug molecules. DeepDTA \cite{Ozturk_2018}
-    \item transformer\_raw: DNN employing transformer modules to embedd the raw amino acid sequence of target proteins and SMILES string of drug molecules. Parameters were based on MolTrans \cite{}
-\end{itemize}
-
-The bxt\_gmosa model \cite{Pliakos_2020} significantly outperforms both neural networks and brf\_gso in all scenarios. bxt\_gso also outperforms the neural networks and brf\_gso in the TT setting, and score significantly higher than brf\_gso and transformer\_raw in the remaining configurations. Most impressively, the forest models take considerably less time to train than the neural networks given the experimental setup, as shown by Figure \ref{fig:davis_mse}, with the bxt\_gso still displaying highly competitive performance despite providing sensible gains in time complexity in comparison to the GMO forests and a naive GSO implementation (see sections \ref{sec:complexity_analysis} and \ref{sec:empirical_complexity}).
-
-This result points bipartite ExtraTree ensembles as state-of-the-art regression models in drug-target affinity prediction tasks, with highly competitive improvements in training efficiency.
-
-% TODO: comment on GPU possible improvements
-
-%\begin{figure*}
-%    \centering
-%    \begin{subfigure}{0.24\textwidth}
-%        \includegraphics[width=\textwidth]{
-%            experiments/neural_nets/statistical_comparisons/%
-%            davis__boxplot__LT_neg_mean_squared_error.pdf
-%        }
-%        \caption{Negative mean squared error on the LT test set.}
-%    \end{subfigure}
-%    \begin{subfigure}{0.24\textwidth}
-%        \includegraphics[width=\textwidth]{
-%            experiments/neural_nets/statistical_comparisons/%
-%            davis__boxplot__TL_neg_mean_squared_error.pdf
-%        }
-%        \caption{Negative mean squared error on the TL test set.}
-%    \end{subfigure}
-%    \begin{subfigure}{0.24\textwidth}
-%        \includegraphics[width=\textwidth]{
-%            experiments/neural_nets/statistical_comparisons/%
-%            davis__boxplot__TT_neg_mean_squared_error.pdf
-%        }
-%        \caption{Negative mean squared error on the TT test set.}
-%    \end{subfigure}
-%    \begin{subfigure}{0.24\textwidth}
-%        \includegraphics[width=\textwidth]{
-%            experiments/neural_nets/statistical_comparisons/%
-%            davis__boxplot__fit_time.pdf
-%        }
-%        \caption{Training duration in seconds.}
-%    \end{subfigure}
+%\subsection{Drug-Target affinity prediction}
 %
-%    \begin{subfigure}{0.24\textwidth}
-%        \includegraphics[width=\textwidth]{
-%            experiments/neural_nets/statistical_comparisons/%
-%            davis__boxplot__LT_r2.pdf
-%        }
-%        \caption{$R^2$ score on the LT test set.}
-%    \end{subfigure}
-%    \begin{subfigure}{0.24\textwidth}
-%        \includegraphics[width=\textwidth]{
-%            experiments/neural_nets/statistical_comparisons/%
-%            davis__boxplot__TL_r2.pdf
-%        }
-%        \caption{$R^2$ score on the TL test set.}
-%    \end{subfigure}
-%    \begin{subfigure}{0.24\textwidth}
-%        \includegraphics[width=\textwidth]{
-%            experiments/neural_nets/statistical_comparisons/%
-%            davis__boxplot__TT_r2.pdf
-%        }
-%        \caption{$R^2$ score on the TT test set.}
-%    \end{subfigure}
-%    \begin{subfigure}{0.24\textwidth}
-%        \includegraphics[width=\textwidth]{
-%            experiments/neural_nets/statistical_comparisons/%
-%            davis__boxplot__score_time.pdf
-%        }
-%        \caption{Prediction duration in seconds.}
-%    \end{subfigure}
+%In this section, we evaluate bipartite forests performance in a bipartite regression dataset, comparing them to state of the art deep neural networks.
 %
-%    \caption{Model performance on the DAVIS dataset.}
-%    \label{fig:davis_mse}
-%\end{figure*}
+%\begin{itemize}
+%    \item deep\_dta\_raw: Uses convolutional layers to encode raw amino acid sequences and SMILES strings of drug molecules. DeepDTA \cite{Ozturk_2018}
+%    \item transformer\_raw: DNN employing transformer modules to embedd the raw amino acid sequence of target proteins and SMILES string of drug molecules. Parameters were based on MolTrans \cite{}
+%\end{itemize}
+%
+%The bxt\_gmosa model \cite{Pliakos_2020} significantly outperforms both neural networks and brf\_gso in all scenarios. bxt\_gso also outperforms the neural networks and brf\_gso in the TT setting, and score significantly higher than brf\_gso and transformer\_raw in the remaining configurations. Most impressively, the forest models take considerably less time to train than the neural networks given the experimental setup, as shown by Figure \ref{fig:davis_mse}, with the bxt\_gso still displaying highly competitive performance despite providing sensible gains in time complexity in comparison to the GMO forests and a naive GSO implementation (see sections \ref{sec:complexity_analysis} and \ref{sec:empirical_complexity}).
+%
+%This result points bipartite ExtraTree ensembles as state-of-the-art regression models in drug-target affinity prediction tasks, with highly competitive improvements in training efficiency.
+%
+%% TODO: comment on GPU possible improvements
+%
+%%\begin{figure*}
+%%    \centering
+%%    \begin{subfigure}{0.24\textwidth}
+%%        \includegraphics[width=\textwidth]{
+%%            experiments/neural_nets/statistical_comparisons/%
+%%            davis__boxplot__LT_neg_mean_squared_error.pdf
+%%        }
+%%        \caption{Negative mean squared error on the LT test set.}
+%%    \end{subfigure}
+%%    \begin{subfigure}{0.24\textwidth}
+%%        \includegraphics[width=\textwidth]{
+%%            experiments/neural_nets/statistical_comparisons/%
+%%            davis__boxplot__TL_neg_mean_squared_error.pdf
+%%        }
+%%        \caption{Negative mean squared error on the TL test set.}
+%%    \end{subfigure}
+%%    \begin{subfigure}{0.24\textwidth}
+%%        \includegraphics[width=\textwidth]{
+%%            experiments/neural_nets/statistical_comparisons/%
+%%            davis__boxplot__TT_neg_mean_squared_error.pdf
+%%        }
+%%        \caption{Negative mean squared error on the TT test set.}
+%%    \end{subfigure}
+%%    \begin{subfigure}{0.24\textwidth}
+%%        \includegraphics[width=\textwidth]{
+%%            experiments/neural_nets/statistical_comparisons/%
+%%            davis__boxplot__fit_time.pdf
+%%        }
+%%        \caption{Training duration in seconds.}
+%%    \end{subfigure}
+%%
+%%    \begin{subfigure}{0.24\textwidth}
+%%        \includegraphics[width=\textwidth]{
+%%            experiments/neural_nets/statistical_comparisons/%
+%%            davis__boxplot__LT_r2.pdf
+%%        }
+%%        \caption{$R^2$ score on the LT test set.}
+%%    \end{subfigure}
+%%    \begin{subfigure}{0.24\textwidth}
+%%        \includegraphics[width=\textwidth]{
+%%            experiments/neural_nets/statistical_comparisons/%
+%%            davis__boxplot__TL_r2.pdf
+%%        }
+%%        \caption{$R^2$ score on the TL test set.}
+%%    \end{subfigure}
+%%    \begin{subfigure}{0.24\textwidth}
+%%        \includegraphics[width=\textwidth]{
+%%            experiments/neural_nets/statistical_comparisons/%
+%%            davis__boxplot__TT_r2.pdf
+%%        }
+%%        \caption{$R^2$ score on the TT test set.}
+%%    \end{subfigure}
+%%    \begin{subfigure}{0.24\textwidth}
+%%        \includegraphics[width=\textwidth]{
+%%            experiments/neural_nets/statistical_comparisons/%
+%%            davis__boxplot__score_time.pdf
+%%        }
+%%        \caption{Prediction duration in seconds.}
+%%    \end{subfigure}
+%%
+%%    \caption{Model performance on the DAVIS dataset.}
+%%    \label{fig:davis_mse}
+%%\end{figure*}
 
 
-\section{Final remarks}
-
-A new Biclustering Random Forest (BRF), and semi-supervised tree-ensembles models were proposed.
-
-The BRF estimator obtained competitive scores against the original PBCT ensemble model eBICT, with nearly 0.1 higher AUROC median on completely new test sets, although not statistically significant.
-
-Using only the splitting feature column to calculate impurity lead to poorer results and thus needs technique refinements for future analyses.
-
+%TODO
 % \subsection{Next steps}
-% prunning
-% 
-% datasets
-% 
-% boosting
-% 
 % monopartite to bipartite approximation
 % 
 % n-partite data

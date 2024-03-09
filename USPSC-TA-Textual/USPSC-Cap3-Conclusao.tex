@@ -6,6 +6,10 @@
 
 In this chapter, we summarize the main findings of this work and discuss future research directions.
 
+\section{Main findings}
+
+We now list our final answers to the research questions proposed in \autoref{sec:objectives}.
+
 \begin{enumerate}
     \item \textbf{Can bipartite trees be faster?}
 
@@ -83,7 +87,10 @@ In this chapter, we summarize the main findings of this work and discuss future 
 %     \item \textbf{Accessible implementation}
 % \end{enumerate}
 
+
 \section{Future work}
+
+The present study opened several paths for future research. We list some of the most promising ones below.
 
 \begin{enumerate}
     \item \textbf{Adding noise to the impurity}
@@ -93,7 +100,7 @@ In this chapter, we summarize the main findings of this work and discuss future 
     Hence, we propose adding noise to the supervised impurity and compare the results with supervised and semisupervised trees. The experiment could bring insights into the importance of different impurities in comparison with adding diversity to the trees.
 
 
-    \item \textbf{There are a lot of unsupervised impurities to be explored}
+    \item \textbf{There is a lot of unsupervised impurities to be explored}
 
     The present work explored two options of unsupervised impurity functions, that are utilized for training semi-supervised decision trees. However, unsupervised decision trees are a vast topic to explore. Many other approaches could be brought to the bipartite setting, with potential benefits for the predictive performance and scalability of the forests.
     For instance, several works use a single feature column to determine an unsupervised impurity~\cite{}. Their reasoning is that the most significant change in impurity will result from the feature being used to select the split points. This feature is previously ordered by the algorithm. Therefore, other feature columns can be disregarded.
@@ -106,24 +113,43 @@ In this chapter, we summarize the main findings of this work and discuss future 
 
     As previous studies, we used neighborhood-regularized matrix factorization (NRLMF) to impute positive annotations before training bipartite forests. The results were promising, but many other methods for label imputation could be explored. 
 
-    For instance, the neighborhood regularization terms are not strictly necessary if the labels are used to train a second model. Their main importance is in inferring labels for new instances, which could be done solely be the downstream model in this case.
+    The neighborhood regularization terms are not strictly necessary if the labels are used to train a second model. Their main importance is in inferring labels for new instances, which could be done solely be the downstream model in this case.
     Therefore, it is possible that simpler methods achieve similar results in less time (logistic matrix factorization~\cite{johnsonlogistic}, for example).
 
     Additionally, there have been further developments of NRLMF that could be explored. NRLMF-$\beta$~\cite{ban2019nrlmf} adds beta-distribution-rescoring to the outputs of NRLMF. Dual network integrated logistic matrix factorization~\cite{zhang2019dnimf,li2019dnilmflda} uses a concept similar to NRLMF, but merging the similarity matrices with the interaction matrix before factorization.
 
     Other than matrix factorization, potentially any estimator could be utilized, even the same forest algorithms used for the final inference. This would be a form of self-learning, where the model is trained with the labels it has inferred~\cite{}. In a similar fashion, co-training could be used, where models are trained in separate folds and then used to infer labels for the other models~\cite{}.
 
-    Cascade forests~\cite{} take this process one step further, by training a sequence of forests where each one is trained with the labels inferred by the previous one. Recently, more sophisticated cascades employ 
+    %Cascade forests~\cite{} take this process one step further, by training a sequence of forests where each one is trained with the labels inferred by the previous one. Recently, more sophisticated cascades employ 
 
-    Self-learning, simple random walk, other MF (neighborhood regularization is not strictly needed).
+    %DTHybrid
+
+    %Self-learning, simple random walk, other MF (neighborhood regularization is not strictly needed).
 
     %\item \textbf{Compression of the dataset.} 2D Histograms?
-    \item \textbf{BGSO in combination with weighted-neighbors prototypes.}
-    \item \textbf{Other forest algorithms}
-    Other tree-based algorithms 
+    %\item \textbf{BGSO in combination with weighted-neighbors prototypes.}
 
-    Gradient boosting, Rotation Forests, Fuzzy Forests, Oblique Random Forests, Deep forests
-    \item \textbf{Other fields.} Multi-label and weak-label learning, recommendation systems (talk about vertical feature extraction).
-    \item \textbf{Specific applications.} miRNA and lncRNA, etc
-    \item \textbf{Explainable artificial intelligence} miRNA and lncRNA, etc
+    \item \textbf{Other forest algorithms}
+
+    There is a variety of tree-based algorithms that could be adapted to the bipartite setting but were not explored in this work. Some of them are: Gradient Boosting Machines~\cite{}, Rotation Forests~\cite{}, Fuzzy Forests~\cite{}, Oblique Random Forests~\cite{} and Deep forests~\cite{}.
+
+    \item \textbf{Other fields}
+
+    The present study concentrated on scenarios in which both instance domains have respective feature matrices. However, bipartite forests could also be extended to contexts where only one of the domains has side-features (dyadic prediction, multi-label learning, weak-label learning) or even to scenarios where both domains are featureless (collaborative filtering, recommendation systems).
+    %
+    In these cases, features can be extracted from the interaction matrix itself, for instance, as gaussian interaction profiles~\cite{vanlaarhoven2011gaussian}.
+
+    %A bipartite forest would then be an efficient way to tackle the problem.
+    For multi-output scenarios, bipartite forests 
+    %For example, in multi-label learning, bipartite trees
+    can learn to partition the label matrix both horizontally and vertically, learning patterns that are specific for certain groups of outputs. This property is explored by \cite{zaminth} for single trees and hierarchical multi-label learning.
+
+    Weak-label learning could also be approached in a similar way. The difference from traditional multi-label learning is that negative annotations are not validated, similarly to the PU learning~\cite{bekker2020learning} setting of the present work. As such, the semi-supervised techniques we developed could be especially advantageous for weak-label learning.
+
+    %Multi-label and weak-label learning, recommendation systems (talk about vertical feature extraction).
+    % \item \textbf{Specific applications.} miRNA and lncRNA, etc
+    \item \textbf{Explainable artificial intelligence}
+
+    Decision Forests have remarkable interpretability properties that were not explored in the present work. Future studies could exploit explanation techniques~\cite{mdi, mdi+, treeshap} to provide new insights into the nature of each learning task.
+    For instance, in mircroRNA-gene interaction prediction, it would be interesting to pinpoint specific positions or sequence motifs that are relevant for the interaction.
 \end{enumerate}
