@@ -156,9 +156,9 @@ Since each sample in $X_1$ refers to a \emph{row} of $Y$ and each sample in
 $X_2$ corresponds to a \emph{column} of $Y$, we sometimes refer to the sample
 domains of $X_1$ and $X_2$ as \emph{row samples} and \emph{column samples},
 respectively.
-%We call these datasets \emph{bipartite}, to differentiate from the more common \emph{monopartite} problems, in which a single $X$ matrix is utilized.
+%We call these datasets \emph{bipartite}, to differentiate from the more common \emph{traditional} problems, in which a single $X$ matrix is utilized.
 We call these datasets \emph{bipartite}, to differentiate from the more common problems in which a single $X$ matrix is utilized.
-%TODO monopartite?
+%TODO traditional?
 
 %PU data, binary, drug-target
 
@@ -184,49 +184,57 @@ We call these datasets \emph{bipartite}, to differentiate from the more common p
 \section{Data-centered adaptations of learning algorithms to bipartite interaction prediction}
 \label{sec:standard adaptations}
 
-As previously stated in \autoref{sec:problem_statement}, bipartite interaction problems fundamentally differ from the usual machine learning paradigm, in which input data represents a single entity to be labeled. Interaction tasks are instead concerned with labeling a relationship between two entities, and as such, each prediction is made upon a pair of feature vectors, each vector being specific to each of the two sample domains.
+%As previously stated in \autoref{sec:problem_statement},
+As previously discussed,
+bipartite interaction problems fundamentally differ from the usual machine learning paradigm, in which input data represents a single entity to be labeled. Interaction tasks are instead concerned with labeling a relationship between two entities, and as such, each prediction is made upon a pair of feature vectors, each vector being specific to each of the two sample domains.
 
 Such subtlety is most often bypassed by reformulating a bipartite dataset into the traditional machine learning setting~\cite{vert2008reconstruction}.
 %
 These strategies can be encompassed under two general approaches, initially termed \emph{global} and \emph{local} by \textcite{vert2008reconstruction} and later adopted and extended by \textcite{sschrynemackers2015}.  %TODO cite more
 % TODO maybe direct citation to specify our changes
-Aiming to enhance clarity and generalization, we further refine these categories by defining \emph{global} and \emph{local} as general properties of bipartite estimators, rather than specific training procedures:
-
+For the sake of clarity and generality, we further specify these categories by defining \emph{global} and \emph{local} as general properties of estimators, rather than specific training procedures:
+%
 \begin{itemize}
     \item \emph{\textbf{Global}} estimators are those aware of both instance domains during the training procedure ($X_1$ and $X_2$).
     \item \emph{\textbf{Local}} estimators are those which only have access to feature information from one of the two instance domains during training (either $X_1$ or $X_2$).
     As such, they are often employed in compositions, combining the predictions of several local models to produce the final output.
 \end{itemize}
-
-%We refer to \emph{monopartite} estimators as those who are not specifically designed to deal with bipartite data, and \emph{bipartite} estimators as those who are. This distinction is important to differentiate between estimators that are naturally able to deal with bipartite data and those who are not, but can be adapted to do so.
-Furthermore, to be consistent with \textcite{pliakos2018,pliakos2019,pliakos2020}, in our current context of bipartite interactions we assume that:
-
+%
+%We refer to \emph{traditional} estimators as those who are not specifically designed to deal with bipartite data, and \emph{bipartite} estimators as those who are. This distinction is important to differentiate between estimators that are naturally able to deal with bipartite data and those who are not, but can be adapted to do so.
+Furthermore, to be consistent with \cite{schrynemackers2015classifying,pliakos2018,pliakos2019,pliakos2020}, we assume the following definitions in our current context of bipartite interactions:
+%
 \begin{itemize}
-    \item \emph{\textbf{Single-output}} estimators are those which consider all labels, i.e. all $Y\el{ij}$ elements, irrespectively of the column $j$ or row $i$ they are in. They are all regarded as a single type of output\footnote{Notice that the label matrix $Y$ could be still represented in two dimensions even if the model is single-output in this sense, contrary to the usual case where bidimensionality of $Y$ is a defining characteristic of a multi-output problem.}.
+    \item \emph{\textbf{Single-output}} estimators are those which consider all labels, i.e. all $Y\el{ij}$ elements, irrespectively of the column $j$ or row $i$ they are in. They are all regarded as a \emph{single type of output}.
     \item \emph{\textbf{Multi-output}} estimators, on the other hand, are those which consider each instance, each row or column of $Y$, as a separate task, for example by defining a composite loss function formed by the combination of losses over each row or column.
 \end{itemize}
-%TODO another term for multi-output, please. This is too confusing with multi-output in the monopartite sense. bipartite multi-output are local models that use multi-output monopartite estimators? or 3D interaction matrices with multiple labels for each interaciton?
+%TODO another term for multi-output, please. This is too confusing with multi-output in the traditional sense. bipartite multi-output are local models that use multi-output traditional estimators? or 3D interaction matrices with multiple labels for each interaciton?
+Notice that the label matrix $Y$ can still be represented in two dimensions even if the model is single-output in this sense, contrary to the usual case where bidimensionality of $Y$ is a defining characteristic of a multi-output problem.
 
-Finally, the two most common ways of adapting monopartite estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \textcite{pliakos2018,pliakos2019,pliakos2020}. We further denote them \empth{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
-
+Finally, the two most common ways of adapting traditional estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \textcite{pliakos2018,pliakos2019,pliakos2020}. We further denote them \empth{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
+%
 Specific definitions and shortcomings of these procedures are now presented.
 
 
-\subsubsection{The standard global single-output adaptation}
+\subsection{The standard global single-output adaptation}
 \label{sec:sgso}
 
 % TODO define SGSO acronym
 %TODO literature (ben-hur? vert? pliakos? schynemackers?)
-Arguably the most straightforward and commonly used strategy of formatting bipartite data to be inputted into conventional monopartite estimators is through presenting concatenated pairs of row-column samples, labeled by each element of $Y$.
+%Arguably the most straightforward and commonly used bipartite adaptation strategy
+Arguably the most straightforward way to provide bipartite data into a conventional learning algorithm 
+%strategy for adapting bipartite data to
+%be inputted into
+%conventional estimators.
+%is through presenting concatenated pairs of row-column samples, labeled by each element of $Y$.
+is by presenting concatenated pairs of row-column samples, labeled by each element of $Y$.
 %
-The interacting pair itself is what we abstract as a sample
-in this case, with its attributes being its component objects' attributes
-combined. This is usually done by converting the two $X$ matrices and the
-interaction matrix $Y$ to a single design matrix we call $X_\text{SGSO}$ and a column-vector
- of labels we refer to as $Y_\text{SGSO}$.
+% The interacting dyad itself is what we abstract as a sample in this case.
+The interacting dyad is now what we consider a sample, and each feature vector is the combination of the feature vectors of the two interacting instances.
+% , and each feature vector is the combination of the feature vectors.
+This is usually done by converting the two $X$ matrices and the
+interaction matrix $Y$ to a single design matrix we call $X_\text{SGSO}$ and a column-vector of labels we refer to as $Y_\text{SGSO}$.
 
-One way of
-doing so is by choosing indices as described by \autoref{eq:gsodata}, where
+One way of doing so is by choosing indices as described by \autoref{eq:gsodata}, where
 $\begin{bmatrix} x_1 & x_2\end{bmatrix}$ denotes concatenation and all $i_1$ and
 $i_2$ combinations are explored (see \autoref{fig:sgso}).
 %$f\colon (X_1\el{i\cdot},\; X_2\el{k\cdot}) \mapsto Y\el{ik}$.  To make use of
@@ -252,37 +260,49 @@ $i_2$ combinations are explored (see \autoref{fig:sgso}).
     \label{eq:gsodata}
 \end{equation}
 
-Notice that, in order to consider the interactions of all possible pairs, $X_\text{SGSO}$ would have $|X_1|_i|X_2|_i$ rows and $|X_1|_j+|X_2|_j$ columns, with $Y_\text{SGSO}$ having a single column but all the same $|X_1|_i|X_2|_i$ elements as $Y$. Thus, while reformatting $Y$ has no impact in memory usage, $X_\text{SGSO}$ as defined by \autoref{eq:gsodata} is highly redundant.
+To consider all possible dyads, $X_\text{SGSO}$ would have $|X_1|_i|X_2|_i$ rows and $|X_1|_j+|X_2|_j$ columns. Thus, $X_\text{SGSO}$ as defined by \autoref{eq:gsodata} is highly redundant.
+%Reformatting $Y$ has no impact in memory usage, with $Y_\text{SGSO}$ having a single column but all the same $|X_1|_i|X_2|_i$ elements as $Y$.
 %However, as stated in section \ref{sec:definitions}, $X_\text{SGSO}$ would be a $|X_1|_i|X_2|_i$ by $|X_1|_j+|X_2|_j$ matrix if one intends to consider all interactions in $Y$, which
-As a result, naively dealing with such a large $X_\text{SGSO}$ matrix is impeditive in many cases, both in terms of memory usage and computation time. Therefore, a commonly used workaround is to subsample the 0-labeled interactions, yielding a dataset with equal amounts of interacting (1-labeled) and unknown (0-labeled) pairs~\cite{}.
-Although unknown, the 0-labeled pairs are usually far more numerous than 1-labeled and much more likely to be truly negative interactions than false negatives (see Section \ref{}), justifying the negatives-undersampling strategy. Despite such reasoning, we demonstrate in \autoref{} that taking all negative samples into consideration instead has significant benefits, and we propose new model optimizations to enable it (\autoref{}).
+As a result, naively dealing with such a large $X_\text{SGSO}$ matrix is impeditive in many cases, both in terms of memory usage and computation time. Therefore, a commonly used workaround is to undersample the negative annotations, yielding a dataset with equal amounts of positive and negative interactions~\cite{}.
+This strategy is justified by the negative-annotated dyads being usually far more numerous than positives and much more likely to be truly negative interactions than false negatives~\cite{}.
+%Despite such reasoning, we demonstrate in \autoref{} that taking all negative samples into consideration instead has significant benefits, and we propose new model optimizations to enable it (\autoref{}).
+Nonetheless, we demonstrate in \autoref{sec:adaptation_comparison} that undersampling negatives is significantly detrimental if the main goal is to indicate wich interactions are most likely to be true.
 
 % TODO cross-validation is naively done
 
-\subsubsection{The standard local multi-output adaptation}
+\subsection{The standard local multi-output adaptation}
 \label{sec:slmo}
 
-The local approaches, in contrast to global methods, propose training different models on $X_1$ and $X_2$, so that each single model only has access to information regarding either row samples or column samples.
+The local approaches, in contrast to global methods, propose training different models on $X_1$ and $X_2$, so that each estimator only has access to information regarding either row samples or column samples.
 
-As such, multiple monopartite models need to be used in conjunction to predict interactions between new row samples and new column samples. The standard local multi-output (SLMO) approach uses four monopartite models, two for each axis, that we here refer to as \emph{primary} and \emph{secondary} rows (or columns) estimators. In general, they must be multi-output estimators, each being able to receive $X_\text{train}$ and $Y_\text{train}$ bi-dimensional matrices in the training step, receive an $X_\text{new}$ in the prediction step such that $|X_\text{new}|_j=|X_\text{train}|_j$, and outputting $Y_\text{pred}$ with $|Y_\text{pred}|_i=|X_\text{new}|_i$ newly predicted rows and $|Y_\text{pred}|_j = |Y_\text{train}|_j$ output columns.
+As such, multiple non-bipartite models need to be used in conjunction to predict interactions between new row samples and new column samples. The standard local multi-output (SLMO) approach uses two traditional estimators for each axis (four in total), that we here refer to as \emph{primary} and \emph{secondary} estimators.
+In general, they must be multi-output estimators, each being able to output a bidimensional $Y$ matrix.
+%receive $X_\text{train}$ and $Y_\text{train}$ bidimensional matrices in the training step, receive an $X_\text{new}$ in the prediction step such that $|X_\text{new}|_j=|X_\text{train}|_j$, and outputting $Y_\text{pred}$ with $|Y_\text{pred}|_i=|X_\text{new}|_i$ newly predicted rows and $|Y_\text{pred}|_j = |Y_\text{train}|_j$ output columns.
 
-The procedure for training the estimators in an SLMO setting consists of simply training the primary estimators, the primary rows estimator being trained on $X_1$ and $Y$, and the primary columns estimator on $X_2$ and $Y^\intercal$ (\autoref{alg:train_local_model}). The prediction step is however more complicated, involving the training of the secondary models on the newly predicted labels by the primary estimators, optionally combined with the original training data. The procedure is described in details by \autoref{alg:predict_local_model} and illustrated by \autoref{fig:slmo}. The \KwCombine function used in line \autoref{ln:combine_local_outputs} of the \autoref{alg:predict_local_model} procedure can be arbitrarily chosen, and is usually defined as the simple element-wise average of both matrices (\KwCombine{$Y_1$, $Y_2$} $= \frac{1}{2}(Y_1 + Y_2)$).
+The procedure for training the estimators in an SLMO setting consists of simply training the primary estimators. The primary rows estimator is trained on $X_1$ and $Y$, and the primary columns estimator on $X_2$ and $Y^\intercal$ (\autoref{alg:train_local_model}). The prediction step is however more complicated, involving the training of the secondary estimators on predictions of the primary models.
+The procedure is described in details by \autoref{alg:predict_local_model} and illustrated by \autoref{fig:slmo}. The \KwCombine function used in line \autoref{ln:combine_local_outputs} of the \autoref{alg:predict_local_model} procedure can be arbitrarily chosen, and is usually defined as the simple element-wise average of both matrices (\KwCombine{$Y_1$, $Y_2$} $= \frac{1}{2}(Y_1 + Y_2)$).
+
+%, optionally combined with the original training data
 
 \algTrainLocalModel
 \algPredictLocalModel
 
-Notice that, if the secondary multi-output estimators treat each label independently, including the $Y_\text{train}$ labels in their training will make no difference, and one should use only the predictions from the primary estimators.
+An unusual behaviour occurs if the secondary estimators are able to exploit inter-output dependencies. In this case, the outputs of the SLMO composition would depend on the amount of test data and specific combinations of test instances provided. This is usually not the case in traditional learning problems, and complicates the evaluation procedure. The behaviour forces us to consider the size and sampling method of the batches of test data. For online aplications, the ideal strategy would be to retrain the secondary models for each batch of new instances, using the predictions from the primary models over all the previously received instances (labeled and unlabeled). As a result, the application of SLMO models is effectivelly restricted to offline learning contexts.
 
-A specific case of a model with multiple independent-outputs occurs when a collection of single-output models is utilized as a unified entity, each being trained on each column of $Y_\text{train}$. This setup was present in the first proposal of a local model \cite{}, and enables a wider range of learning algorithms, not just multi-output strategies, to be employed in interaction prediction.
+%Notice that, if the secondary multi-output estimators treat each label independently, including the $Y_\text{train}$ labels in their training will make no difference, and one should use only the predictions from the primary estimators.
 
-If, however, the secondary estimator is indeed able to take advantage of relationships between outputs, one might consider concatenating the primary estimators' predictions to $Y_\text{train}$ and use both to train the secondary estimators (see lines \ref{} of Function \ref{alg:predict_local_model}). This setting would enable the secondary models to explore the output relationships involving the original training set, which are arguably more reliable than those between the primary predictions alone.
+%A specific case of a model with multiple independent-outputs occurs when a collection of single-output models is utilized as a unified entity, each being trained on each column of $Y_\text{train}$.
 
-That said, another consideration regarding the use of dependent-outputs secondary estimators is whether or not to provide the whole $X_{1\text{new}}$ and $X_{2\text{new}}$ at once, since doing so would increase the amount of primarily-predicted data used to train the secondary estimators, and it may be desirable to have more columns coming directly from $Y_\text{train}$ rather than inferred by the primary models. The ideal scenario then would be to run \ref{alg:predict_local_model} once for every $X_{1\text{new}}$ and $X_{2\text{new}}$ row combination, in a total of $|X_{1\text{new}}|_i|X_{2\text{new}}|_i$ iterations, with possible performance drawbacks for most learning algorithms. The natural intermediate idea would be to provide $X_{1\text{new}}$'s and $X_{2\text{new}}$'s rows in batches, possibly increasing the prediction time but ensuring the $|X_{a\text{new}}|_i/|X_{a\text{train}}|_i$ ratio is not detrimentally high. Additionally, some algorithms allow for output weights to be used in the training procedure, enabling us to assign lower importance to the $Y_{\text{new}}$ columns inferred by the primary estimators.
-
-In any case, contrary to what is usually observed, the amount of test data and specific combinations of test instances provided to the SLMO ensemble clearly affect the resulting predictions when the secondary models have inter-dependent outputs. This characteristic should thus be taken into consideration when developing, evaluating and comparing bipartite estimators under the SLMO configuration, although seldomly addressed by previous authors in our experience.%TODO: harsh?
-
-Due to each monopartite model being provided with a much lower number of instances in comparison to the SGSO procedure, SLMO models tends to be naturally faster to train than SGSO models. However, a striking limitation of the SLMO procedure is caused by its inference phase, which requires traing of the secondary models whenever new instances are inputted. The resulting large prediction times hinders the application of SLMO models on online learning scenarios.
-
+%% This setup was present in the first proposal of a local model \cite{}, and enables a wider range of learning algorithms, not just multi-output strategies, to be employed in interaction prediction.  (WRONG)
+%
+%On the contrary, if the secondary estimator can exploit inter-output dependencies, one might consider concatenating the primary estimators' predictions to $Y_\text{train}$ and use both to train the secondary estimators (see lines \ref{} of Function \ref{alg:predict_local_model}). This setting would enable the secondary models to explore the output relationships involving the original training set, which are arguably more reliable than those between the primary predictions alone.
+%
+%That said, another consideration regarding the use of dependent-outputs secondary estimators is whether or not to provide the whole $X_{1\text{new}}$ and $X_{2\text{new}}$ at once, since doing so would increase the amount of primarily-predicted data used to train the secondary estimators, and it may be desirable to have more columns coming directly from $Y_\text{train}$ rather than inferred by the primary models. The ideal scenario then would be to run \ref{alg:predict_local_model} once for every $X_{1\text{new}}$ and $X_{2\text{new}}$ row combination, in a total of $|X_{1\text{new}}|_i|X_{2\text{new}}|_i$ iterations, with possible performance drawbacks for most learning algorithms. The natural intermediate idea would be to provide $X_{1\text{new}}$'s and $X_{2\text{new}}$'s rows in batches, possibly increasing the prediction time but ensuring the $|X_{a\text{new}}|_i/|X_{a\text{train}}|_i$ ratio is not detrimentally high. Additionally, some algorithms allow for output weights to be used in the training procedure, enabling us to assign lower importance to the $Y_{\text{new}}$ columns inferred by the primary estimators.
+%
+%In any case, contrary to what is usually observed, the amount of test data and specific combinations of test instances provided to the SLMO ensemble clearly affect the resulting predictions when the secondary models have inter-dependent outputs. This characteristic should thus be taken into consideration when developing, evaluating and comparing bipartite estimators under the SLMO configuration, although seldomly addressed by previous authors in our experience.%TODO: harsh?
+%
+%Due to each traditional model being provided with a much lower number of instances in comparison to the SGSO procedure, SLMO models tends to be naturally faster to train than SGSO models. However, a striking limitation of the SLMO procedure is caused by its inference phase, which requires traing of the secondary models whenever new instances are inputted. The resulting large prediction times hinders the application of SLMO models on online learning scenarios.
+%
 % problems of predicting.
 
 %provide examples of each case (dependent vs independent outputs)
@@ -296,261 +316,79 @@ Due to each monopartite model being provided with a much lower number of instanc
 % gso receives x1x2 lines
 % matrix reconstruction algs dont predict by themselves
 
-
-% TODO native vs adaptations
-
-\subsection{Linear models}
-\label{sec:linear_models}
-
-One of the simplest approaches to learning problems in general is to assume a linear relationship between the input features and output labels. Formally, for the non-bipartite case, one assumes that the training output matrix $Y$ can be approximated as follows:
-%
-\begin{equation}
-    \hat Y = X W
-\end{equation}
-%
-in which $W$ is a matrix representing the set of parameters to be learned. To determine $W$, the mean squared error (MSE) is usually defined as the loss function to be minimized, to which we add an extra regularization term controlled by the hyperparameter $\alpha$:
-%
-\begin{equation}
-    \mathcal{J} = \frac{1}{2} \|Y - \hat Y\|^2 + \frac{\alpha}{2} \|W\|^2
-    = \frac{1}{2} \|Y - XW\|^2 + \frac{\alpha}{2} \|W\|^2
-\end{equation}
-%
-An analytical solution for $W$ can be obtained by taking the derivative of $\mathcal{J}$ with respect to $W$ and setting it to zero:
-%
-\begin{equation} %TODO FIX THE ORDER OF THE multiplications
-    \frac{\partial \mathcal{J}}{\partial W} = 0
-    = X\T (XW - Y) + \alpha W
-    %= (Y - XW) + (\alpha\mathbb{I}) W
-    \implies W = (X\T X + \alpha I)^{-1} X\T Y
-\end{equation}
-
-There are scenarios, however, where the specific values of $X$ are less interesting than the pairwise similarities between them. In those settings, while $X$ may not be directly available, we do have access to similarity matrices $S$ (also called \emph{kernel} matrices) in which $S\el{ij}$ designates a similarity score between $X\el{i}$ and $X\el{j}$. Rather than simply considering $S$ in the same way we would treat $X$ in linear regression, we could instead employ the \emph{kernel trick}~\cite{murphy2012machine}: replacing the $XX\T$ terms in the above equations by $S$. In this case, we are assuming that similarities $S\el{ij}$ represent the internal product of the vectors $X\el{i}$ and $X\el{j}$ in some feature space, which is based on the intuition that the internal product by itself can be regarded as a similarity metric.
-%
-We also define $W$ slightly differently, ommiting the $X\T$ factor as $W = (S + \alpha I)^{-1} Y$, so that the final prediction is given by
-%
-\begin{equation}
-    \hat Y = S W = (S + \alpha I)^{-1} S
-\end{equation}
-
-For the bipartite interaction prediction case, besides standard adaptations as described in \autoref{sec:standard adaptations}, a unique formulation is presented by \textcite{vanlaarhoven2011gaussian}. Similar in concept to the standard global single output procedure (\autoref{sec:standard adaptations}), the authors consider each interaction pair as a unitary instance. The authors then propose building a kernel matrix relating each pair of instances to another pair, and not each interacting entity to another of the same domain. If $S_1 \in \mathbb{R}^{n_1 \times n_1}$ and $S_2 \in \mathbb{R}^{n_2 \times n_2}$ are the intra-domain similarity matrices, the global kernel matrix $S$ is defined as
-%
-\begin{equation}
-    S\el{(i_1n_2 + i_2)(j_1 n_2 + j_2)} = S_1\el{i_1j_1} S_2\el{i_2j_2}
-\end{equation}
-%
-or, more succinctly, as the Kronecker product of $S_1$ and $S_2$:
-%
-\begin{equation}
-    S = S_1 \otimes S_2
-\end{equation}
-%
-Each entry on $S$ thus represents the similarity between the pair $X_1\el{i_1}$-$X_2\el{j_1}$ and another pair $X_1\el{i_2}$-$X_2\el{j_2}$ by the product of the similarities between $X_1\el{i_1}$ and $X_1\el{j_1}$ and between $X_2\el{i_2}$ and $X_2\el{j_2}$.
-
-The bipartite linear regression is then framed on the vectorized $Y$, denoted $\text{vec}(Y)$, built by concatenating the columns of $Y$ into a single $|Y|$ by $1$ column vector.
-Purely for notation purposes, we organize the weight parameters as the vectorized version of a matrix $W$ with the same dimensions of $Y$.
-%
-\begin{gather}
-    \text{vec}(\hat Y) = S\,\text{vec}(W) \approx \text{vec}(Y)
-    \\
-    \text{vec}(W) = (S + \alpha I)^{-1} \text{vec}(Y)
-\end{gather}
-
-As the reader may imagine, $S$ gets prohibitively large for big datasets (it's a $n_1 n_2$-sized square matrix!), both in terms of memory usage and the time needed to perform the matrix inversion. The authors, however, provide a clever way of circumventing this issue by decomposing each of the $S_1$ and $S_2$ kernel matrices separately and exploiting the properties of the Kronecker product.
-
-Given that $S_1$ and $S_2$ are symmetric square matrices, it follows from the spectral theorem~\cite{} that they can be decomposed as follows:
-%
-\begin{gather*}
-    S_1 = U_1 \Lambda_1 U_1\T \\
-    S_2 = U_2 \Lambda_2 U_2\T
-\end{gather*}
-%
-where, if $\mathbf{\lambda}_1$ represents the vector of eigenvalues of $S_1$, $\Lambda_1$ is the diagonal matrix of those eigenvalues ($\Lambda_1 = \text{diag}(\mathbf{\lambda}_1)$), with $U_1$ columns representing their corresponding eigenvectors $U^{\intercal[i]}$ for each $\mathbf{\lambda}_1\el{i}$. The symmetry of the similarity matrices also implies that $U_1$ and $U_2$ are orthogonal, i.e. $U_1\T U_1 = U_1 U_1\T = \mathbb{I}$ and $U_2\T U_2 = U_2 U_2\T = \mathbb{I}$, or, equivalently, $U_1^{-1} = U_1\T$ and $U_2^{-1} = U_2\T$.
-%
-Utilizing the fact that $(AB) \otimes (CD) = (A \otimes C)(B \otimes D)$~\cite{}, the Kronecker product of $S_1$ and $S_2$ can be written as
-%
-\begin{equation}
-    S = S_1 \otimes S_2
-    = (U_1 \Lambda_1 U_1\T) \otimes (U_2 \Lambda_2 U_2\T)
-    % = (U_1 \otimes U_2) (\Lambda_1 V_1\T \otimes \Lambda_2 V_2\T)
-    % = (U_1 \otimes U_2) (\Lambda_1 \otimes \Lambda_2) (V_1\T \otimes V_2\T)
-    = (U_1 \otimes U_2) (\Lambda_1 \otimes \Lambda_2) (U_1 \otimes U_2)\T
-    = U \Lambda U\T
-\end{equation}
-%
-in which we denote $U = U_1 \otimes U_2$ and $\Lambda = \Lambda_1 \otimes \Lambda_2$.
-$W$ now becomes
-%
-\begin{equation*}
-    \text{vec}(W) = (U \Lambda U\T + \alpha \mathbb{I})^{-1} \text{vec}(Y)
-\end{equation*}
-%
-Further exploring the orthogonality of $U$, $U U\T = U \mathbb{I} U\T = \mathbb{I}$, so that
-%
-\begin{equation*}
-    \text{vec}(W) = U (\Lambda + \alpha\mathbb{I})^{-1} U\T \text{vec}(Y)
-\end{equation*}
-%
-The most crucial property of the Kronecker product for our application is its relationship with the vectorization operator~\cite{}: $(A \otimes B)\text{vec} (C) = \text{vec}(BCA\T)$, which allows us to write
-%
-\begin{equation*}
-    \text{vec}(W)
-    = U (\Lambda + \alpha\mathbb{I})^{-1} (U_1\T \otimes U_2\T) \text{vec}(Y)
-    = U (\Lambda + \alpha\mathbb{I})^{-1} \text{vec}(U_2\T Y U_1)
-\end{equation*}
-%
-Since $(\Lambda + \alpha\mathbb{I})^{-1}$ is diagonal, its multiplication by the vector $\text{vec}(U_2\T Y U_1)\T$ can be expressed as a Hadamard product (element-wise multiplication, denoted by $\odot$) between two vectors. Acting element-wise, the Hadamard product is unaffected by vectorization, so that we can simplify the above expression by employing the matrix
-%
-\begin{equation}
-    (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1[ij]}
-    = \frac{1}{\alpha + \mathbf{\lambda}_1\el{i} \mathbf{\lambda}_2\el{j}}
-\end{equation}
-%
-In this context, $\mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T$ represents the $n_1$ by $n_2$ matrix resulting from the \emph{outer product} of the vectors containing the eigenvalues of $S_1$ and $S_2$, respectively, while $A^{\circ -1}$ denotes the Hadamard inverse, corresponding to the matrix formed by taking the reciprocal of each element in $A$. Thus,
-%
-\begin{multline*}
-    \text{vec}(W)
-    = U \text{diag}(\Lambda + \alpha^{-1}\mathbb{I}) \odot \text{vec}(U_2\T Y U_1)
-    =\\
-    = (U_1 \otimes U_2) \text{vec}(
-        (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
-        \odot (U_2\T Y U_1)
-    )
-    =\\
-    = \text{vec}(
-        U_2
-        [
-            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
-            \odot (U_2\T Y U_1)
-        ]
-        U_1\T
-    )
-\end{multline*}
-%
-Which yields
-%
-\begin{equation}
-    W = 
-        U_2
-        [
-            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
-            \odot (U_2\T Y U_1)
-        ]
-        U_1\T
-\end{equation}
-
-Finally, predictions for a new group of instances in the test set are obtained as follows from the similarities with the train instances ($S_\text{1, test}\el{ij}$ specifies the similarity between $X_\text{1, test}\el{i}$ and $X_\text{1, train}\el{j}$).
-%
-\begin{equation}
-    \text{vec}(\hat Y_\text{test})
-    = (S_\text{1, test} \otimes S_\text{2, test}) \text{vec}(W)
-    = \text{vec}(S_\text{2, test} W S_\text{1, test}\T)
-\end{equation}
-%
-which summarizes to
-%
-\begin{equation}
-    \hat Y_\text{test} =
-        S_\text{2, test}
-        U_2
-        [
-            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
-            \odot (U_2\T Y U_1)
-        ]
-        U_1\T
-        S_\text{1, test}\T
-\end{equation}
-
-%TODO rlskron did not worry about new instances
-%TODO complexity
-%TODO using all neighbors in BLM is prone to overfitting
-%TODO converting usual problems to bipartite format
-%TODO although nrlmf is fast, building a complete tree after is not
-%TODO grid search can be even detrimental in small sparse datasets, since test sets are not representative
-
-
 \section{Bipartite decision forests}
 \label{sec:bipartite forests}
 
-%\subsection{Interaction matrix approximation methods}
-%%TODO
+%A \textit{sui generis} learning algorithm adaptation was proposed by \textcite{pliakos2018} to deal with bipartite data, without the need for dataset reformatting as in SGSO, or compositions of multiple estimators and secondary training steps as SLMO.
+
+Some learning algorithms can be adapted in a deeper level to the bipartite context. These algorithms are able to directly receive the two $X$ matrices as input, without needing to combine them as a preprocessing step for training.  % TODO lmo?
+We term them \emph{learner-centered} adaptations, in contrast with the data-centered strategies discussed in \autoref{sec:standard adaptations}.  % TODO standardize names
+
+% TODO benefits are in the intro
+% TODO shortcommings: slow and not semisupervised
+
+This section explores the main focus of this work: learner-centered adaptations of decision forest models. \autoref{sec:learner centered} will then present two other learner-centered strategies, based on linear models and matrix factorization respectively.
 %
-%The first we call \emph{matrix reconstruction approaches} and
-%includes the usage of matrix factorization or other procedures that convert the
-%sparse label matrix $Y$ into a dense representation, employing sample
-%attributes, sample similarities or network characteristics to replace 0-valued
-%unknown interactions by more meaningful, often real-valued numbers. These new
-%values can be used directly as a probability of interaction, of can serve as
-%input to downstream learning methods in the pipeline.
+A general description of top-down decision trees is now presented, as a theoretical foundation for the upcoming formal definition of bipartite decision trees (\autoref{sec:bipartite_trees}). % TOTOTO TODO
+
+
+%Named Predictive Bi-Clustering Tree (PBCT) by the authors, it tunes the usual decision tree-growing algorithm to directly operate on bipartite interactions, building a single tree model directly on bipartite formatted datasets (using $X_1$, $X_2$ and $Y$). Importantly, their proposed algorithm inherits all the benefits of tree-based estimators, such as their well-known interpretability and remarkably low amount of hyperparameters~\cite().
 %
-%An important consideration is that these techniques are often stateless
-%estimators, meaning that all calculations must be redone for each new sample
-%that is presented to have its label predicted. To avoid this, some methods
-%include the test instances in the training set, but substituting their labels by
-%0, so that the only their numerical features are available. Examples are
-%\cite{}. We argue that this approach, even if not abrupt, can still pose some
-%data leakage effect, since the estimator is not refrained from the extra
-%information about the feature space. An estimator in this setting, for instance
-%could give more attention to achieving better results in denser regions of the
-%sample space, information which would be clearly affected by the proposed
-%approach. As such, the estimator performance metrics on new data could be ever
-%so slightly biased.
 %
-%Another idea to circumvent this limitation is through the use of other,
-%traditionally monopartite, estimators in specific steps. \cite{} and \cite{},
-%for instance, after learning the $U$ and $V$ latent vectors in a matrix
-%factorization procedure, utilize nearest neighbors estimators to compute new
-%samples' latent vectors as a linear combination of the vectors generated for the
-%training set, optionally weighting neighbors with similarity metrics.
+%Intriguingly, PBCTs were only explored in a scarce number of previous studies~\cite{pliakos2018global,pliakos2019network,pliakos2020drugtarget}, to the best of our knowledge. A possible explanation is that no improvement in computational complexity of training times is observed with respect to SGSO-adapted decision trees~\cite{pliakos2018global}, even if drastically less memory is used by a PBCT in comparison to a naive implementation of SGSO.  %TODO more pbct papers
+%Furthermore, no implementations of PBCTs are provided in sufficiently accessible and extensible formats, which could also have hindered its adoption by the scientific community.
 %
-%Still, without monopartite models, these matrix reconstruction approaches cannot
-%deal with new samples without retraining the model on the whole training data
-%plus the new instances. We thus consider these techniques more inclined to the
-%preprocessing realm rather than constituting machine learning models by
-%themselves.
+%We thus turn our attention onto such tree-based algorithms, proposing optimizations proven to reduce asymptotic training times of bipartite trees by a $\log |X|_i$ factor, enabling larger bipartite datasets to have all its unknown (0-labeled) interactions considered in model training and bringing unprecedented scalability to tree and forest estimators on interaction prediction tasks.
+%%Intriguingly, these estimators were only explored in a scarce number of previous studies\cite{}. We thus turn our attention onto them, proposing optimizations to enable all unknown interactions to be considered in training, so to bring unreported scalability of Random Forests in sparse problems of interaction prediction and recommendation.
 %
-%%The second category of methods we define is that of adapted monopartite models.
-%%They were among the first proposals to address the problem of DTI as presently
-%%formulated, and represent the methods that reframe the problem of bipartite
-%%interactions in a way that customary machine learning models are able to tackle.
+%%TODO we made them accessible, bipartite_learn
+%
 
 
-\subsection{Bipartite forests}
-\label{sec:bipartite_forests}
-
-A \textit{sui generis} learning algorithm adaptation was proposed by \textcite{pliakos2018} to deal with bipartite data, without the need for dataset reformatting as in SGSO, or compositions of multiple estimators and secondary training steps as SLMO.
-
-Named Predictive Bi-Clustering Tree (PBCT) by the authors, it tunes the usual decision tree-growing algorithm to directly operate on bipartite interactions, building a single tree model directly on bipartite formatted datasets (using $X_1$, $X_2$ and $Y$). Importantly, their proposed algorithm inherits all the benefits of tree-based estimators, such as their well-known interpretability and remarkably low amount of hyperparameters~\cite().
-
-
-Intriguingly, PBCTs were only explored in a scarce number of previous studies~\cite{pliakos2018global,pliakos2019network,pliakos2020drugtarget}, to the best of our knowledge. A possible explanation is that no improvement in computational complexity of training times is observed with respect to SGSO-adapted decision trees~\cite{pliakos2018global}, even if drastically less memory is used by a PBCT in comparison to a naive implementation of SGSO.  %TODO more pbct papers
-Furthermore, no implementations of PBCTs are provided in sufficiently accessible and extensible formats, which could also have hindered its adoption by the scientific community.
-
-We thus turn our attention onto such tree-based algorithms, proposing optimizations proven to reduce asymptotic training times of bipartite trees by a $\log |X|_i$ factor, enabling larger bipartite datasets to have all its unknown (0-labeled) interactions considered in model training and bringing unprecedented scalability to tree and forest estimators on interaction prediction tasks.
-%Intriguingly, these estimators were only explored in a scarce number of previous studies\cite{}. We thus turn our attention onto them, proposing optimizations to enable all unknown interactions to be considered in training, so to bring unreported scalability of Random Forests in sparse problems of interaction prediction and recommendation.
-
-%TODO we made them accessible, bipartite_learn
-
-A more thorough description of traditional decision trees is now presented, as a theoretical foundation for the upcoming formal definition of bipartite decision trees.
-
-
-\subsection{Traditional decision trees}  % TODO monopartite?
+%\subsection{Traditional decision trees}  % TODO traditional?
+%\subsection{General decision trees}
+\subsection{Decision trees}
 \label{sec:dt}
 %TODO describe origin and benefits of trees
 % decision tree (DT)
 % more accessible intro
 
-Let's consider the scenario where a single protein of interest is selected, and we receive the task of determining which drug molecules will likely affect its physical structure or catalytic function, for example. We wish to find a systematic procedure to decide whether a given drug molecule $x_i$ will interact with our protein or not. To develop such a procedure, consider we have at our disposal a set of $n_f$ known drug molecules, whose degree of interaction with our protein of interest was previously experimentally determined. We can then describe a drug molecule $x_i$ in general by how similar it is to each of our $n_f$ known molecules, organizing this information as a vector $x_i = \begin{bmatrix}x_i\el{1} & x_i\el{2} & x_i\el{3} & \cdots & x_i\el{n_f}\end{bmatrix}$ so that $x_i\el{j}$ represents the similarity score between the drug $x_i$ and the $j$-th of our $n_f$ known drugs.
+Let's consider the scenario where a single protein of interest is selected, and we receive the task of determining which drug molecules will likely affect its physical structure or catalytic function.
+We wish to find a systematic procedure to decide whether a given drug molecule $x_i$ will interact with our protein or not. To develop such a procedure, consider we have at our disposal a set of $n_f$ known drug molecules, whose degree of interaction with our protein of interest was previously experimentally determined. We can then describe a drug molecule $x_i$ in general by how similar it is to each of our $n_f$ known molecules, organizing this information as a vector $x_i = \begin{bmatrix}x_i\el{1} & x_i\el{2} & x_i\el{3} & \cdots & x_i\el{n_f}\end{bmatrix}$ so that $x_i\el{j}$ represents the similarity score between the drug $x_i$ and the $j$-th of our $n_f$ known drugs.
 
-The hypothetical decision procedure we intend to determine could then be structured as a path with consecutive bifurcations. We always start at the same first bifurcation, and at each forking of the path a question is asked about the drug $x_i$ in hands. The questions are in a standard format, exemplified by "Is $x_i$ more than 60\% similar to the 3rd known drug?", or $x_i\el{j} > t$, for a general known drug $j$ and similarity threshold $t$. The answer to the question in each bifurcation determines which of the two possible paths we should follow. No cycles are allowed in the path, and eventually, all routes reach final locations instead of bifurcations, where a final decision is made about the drug $x_i$'s effect on our protein of interest.
+The hypothetical decision procedure we intend to determine could then be structured as a path with consecutive bifurcations. We always start at the same place, and, at each bifurcation, a question is asked about the drug $x_i$ in hands. The questions are in a standard format, exemplified by "Is $x_i$ more than 60\% similar to the 3rd known drug?", or $x_i\el{j} > t$, for a general known drug $j$ and similarity threshold $t$. The answer to the question in each bifurcation determines which of the two possible paths we should follow. No cycles are allowed in the path, and eventually, all routes reach final locations instead of bifurcations. Each final location contains a fixed value that will be returned as the final decision about the drug $x_i$'s effect on our protein of interest.
 
-Such a decision procedure, structured as a binary tree path, is what is commonly referred to as a \emph{decision tree} (DT) model, illustrated by \autoref{fig:dt}. The rules leading to each output being clearly defined along the tree structure is what results in the well-known transparency of decision trees, an attractive characteristic in fields such as drug discovery or regulatory network inference, where insights into the underlying processes are greatly valued.
+Such a decision procedure, structured as a binary tree path, is what is commonly referred to as a \emph{decision tree} (DT) model, illustrated by \autoref{fig:dt}. 
+In this context, each bifurcation then represents a tree \emph{node}, and the final locations are called \emph{leaves}. The value outputted by each leaf is termed the leaf's \emph{prototype}.
+%
+%The well-known interpretability of decision trees results from these
+%rules leading to each output being clearly defined along the tree structure
+%is what results in the well-known transparency of decision trees, an attractive characteristic in fields such as drug discovery or regulatory network inference, where insights into the underlying processes are greatly valued.
 
-The described binary-tree structure is by far the most utilized~\cite{}, being ubiquitous to all tree-based estimators in the present study. The main challenge lies in the building process of such models, in how to determine the rules that define each fork and the stopping criteria for a final decision to be yielded.
+%The described binary-tree structure is by far the most utilized~\cite{}, being ubiquitous to all tree-based estimators in the present study.
 
-As presented by \autoref{sec:definitions}, to build the decision tree we are given a training set $X$ composed of $|X|_i$ entities (drug molecules in the previous example) so that $X\el{i\cdot} = x_i$ represents the $i$-th entity. Each entity is described by $|X|_j$ numeric descriptors (similarities to known drugs in the previous example), and to each is assigned one or more numeric labels $Y\el{i\cdot}$ describing the known target prediction results. In analogy to the last example, the labels would denote interaction or not with one or more proteins of interest.
+The main challenge, however, lies in the building process of such models: in how to determine the rules that define each fork and how we define the stopping criteria for a final decision to be yielded.
 
-If we were to execute the prediction process of a decision tree for each training instance, going through the aforementioned branched path, each bifurcation would divide the training instances between those who answer the question affirmatively and those who answer otherwise.
-The procedure for building a DT thus consists of determining features $f$ and threshold values $t$ that recursively split the dataset in two parts, named \emph{left} and \emph{right} partitions, as defined by \autoref{eq:datasplit}.
+%As presented by \autoref{sec:definitions},
+To build the decision tree, we are given a training set composed of the two bidimensional matrices $X$ and $Y$. The dataset represents $|X|_i = |Y|_i$ instances, each described by $|X|_j$ numeric features and labeled by $|Y|_j$ labels.
+In the previous example, $|X|_i$ would be the number of drug molecules in the dataset
+$|X|_j$ would be the number of reference drugs (used to obtain the similarities), and $|Y|_j$ would be the number of proteins of interest.
+
+%(drug molecules in the previous example)
+
+%so that $X\el{i\cdot} = x_i$ represents the $i$-th entity. Each entity is thus described by $|X|_j$ numeric descriptors (similarities to known drugs in the previous example). To each entity is assigned one or more numeric labels $Y\el{i\cdot}$ describing the known target prediction results. In analogy to the last example, the labels would denote interaction or not with one or more proteins of interest.
+
+Consider now executing the prediction process of a decision tree for each training instance, going through the branched path. Each bifurcation would divide the training instances between those who answer the question affirmatively and those who answer negatively. Eventually, each leaf will contain a partition of the training instances.
+From the resulting partitions, we can evaluate the decision tree:
+a "good" decision tree would be one in which the prototype value of each leaf is a good estimate of the labels in the leaf's partition.
+%
+The training algorithm then approaches the problem from the other direction: what would be a good tree according to our training data?
+A greedy top-down procedure is usually followed, that we introduce bellow.
+%This evaluation is used by the training procedure to evaluate each candidate splitting rule. The best rules are selected 
+%The training procedure uses such evaluation to determine the best possible splitting rules. The tree is built 
+
+%The procedure for building a DT consists of determining features $f$ and threshold values $t$ that recursively split the dataset in two parts, named \emph{left} and \emph{right} partitions, as defined by \autoref{eq:datasplit}.
+Formally, each rule is encoded by an index $f$ representing a feature column and a threshold value $t$. Each rule then represents a split of the training dataset in two partitions, named \emph{left} and \emph{right}, as defined by \autoref{eq:datasplit}.
 %
 \begin{equation}
     \begin{split} %TODO
@@ -562,24 +400,63 @@ The procedure for building a DT thus consists of determining features $f$ and th
     \label{eq:datasplit}
 \end{equation}
 
-Each bifurcation of a DT, more commonly referred to as a \emph{node}, then represents one of such splits, defined by a selected feature $f$ and a threshold value $t$, and each of its two children receives one of the data partitions generated by its parent (see \autoref{}). Under specific pre-defined circumstances, a node stops generating descendant nodes, having no children and taking record of the dataset partition it received from its parent. Among possible stopping criteria are a maximum depth of the tree or a minimum number of samples in a node, for instance. These terminal nodes are called \emph{leaves}.
+To build a decision tree, we start with the whole training set (the \emph{root node}). A procedure FindSplit is executed to yield a good splitting rule.
+The training data is then partitioned according to this rule, as defined in \autoref{eq:datasplit}. Two descendant nodes are created, each receiving one of the partitions.
+For each new node, we have two options: i) apply FindSplit to its data partition and continue recursively; or ii) set the node as a leaf, taking record of the partition it received.
 
-Under these definitions, the prediction step for a new sample $x_\text{new}$ as described in the introductory example consists of transversing the tree from the first (or \emph{root}) node until a leaf, following each node's test $x_\text{new}\el{f_\text{node}} > t_\text{node}$ and selecting the corresponding child node as given by the partitioning rule of \autoref{eq:datasplit}. Once a leaf is reached, the tree returns a prototype value calculated over the partition of the training data corresponding to that leaf. The average label ($Y_\text{leaf}^{\ang i [j]}$) of each output is a common choice for this prototype.
-
-%TODO
-As previously stated, the focus of the present work is however the training procedure of a decision tree, the method to determine the $f$ and $t$ parameters of each node in order to effectively estimate the labels of new samples. Most commonly, a top-down induction algorithm (from the root node to the leaves) is followed, and all possible partitions of the given training set are evaluated.
-The exhaustive evaluation of partitions in each node can be done by, for each feature column $X\el{\cdot f}$, sorting $X\el{\cdot f}$ and considering a threshold $t$ between each two consecutive values in it. As seen by \autoref{eq:datasplit} and illustrated by \autoref{fig:thresholds}, any threshold value between the same two consecutive $X\el{\cdot f}_\text{sorted}$ elements will result in the exactly same partitioning of the training set. The common practice is thus to take the average between the two neighboring feature values.
-
-A greedy procedure is then followed for the overall tree growing, selecting at each node the best $t$ and $f$ to represent the split, according to a predefined quality criteria we further discuss in \autoref{sec:criteria}.
+The tree-building algorithms can thus be described by four key components:
 %
-The exhaustive split search procedure is detailed by the \autoref{alg:find_best_split}. The algorithm \ref{alg:buildtree} then describes its application on growing a traditional decision tree (stablished by \textcite{breiman1984classification}),
-while \ref{alg:predict} formally details how predictions are made given a model built by \ref{alg:buildtree} and a new data instance.
+\begin{enumerate}
+    \item \textbf{The FindSplit procedure}, which determines a set of candidate splitting rules and selects the best one according to a quality metric.
+    \item \textbf{The split quality metric} used by FindSplit to evaluate the candidate rules.
+    \item \textbf{The stopping criteria}, that determine when a node should be set as a leaf.
+    \item \textbf{The prototype function}, that determines the output value of a leaf.
+\end{enumerate}
+%
+\autoref{alg:buildtree} describes in detail how these components come together to build a decision tree. \autoref{alg:predict} then formally details how predictions are made given a model built by \autoref{alg:buildtree} and a new data instance.
+%
+These procedures emcompass a wide range of decision tree algorithms, including the popular CART ~\cite{breiman1984classification}, ID3~\cite{quinlan1986induction}, and C4.5~\cite{quinlan}, as well as the bipartite trees we explore in the present work~\cite{pliakos2018global}.  %TODO VERIFY
+
+The following sections provide further considerations on specific components.
 
 \algPredict
 \algBuildTree
+
+%For each new node, we have two options: can either apply FindSplit to its data partition, or set the %node as a leaf, taking record of the partition it received.
+%For each new node, we can either apply FindSplit to its data partition, or set the node as a leaf, taking record of the partition it received.
+
+%For each partition, the same procedure is repeated, until a stopping criterion is met. The most common stopping criteria are a maximum depth of the tree or a minimum number of samples in a node, for instance.
+%
+%Each child node receives one of the data partitions generated by its parent, and the process is recursively repeated until a stopping criterion is met. The most common stopping criteria are a maximum depth of the tree or a minimum number of samples in a node, for instance.
+%Each bifurcation of a DT, more commonly referred to as a \emph{node}, then represents one of such splits, defined by a selected feature $f$ and a threshold value $t$, and each of its two children receives one of the data partitions generated by its parent (see \autoref{}). Under specific pre-defined circumstances, a node stops generating descendant nodes, having no children and taking record of the dataset partition it received from its parent. Among possible stopping criteria are a maximum depth of the tree or a minimum number of samples in a node, for instance. These terminal nodes are called \emph{leaves}.
+
+%We can also formally define the inference procedure illustrated in the introductory example.
+%The prediction step for a new sample $x_\text{new}$ consists of transversing the tree from the root node until a leaf, following each node's test ($x_\text{new}\el{f_\text{node}} > t_\text{node}$).
+%%and selecting the corresponding child node as given by the partitioning rule of \autoref{eq:datasplit}.
+%Once a leaf is reached, the tree returns a prototype value calculated over the partition of the training data corresponding to that leaf. The average label ($Y_\text{leaf}^{\ang i [j]}$) of each output is a common choice for this prototype.
+%
+
+
+\subsection{Searching for the best split}
+\label{sec:split search}
+
+We explore two main strategies for the FindSplit procedure: the exhaustive search and the randomized search. The exhaustive search is the most common. The randomized search is a faster but less accurate alternative, intended to be used in the context of tree ensembles (\autoref{sec:ensembles}). We describe each procedure in the present section.
+
+The most common approach to the FindSplit procedure is to consider all possible partitions of the given input data.
+%
+For a feature column $X\el{\cdot f}$, this exhaustive evaluation of partitions can be done by sorting $X\el{\cdot f}$ and considering a threshold $t$ between each two consecutive values in it. Notice that any threshold value between the same two consecutive $X\el{\cdot f}_\text{sorted}$ elements will result in the exact same partitioning of the training set (\autoref{eq:datasplit}). The common practice is thus to take the averages between each two neighboring feature values. The same procedure is then repeated for each feature column, and the overall best $t^\ast$ and corresponding feature index $f^\ast$ are selected.
+%
+%A greedy procedure is then followed for the overall tree growing, selecting at each node the best $t$ and $f$ to represent the split, according to a predefined quality criteria we further discuss in \autoref{sec:criteria}.
+%
+The exhaustive split search procedure is detailed by the \autoref{alg:find_best_split}.
+%The algorithm \ref{alg:buildtree} then describes its application on growing a traditional decision tree (stablished by \textcite{breiman1984classification}),
+%while \ref{alg:predict} formally details how predictions are made given a model built by \ref{alg:buildtree} and a new data instance.
+
 \algFindBestSplit
 
-An alternative to avoid considering all partitioning options and greatly reduce the amount of operations is to draw a random threshold $t$ between the minimum and maximum value of each feature, thus evaluating only $|X|_j$ splits when choosing the best. Although degrading the performance of a single tree, this procedure, described by \ref{alg:find_random_split}, is an interesting option when building tree ensembles (\autoref{sec:ensembles}), being the core idea behind the extremely randomized trees (ERT) algorithm~\cite{geurts2006extremely}.
+The randomized search is an alternative that avoids considering all partitioning options and greatly reduces the amount of operations performed.
+It consists of drawing a random threshold $t$ between the minimum and maximum value of each feature, thus evaluating only $|X|_j$ splits when choosing the best (\autoref{alg:find_random_split}). Although degrading the performance of a single tree, this procedure is an interesting option when building tree ensembles (\autoref{sec:ensembles}), being the core idea behind the extremely randomized trees (ERT) algorithm~\cite{geurts2006extremely}.  %TODO standardize alg names
+Ensembles of decision trees will be discussed in \autoref{sec:ensembles}.
 
 %\algSplitDataset
 \algFindRandomSplit
@@ -598,13 +475,13 @@ An alternative to avoid considering all partitioning options and greatly reduce 
 
 %prototypes
 
-%TODO random split
-\subsection{Split quality criteria and impurity metrics}
+%\subsection{Split quality criteria and impurity metrics}
+\subsection{Measuring the quality of a split}
 \label{sec:criteria}
 
-In order to compare and select the best splitting rules at each node, a split quality criterion must be defined. The quality $\Delta I$ of a split is commonly framed as the decrease of an impurity metric calculated over the subsets of training labels (\autoref{eq:quality}). This decrease is taken for the combined impurities of the generated children nodes (\autoref{eq:datasplit}).
+A split quality criterion must be defined so we can compare and select the best splitting rules at each node. The quality $\Delta I$ of a split is commonly framed as the decrease of an impurity metric calculated over the partitions of training labels (\autoref{eq:quality}). This decrease is taken for the combined impurities of the generated children nodes (\autoref{eq:datasplit}).
 %relative to their parent's impurity.
-All impurities are normalized by the size of each partition relative to the total number of training samples ($|Y_\text{root}|_i$), restricting the effect of nodes with less data that could introduce spurious variations of impurity. Notice that $|Y_\text{node}|=|Y_\text{left}|+|Y_\text{right}|$.
+All impurities are multiplied by the size of each partition relative to the total number of training samples ($|Y_\text{root}|$), restricting the effect of nodes with less data that could introduce spurious variations of impurity. Notice that $|Y_\text{node}|=|Y_\text{left}|+|Y_\text{right}|$.
 % TODO: notice that |Y_a|_i / |Y_b|_i == |Y_a| / |Y_b|
 %
 \begin{equation}
@@ -615,7 +492,8 @@ All impurities are normalized by the size of each partition relative to the tota
     \label{eq:quality}
 \end{equation}
 
-Several metrics can be chosen as the impurity function $I(\cdot)$, such as the Gini impurity, the Shannon entropy or the Poisson loss~\cite{}. In this study we utilize the variance of each output column, averaged over all outputs (\autoref{eq:mse}). Since the prediction values we return, resulting from the \textt{prototype} function, are the column averages of a leaf's partition $Y_\text{partition}$ of the training labels ($Y_\text{partition}^{\langle i\rangle[j]}$), the column variances correspond to the \emph{mean squared error} (MSE) for the training data in the node, as if the node holding $Y_\text{partition}$ were to become a leaf.
+Several metrics can be chosen as the impurity function $I(\cdot)$, such as the Gini impurity, the Shannon entropy or the Poisson loss~\cite{}. In this study we utilize the variance of each output column, averaged over all outputs (\autoref{eq:mse}). 
+%
 %labels as the basis for calculating a split quality parameter (\ref{eq:mse}). We also set the prediction output of a leaf node (given by the prototype function) to be the average of labels in the training set encompassed by the leaf. Therefore, the impurity $I$ of a dataset partition corresponds to the variance of its labels: 
 %
 \begin{equation}
@@ -626,6 +504,9 @@ Several metrics can be chosen as the impurity function $I(\cdot)$, such as the G
     %%\text{MSE}(Y) = \avg{(Y\el{i, j} - \avg{Y\el{i, j}})^2} \text{,}
     \label{eq:mse}
 \end{equation}
+%
+Most commonly, the \textt{prototype} function returns the column averages of a leaf's partition of the training labels: $Y_\text{leaf}^{\langle i\rangle[j]}$.
+In this case, the column variances correspond to the \emph{mean squared error} (MSE) for the training data in the node, as if the node holding $Y_\text{partition}$ were to become a leaf.
 %
 % Derivation:
 %
@@ -639,7 +520,8 @@ Several metrics can be chosen as the impurity function $I(\cdot)$, such as the G
 %    \label{eq:mse}
 %\end{multline}
 
-Also notice that $I_\text{MSE}$ is equivalent to the Gini impurity if $Y$ contains only binary values. That can be quickly shown by noticing that $Y_\text{bin}^{[ij]2} = Y_\text{bin}\el{ij}$ for binary labels, so that $Y_\text{bin}^{2\ang{i}[j]}=Y_\text{bin}^{\ang i [j]}\equiv p\el j$ which yields \autoref{eq:gini} and culminates in the usual form of the average of Gini impurities across all outputs.
+Also notice that $I_\text{MSE}$ is equivalent to the Gini impurity if $Y$ contains only binary values. That can be shown by noticing that $Y_\text{bin}^{[ij]2} = Y_\text{bin}\el{ij}$ for binary labels, so $Y_\text{bin}^{2\ang{i}[j]}=Y_\text{bin}^{\ang i [j]}\equiv p\el j$, which yields \autoref{eq:gini}.
+%, culminates in the usual form of the average of Gini impurities across all outputs.
 %
 \begin{equation}
     I_\text{MSE}(Y_\text{bin})
@@ -652,39 +534,70 @@ Also notice that $I_\text{MSE}$ is equivalent to the Gini impurity if $Y$ contai
     \label{eq:gini}
 \end{equation}
 
-Referring back to bipartite scenarios, we now describe how intuitive adaptations of the decision tree algorithm are developed to deal with interaction data.
+%Referring back to bipartite scenarios, we now describe how intuitive adaptations of the decision tree algorithm are developed to deal with interaction data.
 
 
 \subsection{Bipartite decision trees}
 \label{sec:bipartite_trees}
 
-As presented by \autoref{sec:bipartite_forests}, \textcite{pliakos2018global} introduces an ingenious strategy to build a decision tree directly on bipartite-formatted datasets. The main concept behind it borrows the idea of the SLMO approach described in \autoref{sec:slmo}, in that the training procedure is divided into two steps, separately considering each axis of the bipartite data. However, instead of training two separate models as in SLMO, two candidate versions of each node are generated, one for each axis, and the best between both is selected to integrate the final model.
+In this section, we describe how the decision tree algorithm can be adapted to directly operate on bipartite interaction data.
 
-Formally speaking, given a general procedure \FindSplit for finding a split threshold in a traditional multioutput decision tree (see \autoref{sec:dt}), the PBCT algorithm~\cite{pliakos2018global} consists of applying \FindSplit twice at each node: once over $X_1$ and $Y$, in which case each $Y$ \emph{column} is considered a different output; and once over $X_2$ and $Y\T$, so that each $Y$ \emph{row} is now interpreted as an output. Finally, the best overall split is chosen between the best horizontal split and the best vertical split, according to the quality criterion of \autoref{eq:q_lmo}.
+Essentially, the adaptation process consists of defining bipartite versions of each of the four key components of the decision tree algorithm (\autoref{sec:dt}): the FindSplit procedure, the split quality metric, the stopping criteria, and the prototype function. From these, the most central is the FindSplit procedure adaptation.
+%As presented by \autoref{sec:bipartite_forests}, \textcite{pliakos2018global} introduces an ingenious strategy to build a decision tree directly on bipartite-formatted datasets.
+ 
+For bipartite trees, as proposed by \cite{pliakos2018global}, we perform the split search locally in each domain, in a similar fashion to the SLMO adaptation (\autoref{sec:slmo}).
+% but specifically for each tree node. 
+%
+%The main concept behind it borrows the idea of the SLMO approach described in \autoref{sec:slmo},
+%in that the training procedure is divided into two steps, separately considering each axis of the bipartite data. However, instead of training two separate models as in SLMO, two candidate versions of each node are generated, one for each axis, and the best between both is selected to integrate the final model.
+%
+%Formally speaking, consider a general procedure \FindSplit for finding a split threshold in a traditional multioutput decision tree (see \autoref{sec:dt}).
+Specifically, let \FindSplit\textsubscript{trad} be a procedure for finding a split threshold in a traditional multioutput decision tree (see \autoref{sec:split search}).
+%The algorithm by \cite{pliakos2018global}
+A bipartite tree applies \FindSplit\textsubscript{trad} twice at each node: once over $X_1$ and $Y$ and once over $X_2$ and $Y\T$. This results in one split being chosen for each axis.
+Finally, the best overall split is selected between the vertical and horizontal splits.
+%horizontal split and the vertical split.
+%, according to the quality criterion of \autoref{eq:q_lmo}.
+%, so that each $Y$ \emph{row} is now interpreted as an output.
+%in which case each $Y$ \emph{column} is considered a different output;
+In essence, a bipartite decision tree algorithm uses a \FindSplit procedure that composes two traditional \FindSplit\textsubscript{trad} procedures, as detailed by \autoref{alg:find_bipartite_split}.
 
-Although each node locally performs the partitioning search on each axis, the resulting tree in its entirety is termed \emph{Global MultiOutput} (GMO) by the original authors, and its training procedure corresponds to using \FindSplit = \ref{alg:find_bipartite_split} in \ref{alg:buildtree}.
+%Although each node locally performs the partitioning search on each axis, the resulting tree in its entirety is termed \emph{Global MultiOutput} (GMO) by the original authors, and its training procedure corresponds to using \FindSplit = \ref{alg:find_bipartite_split} in \ref{alg:buildtree}.
 
 \algFindBipartiteSplit
 
-Interestingly, contrary to the other adaptation approaches of traditional machine learning algorithms (\autoref{sec:standard adaptations}), the PBCT procedure does not require using multiple monopartite estimators and training steps (such as SLMO, \autoref{sec:slmo}) or converting bipartite datasets to the memory-expensive global format such as SGSO (\autoref{sec:sgso}). Nevertheless, considering each row or column of $Y$ as a separate output results that growing a PBCT still occurs in the same asymptotic time complexity of a decision tree under the SGSO adaptation (derived in \autoref{sec:complexity_analysis}). 
-
-Remarkably, we show that leveraging the single-output assumption (\autoref{sec:standard adaptations}) in the tree impurity calculation can simplify the bipartite local split searching procedure introduced by \textcite{pliakos2018global}, yielding a new PBCT-based algorithm with expressive gains in training time efficiency. A formal description of our algorithm proposal is now presented.
-
-%Nevertheless, an argument could be made in opposition to this idea.
-
-%In some sense, a decision tree could be understood as an ensemble of trivial node-wise estimators, each predicting the mean of the training labels in its partition.
-
-%A decision tree training process could indeed be understood as a wrapper procedure around a simpler estimator. Within each node, the decision tree training searches for a way to separate the training samples into two complimentary partitions. Evaluating several of such splits, it is chosen the one which minimizes the variances of each of the two $Y$ partitions it generates. This could be interpreted as minimizing the mean squared error of a trivial estimator that outputs the mean of $Y$ values for any given input. Under this optics, a decision tree recursively searches for binary splits that most favor the performance of a wrapped estimator.
+%\begin{equation}
+%    I = I(Y) + I(Y\T)
+%\end{equation}
 %
-%Still under this interpretation, the PBCT algorithm then consists of applying to this simple estimator in each node a strategy that resembles the LMO adaptation discussed earlier. The search for the best split is executed locally, for each axis, and the best overall result is chosen between each axis' best.
+%Interestingly, contrary to the other adaptation approaches of traditional machine learning algorithms (\autoref{sec:standard adaptations}), the PBCT procedure does not require using multiple traditional estimators and training steps (such as SLMO, \autoref{sec:slmo}) or converting bipartite datasets to the memory-expensive global format such as SGSO (\autoref{sec:sgso}). Nevertheless, considering each row or column of $Y$ as a separate output results that growing a PBCT still occurs in the same asymptotic time complexity of a decision tree under the SGSO adaptation (derived in \autoref{sec:complexity_analysis}). 
 %
-%Although maybe a wrapper of a locally adapted trivial estimator, the tree structure generated after training has the exact same format as that of a monopartite decision tree, so that the prediction procedure does not involve any training of component models as is expected with LMO-adapted models. Hence, these bipartite data-centered tree learning algorithms seem to not fit under any of the previously described categories, and we choose to inaugurate a third group we hereafter call \emph{native bipartite models}, encompassing estimators whose basic functioning is specifically designed to deal with interaction data in its bipartite format.
+%Remarkably, we show that leveraging the single-output assumption (\autoref{sec:standard adaptations}) in the tree impurity calculation can simplify the bipartite local split searching procedure introduced by \textcite{pliakos2018global}, yielding a new PBCT-based algorithm with expressive gains in training time efficiency. A formal description of our algorithm proposal is now presented.
+%
+%%Nevertheless, an argument could be made in opposition to this idea.
+%
+%%In some sense, a decision tree could be understood as an ensemble of trivial node-wise estimators, each predicting the mean of the training labels in its partition.
+%
+%%A decision tree training process could indeed be understood as a wrapper procedure around a simpler estimator. Within each node, the decision tree training searches for a way to separate the training samples into two complimentary partitions. Evaluating several of such splits, it is chosen the one which minimizes the variances of each of the two $Y$ partitions it generates. This could be interpreted as minimizing the mean squared error of a trivial estimator that outputs the mean of $Y$ values for any given input. Under this optics, a decision tree recursively searches for binary splits that most favor the performance of a wrapped estimator.
+%%
+%%Still under this interpretation, the PBCT algorithm then consists of applying to this simple estimator in each node a strategy that resembles the LMO adaptation discussed earlier. The search for the best split is executed locally, for each axis, and the best overall result is chosen between each axis' best.
+%%
+%%Although maybe a wrapper of a locally adapted trivial estimator, the tree structure generated after training has the exact same format as that of a traditional decision tree, so that the prediction procedure does not involve any training of component models as is expected with LMO-adapted models. Hence, these bipartite data-centered tree learning algorithms seem to not fit under any of the previously described categories, and we choose to inaugurate a third group we hereafter call \emph{native bipartite models}, encompassing estimators whose basic functioning is specifically designed to deal with interaction data in its bipartite format.
 
 \subsection{Bipartite global single-output trees}
 \label{sec:bgso_trees}
 %Although being developed specifically to interaction data, the PBCT algorithm shows no improvement in training time complexity relative to the naive GSO approach, as derived in the Section \ref{sec:complexity_analysis}.
 
-Notice that the split rules as defined by \autoref{eq:datasplit} are agnostic to the specific arrangement of the bipartite data, being seamlessly applicable to the ($X_\text{SGSO}$, $Y_\text{SGSO}$) format employed by the SGSO adaptation (\autoref{eq:sgso_data}) or directly to the $X_1$, $X_2$ and $Y$ matrices. For a decision tree growing under the SGSO framework, the impurity of each node, calculated as $I(Y_\text{SGSO})$, in many cases could be easily translated to the bipartite format. \autoref{eq:bipartite_gso_equivalence} describes such a translation of the MSE impurity presented by \autoref{eq:mse}.
+This section shows how we can grow bipartite trees more efficiently, making tree estimators more scalable to large bipartite datasets.
+
+The original bipartite tree proposed by \cite{pliakos2018global} uses the impurity metric $I_\text{MSE}$ (\autoref{eq:mse}) to evaluate splits, so that the authors classify their technique as a \emph{Global MultiOutput} (GMO) estimator. \emph{Multi-output} because the impurity evaluates the average variance of each label column (or row), as if each column (or row) were a different output. \emph{Global} because each tree utilizes features from both feature domains for training (see \autoref{sec:standard adaptations}).
+Their GMO trees, however, are shown to have the same algorithmic complexity as traditional decision trees trained with the SGSO adaptation. We demonstrate that faster training algorithms can be developed if we assume a single-output format under the context of bipartite trees. %instead of GMO, without .
+
+%Notice that
+The split rules as defined by \autoref{eq:datasplit} are agnostic to the specific arrangement of the bipartite data. They can be seamlessly applicable to either the ($X_\text{SGSO}$, $Y_\text{SGSO}$) format employed by the SGSO adaptation (\autoref{eq:sgso_data}) or directly to the $X_1$, $X_2$ and $Y$ matrices.
+Furthermore, the impurity at each node of an SGSO tree,
+%$I(Y_\text{SGSO})$,
+in many cases can be translated to the bipartite format. \autoref{eq:bipartite_gso_equivalence} describes such a translation of the MSE impurity presented by \autoref{eq:mse}.
 %
 \begin{equation}
     I_\text{MSE}(Y_\text{SGSO})
@@ -703,12 +616,19 @@ If we then define
     \label{eq:gso_mse}
 \end{equation}
 %
-the exact same SGSO-adapted decision tree, with its node structure and split rules, can be grown by applying the PBCT procedure (\autoref{alg:find_bipartite_split}) with the $I_\text{GMSE}$ impurity instead of the original $I_\text{MSE}$. This again follows from the generality of the split rules defined in \autoref{eq:datasplit}, invariant under the SGSO data rearrangement (\autoref{eq:sgso_data}).
+the exact same SGSO-adapted decision tree, with its node structure and split rules, can be grown by applying the bipartite procedure (\autoref{alg:find_bipartite_split}) with the $I_\text{GMSE}$ impurity instead of the original $I_\text{MSE}$. This again follows from the generality of the split rules defined in \autoref{eq:datasplit}, invariant under the SGSO data rearrangement (\autoref{eq:sgso_data}).
 
-Notably, this new impurity poses a simple yet sound advantage over the original. 
-Having only total averages in \autoref{eq:gso_mse}, always involving both $i$ and $j$ indices simultaneously, exempts the training function from storing column-wise label averages during split search, enabling us to pre-compute averages of each row and column of $Y_\text{node}$ and to iterate over one-dimensional $\tilde Y_\text{node}$ proxies (\autoref{eq:y_proxies}) instead of the bi-dimensional matrix when evaluating splits (\autoref{} of \autoref{alg:}).   % TODO REF ALGO
+%Notice how the divergence in \ref{eq:mse_gmo} is computed relative to the average of each $Y$ column, while in \ref{eq:gso_mse} the inner average is computed over the whole $Y$ matrix.
+
+%Using this new impurity poses a simple yet sound advantage over the original. 
+Notice how the squared divergences in \ref{eq:mse_gmo} is computed relative to the average of each $Y$ column, while in \ref{eq:gso_mse} the inner average is computed over the whole $Y$ matrix.  % TODO ?
+%This highlights the key difference between GSO and GMO impurities: GSO considers all elements of $Y$ as different values for the same output.
+
+We can explore this property of the GSO impurity to iterate more efficiently over candidate splits.
+This is done by pre-computing averages of each row and column of $Y_\text{node}$. We can then iterate over one-dimensional $\tilde Y_\text{node}$ proxies (\autoref{eq:y_proxies}) instead of the bi-dimensional matrix when evaluating splits (\autoref{} of \autoref{alg:}).
+%Having only total averages in \autoref{eq:gso_mse}, always involving both $i$ and $j$ indices simultaneously, exempts the training function from storing column-wise label averages during split search, enabling us to pre-compute averages of each row and column of $Y_\text{node}$ and to iterate over one-dimensional $\tilde Y_\text{node}$ proxies (\autoref{eq:y_proxies}) instead of the bi-dimensional matrix when evaluating splits (\autoref{} of \autoref{alg:}).   % TODO REF ALGO
 %
-This property can be explored to build a more efficient training procedure for bipartite GSO decision trees, as demonstrated in the asymptotic complexity analysis developed in \autoref{sec:complexity_analysis}.
+%This property can be explored to build a more efficient training procedure for bipartite GSO decision trees, as demonstrated in the asymptotic complexity analysis developed in \autoref{sec:complexity_analysis}.
 %
 \begin{equation}
     \begin{split}
@@ -719,13 +639,18 @@ This property can be explored to build a more efficient training procedure for b
     \end{split}
     \label{eq:y_proxies}
 \end{equation}
+%
+The same is not possible for the GMO trees, as \autoref{eq:mse} requires storing averages for each $Y$ column, to be squared individually.
+\autoref{alg:find_bipartite_split} describes the adapted procedure in each case.
+%
+The complexity improvements are demonstrated theoretically in \autoref{sec:complexity_analysis} and empirically in \autoref{sec:empirical_complexity}.
 
 % --------------
 %However, in \autoref{eq:q_optimization} we demonstrate how a single-output impurity metric can be used directly in the bipartite setup. Being single-output, no distinction is made among $Y$ columns or rows, minimizing label deviance relative to the global average $Y\mel{ij}$ instead of column averages $Y\mel i\el j$. Considering such metric enables further optimization of the split searching procedure by employing single-column proxies of the interaction matrix (\autoref{eq:y_proxies}), as also described by the Function \ref{alg:find_bipartite_split} and justified in Section \ref{sec:complexity_analysis}.
 
 % With the \ref{alg:find_best_split} procedure we intend to evaluate all possible data partitions with format as defined by \ref{eq:datasplit}.
-%The bipartite decision trees grown with this procedure on $X_1$, $X_2$ and $Y$ have the exact same structure as a usual monopartite decision tree trained on a dataset $X_\text{SGSO}$ and $Y_\text{SGSO}$ adapted with the monopartite global strategy (Section \ref{}). This property can be intuitively shown by noticing that $X_1$ and $X_2$ already contain all the information necessary to define a set of thresholds that yields all possible partitions, since each partition considers a single $X$ column and building $X_\text{SGSO}$ does not removes or adds different elements to each of them (only repeats them).
-%%and no conversion to the global monopartite format ($X_\text{SGSO}$ and $Y_\text{SGSO}$) is necessary.
+%The bipartite decision trees grown with this procedure on $X_1$, $X_2$ and $Y$ have the exact same structure as a usual traditional decision tree trained on a dataset $X_\text{SGSO}$ and $Y_\text{SGSO}$ adapted with the traditional global strategy (Section \ref{}). This property can be intuitively shown by noticing that $X_1$ and $X_2$ already contain all the information necessary to define a set of thresholds that yields all possible partitions, since each partition considers a single $X$ column and building $X_\text{SGSO}$ does not removes or adds different elements to each of them (only repeats them).
+%%and no conversion to the global traditional format ($X_\text{SGSO}$ and $Y_\text{SGSO}$) is necessary.
 %This result is a consequence of \autoref{eq:gsodata} and is formally stated by \autoref{eq:bipartite_gso_equivalence}, in which we assume $f_2 = f_g-|X_1|_j$.
 %
 % \begin{multline}
@@ -771,10 +696,14 @@ This property can be explored to build a more efficient training procedure for b
 %This reduces the complexity of a variance-guided split search from $O(|X_1|_in_{ns2}(|X_1|_i+n_{ns2}))$ to $O((|X_1|_i+n_{ns2})^2)$.  % TODO
 
 
-\subsection{Prototype functions of bipartite decision trees}
+\subsection{Prototype functions for bipartite trees}
 \label{sec:prototype}
 
-When a leaf is reached during the prediction step of a decision tree, the \KwPrototype function is called to determine the output value to be returned (\autoref{ln:prototype} of \autoref{alg:predict}). With monopartite datasets, the \KwPrototype function of traditional decision trees most often simply returns, for each output, the average label of the leaf's partition (\autoref{eq:prototype1})~\cite{breiman1984classification}.
+When a leaf is reached during the prediction step of a decision tree, the \KwPrototype function is called to determine the output value to be returned (\autoref{ln:prototype} of \autoref{alg:predict}).
+With traditional datasets, the \KwPrototype function
+%of traditional decision trees
+most often returns the average label of the leaf's partition (\autoref{eq:prototype1})~\cite{breiman1984classification}.
+%most often returns, for each output, the average label of the leaf's partition (\autoref{eq:prototype1})~\cite{breiman1984classification}.
 %
 \begin{equation}
     \KwPrototype{Y\textsubscript{leaf}}\el j=Y_\text{leaf}^{\ang{i}[j]}
@@ -884,7 +813,7 @@ Since we are dealing with precomputed pairwise similarities, $X_1$ and $X_2$ are
 
 %---------------------------------------
 
-%When the monopartite global adaptation $Y_\text{SGSO}$ is utilized (see Section \ref{sec:definitions}), a global version of $I_\text{MSE}(\cdot)$ can be used to achieve the same result in the corresponding bipartite partition $Y$.
+%When the traditional global adaptation $Y_\text{SGSO}$ is utilized (see Section \ref{sec:definitions}), a global version of $I_\text{MSE}(\cdot)$ can be used to achieve the same result in the corresponding bipartite partition $Y$.
 %%
 %\begin{multline*}
 %        I_\text{MSE}(Y_\text{SGSO})
@@ -1080,18 +1009,20 @@ Since we are dealing with precomputed pairwise similarities, $X_1$ and $X_2$ are
 %TODO cite known complexities
 From the algorithm description, one can infer that \ref{alg:find_best_split}'s complexity will be given by
 %
-\begin{equation}
+\begin{align}
     %O(\ref{alg:find_best_split})
-    O(alg:find\_best\_split)
+    O(\FindSplitBest)
     %= O(\tilde n_f S(|Y|_i) + \tilde n_f |Y|_i|Y|_j)
     %= O(\tilde n_f |Y|_i \log |Y|_i + \tilde n_f |Y|_i|Y|_j)
     %= O(\tilde n_f |Y|_i|Y|_j)
-    = O(\tilde n_f S(|Y|_i) + \tilde n_f |Y|_i|Y|_j)
-    = O(\tilde n_f |Y|_i \log |Y|_i + \tilde n_f |Y|_i|Y|_j)
-    = O(\tilde n_f |Y|_i (\log |Y|_i + |Y|_j))
+    &= O(\tilde n_f S(|Y|_i) + \tilde n_f |Y|_i|Y|_j)
+    =\nonumber\\
+    &= O(\tilde n_f |Y|_i \log |Y|_i + \tilde n_f |Y|_i|Y|_j)
+    =\nonumber\\
+    &= O(\tilde n_f |Y|_i (\log |Y|_i + |Y|_j))
     %= O(\tilde n_f |Y|_i|Y|_j)
     \label{eq:O_find_best_split}
-\end{equation}
+\end{align}
 %where we assume $|Y|_i \approx |Y|_j$ and $S(n)$ is the complexity of the chosen sorting algorithm of \atoref{} when operating on $n$ values.
 where $\tilde n_f$ is the number of features being considered in each node and $S(n)$ is the complexity of the chosen sorting algorithm of \atoref{} when operating on $n$ values. $\tilde n_f$ is a hyperparameter of random forests (\autoref{sec:bipartite_forests}) usually defined as a function of the total number of features $|X|_j$. We further employ $\tilde n_{f1}$ and $\tilde n_{f2}$ to refer to the number of features to be selected from $X_1$ and $X_2$, respectively, in each node.
 
@@ -1104,49 +1035,53 @@ That said, considering $S(n) = O(n \log n)$ does not affect $O(\ref{alg:find_bes
 
 When applied on $X_\text{SGSO}$ and $Y_\text{SGSO}$ as in the naive GSO approach, we have \autoref{eq:O_sgso}.
 %
-\begin{equation}
+\begin{align}
     %O(\ref{alg:find_best_split})
-    O(alg:find\_best\_split)
-    = O(
+    O(\FindSplitBest)
+    &= O(
         (\tilde n_{f1} + \tilde n_{f2})
-        |Y_\text{SGSO}|_i|
-        (\log Y_\text{SGSO}|_i + |Y_\text{SGSO}|_j)
+        |Y_\text{SGSO}|_i
+        (\log |Y_\text{SGSO}|_i + |Y_\text{SGSO}|_j)
     )
+    =\nonumber\\
     %= O(\tilde n_f |Y_\text{SGSO}|_i)
-    = O((\tilde n_{f1} + \tilde n_{f2}) |Y_\text{SGSO}|_i|\log Y_\text{SGSO}|_i)
-    = O((\tilde n_{f1} + \tilde n_{f2}) |Y|_i|Y|_j (\log |Y|_i + \log |Y|_j))
+    &= O((\tilde n_{f1} + \tilde n_{f2}) |Y_\text{SGSO}|_i|\log Y_\text{SGSO}|_i)
+    =\nonumber\\
+    &= O((\tilde n_{f1} + \tilde n_{f2}) |Y|_i|Y|_j (\log |Y|_i + \log |Y|_j))
     \label{eq:O_sgso}
-\end{equation}
+\end{align}
 
 For \ref{alg:find_bipartite_split} employing the GMO approach (the original PBCT procedure~\cite{pliakos2018global}), the time complexity is given by \autoref{eq:O_gmo}, which renders it equivalent to the SGSO strategy. $\tilde n_{f1}$ and $\tilde n_{f2}$ stand for the numbers of row and column features to be drawn at each node, respectively.
 %
-\begin{equation}
-    %O(\ref{alg:find_bipartite_split}_\text{GMO})
+\begin{align}
+    O(\FindSplitBest_\text{GMO})
     = O(
         \tilde n_{f1} |Y|_i|(\log |Y|_i + |Y|_j)
         + \tilde n_{f2} |Y|_j|(\log |Y|_j + |Y|_i)
     )
+    =\nonumber\\
     = O((\tilde n_{f1} + \tilde n_{f2}) |Y|_i||Y|_j)
     \label{eq:O_gmo}
-\end{equation}
+\end{align}
 
 When considering the BGSO approach however, $\tilde Y_1$ and $\tilde Y_2$ column vectors are used instead of $Y$, effectively eliminating the \texttt{for} loops in \autoref{algline:gmo_loop1} and \autoref{algline:gmo_loop2} of \autoref{alg:find_best_split}. Considering that building the $\tilde Y$ proxies takes $O(|Y|_i|Y|_j)$, the split search procedure in this strategy has its complexity described by \autoref{eq:O_bgso}.
 %
-\begin{equation}
+\begin{align}
     %O(\ref{alg:find_bipartite_split}_\text{BGSO})
-    O(alg:find\_bipartite\_split_\text{BGSO})
+    O(\FindSplitBest_\text{GSO})
     = O(
         |Y|_i|Y|_j
         + \tilde n_{f1} |\tilde Y_1|_i \log |\tilde Y_1|_i
         + \tilde n_{f2} |\tilde Y_2|_i \log |\tilde Y_2|_i
     )
+    =\nonumber\\
     = O(
         |Y|_i|Y|_j
         + \tilde n_{f1} |Y|_i \log |Y|_i
         + \tilde n_{f2} |Y|_j \log |Y|_j
     )
     \label{eq:O_bgso}
-\end{equation}
+\end{align}
 
 For the whole tree-building process, considering $|Y|_i \propto |Y|_j = n$ and given any constant $k \in \mathbb{N}$ so that $O(\text{FindSplit})=n^k$ % \log n$,
 we analyze the best case of a balanced decision tree, where the number of samples in each node ($|Y| = n^2$) halves with each level added:
@@ -1343,6 +1278,7 @@ n_{f1} %\begin{multline}
 
 
 \subsection{Decision forests}
+\label{sec:decision forests}
 
 %Although valuable tools to understand the learning problem in hands, sole decision trees are often not enough to effectively model complex relationships among the data, lacking generalization power and being prone to overfitting~\cite{}. % under or overfitting?
 %Their most powerful prediction capabilities are unleashed when committees of such models are employed 
@@ -1478,7 +1414,7 @@ Specifically, the structure of each tree represents a hierarchical clustering of
 %
 However, this clustering procedure is usually preformed under the objective of grouping instances with similar \emph{labels}, which not necessarily means that instances in the same group will have similar \emph{features}.
 %
-This results from the definition of the impurity function $I$ governing the split search procedure: $I$ is usually chosen as to minimize the divergence of labels within each partition (see \autoref{sec:monopartite trees}). As such, $I$ commonly depends on $Y_\text{node}$ alone.
+This results from the definition of the impurity function $I$ governing the split search procedure: $I$ is usually chosen as to minimize the divergence of labels within each partition (see \autoref{sec:traditional trees}). As such, $I$ commonly depends on $Y_\text{node}$ alone.
 %
 With that in mind, decision trees can be naturally adapted to unsupervised or semi-supervised tasks by redefining the impurity function to consider the feature matrix $X_\text{node}$ instead of only the label matrix $Y_\text{node}$.
 
@@ -1596,6 +1532,179 @@ We also speculate that the observed benefit of a dynamic $\sigma$ could emerge f
 
 
 \section{Other estimator-centered strategies}
+\label{sec:learner centered}
+
+This section presents two other 
+
+\subsection{Linear models}
+\label{sec:linear_models}
+
+One of the simplest approaches to learning problems in general is to assume a linear relationship between the input features and output labels. Formally, for the non-bipartite case, one assumes that the training output matrix $Y$ can be approximated as follows:
+%
+\begin{equation}
+    \hat Y = X W
+\end{equation}
+%
+in which $W$ is a matrix representing the set of parameters to be learned. To determine $W$, the mean squared error (MSE) is usually defined as the loss function to be minimized, to which we add an extra regularization term controlled by the hyperparameter $\alpha$:
+%
+\begin{equation}
+    \mathcal{J} = \frac{1}{2} \|Y - \hat Y\|^2 + \frac{\alpha}{2} \|W\|^2
+    = \frac{1}{2} \|Y - XW\|^2 + \frac{\alpha}{2} \|W\|^2
+\end{equation}
+%
+An analytical solution for $W$ can be obtained by taking the derivative of $\mathcal{J}$ with respect to $W$ and setting it to zero:
+%
+\begin{equation} %TODO FIX THE ORDER OF THE multiplications
+    \frac{\partial \mathcal{J}}{\partial W} = 0
+    = X\T (XW - Y) + \alpha W
+    %= (Y - XW) + (\alpha\mathbb{I}) W
+    \implies W = (X\T X + \alpha I)^{-1} X\T Y
+\end{equation}
+
+There are scenarios, however, where the specific values of $X$ are less interesting than the pairwise similarities between them. In those settings, while $X$ may not be directly available, we do have access to similarity matrices $S$ (also called \emph{kernel} matrices) in which $S\el{ij}$ designates a similarity score between $X\el{i}$ and $X\el{j}$. Rather than simply considering $S$ in the same way we would treat $X$ in linear regression, we could instead employ the \emph{kernel trick}~\cite{murphy2012machine}: replacing the $XX\T$ terms in the above equations by $S$. In this case, we are assuming that similarities $S\el{ij}$ represent the internal product of the vectors $X\el{i}$ and $X\el{j}$ in some feature space, which is based on the intuition that the internal product by itself can be regarded as a similarity metric.
+%
+We also define $W$ slightly differently, ommiting the $X\T$ factor as $W = (S + \alpha I)^{-1} Y$, so that the final prediction is given by
+%
+\begin{equation}
+    \hat Y = S W = (S + \alpha I)^{-1} S
+\end{equation}
+
+For the bipartite interaction prediction case, besides standard adaptations as described in \autoref{sec:standard adaptations}, a unique formulation is presented by \textcite{vanlaarhoven2011gaussian}. Similar in concept to the standard global single output procedure (\autoref{sec:standard adaptations}), the authors consider each interaction pair as a unitary instance. The authors then propose building a kernel matrix relating each pair of instances to another pair, and not each interacting entity to another of the same domain. If $S_1 \in \mathbb{R}^{n_1 \times n_1}$ and $S_2 \in \mathbb{R}^{n_2 \times n_2}$ are the intra-domain similarity matrices, the global kernel matrix $S$ is defined as
+%
+\begin{equation}
+    S\el{(i_1n_2 + i_2)(j_1 n_2 + j_2)} = S_1\el{i_1j_1} S_2\el{i_2j_2}
+\end{equation}
+%
+or, more succinctly, as the Kronecker product of $S_1$ and $S_2$:
+%
+\begin{equation}
+    S = S_1 \otimes S_2
+\end{equation}
+%
+Each entry on $S$ thus represents the similarity between the pair $X_1\el{i_1}$-$X_2\el{j_1}$ and another pair $X_1\el{i_2}$-$X_2\el{j_2}$ by the product of the similarities between $X_1\el{i_1}$ and $X_1\el{j_1}$ and between $X_2\el{i_2}$ and $X_2\el{j_2}$.
+
+The bipartite linear regression is then framed on the vectorized $Y$, denoted $\text{vec}(Y)$, built by concatenating the columns of $Y$ into a single $|Y|$ by $1$ column vector.
+Purely for notation purposes, we organize the weight parameters as the vectorized version of a matrix $W$ with the same dimensions of $Y$.
+%
+\begin{gather}
+    \text{vec}(\hat Y) = S\,\text{vec}(W) \approx \text{vec}(Y)
+    \\
+    \text{vec}(W) = (S + \alpha I)^{-1} \text{vec}(Y)
+\end{gather}
+
+As the reader may imagine, $S$ gets prohibitively large for big datasets (it's a $n_1 n_2$-sized square matrix!), both in terms of memory usage and the time needed to perform the matrix inversion. The authors, however, provide a clever way of circumventing this issue by decomposing each of the $S_1$ and $S_2$ kernel matrices separately and exploiting the properties of the Kronecker product.
+
+Given that $S_1$ and $S_2$ are symmetric square matrices, it follows from the spectral theorem~\cite{} that they can be decomposed as follows:
+%
+\begin{gather*}
+    S_1 = U_1 \Lambda_1 U_1\T \\
+    S_2 = U_2 \Lambda_2 U_2\T
+\end{gather*}
+%
+where, if $\mathbf{\lambda}_1$ represents the vector of eigenvalues of $S_1$, $\Lambda_1$ is the diagonal matrix of those eigenvalues ($\Lambda_1 = \text{diag}(\mathbf{\lambda}_1)$), with $U_1$ columns representing their corresponding eigenvectors $U^{\intercal[i]}$ for each $\mathbf{\lambda}_1\el{i}$. The symmetry of the similarity matrices also implies that $U_1$ and $U_2$ are orthogonal, i.e. $U_1\T U_1 = U_1 U_1\T = \mathbb{I}$ and $U_2\T U_2 = U_2 U_2\T = \mathbb{I}$, or, equivalently, $U_1^{-1} = U_1\T$ and $U_2^{-1} = U_2\T$.
+%
+Utilizing the fact that $(AB) \otimes (CD) = (A \otimes C)(B \otimes D)$~\cite{}, the Kronecker product of $S_1$ and $S_2$ can be written as
+%
+\begin{equation}
+    S = S_1 \otimes S_2
+    = (U_1 \Lambda_1 U_1\T) \otimes (U_2 \Lambda_2 U_2\T)
+    % = (U_1 \otimes U_2) (\Lambda_1 V_1\T \otimes \Lambda_2 V_2\T)
+    % = (U_1 \otimes U_2) (\Lambda_1 \otimes \Lambda_2) (V_1\T \otimes V_2\T)
+    = (U_1 \otimes U_2) (\Lambda_1 \otimes \Lambda_2) (U_1 \otimes U_2)\T
+    = U \Lambda U\T
+\end{equation}
+%
+in which we denote $U = U_1 \otimes U_2$ and $\Lambda = \Lambda_1 \otimes \Lambda_2$.
+$W$ now becomes
+%
+\begin{equation*}
+    \text{vec}(W) = (U \Lambda U\T + \alpha \mathbb{I})^{-1} \text{vec}(Y)
+\end{equation*}
+%
+Further exploring the orthogonality of $U$, $U U\T = U \mathbb{I} U\T = \mathbb{I}$, so that
+%
+\begin{equation*}
+    \text{vec}(W) = U (\Lambda + \alpha\mathbb{I})^{-1} U\T \text{vec}(Y)
+\end{equation*}
+%
+The most crucial property of the Kronecker product for our application is its relationship with the vectorization operator~\cite{}: $(A \otimes B)\text{vec} (C) = \text{vec}(BCA\T)$, which allows us to write
+%
+\begin{equation*}
+    \text{vec}(W)
+    = U (\Lambda + \alpha\mathbb{I})^{-1} (U_1\T \otimes U_2\T) \text{vec}(Y)
+    = U (\Lambda + \alpha\mathbb{I})^{-1} \text{vec}(U_2\T Y U_1)
+\end{equation*}
+%
+Since $(\Lambda + \alpha\mathbb{I})^{-1}$ is diagonal, its multiplication by the vector $\text{vec}(U_2\T Y U_1)\T$ can be expressed as a Hadamard product (element-wise multiplication, denoted by $\odot$) between two vectors. Acting element-wise, the Hadamard product is unaffected by vectorization, so that we can simplify the above expression by employing the matrix
+%
+\begin{equation}
+    (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1[ij]}
+    = \frac{1}{\alpha + \mathbf{\lambda}_1\el{i} \mathbf{\lambda}_2\el{j}}
+\end{equation}
+%
+In this context, $\mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T$ represents the $n_1$ by $n_2$ matrix resulting from the \emph{outer product} of the vectors containing the eigenvalues of $S_1$ and $S_2$, respectively, while $A^{\circ -1}$ denotes the Hadamard inverse, corresponding to the matrix formed by taking the reciprocal of each element in $A$. Thus,
+%
+\begin{multline*}
+    \text{vec}(W)
+    = U \text{diag}(\Lambda + \alpha^{-1}\mathbb{I}) \odot \text{vec}(U_2\T Y U_1)
+    =\\
+    = (U_1 \otimes U_2) \text{vec}(
+        (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+        \odot (U_2\T Y U_1)
+    )
+    =\\
+    = \text{vec}(
+        U_2
+        [
+            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+            \odot (U_2\T Y U_1)
+        ]
+        U_1\T
+    )
+\end{multline*}
+%
+Which yields
+%
+\begin{equation}
+    W = 
+        U_2
+        [
+            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+            \odot (U_2\T Y U_1)
+        ]
+        U_1\T
+\end{equation}
+
+Finally, predictions for a new group of instances in the test set are obtained as follows from the similarities with the train instances ($S_\text{1, test}\el{ij}$ specifies the similarity between $X_\text{1, test}\el{i}$ and $X_\text{1, train}\el{j}$).
+%
+\begin{equation}
+    \text{vec}(\hat Y_\text{test})
+    = (S_\text{1, test} \otimes S_\text{2, test}) \text{vec}(W)
+    = \text{vec}(S_\text{2, test} W S_\text{1, test}\T)
+\end{equation}
+%
+which summarizes to
+%
+\begin{equation}
+    \hat Y_\text{test} =
+        S_\text{2, test}
+        U_2
+        [
+            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+            \odot (U_2\T Y U_1)
+        ]
+        U_1\T
+        S_\text{1, test}\T
+\end{equation}
+
+%TODO rlskron did not worry about new instances
+%TODO complexity
+%TODO using all neighbors in BLM is prone to overfitting
+%TODO converting usual problems to bipartite format
+%TODO although nrlmf is fast, building a complete tree after is not
+%TODO grid search can be even detrimental in small sparse datasets, since test sets are not representative
+
+
 
 \subsection{Neighborhood-Regularized Matrix Factorization}
 \label{sec:nrlmf}
@@ -2116,6 +2225,8 @@ We refer to the aforementioned two-dimensional cross-validation procedure built 
 % TODO: why we don't use it.
 
 In order to maximize the amount of training data in each fold, several studies \ref{} perform LT and TL validation separately from the TT validation, employing 1 by $k$ and $k$ by 1 cross-validation procedures respectively for LT and TL settings. Nevertheless, this requires performing cross-validation three times for each estimator, while TT cross-validation already unavoidably generates LT and TL partitions that could be used for scoring. Furthermore, using separate LT, TL and TT validation procedures hinders score comparison between LT and TT and between TL and TT, since different amounts of training data would be used for validating TT in comparison to validating the partially-learned test sets.
+
+% TODO: consider that X is pairwise! important detail not considered by many
 
 
 \subsection{Prediction scoring metrics}
@@ -4154,6 +4265,6 @@ Additionally, we argue that the AP metric is less sensitive than AUROC to this a
 
 %TODO
 % \subsection{Next steps}
-% monopartite to bipartite approximation
+% traditional to bipartite approximation
 % 
 % n-partite data
