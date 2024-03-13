@@ -9,11 +9,32 @@
 			%\pageref{LastPage}f.
 			\imprimirtipotrabalho~-~\imprimirinstituicao, \imprimirlocal, \imprimirdata. 
  	\end{flushleft}
-\OnehalfSpacing 			
- O resumo deve ressaltar o  objetivo, o método, os resultados e as conclusões do documento. A ordem e a extensão  destes itens dependem do tipo de resumo (informativo ou indicativo) e do  tratamento que cada item recebe no documento original. O resumo deve ser
- precedido da referência do documento, com exceção do resumo inserido no
- próprio documento. (\ldots)  Salientamos que algumas Unidades exigem o titulo dos trabalhos acadêmicos em inglês, tornando necessário a inclusão das referências nos resumos e abstracts, o que foi adotado no \textbf{Modelo para TCC em \LaTeX\ utilizando a classe USPSC} e no \textbf{Modelo para teses e dissertações em \LaTeX\ utilizando a classe USPSC}. As palavras-chave devem figurar logo abaixo do  resumo, antecedidas da expressão Palavras-chave:, separadas entre si por  ponto e finalizadas também por ponto \cite{nbr6028}.
- 
+\OnehalfSpacing 				
+	%The present study investigates decision forest algorithms for predicting interactions in bipartite networks.
+	O presente estudo investiga algoritmos de floresta de decisão para prever interações em redes bipartidas.
+	%
+	% We concentrate on examples of such problems in the biological domain, such as drug-protein interactions, microRNA-gene interactions or long non-coding RNA-protein interactions.
+	Concentra-se em exemplos de tais problemas no domínio biológico, como interações fármaco-proteína, interações microRNA-gene ou interações entre moléculas de RNA longo não codificante e proteínas.
+	%
+	%Notwithstanding, the proposed methods encompass the broad range of tasks satisfying i) the goal is to predict interactions between two entities; ii) the interacting pairs are composed of two different types of entities; and iii) each type of entity has its own set of input features. We refer to this paradigm as \emph{bipartite interaction learning}.  % TODO only two domains
+	No entanto, os métodos propostos abrangem uma ampla gama de tarefas de aprendizado, caracterizadas por i) o objetivo é prever interações entre duas entidades; ii) os pares de interação são compostos por dois tipos diferentes de entidades; e iii) cada tipo de entidade possui seu próprio conjunto de características de entrada. 
+	Refere-se a este paradigma como aprendizado de interações bipartidas, ou \emph{aprendizado bipartido}.
+	%Predicting interactions in such networks has fundamental challenges. For instance, the number of possible interactions is often very large in comparison to the number of known interactions. As a result, the data is frequently sparse, and negative annotations are unreliable.
+	Prever interações em tais redes nos apresenta desafios fundamentais. Por exemplo, o número de interações possíveis é frequentemente muito superior ao número de interações conhecidas. Como resultado, os dados são muitas vezes esparsos, e as anotações negativas são questionáveis.
+	%	
+	%We explore a class of decision forest models specifically designed to address these challenges, that we broadly call \emph{bipartite forests}.
+	%
+	Exploramos uma classe de florestas de decisão especificamente projetadas para enfrentar esses desafios, que chamamos de \emph{florestas bipartidas} em geral.
+	%
+	%First, we demonstrate how these trees can be adapted to yield a $\log n$ speedup in training time.
+	%We also propose using weighted-neighbors approaches to determine each leaf's output, which resulted in improved generalization.
+	Primeiro, demonstramos como essas árvores podem ser adaptadas para obter uma melhora logarítmica no tempo de treinamento. Também propomos o uso de abordagens de vizinhos ponderados para determinar a saída de cada folha, resultando em melhora na capacidade de generalização dos modelos.
+	%Finally, we introduce semi-supervised impurity functions to bipartite forests. These functions result in trees that also consider clusters of instances in the feature space, rather than only their labels. This is shown to improve the forests' resilience to the missing annotations.
+	Finalmente, introduzimos funções de impureza semi-supervisionadas para florestas bipartidas. Essas funções resultam em árvores cientes da densidade do espaço de características, em vez de apenas considerar os rótulos para o crescimento. Mostra-se que isso melhora a resiliência das florestas às anotações faltantes. Nossos modelos exibem desempenho altamente competitivo em dez conjuntos de dados de previsão de interação.
+	%We believe the proposed methods can be a crucial step in developing effective and scalable machine learning models for interaction prediction.
+	%Further adaptations of these models could also impact other domains, such as recommendation systems, multilabel learning and weak-label learning.
+	Acreditamos que os métodos propostos podem ser um passo crucial no desenvolvimento de modelos de aprendizado de máquina eficazes e escaláveis para prever interações. Adaptações adicionais desses modelos também podem impactar domínios vizinhos, como sistemas de recomendação, aprendizado multi-rótulo e aprendizado de rótulos fracos.
 
- \textbf{Palavras-chave}: LaTeX. Classe USPSC. Tese. Dissertação. Trabalho de conclusão de curso (TCC). 
+	%\textbf{Palavras-chave}: Decision forests. Interaction prediction. Bipartite learning. Positive-unlabeled learning.
+	\textbf{Palavras-chave}: Florestas de decisão. Predição de interações. Aprensizado bipartido. Aprendizado positivo-não rotulado.
 \end{resumo}
