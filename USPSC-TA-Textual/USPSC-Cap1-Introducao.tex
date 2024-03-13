@@ -6,6 +6,10 @@
 \chapter[Introduction]{Introduction}
 \label{sec:introduction}
 
+As the starting point, we provide a brief overview of the concepts explored along this thesis. We begin by describing the learning paradigm of interest,
+and proceed by outlining its main challenges and current approaches.
+We then present the guiding research questions of our work, and describe how the remainder of this document will be organized.
+
 %Thus, bipartite interactions also naturally encompasses the data format targeted by the broadly-known recommender systems \cite{}.
 
 % DTI prediction review
@@ -96,7 +100,8 @@
 
 % TT is a highlight of our paper
 
-\section{General overview}
+%\section{What is bipartite learning?}
+\section{Context and motivation}
 
 
 % the problem is common
@@ -114,17 +119,24 @@ All those scenarios share the same underlying structure: there are two distinct 
 %objects from distinct groups holds a set of attributes describing their
 %interaction.
 
-{MORE STUFF}
+% TODO {MORE STUFF}
 
-Frequently, great importance lies in computationally describing such relationships. For instance, developing new drug molecules is a costly and time consuming process. A large portion of that cost derives from the large \textit{in vitro} screening experiments, extensive clinical trials and {}. Therefore, being able to predict beforehand the interactions in a large dataset of drugs and protein targets holds a remarkable potential to accelerate drug development and reduce its costs, enabling the concentration of financial resources and human expertise to a set of most promising candidates. On the other hand, being able to characterize on a large scale the relationships between microRNAs and genes or other biomolecular entities can greatly aid the understanding of regulatory mechanisms of gene expression, a valuable step towards the discovery and development of new therapies. 
+Frequently, great importance lies in computationally describing such relationships. For instance, developing new drug molecules is a costly and time-consuming process,
+%A large portion of that cost derives from the
+requiring years of complex computer simulations, large screening assays, and extensive trials~\cite{}.
+Being able to predict beforehand the interactions in a large dataset of drugs and protein targets holds a remarkable potential to accelerate drug development and reduce its costs, enabling the concentration of financial resources and human expertise to a set of most promising candidates. Furthermore, being able to characterize on a large scale the relationships between microRNAs and genes or other biomolecular entities can greatly aid the understanding of regulatory mechanisms of gene expression, a valuable step towards the discovery and development of new therapies. 
 
-% TODO machine learning
+% TODO why machine learning
+% TODO define bipartite learn in topics
+
 Therefore, it is natural that numerous machine learning algorithms have been proposed to predict interactions in bipartite networks. 
-The role of a learning algorithm in this setting is to receive a feature vector describing the heterogeneous pair, and characterize their interaction through a binary label. Additionally, we focus on cases where the input vector can be split into two: one vector representing each interacting entity.
+The role of a learning algorithm in this setting is to receive a feature vector describing the heterogeneous pair, and characterize their interaction through a binary label.
+Additionally, we focus on cases where the input vector can be split into two: one vector representing each interacting entity.
 %The role of a learning algorithm in this setting is to receive a feature vector describing the heterogeneous pair, and characterize their interaction through, namely, a binary label, affinity score or predicted user-item rating. Additionally, we focus on cases where the input vector can be split into two: one vector representing each interacting entity.
 %often composed of independent representations of each interacting entity,
 %
-Nonetheless, interaction prediction problems pose unique challenges to machine learning approaches, that we enumerate below.
+
+Despite their importance, interaction prediction problems pose unique challenges to machine learning approaches, that we enumerate below.
 %Despite their importance, interaction prediction problems pose unique challenges to machine learning approaches, that we enumerate below.
 %
 \begin{enumerate}
@@ -166,6 +178,7 @@ Ideally, we would want to avoid the combination of feature vectors as a data pre
 %Acknowledging such defining aspects and limitations and incorporating the bipartite nature of the problem from the ground up in the algorithm design process can be a crucial step in developing successful and scalable machine learning models for interaction prediction.
 In conclusion, acknowledging such defining aspects and incorporating the bipartite nature of the problem are crucial steps in developing successful and scalable machine learning models for interaction prediction.
 
+\subsection{How to build bipartite models}
 
 % RELATED TERMS section
 %one-class classification
@@ -239,6 +252,9 @@ Other methods adapt the learning algorithm itself to take full advantage of the 
 
 %Deep learning strategies have been gaining popularity in the last years for problems such as the prediction of drug-target affinities~\citep{} or microRNA-gene interactions~\citep{}. However, they often rely on the same GSO transformation we mentioned before, suffering from the scalability issues we mentioned and often not reporting predictive performance for new instances, only new combinations. Furthermore, the particular lack of interpretability of these models is a long-discussed matter in the scientific literature~\citep{}, and more transparent reasoning supporting the obtained predictions could be an invaluable asset in the advancement of human knowledge, potentially uncovering new insights about underlying molecular dynamics or genetic regulatory mechanisms of various interaction phenomena.
 
+%\section{Why decision trees?}
+\subsection{Why forest estimators are the \textit{bestimators}}
+
 In particular, decision trees are a very interesting option to explore. They show remarkable interpretability, flexibility to different tasks, and straightforward usage, besides demonstrating remarkable predictive power when combined into ensembles~\cite{breiman2001random, whyarebestfortabular}.  % TODO cite more
 We list below some of the main advantages of learning algorithms based on decision trees.
 
@@ -298,7 +314,8 @@ We introduce three main methodology refinements, aimed at the high dimensionalit
 \section{Related work}
 \label{sec:related_work}
 
-While early proposals of bipartite algorithms for drug-target interaction prediction already make use of the concept of local models, \cite{schrynemackers2015classifying} seem to be the first to formally define the ideas of the GSO and LMO adaptations of traditional machine learning algorithms. In their study, \cite{schrynemackers2015classifying} analyses the performance of Random Forests~\citep{breiman2001random} (RF) and Extremely Randomized Trees~\citep{geurts2006extremely} (ExtraTrees) adapted in both ways to be applied to DTI prediction, suggesting a greater potential to generalization of ExtraTrees in comparison to RF.
+
+\cite{schrynemackers2015classifying} define the ideas of the GSO and LMO adaptations of traditional machine learning algorithms. In their study, \cite{schrynemackers2015classifying} analyses the performance of Random Forests~\citep{breiman2001random} (RF) and Extremely Randomized Trees~\citep{geurts2006extremely} (ExtraTrees) adapted in both ways to be applied to DTI prediction, suggesting a greater potential to generalization of ExtraTrees in comparison to RF.
 
 In \citeyear{pliakos2018global}, \cite{pliakos2018global} presents the PBCT algorithm, an original adaptation of decision trees to bipartite scenarios, and demonstrates improved results over the previous, more superficial, adaptations. Although directly considering the bipartite data format, with separate design matrices for each domain, their proposal is still limited by the same asymptotic complexity of GSO-adapted trees.
 The authors later extend the PBCT algorithm to ensembles, building bipartite versions of Random Forests and ExtraTrees~\cite{pliakos2019network}. Later still, they explore the use of Neighborhood-Regularized Logistic Matrix Factorization (NRLMF)~\citep{liu2016neighborhood} as a pre-training step to bipartite ExtraTrees, generating continuous pseudo-labels for negative interactions to be inputted to the forest estimator. They demonstrate significant improvements in predictive performance resulting from this procedure~\cite{pliakos2019network}, reinforcing the hypothesized potential of semi-supervised techniques. Nevertheless, the authors refrain from experimenting with random forests, and their bipartite models are still subject to the same training complexity.
@@ -307,7 +324,7 @@ The authors later extend the PBCT algorithm to ensembles, building bipartite ver
 
 More recently, \cite{alves2023semisupervised} applied a more computationally efficient variant of this idea to bipartite trees, using a semi-supervised evaluation not in every possible split but to choose between the two best supervised splits of each domain at each tree node. The authors, however, do not explore ensembles of bipartite trees or the more expensive semi-supervised evaluation of every candidate split.
 
-In the present work, we thus demonstrate how bipartite trees can be grown faster with a modification of their training procedure. We also apply the original proposal of a semi-supervised split choice criterion to bipartite trees and compare it to the more efficient variant proposed by \cite{alves2023semisupervised}. We also propose an intermediate-complexity approach for kernel features, enabling semi-supervised evaluation of every candidate split while still being faster than the original idea. 
+%In the present work, we thus demonstrate how bipartite trees can be grown faster with a modification of their training procedure. We also apply the original proposal of a semi-supervised split choice criterion to bipartite trees and compare it to the more efficient variant proposed by \cite{alves2023semisupervised}. We also propose an intermediate-complexity approach for kernel features, enabling semi-supervised evaluation of every candidate split while still being faster than the original idea. 
 
 %TODO cv pairwise, an important detail often not mentioned
 %TODO new heuristics for dynamic supervision

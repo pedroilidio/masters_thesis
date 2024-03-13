@@ -1006,219 +1006,135 @@ Since we are dealing with precomputed pairwise similarities, $X_1$ and $X_2$ are
 %     \label{eq:O_slmo}
 % \end{equation}
 
+In this section, we derive the asymptotic complexity of the proposed algorithms for growing bipartite trees.
+
+We consider that the number of horizontal instances has the same magnitude as the number of vertical instances, so that we define $n \sim |X_1|_i \sim |X_2|_i$.
+Similarly, we assume $m \sim |X_1|_j \sim |X_2|_j$ and define $f(m)$ as the effective number of features. That is, the split search procedure samples $f(m)$ features to consider in each node. The sampling is most often done without replacement, so that $f(m) \in O(m)$. Common choices are $f(m) = \sqrt{m}$ or $f(m) = \log_2(m)$.
+
 %TODO cite known complexities
-From the algorithm description, one can infer that \ref{alg:find_best_split}'s complexity will be given by
+From the algorithm description, we can infer that the complexity of both \autoref{alg:find_best_split} and \autoref{alg:find_random_split} will be given by
 %
 \begin{align}
-    %O(\ref{alg:find_best_split})
-    O(\FindSplitBest)
-    %= O(\tilde n_f S(|Y|_i) + \tilde n_f |Y|_i|Y|_j)
-    %= O(\tilde n_f |Y|_i \log |Y|_i + \tilde n_f |Y|_i|Y|_j)
-    %= O(\tilde n_f |Y|_i|Y|_j)
-    &= O(\tilde n_f S(|Y|_i) + \tilde n_f |Y|_i|Y|_j)
-    =\nonumber\\
-    &= O(\tilde n_f |Y|_i \log |Y|_i + \tilde n_f |Y|_i|Y|_j)
-    =\nonumber\\
-    &= O(\tilde n_f |Y|_i (\log |Y|_i + |Y|_j))
-    %= O(\tilde n_f |Y|_i|Y|_j)
+    \FindSplit(n, f)
+    &\in \Theta(f S(|Y|_i) + f|Y|)
+    \nonumber\\
+    &= \Theta(f S(n) + f n^2)
+    %&= \Theta(f n \log n + f n^2)
+    \nonumber\\
+    &= \Theta(f n^2)
     \label{eq:O_find_best_split}
 \end{align}
-%where we assume $|Y|_i \approx |Y|_j$ and $S(n)$ is the complexity of the chosen sorting algorithm of \atoref{} when operating on $n$ values.
-where $\tilde n_f$ is the number of features being considered in each node and $S(n)$ is the complexity of the chosen sorting algorithm of \atoref{} when operating on $n$ values. $\tilde n_f$ is a hyperparameter of random forests (\autoref{sec:bipartite_forests}) usually defined as a function of the total number of features $|X|_j$. We further employ $\tilde n_{f1}$ and $\tilde n_{f2}$ to refer to the number of features to be selected from $X_1$ and $X_2$, respectively, in each node.
-
-The most effective sorting algorithms currently known for real-valued data, such as Quick Sort or Merge Sort~\cite{}, have $O(n \log n)$ asymptotic complexity. However, since the sorting of multiple subsets of the same $X$ values will be performed, it is often effective to spend $O(|X|_j|X|_i\log |X|_i)$ time previously obtaining ranks for each column of $X$ and for each axis, so that subsequent partition sorting steps can be performed in linear time with integer-specific algorithms such as Radix Sort \cite{}.
+%where we assume $n_1 \approx n_2$ and $S(n)$ is the complexity of the chosen sorting algorithm of \atoref{} when operating on $n$ values.
+where $S(n)$ is the complexity of the chosen sorting algorithm of \atoref{} when operating on $n$ values.
 %
-That said, considering $S(n) = O(n \log n)$ does not affect $O(\ref{alg:find_best_split})$ under the assumption $|Y|_j >> \log |Y|_i$, in which case the second term in the result of \autoref{eq:O_find_best_split} dominates in the asymptotic regime.
+When features are real-valued, the current most effective algorithms are $\Theta(n \log n)$, as, for example, Quick Sort or Merge Sort~\cite{}. For integer features, the complexity is $\Theta(n)$, as in Counting Sort or Radix Sort~\cite{}.
 
-%ours and the majority of other implementations do not perform this pre-sorting step.% In any case, ...%TODO
-%That said, we hereafter consider $S(n) = O(n)$, and the pre-sorting term of the complexity will be disregarded in favor of the asymptotically dominant tree-building complexity described ahead.
-
-When applied on $X_\text{SGSO}$ and $Y_\text{SGSO}$ as in the naive GSO approach, we have \autoref{eq:O_sgso}.
+When applied on $X_\text{SGSO}$ and $Y_\text{SGSO}$, we still have that $|Y| = n^2$ 
+and $f(m) \in O(m)$.
+%but $f(m)$ becomes $f(2m)$.
+%However, $f(m) \in O(m)$ implies $f(2m) \sim f(m)$.
 %
 \begin{align}
-    %O(\ref{alg:find_best_split})
-    O(\FindSplitBest)
-    &= O(
-        (\tilde n_{f1} + \tilde n_{f2})
-        |Y_\text{SGSO}|_i
-        (\log |Y_\text{SGSO}|_i + |Y_\text{SGSO}|_j)
-    )
-    =\nonumber\\
-    %= O(\tilde n_f |Y_\text{SGSO}|_i)
-    &= O((\tilde n_{f1} + \tilde n_{f2}) |Y_\text{SGSO}|_i|\log Y_\text{SGSO}|_i)
-    =\nonumber\\
-    &= O((\tilde n_{f1} + \tilde n_{f2}) |Y|_i|Y|_j (\log |Y|_i + \log |Y|_j))
+    \FindSplit_\text{SGSO}(n, f)
+    &\in \Theta(f S(|Y_\text{SGSO}|_i) + f|Y_\text{SGSO}|)
+    \nonumber\\ 
+    &= \Theta(f S(n^2) + f n^2)
+    %= \Theta(f n^2 \log n + f n^2)
+    %= \Theta(f n^2 \log n)
+    \nonumber\\ 
+    &= \Theta(f S(n^2))
     \label{eq:O_sgso}
 \end{align}
 
-For \ref{alg:find_bipartite_split} employing the GMO approach (the original PBCT procedure~\cite{pliakos2018global}), the time complexity is given by \autoref{eq:O_gmo}, which renders it equivalent to the SGSO strategy. $\tilde n_{f1}$ and $\tilde n_{f2}$ stand for the numbers of row and column features to be drawn at each node, respectively.
+For BGSO, the complexity is given by
 %
 \begin{align}
-    O(\FindSplitBest_\text{GMO})
-    = O(
-        \tilde n_{f1} |Y|_i|(\log |Y|_i + |Y|_j)
-        + \tilde n_{f2} |Y|_j|(\log |Y|_j + |Y|_i)
-    )
-    =\nonumber\\
-    = O((\tilde n_{f1} + \tilde n_{f2}) |Y|_i||Y|_j)
-    \label{eq:O_gmo}
-\end{align}
-
-When considering the BGSO approach however, $\tilde Y_1$ and $\tilde Y_2$ column vectors are used instead of $Y$, effectively eliminating the \texttt{for} loops in \autoref{algline:gmo_loop1} and \autoref{algline:gmo_loop2} of \autoref{alg:find_best_split}. Considering that building the $\tilde Y$ proxies takes $O(|Y|_i|Y|_j)$, the split search procedure in this strategy has its complexity described by \autoref{eq:O_bgso}.
-%
-\begin{align}
-    %O(\ref{alg:find_bipartite_split}_\text{BGSO})
-    O(\FindSplitBest_\text{GSO})
-    = O(
-        |Y|_i|Y|_j
-        + \tilde n_{f1} |\tilde Y_1|_i \log |\tilde Y_1|_i
-        + \tilde n_{f2} |\tilde Y_2|_i \log |\tilde Y_2|_i
-    )
-    =\nonumber\\
-    = O(
-        |Y|_i|Y|_j
-        + \tilde n_{f1} |Y|_i \log |Y|_i
-        + \tilde n_{f2} |Y|_j \log |Y|_j
-    )
+    \FindSplit_\text{BGSO}(n, f)
+    &\in \Theta(n^2 + f S(|\tilde Y_1|_i) + f|\tilde Y_1|)
+    \nonumber\\ 
+    &= \Theta(n^2 + f S(n) + f n)
+    %= \Theta(n^2 + f n \log n + f n)
+    %= \Theta(n^2 + f n \log n)
+    \nonumber\\ 
+    &= \Theta(n^2 + f S(n))
     \label{eq:O_bgso}
 \end{align}
 
-For the whole tree-building process, considering $|Y|_i \propto |Y|_j = n$ and given any constant $k \in \mathbb{N}$ so that $O(\text{FindSplit})=n^k$ % \log n$,
-we analyze the best case of a balanced decision tree, where the number of samples in each node ($|Y| = n^2$) halves with each level added:
+The complexity of \ref{alg:find_bipartite_split} will be the same as the non-bipartite \FindSplit that it wraps, since it simply applies the wrapped function twice at each node.
+
+To estimate the complexity of the whole tree-building process, let's consider the ideal scenario of a balanced decision tree.
+We also consider that the axis of a split alternates at each level, so that a matrix $Y$ is separated in four equal sized pieces after two levels. This results in the following recurrence relationship:
 %
 \begin{equation}
-    |Y_\text{child node}| \approx |Y_\text{parent node}/2| = n_\text{parent node}^2/2
+    T(n) = 4T\left(\frac{n}{2}\right) + \FindSplit(n, f)
+    \label{eq:recurrence}
 \end{equation}
-
-As a consequence, the number of nodes in the $(l+1)$-th level is given by $2^l$, while the number of samples to process at each node is estimated by $n^2 / 2^l$ and the total number of levels is given by $L = \log_2 n^2 = 2 \log_2 n$.
 %
-%The time $T(n)$ to continue building the tree from a given level then obeys the recurrence relation
+$T(n)$ is the time to build the tree from an $n$ by $n$ interaction matrix, and \FindSplit(n, f) in this case is the time taken to select a split.
+The algorithm complexity of such recursive functions then follows the master theorem~\cite{cormen2009introduction}. The theorem gives the time complexity of a function $T$ obeying the recurrence relation $T(n) = aT(n/b) + F(n)$ and $c=\log_b a$:
 %
-% \begin{equation}
-%     T(n) = 2T(n/\sqrt 2) + O(\text{FindSplit}(n))
-% \end{equation}
-
-%\autoref{eq:O_tree} demonstrates the expected overall training complexity for the considered \FindSplit functions, as given by the Master Theorem~\cite{}. Table \ref{tab:O_comparison} summarizes the last results for the different cases.
-%
-%\begin{multline}  % With log
-%    %O(\ref{alg:buildtree})
-%    O(alg:buildtree)
-%    %%= O\left(\sum_{l=0}^{L} 2^l \text{FindSplit}(n/\sqrt{2}^l)\right)
-%    = O\left(\sum_{l=0}^{L} 2^l \text{FindSplit}(n^2/2^l)\right)
-%    =\\
-%    %= O\left(\sum_{l=0}^{L} 2^l n^{2k}/2^{kl} n^{2k}/2^{kl}
-%    = O\left(\sum_{l=0}^{L} 2^l n^{2k}/2^{kl} \log (n^{2k}/2^{kl})\right)
-%    %= O\left(\sum_{l=0}^{L} 2^l n^{2k}/2^{kl} (2k\log n - kl)\right)
-%    = O\left(\sum_{l=0}^{L} 2^{l(1-k)} k n^{2k} (2\log n - l)\right)
-%    = O\left(n^{2k} \sum_{l=0}^{L} 2^{l(1-k)} (L - l)\right)
-%    %%= O\left(\sum_{l=0}^{L} 2^l n^k/2^{kl/2}\right)
-%    %%= O\left(n^k \sum_{l=0}^{L} 1 /2^{(k/2-1)l}\right)
-%    \\
-%    =
-%    \begin{cases}
-%        O(n^{2(k+1)}) & \text{if}\; k < 1\\
-%        O(n^2\log n) & \text{if}\; k = 1\\
-%        O(n^{2k}) & \text{if}\; k > 1\\
-%        %O(n^{2k})
-%        %   = O(\frac{n^{2k}}{1-2^{1-k}} & \text{if}\; k > 1\\
-%        %O(n^2)
-%        %   = O(n^{2k} 2^{L} = n^{2(k+1)} & \text{if}\; k < 1\\
-%    \end{cases}
-%    \label{eq:O_tree_log}
-%\end{multline}
-
-\begin{multline}  %without log
-    \label{eq:O_tree}
-    %O(\ref{alg:buildtree})
-    O(alg:buildtree)
-    %%= O\left(\sum_{l=0}^{L} 2^l \text{FindSplit}(n/\sqrt{2}^l)\right)
-    = O\left(\sum_{l=0}^{L-1} 2^l \text{FindSplit}(n^2/2^l)\right)
-    = O\left(\sum_{l=0}^{L-1} 2^l n^{2k}/2^{kl}\right)
-    = O\left(n^{2k} \sum_{l=0}^{L-1} 2^{l(1-k)}\right)
-    \\
-    =
-    \begin{cases}
-        O(n^{2(k+1)}) & \text{if}\; k < 1\\
-        O(n^2\log n) & \text{if}\; k = 1\\
-        O(n^{2k}) & \text{if}\; k > 1\\
-        %O(n^{2k})
-        %   = O(\frac{n^{2k}}{1-2^{1-k}} & \text{if}\; k > 1\\
-        %O(n^2)
-        %   = O(n^{2k} 2^{L} = n^{2(k+1)} & \text{if}\; k < 1\\
+\begin{equation}
+    T(n) \in \begin{cases}
+        \Theta(n^c) & \text{if } F(n) \in O(n^{c-\epsilon}). \\
+        \Theta(n^c \log^{k+1} n) & \text{if } F(n) \in \Theta(n^c \log^k n).\\
+        \Theta(f(n)) & \text{if } F(n) \in \Omega(n^{c+\epsilon})
+            \text{ and }F(n)\text{ is regular.}
     \end{cases}
-\end{multline}
-%We can observe that, if the pre-sorting step is utilized, no asymptotic complexity improvement is expected for the GMO approach in comparison to the original naive GSO. Insofar, to the extent of our knowledge this essential step is not mentioned in previous works, so that we here reaffirm its importance and encourage future studies to take similar preprocessing procedures into more attentive consideration.
-
-We can observe that our proposed optimization for the GSO strategy reduces the tree-building complexity by a factor of
-%
-\begin{equation}
-    \frac{O(\text{BGSO})}{O(\text{GMO})}
-        = \frac{\log n + \tilde f} {\tilde f \log n}
-        = \frac{1}{\tilde f} + \frac{1}{\log n}
-    \label{eq:O_reduction}
+    \label{eq:master_theorem}
 \end{equation}
 %
-in comparison to GMO, a major improvement especially for datasets with a large number of features. Remarkably, when kernel or similarity matrices are used, as the datasets explored in this work do, or in general when $\tilde f \propto n$, BGSO is $\log n$ times faster than GMO in the asymptotic regime, yielding unseen scalability of decision trees for interaction prediction problems.
+In \autoref{eq:master_theorem}, $\epsilon$ is a positive infinitesimal constant and $k$ is any non-negative integer. For the third case, we say a function $F(n)$ is regular if it satisfies the \emph{regularity condition} $aF(n/b) \leq qF(n)$ for some constant $q < 1$ and all sufficiently large $n$~\cite{cormen2022introduction}.
+ 
+For our tree algorithms, \autoref{eq:recurrence} shows that $c=2$ and $F(n)$ represents $\FindSplit(n, f)$.
+The resulting complexities are presented by \autoref{tab:O_comparison}. We see that the choice of the sorting function only affects the SGSO-adapted trees. In the worst case, where $S(n) = n \log n$, the SGSO trees are $\log n$ times slower than the GMO trees. If $S(n) = n$ instead, both have the same complexity.
 
-Regarding the performance of \ref{alg:find_random_split} as a substitute for \ref{alg:find_best_split}, although considerable amounts of operations are saved, the procedure for generating a split point for each feature column still requires finding minimum and maximum values, occurring in the same linear time complexity as the greedy approach.
-%
-As a result, the asymptotic computational time needed by the algorithm is expected to grow with no different ratio relative to the number of samples, not resulting in any improvements in complexity relative to \ref{alg:find_best_split}.
+\autoref{tab:O_comparison} also shows that BGSO trees are faster than GMO trees when considering a high number of features. Specifically, if $f(n) \in O(\log n)$, BGSO will be $f$ times faster than GMO. If $f(n) \in \Omega(\log n)$, BGSO will be $\log n$ times faster than GMO. The only case in which both are equivalent is when $f \in O(1)$.
+
+%As a sidenote, we can preprocess the data by replacing values of $X_a$ by the ranks in each column. This process costs $m log n$ and allows us to always use the faster integer sorting algorithms. In any case, the BGSO trees are still the better choice.
+% TODO 
+
+% TODO: best vs random
 
 \begin{table*}[h]
     \centering
-    \begin{tabular}{c|c|c|c|c}
+    \begin{tabular}{c|c|c|c}
+        \toprule
         Strategy
-        & Split search
-        & If $Y$ is square
-        & Tree building
-        & $\tilde n_f \propto n$
+            & Split search
+            & Tree building
+            & $f \propto n$
         \\
-        \hline \hline
+        \midrule 
         %SLMO
-        %    & $O(\tilde n_{f1} n_1(\log n_1 + n_2))$
-        %    %& $O((\tilde n_{f1} + \tilde n_{f2}) n_1 n_2)$
-        %    & $O(\tilde n_f n^2 \log n)$
-        %    & $O(\tilde n_f n^2 \log n)$
+        %    & $O(f n^2 \log n)$
+        %    & $O(f n^2 \log n)$
         %    & $O(n^3\log n)$
         %\\
         SGSO
-            & $O((\tilde n_{f1} + \tilde n_{f2}) n_1 n_2 (\log n_1 + \log n_2))$
-            & $O(\tilde n_f n^2 \log n)$
-            & $O(\tilde n_f n^2 \log n)$
-            & $O(n^3\log n)$
+            & $O(f n S(n))$
+            & $O(f n S(n) \log n)$
+            & $O(n^2 S(n) \log n)$
         \\
         GMO
-            & $O(
-                \tilde n_{f1} n_1|(\log n_1 + n_2)
-                + \tilde n_{f2} n_2|(\log n_2 + n_1)
-            )$
-            %& $O((\tilde n_{f1} + \tilde n_{f2}) n_1 n_2)$
-            & $O(\tilde n_f n^2)$
-            & $O(\tilde n_f n^2 \log n)$
-            & $O(n^3\log n)$
+            & $O(f n^2)$
+            & $O(f n^2 \log n)$
+            & $O(n^3 \log n)$
         \\
         BGSO
-            & $O(
-                n_1 n_2
-                + \tilde n_{f1} n_1 \log n_1
-                + \tilde n_{f2} n_2 \log n_2
-            )
-            $
-            & $O(n^2 + \tilde n_f n \log n)$
-            % & $O(n^2 \log n + \tilde n_f n^2)$
-            & $O(\tilde n_f n^2)$
+            & $O(n^2 + f S(n))$
+            %& $O(n^2 \log n + f n^2)$
+            & $O(n^2 (\log n + f))$
             & $O(n^3)$
         \\
-        \hline
+        \bottomrule
     \end{tabular}
     \caption{
-        Comparison between asymptotic time complexities of bipartite decision tree-building procedures.
-        $n_1$ and $n_2$ respectively designate the number of samples in $X_1$ and $X_2$, while $n$ is defined so that $n_1 \propto n_2 \propto n$.
-        Similarly, $\tilde n_{f1}$ and $\tilde n_{f2}$ represent the number of features from each axis to be considered for split search in each node,
-        %($\tilde n_{f1}=|X_1|_j$ and $\tilde n_{f2}=|X_2|_j$)
-        while $\tilde n_f$ is used to illustrate the cases where $\tilde n_{f1} \propto \tilde n_{f2} \propto \tilde n_f$.
-        %
-        The last column refers to the case where the number of features considered in each node is proportional to the number of samples in each axis ($\tide n_f \propto n$). This scenario could arise, for instance, if one is dealing with pairwise similarities or kernel matrices as the model's input data.
+        Comparison between asymptotic time complexities of decision tree-building procedures.
+        We assume $n \sim |X_1|_i \sim |X_2|_i$.
+        Similarly, $f$ represents the number of features to be considered for the split search in each node.
+        $S(n)$ denotes the complexity of the sorting procedure, usually $n$ for integral features or $n \log n$ for decimal values.
+        The last column refers to the case where $f \sim n$. This scenario could arise, for instance, when $X_a$ are pairwise similarities or kernel matrices. 
+        Source: made by the authors.
     }
     \label{tab:O_comparison}
 \end{table*}
@@ -1238,7 +1154,7 @@ As a result, the asymptotic computational time needed by the algorithm is expect
 %Thus, on our n_{\log |Y|_i f2}ttings, applying .. \log |Y|_j.
 %
 %[GMO] 
-n_{f1} %\begin{multline}
+%n_{f1} %\begin{multline}
 %    O(\\log |Y|_i text{n_{f2}\ \log |Y|_j\
 %    =O(|X_1|_j(S(|X_1|_i) + |X_1|_i|X_2|_i) + |X_2|_j(S(|X_2|_i) + |X_1|_i|X_2|_i)\\
 %    =O(|X_1|_j(|X_1|_i|X_2|_i) + |X_2|_j(|X_1|_i|X_2|_i)\\
@@ -1285,36 +1201,52 @@ n_{f1} %\begin{multline}
 %Their most valuable contribution to learning performance capabilities are observed when committees of such models are employed instead.
 While single decision trees are valuable tools for comprehending the learning problem at hand, they often fall short in effectively modeling intricate relationships within the data, displaying limited generalization capabilities and high susceptibility to overfitting~\cite{}.
 %
-Their most significant impact on machine learning applications is observed when committees of such models are utilized instead, in which the final output values are most commonly computed by averaging or summing the predictions of all trees.
+Their most significant impact on machine learning applications is observed when committees of such models are utilized, in which the final output values
+%are the combination 
+are, for example, the average predictions of all trees.
 
-These compositions of estimators are usually referred to as \emph{ensembles}. Being studied in the context of machine learning since the 1970s, they are based on the intuitive idea that combining multiple opinions from a diverse set of experts frequently results in better decision taking. % TODO elaborate, jury theorem
+These compositions of estimators are usually referred to as \emph{ensembles}~\cite{}. Being studied in the context of machine learning since the 1970s, they reflect the intuitive idea that combining multiple opinions from a diverse set of experts frequently results in better decision taking. % TODO elaborate, jury theorem
 
 %A longstanding idea is that combining predictions of multiple estimators yields better results, much like averaging opinions of several people aids in decision taking \cite{}.
 
-In fact, it has been extensively demonstrated both empirically and theoretically that the predictive perfomance a group of learners always surpasses that of its individual components if and only if the individual estimators are sufficiently accurate and diverse~\cite{dieterich2000}.% TODO cite more
+In fact, it has been extensively demonstrated both empirically and theoretically that the predictive perfomance a group of learners always surpasses that of its individual components if and only if the individual estimators are sufficiently accurate and diverse~\cite{dieterich2000ensemble}. % TODO cite more
 Importantly, requiring diversity means that the individual estimators must ideally commit errors on different instances for the composition to succeed~\cite{polikar2006ensemble}.
 
 \textcite{dietterich2000ensemble,polikar2006ensemble} describe three ways in which combining diverse estimators could benefit the ensemble's performance.
 
 \begin{enumerate}
-    \item \textbf{Statistical:} Building each estimator can be seen as finding a hipothesis that explains the prediction problem as well as possible. If multiple different hypotheses are found, the likelihood that at least one of them is close to the true underlying function is increased. Furthermore, averaging multiple hypotheses can contribute to alleviate the influence of each hipothesis' variance, resulting in a more accurate approximation and reduced propensity to overfitting.
+    \item \textbf{Statistical:} Building each estimator can be seen as finding a hypothesis that explains the prediction problem as well as possible. If multiple different hypotheses are found, the likelihood that at least one of them is close to the true underlying function is increased. Furthermore, averaging multiple hypotheses can contribute to alleviate the influence of each hypothesis' variance, resulting in a more accurate approximation and reduced propensity to overfitting.
     \item \textbf{Computational:} Finding the globally optimal decision tree or neural network is known tobe an NP-complete problem~\cite{}. Thus, finding and combining multiple approximate hypotheses, that may represent local maxima of the objetive function, is often much cheaper than expending time on the search for a global solution. % TODO
     \item \textbf{Representational:} Sometimes, a single estimator is not complex enough to represent the intricacies of the probem at hand. However, combination of models can be utilized to enhance the representational power of the ensemble, building a more general decision function as a combination of the simpler decision boundaries of each estimator.  % TODO figure and example with stumps (rokach2018)
 \end{enumerate}
 
-The balance between diversity 
-and individual strength is thus of central role when designing ensemble models. Both these properties act in the direction of increasing the final ensemble performance, so that mechanisms of introducing model heterogeneity, and not only strategies for boosting individual gains, must be carefully considered.
-
-Even if hampering single component performance to some extent, promoting diversity between components, so to reduce as far as possible the correlation between their outputs, is often proved to result in performance improvements for the whole ensemble~\cite{breiman2001}.  % TODO cite more
+%Both these properties act in the direction of increasing the final ensemble %performance.
+%Since both diversity and individual strength increase the final ensemble performance,
+Being diversity a key factor,
+mechanisms of introducing model heterogeneity are as important to consider as strategies for enhancing the base algorithm.
 %
-This is the core idea of decision forests. Even simple estimators such as decision trees, traditionally prone to overfitting, can be leveraged to compose powerful ensemble models, generically called \emph{decision forests}, as long as proper diversification is employed.
+In fact, many diversity-inducing techniques even degrade the performance of individual estimators, but still results in improvements for the ensemble as a whole~\cite{breiman2001random}. % TODO cite more
+For example, one of the most straighforward ways to promote heterogeneity is to build each estimator on randomized subsets of the training data.
+In this and in many other cases, designing ensemble models is thus a matter of balancing diversity and individual strength.
+
+%The balance between diversity 
+%and individual strength is thus of central role when designing ensemble models.
+
+%Even if hampering single component performance to some extent, promoting diversity between components, so to reduce as far as possible the correlation between their outputs, is often proved to result in performance improvements for the whole ensemble~\cite{breiman2001}.  % TODO cite more
+%
+%The most straightforward way to introduce diversity in the ensemble is to train each estimator with a different subset of the training data. This is the idea behind the \emph{bagging} algorithm~\cite{breiman1996bagging}, which trains each estimator with a different bootstrap sample of the training set. % TODO cite more
+
+This is the core idea of \emph{decision forests} (the ensembles of decision trees). Even simple estimators such as decision trees, traditionally prone to overfitting, can be leveraged to compose powerful learning algorithms.
+% ensemble models,
+% generically called \emph{decision forests},
+%as long as proper diversification is employed.
 %
 We briefly describe some popular strategies for introducing heterogeneity in the decision tree growing procedure.
 
 \begin{enumerate}  % XXX
     \item \textbf{Instance sampling:} A new version of the training set is built by randomly drawing instances from it, with or without replacement (selecting rows of $X$). If drawing with replacement, one can optionally draw the same number of instances as the original set, a procedure known as bootstrapping.
     \item \textbf{Feature sampling:} A random subset of features is selected to be used (selecting columns of $X$). The number of features $\tilde n_f$ selected in each node is commonly defined as a function of the total number of features $|X|_j$. Usual choices are $\tilde n_f = \lceil \sqrt{|X|_j} \rceil$ or $\tilde n_f = \lceil \log |X|_j \rceil$.
-    \item \textbf{Split threshold randomization:} Instead of searching for the best split threshold for each feature as in \autoref{alg:find_split_best}, a random threshold value is drawn between the minimum and maximum values of each feature column.
+    \item \textbf{Split threshold randomization:} Instead of searching for the best split threshold for each feature as in \autoref{alg:find_split_best}, a random threshold value is drawn between the minimum and maximum values of each feature column. This procedure is described in \autoref{alg:find_random_split}.
     %\item Feature transformation (rotation forest, oblique trees)
 \end{enumerate}
 
@@ -1324,9 +1256,9 @@ The concept of sampling instances with replacement to create a different trainin
 
 The idea of selecting a subset of features was introduced independently by \textcite{amit1997shape} and \textcite{tinkamho1998random}. While \textcite{amit1997shape} explored feature sampling as a remedy for a shape recognition problem with impeditively large sample sets, \textcite{tinkamho1998random} was mainly focused on overfitting-prevention for decision forests.
 
-It was \textcite{breiman2001random} who first combined the two ideas, proposing and greatly popularizing the Random Forest algorithm, with over 115 thousand citations according to Google Scholar as of september 2023.
+It was \textcite{breiman2001random} who first combined the two ideas, proposing and greatly popularizing the Random Forest algorithm, with over 115 thousand citations according to Google Scholar as of september 2023~\cite{}.
 
-\textcite{geurts2006extremely} later introduced the randomized split threshold concept, presenting the Extremely Randomized Trees algorithm (Extra-Trees) and showcasing its competitive prediction scores and clear superiority in terms of training speed compared to bagging and Random Forests.
+\textcite{geurts2006extremely} later introduced the randomized split threshold concept, presenting the Extremely Randomized Trees algorithm (Extra-Trees). The algorithm shows competitive prediction scores and clear superiority in terms of training speed compared to bagging and Random Forests~\cite{geurts2006extremely}.
 
 The two main ensemble-building strategies we explore in the current work can now be defined as follows:
 
@@ -1335,21 +1267,26 @@ The two main ensemble-building strategies we explore in the current work can now
     \item \textbf{Extremely Randomized Trees (ERT):} Split threshold randomization and node-wise feature undersampling without replacement are employed. No resampling of instances is performed in the original proposal.
 \end{itemize}
 
-One of the notable features of decision forests that contribute to their expressive popularity is their low need for data preprocessing, since the order of the values among each feature is the main factor for determining the best split points, and not their scale. Additonally, the relative scaling of different features is not a concern, since the split search procedure is performed separately for each feature. These factors, combined with their strikingly small set of hyperparameters, crown decision forests as remarkable "plug-and-play", easily configurable, models, especially suited for unstructured tabular data~\cite{breiman2001}. % XXX cite more
+%One of the notable features of decision forests that contribute to their expressive popularity is their low need for data preprocessing.
+%since the order of the values among each feature is the main factor for determining the best split points, and not their scale. Additonally, the relative scaling of different features is not a concern, since the split search procedure is performed separately for each feature. These factors, combined with their strikingly small set of hyperparameters, crown decision forests as remarkable "plug-and-play", easily configurable, models, especially suited for unstructured tabular data~\cite{breiman2001,treestabulardata}. % TODO
 
 We refer the reader to \textcite{sagi2018ensemble} and \textcite{fawagreh2014random} for a more in-depth description of prominent decision forest strategies and previous work in the field. \textcite{amasyali2011comparison} provides an experimental comparison of the most popular ensemble methods.  % XXX more (preferably newer) experimental comparisons
-
+%
 Regarding interaction problems, \textcite{schrynemackers2015classifying} explores the use of decision forests under the standard global multi-output and local single-output adaptations presented by \autoref{sec:standard adaptations}.
 
-However, the same tree-diversification and forest building techniques discussed in this section can also be applied to bipartite decision trees, with very small modifications regarding the data sampling procedures: instance sampling and feature sampling must now occurr on both domains of the interaction dataset. Under this assumption, the adptation to bipartite problems can thus occur at the tree level, not at the ensemble level as would be the case with SLMO and SGSO strategies.
+The same tree-diversification and forest building techniques discussed in this section can also be applied to bipartite decision trees, with very small modifications regarding the data sampling procedures: instance sampling and feature sampling must now occurr on both domains of the interaction dataset.
+%Under this assumption, the adptation to bipartite problems can thus occur at the tree level, not at the ensemble level as would be the case with SLMO and SGSO strategies.
 
-\cite{pliakos2019network} explores these ideas, using bipartite global multi-output decision trees to build both Random Forests and Extra-Trees ensembles. We hereafter refer to these forests as Bipartite Random Forests (BRF) and Bipartite Extra-Trees (BXT), respectively. Their study suggests superior performance of BXT in comparison to SLMO- and SGSO-adapted forests, as well as in comparison to previously proposed algorithms, although no significance level or test statistic is used to describe the comparisons.
+\cite{pliakos2019network} explores these ideas, using bipartite global multi-output decision trees to build both Random Forests and Extra-Trees ensembles. We hereafter refer to these forests as Bipartite Random Forests (BRF) and Bipartite Extra-Trees (BXT), respectively. Their study suggests superior performance of BXT in comparison to SLMO- and SGSO-adapted forests, as well as in comparison to previously proposed algorithms~\cite{pliakos2019network}. %, although no significance level or test statistic is used to describe the comparisons.
+%
+%The authors later extended their work to include a self-learning step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their GMO BXT model is not directly built upon the bipartite dataset but rather on a reconstructed version of the interaction matrix obtained through applying the Neighborhood-Regularized Logistic Matrix Factorization technique (NRLMF, \textcite{liu2016neighborhood}).
+The authors later extend their work to include a label imputation step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their model is built on a reconstructed version of the interaction matrix obtained through Neighborhood-Regularized Logistic Matrix Factorization (NRLMF, \textcite{liu2016neighborhood}).
 
-The authors later extended their work to include a self-learning step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their GMO BXT model is not directly built upon the bipartite dataset but rather on a reconstructed version of the interaction matrix obtained through applying the Neighborhood-Regularized Logistic Matrix Factorization technique (NRLMF, \textcite{liu2016neighborhood}).
+%In the present work, we refine such comparisons and inroduce ensembles of our newly proposed bipartite global single-output decision trees (\autoref{sec:bgso_trees}), demonstrating competitive prediction scores under an asymptotically more efficient training framework.
+
+% TODO algorithm for forests
 
 % TODO how to combine tree outputs
-In the present work, we refine such comparisons and inroduce ensembles of our newly proposed bipartite global single-output decision trees (\autoref{sec:bgso_trees}), demonstrating competitive prediction scores under an asymptotically more efficient training framework.
-
 % balance, we can impove perf by randomizing, but not too much to impact perf
 
 %In fact, it is well demonstrated that the generalization error for a group of weak learners asymptotically decreases with a higher number of individual estimators \cite{}. Due to their simplicity and transparency, decision trees are frequently chosen as individual learners to compose an ensemble of estimators.
@@ -1383,21 +1320,59 @@ In the present work, we refine such comparisons and inroduce ensembles of our ne
 \subsection{Incorporating semi-supervision into decision trees}
 \label{sec:ss trees}
 
-The tree algorithms presented up until this point disregard the positive-unlabeled characteristic of our datasets of interest, either ignoring the possibility of abscence of labels in the training set, or, equivalently, considering all non-occurring interactions as unknown interactions.
-In other words, negative labels represent both the interactions known to not occur and the interactions about which no information is available.
+The tree algorithms presented up until this point do not consider the positive-unlabeled (PU) property of interaction data. They work under the assumption of a \emph{supervised} scenario, in which all annotations are reliable. In this section, we discuss adaptations to decision trees specifically designed to the challenges of PU data.
+%
+%either ignoring the possibility of abscence of labels in the training set, or, equivalently, considering all non-occurring interactions as unknown interactions.
+%In other words, negative labels represent both the interactions known to not occur and the interactions about which no information is available.
 
-Therefore, the machine learning paradigm under which the discussed decision trees are proposed is still \emph{supervised}, in the sense that all training instances are associated with a label (for each sample in $X$ there is a corresponding expected output in $Y$).
+%Therefore, the machine learning paradigm under which the discussed decision trees are proposed is still \emph{supervised}, in the sense that all training instances are associated with a label (for each sample in $X$ there is a corresponding expected output in $Y$).
 
 As several previous authors~\cite{liu2017lpinrlmf,he2017simboost}, %TODO cite more
-we argue that taking into account the partial availability of information that is often intrinsic to interaction prediction problems could thus improve prediction performance of bipartite models and reduce the necessity for labeled data.
+we argue that accounting for the partial availability of information
+% that is often intrinsic to interaction prediction problems
+could improve prediction performance of bipartite models. %, and reduce the necessity for labeled data.
+The strategies to deal with missing labels are the main concern of the \emph{semi-supervised} learning paradigm~\cite{}, which we briefly introduce.
 
-When the learning problem at hand does not involve predefined labels, the taks is termed \emph{unsupervised}. The most common example is clustering problems, where the goal is to group similar instances together based solely on their numerical attributes, without any \textit{a priori} information regarding hypothetical classes to which each instance could belong. In such problems, only the $X$ matrix is utilized, there is not an associated label matrix $Y$.
 
-In summary, while supervised learning problems are concerned with the relationship between $X$ and $Y$, aiming to model how a label is determined by the descriptive features of each instance, unsupervised learning problems target the relationship between instances themselves (between rows of $X$), describing how similar they are and how they can be taxonomically organized.
+\subsubsection{Semi-supervised learning}
+\label{sec:semi-supervised learning}
 
-Some problems, however, lie in the intersection of the supervised-unsupervised spectrum. They usually arise when the available labels are scarce or unreliable, so that both supervised and unsupervised objectives are of interest. Take for instance the case of an image gallery phone applicative capable of grouping all photos of a person into a folder with their name. While the name must be asked once to the user, subsequent photos of the same person are automatically grouped under the same directory. The algorithm is both concerned with labeling each photo with the correct name and with grouping similar photos together. Another example can occur when diagnostic data of a large collection of patients is employed to build an automated diagnosis system to assess multiple diseases simultaneously. Almost certainly, not all labels for the occurrence of each medical condition will be available for all patients, so that the algorithm must be able to deal with considerable amounts of missing data. One possible strategy is to infer missing labels from the labels of similar instances, so that the concept of grouping is again into play. Still in the same example, the diagnosis for each disease may be presented in different (unknown) degrees of certainty, resulting from diagnostic procedures of different natures. In this case, an even more refined strategy can be employed, in which the amount of importance given by the model to correctly classify a given label may be adjusted to allow prioritizing information resulting from clustering rather than the label itself, essentially regulating the relative importance between the supervised and unsupervised objectives.
+\emph{Supervised} problems are those we have been exploring, in which the
+goal is to build a model that can predict the label of a new instance based on its features. We have a matrix $Y$ of target values and feature matrices $X$, and the model's objective is to learn the relationship between $X$ and $Y$.
 
-While in the first example the known labels are usually much more scarce than in the diagnostics example, both problems deal with the same underlying issue: the lack of reliable labels for all instances. As such, both label inference (that characterizes supervised problems) and clustering (that characterizes unsupervised problems) are closely intertwined as the model's objective. The goal is to simultaneously learn to correctly classify the instances with known labels in the training set while also considering similarities to infer the labels of the unlabeled instances (or to rectify labels on which one cannot fully rely). The class of such hybrid learning paradigms is called \emph{semi-supervised learning}~\cite{}.
+When the learning problem at hand does not involve predefined labels, the task is termed \emph{unsupervised}. The most common example is clustering problems, where the goal is to group similar instances together based solely on their numerical attributes. In these problems, there is not a preconceived target to model, such as desired output values or classes to which each instance should belong. Only the $X$ matrix is utilized, there is not an associated label matrix $Y$.
+
+In summary, while supervised learning problems are concerned with the relationship between $X$ and $Y$, unsupervised learning problems target the relationships between instances themselves.
+%(between rows of $X$), describing how similar they are and how they can be taxonomically organized.
+%aiming to model how a label is determined by the descriptive features of each instance,
+While supervised learning focuses on the graph of a function $f: X \to Y$, unsupervised learning focuses on the structure of the feature space.
+
+Some problems, however, lie in the intersection of the supervised-unsupervised spectrum. They usually arise when the available annotations are incomplete or unreliable, so that both supervised and unsupervised objectives are of interest. Take for instance the case of an image gallery application capable of grouping all photos of a person into a folder with their name. While the names must be asked once to the user, all photos of each different person are already grouped beforehand. The algorithm is both concerned with labeling each photo with the correct name and with grouping similar photos together.
+%Another example can occur for diagnostic data of a large collection of patients is employed to build an automated diagnosis system, assess multiple diseases simultaneously.
+Another example can occur when building a medical diagnosis database.
+Such a database could be a result of merging multiple datasets and considering a large collection of patients.
+%In these cases, it is very common that not all labels for the occurrence of each medical condition will be available for all patients.
+Some amount of missing information is very common in these cases, and the algorithms must be able to deal with these vacancies.
+%is uncertainty.
+%for some medical conditions and some patients are very likely in these cases, 
+%The algorithm must be able to deal with considerable amounts of missing data.
+One possible strategy is to infer missing labels from the labels of similar instances, bringing the concept of clustering again into play.
+%Still in the same example,
+%Additionally, the diagnosis for each disease may be presented in different (unknown) degrees of certainty, resulting from diagnostic procedures of different natures.
+%In this case,
+%an even more refined strategy can be employed,
+%in which the amount of importance given by the model to correctly classify a given label may be adjusted to allow prioritizing information resulting from clustering rather than the label itself, essentially regulating the relative importance between the supervised and unsupervised objectives.
+%we could consider adjusting the importance we give information resulting from clustering rather than the label itself
+%the importance given by the model to correctly classify a given label, to allow 
+%essentially regulating the relative importance between the supervised and unsupervised objectives.
+
+%The first example emphasizes the clustering aspect of the problem, while the second emphasizes the label inference aspect.
+%The first example emphasizes the clustering aspect of the problem, while the second emphasizes the label inference aspect.
+%The known labels are usually much more scarce than in the diagnosis example.
+%Nevertheless, both problems deal with the same underlying issue: the lack of reliable labels for all instances.
+%Both problems deal with the same underlying issue: the lack of reliable labels for all instances.
+%As such, both label inference (that characterizes supervised problems) and clustering (that characterizes unsupervised problems) are intertwined as the model's objective. The goal is to simultaneously learn to correctly classify the instances with known labels in the training set while also considering similarities to infer the labels of the unlabeled instances (or to rectify labels on which one cannot fully rely). The class of such hybrid learning paradigms is called \emph{semi-supervised learning}~\cite{}.
+In the examples, both label inference (that characterizes supervised problems) and clustering (that characterizes unsupervised problems) are intertwined as the model's objective. The goal is to simultaneously learn to correctly classify the instances with known labels while also considering similarities to infer the missing or uncertain annotations. The class of such hybrid learning tasks is called \emph{semi-supervised learning}~\cite{}.
 
 Since missing labels are a defining characteristic of interaction prediction tasks, it is commonly suggested~\cite{he2017simboost,liu2016neighborhood}  %TODO cite more
 that applying semi-supervised concepts to our problems could significantly improve the performance of bipartite models.
@@ -1406,8 +1381,11 @@ that applying semi-supervised concepts to our problems could significantly impro
 %TODO terms: pu, weak labels, one-class, dyadic prediction (pu is a subclass of ss)
 %TODO terms: what are standard semi-supervision techniques
 
-For decision trees specifically, there are straightforward ways to incorporate semi-supervised assumptions.
-%
+For decision trees specifically, there are straightforward ways to incorporate semi-supervised assumptions, that we now describe.
+
+\subsubsection{Semi-supervised decision trees}
+\label{sec:ss trees 2}
+
 Notice that the growing of decision trees unavoidably induces groupings of samples in the training set. 
 %since the recursive splitting procedure essentially clusters instances of similar labels together.
 Specifically, the structure of each tree represents a hierarchical clustering of the training samples, in which each tree node represents a partition of the training set composed by the training instances that reach that node.
@@ -1534,7 +1512,10 @@ We also speculate that the observed benefit of a dynamic $\sigma$ could emerge f
 \section{Other estimator-centered strategies}
 \label{sec:learner centered}
 
-This section presents two other 
+This section presents two other methods for optimizing estimators for interaction prediction tasks.
+Like bipartite trees (\autoref{sec:bipartite forests}), these methods focus on adapting the learning algorithm in a more fundamental level than data-centered approaches (\autoref{sec:standard adaptations}). 
+The first method is an adaptation of linear models to the bipartite setting, named RLS-Kron~\cite{vanlaarhoven2011gaussian}. It explores properties of the Kronecker product to build an estimator on a large global kernel matrix, without in fact having to calculate such matrix.
+The second method adapts matrix factorization approaches to take similarity side-features into account. Named Neighborhood-Regularized Logistic Matrix Factorization (NRLMF), this technique allows obtaining latent features for unseen instances, which is commonly not possible with traditional matrix factorization.
 
 \subsection{Linear models}
 \label{sec:linear_models}
@@ -1708,6 +1689,13 @@ which summarizes to
 
 \subsection{Neighborhood-Regularized Matrix Factorization}
 \label{sec:nrlmf}
+
+This section describes the NRLMF~\cite{liu2016neighborhood} algorithm, which is a matrix factorization technique that incorporates similarity information between samples in the learning process. It enables latent features of new instances to be inferred from the features of their neighbors.
+%NRLMF implements semi-supervised concepts, as it is designed to handle missing labels and to take advantage of the similarities between samples to improve generalization. 
+%Further descendants of NRLMF were later proposed, using a kernel fusion procedure~\cite{hao2017dnilmf,li2019dnilmf}, or applying beta-distribution rescoring of its~outputs~\cite{ban2019nrlmfb}.
+The method is an extension of the Logistic Matrix Factorization (LMF) algorithm, which is designed for recommendation tasks~\cite{johnsonlogistic}.
+NRLMF was successfully applied to diverse bipartite interaction prediction problems, such as drug-target~\cite{liu2016nrlmf}, long non-coding RNA-protein~\cite{liu2017nrlmf}, and lncRNA-microRNA ~\cite{liu2020nrlmf}.
+
 
 \subsubsection{Traditional matrix factorization}
 \label{sec:traditional matrix factorization}
@@ -1895,7 +1883,8 @@ in its canonic formulation, they do not take sample-level features into account,
 \subsubsection{Neighborhood regularization}
 \label{sec:neighborhood regularization}
 
-Targeting these issues, \textcite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting} proposes a modification to LMF that incorporates side information into the model, successfully applying their method to interaction problems such as drug-target interaction prediction~\cite{liu2016neighborhood}, long non-coding RNA interactions~\cite{liu2017lpinrlmf} and microRNA interactions~\cite{liu2020predicting}.
+Targeting these issues, \textcite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting} proposes a modification to LMF that incorporates side information into the model, enabling predicting interactions for new samples.
+%successfully applying their method to interaction problems such as drug-target interaction prediction~\cite{liu2016neighborhood}, long non-coding RNA interactions~\cite{liu2017lpinrlmf} and microRNA interactions~\cite{liu2020predicting}.
 %
 The core idea of their technique lies in adding one more term to the objective function, penalizing instances regarded as close when considering the original features but were separated by $U$ and $V$, placed far from each other in the latent space. As such, the algorithm is called \emph{Neighborhood-Regularized Logistic Matrix Factorization} (NRLMF).
 %
@@ -3101,6 +3090,8 @@ Furthermore, the normalization enables the comparison across different tasks, en
 
 \section{Experiments}
 
+This section describes the experiments performed in this work, designed to explore the proposed research questions (\autoref{sec:objectives}), assess the effectiveness of the developed methods, and to validate predictions made in the theoretical analyses.
+
 \subsection{What are the differences between AUROC and AUPR?}
 \label{sec:comparing auroc aupr}
 
@@ -3143,7 +3134,7 @@ However, one should prioritize AUROC over AUPR if the goal is to select both neg
 We also argue that AUROC could be preferable for comparing models under the PU assumption, at least in purely theoretical settings. For PU datasets, we naturally expect some negative-labeled instances to be very highly ranked since they could be, in fact, unannotated positives. AUPR would more strictly penalize such predictions, favoring models that consider the labeling mechanism itself rather than only the underlying interaction mechanism. AUPR could thus undermine the model's potential to discover new interactions, possibly failing to gauge the generalization capabilities of algorithms in a PU context. The results from \autoref{sec:comparison literature} seem to corroborate this hypothesis, with AUROC ranking estimators more consistently than AUPR across different levels of label noise.
 
 
-\subsection{Are BGSO models indeed faster than GMO models?}
+\subsection{Are BGSO models faster than GMO models?}
 %\subsection{Empirical time complexity analysis}
 \label{sec:empirical_complexity}
 
@@ -3152,7 +3143,7 @@ We also argue that AUROC could be preferable for comparing models under the PU a
     \begin{itemize}
         \item The GMO complexity is measured to be $O(n^3\log n)$, while the BGSO complexity is measured to be $O(n^3)$.
 
-        \item The empiral results match the theoretical expectations from \autoref{sec:complexity_analysis}.
+        \item The empirical results match the theoretical expectations from \autoref{sec:complexity_analysis}.
         
         \item The difference in complexity between GMO and GSO is less pronounced for the ExtraTrees, but the GSO models still present significantly lower complexity than the GMO models.
     \end{itemize}
@@ -3167,7 +3158,11 @@ Statistical testing further shows that the empirical time complexity of the prop
 
 % The value slighly above 3 for bdt\_gso also do not defy expectations, since the theoretical analises were based on the assumption of balanced trees and a small increase in tree depth is expected in real scenarios.
 
-The slightly lower slopes for the ExtraTrees in comparison both with the BDTs and with the theoretical complexities are also expected, since the bottleneck calculation for these models in the asymptotic regime is the search for the minimum and maximum values of each feature in each node (lines \ref{}), which can be done much faster than the search for the best split employed by the greedy decision trees (\autoref{alg:find_best_split}), even though both procedures have the same order of asymptotic complexity. As such, much larger datasets would be required to observe the asymptotic behavior of the ExtraTrees.
+We also notice slightly lower slopes for the ExtraTrees in comparison with the BDTs. In fact, they seem to be closer to the theoretical expectations for the GSO models. This is expected,
+since the randomized split search performs far less operations than the exhaustive search (\autoref{sec:split search}). Notwithstanding, both algorithms have the same order of complexity.
+%since the bottleneck calculation for these models in the asymptotic regime is the search for the minimum and maximum values of each feature in each node (lines \ref{}), which can be done much faster than the search for the best split employed by the greedy decision trees (\autoref{alg:find_best_split}), even though both procedures have the same order of asymptotic complexity.
+%
+We then suggest that much larger datasets would be required to observe the asymptotic behavior of the ExtraTrees.
 In spite of that, the empirical complexity of \texttt{bdt\_gso} is still observed to be highly significantly lower than that of \texttt{bxt\_gmo}, validating once more the prediction that \texttt{bdt\_gso} should present faster training times than \texttt{bxt\_gmo} on sufficiently large datasets.
 
 \begin{figure}[h]
