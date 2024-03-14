@@ -19,6 +19,8 @@
 \subsection{Mathematical notation}
 \label{sec:notation}
 
+REESCREVER E PADRONIZAR %TODO
+
 % TODO link prediction is different, no side features?
 
 For any given matrix $M$, we denote by $M\el {ij}$ its element on the $i$-th row
@@ -1320,6 +1322,8 @@ The authors later extend their work to include a label imputation step for predi
 \subsection{Incorporating semi-supervision into decision trees}
 \label{sec:ss trees}
 
+ADICIONAR MAIS REFERÊNCIAS E CONFERIR EXEMPLOS %TODO
+
 The tree algorithms presented up until this point do not consider the positive-unlabeled (PU) property of interaction data. They work under the assumption of a \emph{supervised} scenario, in which all annotations are reliable. In this section, we discuss adaptations to decision trees specifically designed to the challenges of PU data.
 %
 %either ignoring the possibility of abscence of labels in the training set, or, equivalently, considering all non-occurring interactions as unknown interactions.
@@ -2100,8 +2104,15 @@ the analogous being held for $V$, so that new predictions are made as usual with
 \section{Assessing the performance of bipartite models}
 \label{sec:experiments}
 
+In this section, we discuss the evaluation procedure of estimators in bipartite learning settings. 
+The PU property of such datasets and the presence of two instance domains pose special considerations on how we assess the performance of our models.
+We start by presenting the datasets used in this study, followed by a description of the evaluation metrics and the cross-validation strategy we utilize.
+%We then detail the hyperparameter optimization process and the statistical tests used to compare the models.
+
 \subsection{Datasets}
 \label{sec:datasets}
+
+COMPLEMENTAR %TODO
 % TODO: detailed description of similarity metrics
 % TODO: detailed description of biological concepts
 
@@ -2144,6 +2155,7 @@ We gathered ten publicly available interaction datasets to evaluate the performa
         %mirTarBase~\cite{hsu2011mirtarbase, huang2022mirtarbase}.
         mirTarBase~\cite{huang2022mirtarbase}. 
         DAVIS and KIBA are provided by \citet{huang2020deeppurpose}. DPI datasets, SRN, and ERN are provided by \citet{schrynemackers2015}.
+    Source: made by the authors.
 }
     \label{tab:datasets}
 \end{table}
@@ -2188,34 +2200,85 @@ Interactions between long non-coding RNAs (lncRNA) and proteins were recovered f
 Each lncRNA was required to interact with 50 proteins or more to be incorporated in the dataset, and each protein was required to have at least 2 interactions.
 
 
-\subsection{Evaluating bipartite models}
-\label{sec:evaluation_protocol}
+%\subsection{Cross-validating in two dimensions}
+%\label{sec:cross_validation}
+
+\subsection{There are multiple ways to measure model generality}
+\label{sec:bipartite test sets}
 
 % stat testing, multiple comparisons, etc
 
-\subsection{Model validation}
+To evaluate machine learning models, the standard procedure consists of separating a subset of data samples not to be used in the training process. These samples are subsequently inputted to the trained model and its known labels are compared to the model's predictions in order to estimate the algorithm performance. The held-out samples are collectively called the \emph{test set} while the ones used for model building are called the \emph{training set}.
+
+Having two distinct sample groups in bipartite learning settings makes the concept of a held-out set more nuanced. We list five reasonable test configurations we encounter in the literature. Given two samples $x_1$ and $x_2$ from each respective domain, a "test set" could refer to:
+%
+\begin{enumerate}
+    \item \textbf{Test $x_1$, test $x_2$ (TT):} both $x_1$ and $x_2$ are not present in the training set, the model has never seen either of them before;
+    \item \textbf{Learned $x_1$, test $x_2$ (LT):} $x_1$ is part of the training feature matrix $X_{1\text{, train}}$, but $x_2$ was never seen before;
+    \item \textbf{Test $x_1$, learned $x_2$ (TL):} $x_2$ is part of the training feature matrix $X_{2\text{, train}}$, but $x_1$ was never seen before;
+    \item \textbf{Learned $x_1$, learned $x_2$, masked label (LL-M):}
+    Some of the positive annotations in the training set are randomly masked (replacing $1$ by $0$).
+    The model is trained on the masked dataset and evaluated based on the predictions for the masked positives and the negative annotations.
+    \item \textbf{Learned $x_1$, learned $x_2$, unknown label (LL-U):}
+    Models trained with the SGSO adaptation (\autoref{sec:standard adaptations}) can exclude specific labels from the training set. All instances are still used for training, but some combinations of them are not presented to the model.
+    This corresponds to applying standard validation procedures directly on the $X_\text{SGSO}$ and $Y_\text{SGSO}$ matrices (\autoref{eq:gsodata}).
+\end{enumerate}
+%
+Accordingly, we sometimes call the training set the \emph{LL set}.
+LL, TL, LT, and TT were already presented with similar names by \cite{schrynemackers2015classifying}\cite{pliakos2018} and \cite{pliakos2020drugtarget}. %TODO other previous paper before schrynemackers2015
+The authors call them $L_r \times L_c$, $T_r \times L_c$, and so on.
+\cite{pahikkala2015more,more} denotes LL-U, LT, TL and TT as C1, C2, C3 and C4, respectively.
+\cite{liu2016neighborhood} uses the same notation as \cite{pahikkala2015more} but uses C4 to designate LL-M instead of LL-U. % TODO CHECK
+%
+The LL-U test set is most frequently used when building SGSO models~\cite{}. \cite{huang2020moltrans} also reports TL and LT scores.
+Using LL-M is more common for matrix factorization methods~\cite{}.
+
+Note that a model that performs well on TT is likely to also perform reasonably well on the other test sets, but the opposite is not necessarily true.
+%
+For instance, performing well on the TL or LT sets does not mean a model has learned information about both domains. As an example, consider a drug-protein scenario where the model is tested with new drugs and known proteins. Given a specific known protein, a model might correctly infer interactions based on its knowledge that similar drugs have interacted with that protein, or that a specific drug trait correlates well with the protein's interactome. No knowledge about the protein's features is required for the model to make such predictions.
+%As a result, this model would be useful to determine which drug characteristics are more important for each protein, but it would be less reliable to understant why the protein selects that drug traits.
+Therefore, there is no guarantee that the model will also perform well for new proteins.
+
+Similarly, an effective model according to the LL-U or LL-M settings will not necessarily perform well on any of TT, LT or TL sets. The reason is: an estimator would still be able to perform significantly well on LL-U or LL-M using only the information from the interaction matrix (as matrix factorization algorithms do). There is no guarantee that the model will be a representation of the underlying function: $(\mathbf{x}_1, \mathbf{x}_2) \mapsto y$. As such, there is no guarantee that new instances will be correctly classified, since the only information available about them would be their feature vectors.
+
+On the other hand, the TT test sets are the most informative in terms of generalization. They require the model to fully rely on both input vectors to predict labels, providing a more reliable representation of how attributes from both objects come together to determine the interaction.
+%the underlying $(\mathbf{x}_1, \mathbf{x}_2) \mapsto y$.
+TT is therefore especially useful when one is interested in gaining insight about the underlying process that generates the interactions. However, they are also the most challenging to predict, and the model's performance on them is expected to be lower than on the other test sets.
+
+In summary, TT should be preferred when the main interest is modeling how input features determine the interaction. TL and LT are useful if generalization is only interesting for one of the domains. LL-U and LL-M are useful when the main goal is to obtain predictions for a defined set of instances, regardless of modeling the function $(\mathbf{x}_1, \mathbf{x}_2) \mapsto y$ or not.
+
+%The TL and LT datasets are useful in more pragmatic scenarios, for example, when searching for a drug molecule to interact with a defined set of targets. In  correctly predicting their interactions is more  
+
+For the learning problems under study, explainability is an important factor to be explored in the future. We thus report our results in terms of TT, LT and TL test sets. Additionally, the learning tasks that we approach represent very diverse phenomena (\autoref{sec:datasets}), which makes the specific LT or TL sets not comparable between datasets. We thus average both LT and TL results together to report a single LT+TL score for each dataset.
+
+
+
+%additionally to a traditional "unknown test set" there are two mixed training/test folds possible: we could test our model performance when predicting interactions between instances from $X_1$ that are present in the training set and instances from $X_2$ present in the test set, and vice-versa. Similarly to \ref{pliakos2018}, % TODO: did they invent it?
+%we name those settings \emph{LT}, after "learned $X_1$, test $X_2$", and \emph{TL}, after "test $X_1$, learned $X_2$". The usual cross-validation setting with completely new test pairs is then called \emph{TT}, and the training set could alternatively be called the \emph{LL} set.
+
+\subsection{Cross-validating in two dimensions}
 \label{sec:cross_validation}
 
-To evaluate machine learning models, the standard procedure consists of separating a subset of data samples not to be used in the training process. These samples are subsequently inputted to the trained model and its known labels are compared to the model's predictions in order to estimate the algorithm performance. The hold-out samples are collectively called the \emph{test set} while the remaining ones used for model building are called the \emph{training set}.
+%In the present work, we make use of an adapted $k$-fold cross-validation procedure to evaluate our models' performance. With customary datasets formatted as $X_\text{SGSO}$ and $Y_\text{SGSO}$, $k$-fold cross-validation consists in equally and randomly dividing both $X_\text{SGSO}$ and $Y_\text{SGSO}$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, each time selecting a fold as the test set and the remaining ones as the training set (Figure \ref{}).
+In traditional learning tasks, $k$-fold cross-validation consists in equally and randomly dividing both $X$ and $Y$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, in each round selecting a fold as the test set and the remaining ones together as the training set.
 
-Since bipartite interaction datasets present two distinct categories of instances and the model's input is a pair of them, one from each group, additionally to a traditional "unknown test set" there are two mixed training/test folds possible: we could test our model performance when predicting interactions between instances from $X_1$ that are present in the training set and instances from $X_2$ present in the test set, and vice-versa. Similarly to \ref{pliakos2018}, % TODO: did they invent it?
-we name those settings \emph{LT}, after "learned $X_1$, test $X_2$", and \emph{TL}, after "test $X_1$, learned $X_2$". The usual cross-validation setting with completely new test pairs is then called \emph{TT}, and the training set could alternatively be called the \emph{LL} set.
+In the bipartite interaction setting, fold division can be done in each of the two axis of the interaction matrix, corresponding to each of the two $X_a$ sample domains. Each of the $k_1$ folds of $X_1$ can be combined with one of the $k_2$ folds of $X_2$, resulting in a corresponding partition of $Y$. Each bidimensional fold can be used as the TT set in a CV round, which yields the corresponding four LL, LT, TL and TT sets for each round. A $k_1$ by $k_2$ bidimensional CV then has a total of $k_1k_2$ folds.
 
-In the present work, we make use of an adapted $k$-fold cross-validation procedure to evaluate our models' performance. With customary datasets formatted as $X_\text{SGSO}$ and $Y_\text{SGSO}$, $k$-fold cross-validation consists in equally and randomly dividing both $X_\text{SGSO}$ and $Y_\text{SGSO}$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, each time selecting a fold as the test set and the remaining ones as the training set (Figure \ref{}).
+%If all partitions are explored, a $k_1$ by $k_2$ bidimensional cross-validation has a total of $k_1k_2$ folds. 
 
-In the interaction setting though, with a two-dimensional interaction matrix, fold division can be done in each of the two axis, corresponding to each of the two $X_a$ sample groups. Each of the $k_1$ "axis-folds" of $X_1$ can be combined with one of the $k_2$ axis-folds of $X_2$ to make up a $Y$ fold and split the dataset in the corresponding four LL, LT, TL and TT subsets. If all axis-fold combinations are explored, a $k_1$ by $k_2$ two-dimensional cross-validation naturally has a total of $k_1k_2$ folds. 
+%However, an argument can be made about not sharing axis-folds between $Y$-folds, to ensure all folds are completely independent and no information is shared between models built on each fold. For instance, if a particular $X_1$ axis-fold happens by chance to be unrepresentative of the remaining instances in $X_1$, all $k_2$ folds that include this axis-fold are expected to yield poor prediction scores. A statistical test comparing two of such score populations then would be biased towards considering those $k_2$ anomalously distributed points as a significant difference, while in reality they come from a single stochastic event, not $k_2$ events as could be apparent.
 
-However, an argument can be made about not sharing axis-folds between $Y$-folds, to ensure all folds are completely independent and no information is shared between models built on each fold. For instance, if a particular $X_1$ axis-fold happens by chance to be unrepresentative of the remaining instances in $X_1$, all $k_2$ folds that include this axis-fold are expected to yield poor prediction scores. A statistical test comparing two of such score populations then would be biased towards considering those $k_2$ anomalously distributed points as a significant difference, while in reality they come from a single stochastic event, not $k_2$ events as could be apparent.
+%To achieve fold-independence, each fold must be built from a completely different pair of axis-folds, which can be simply done by selecting $k=k_1=k_2$ and pairing each $X_1$ axis-fold with a single $X_2$ axis-fold, yielding a total of $k$ folds, not $k^2$ as when all axis-fold combinations are used (Figure \ref{}). While $k_1\neq k_2$ is still theoretically possible, the total number of folds will always be equal to the least $k_a$ value, and the axis corresponding to the greater $k_a$ would have unexploited axis-folds when creating the test sets.
 
-To achieve fold-independence, each fold must be built from a completely different pair of axis-folds, which can be simply done by selecting $k=k_1=k_2$ and pairing each $X_1$ axis-fold with a single $X_2$ axis-fold, yielding a total of $k$ folds, not $k^2$ as when all axis-fold combinations are used (Figure \ref{}). While $k_1\neq k_2$ is still theoretically possible, the total number of folds will always be equal to the least $k_a$ value, and the axis corresponding to the greater $k_a$ would have unexploited axis-folds when creating the test sets.
+We can optionally enforce independent test sets, so that each dyad composes only one bidimensional fold. This can be done by selecting $k=k_1=k_2$ and pairing each $X_1$ partition with a single $X_2$ partition, yielding a total of $k$ folds, not $k^2$ as before.
+%While $k_1\neq k_2$ is still theoretically possible, the total number of folds will always be equal to the least $k_a$ value, and the axis corresponding to the greater $k_a$ would have unexploited axis-folds when creating the test sets.
+We refer to this procedure as \emph{diagonal} cross-validation.
 
-We refer to the aforementioned two-dimensional cross-validation procedure built from a one-to-one mapping of $k$ $X_1$ axis-folds to $k$ $X_2$ axis-folds as $k$-fold \emph{diagonal} cross-validation.
+In our settings, we average the results of all folds of each dataset before computing test statistics. Therefore, the number of folds and the independence between test folds will not affect the final significance estimates. We thus use all $k^2$ folds in our experiments. Diagonal cross-validation is still used, but for the nested validation used for parameter tuning in some experiments.
 
-% TODO: why we don't use it.
+An important note is that the similarity matrices must be thoughtfully handled when splitting the datasets: we must not include similarities with the test samples in the training set.  % TODO: say that this is usually not addressed?
 
-In order to maximize the amount of training data in each fold, several studies \ref{} perform LT and TL validation separately from the TT validation, employing 1 by $k$ and $k$ by 1 cross-validation procedures respectively for LT and TL settings. Nevertheless, this requires performing cross-validation three times for each estimator, while TT cross-validation already unavoidably generates LT and TL partitions that could be used for scoring. Furthermore, using separate LT, TL and TT validation procedures hinders score comparison between LT and TT and between TL and TT, since different amounts of training data would be used for validating TT in comparison to validating the partially-learned test sets.
-
-% TODO: consider that X is pairwise! important detail not considered by many
+%%In order to maximize the amount of training data in each fold, several studies \ref{} perform LT and TL validation separately from the TT validation, employing 1 by $k$ and $k$ by 1 cross-validation procedures respectively for LT and TL settings. Nevertheless, this requires performing cross-validation three times for each estimator, while TT cross-validation already unavoidably generates LT and TL partitions that could be used for scoring. Furthermore, using separate LT, TL and TT validation procedures hinders score comparison between LT and TT and between TL and TT, since different amounts of training data would be used for validating TT in comparison to validating the partially-learned test sets.
 
 
 \subsection{Prediction scoring metrics}
@@ -3086,9 +3149,11 @@ Furthermore, the normalization enables the comparison across different tasks, en
 
 \subsection{General experimental settings}
 
-
+ESCREVER %TODO
 
 \section{Experiments}
+
+PADRONIZAR NOMES DE ESTIMADORES  %TODO
 
 This section describes the experiments performed in this work, designed to explore the proposed research questions (\autoref{sec:objectives}), assess the effectiveness of the developed methods, and to validate predictions made in the theoretical analyses.
 
@@ -3115,7 +3180,7 @@ This experiment was designed to evaluate the hypotheses raised in \autoref{sec:m
         experiments/theoretical_scoring/results/rank_correlation.pdf
     }
     \caption{
-        Point biserial correlation between the binary labels at each percentile rank and the AUROC and AUPR scores. The correlation was calculated between the ranks and the scores for $N=10^5$ random sets of $R=10^3$ binary labels. The results show that AUPR is very sensitive to a small group of highest ranks, while AUROC has a more distributed weigthing profile. For AUROC, both higher and lower ranks have a higher impact than ranks around $0.5$, contributing in opposite directions to the final metric. The results confirm the theoretical analyses from \autoref{sec:metrics from ranks}.
+        Point biserial correlation between the binary labels at each percentile rank and the AUROC and AUPR scores. The correlation was calculated between the ranks and the scores for $N=10^5$ random sets of $R=10^3$ binary labels. The results show that AUPR is very sensitive to a small group of highest ranks, while AUROC has a more distributed weigthing profile. For AUROC, both higher and lower ranks have a higher impact than ranks around $0.5$, contributing in opposite directions to the final metric. The results confirm the theoretical analyses from \autoref{sec:metrics from ranks}. Source: made by the authors.
     }
     \label{fig:correlation ranks}
 \end{figure*}
@@ -3315,7 +3380,7 @@ We select the squared weighting strategy and the fully grown trees to be further
     \end{subfigure}
     \caption{
         Percentile rankings of prediction scores of bipartite random forests for different prediction weighting strategies, across all 10 datasets.
-        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:empirical_complexity} for further descriptions of each estimator.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:empirical_complexity} for further descriptions of each estimator. Source: made by the authors.
     }
     \label{fig:pred_weights_brf}
 \end{figure*}
@@ -3350,7 +3415,7 @@ We select the squared weighting strategy and the fully grown trees to be further
     \end{subfigure}
     \caption{
         Percentile rankings of prediction scores of bipartite extremely randomized trees for different prediction weighting strategies, across all 10 datasets.
-        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:empirical_complexity} for further descriptions of each estimator.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:empirical_complexity} for further descriptions of each estimator. Source: made by the authors.
     }
     \label{fig:pred_weights_bxt}
 \end{figure*}
@@ -3447,7 +3512,7 @@ We select LMO, GMO, GSO, and GMOSA to be further analysed in the next section.
     \end{subfigure}
     \caption{
         Percentile rankings of prediction scores of random forest models under different adaptation strategies to bipartite interaction data, across all 10 datasets.
-        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator. Source: made by the authors.
     }
     \label{fig:adaptations_brf}
 \end{figure*}
@@ -3482,7 +3547,7 @@ We select LMO, GMO, GSO, and GMOSA to be further analysed in the next section.
     \end{subfigure}
     \caption{
         Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
-        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator. Source: made by the authors.
     }
     \label{fig:adaptations_bxt}
 \end{figure*}
@@ -3616,7 +3681,7 @@ In summary, interaction matrix reconstruction by NRLMF seems to consistently imp
     \end{subfigure}
     \caption{
         Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
-        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator. Source: made by the authors.
     }
     \label{fig:brf_y_reconstruction}
 \end{figure*}
@@ -3651,7 +3716,7 @@ In summary, interaction matrix reconstruction by NRLMF seems to consistently imp
     \end{subfigure}
     \caption{
         Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
-        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator.
+        The omnibus p-value obtained through a Friedman test is indicated below each plot's title. Significant results in each case lead us to perform pairwise Wilcoxon rank-sum tests, whose non-significant results are indicated by crossbars above each plot, that is, statistically undistinguished boxes are connected by the crossbars. The pairwise test results were corrected by the Benjamini-Hochberg procedure among each subfigure, considering that all possible estimator pairs were evaluated even if their comparison is not indicated in the plot. See \autoref{sec:adaptation_comparison} for further descriptions of each estimator. Source: made by the authors.
     }
     \label{fig:bxt_y_reconstruction}
 \end{figure*}
@@ -3813,7 +3878,7 @@ In conclusion, the best unsupervised impurity under LT+TL seems to be the mean d
     \end{subfigure}
 
     \caption{
-        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
+        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets. Source: made by the authors.
     }
     \label{fig:ss_comparison}
 \end{figure*}
@@ -3982,7 +4047,7 @@ When comapring the BXT against the BRF models, we notice that BXT GMO NRLMF sign
         }
     \end{subfigure}
     \caption{
-        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
+        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets. Source: made by the authors.
     }
     \label{fig:best_forests}
 \end{figure*}
@@ -4172,7 +4237,7 @@ Additionally, we argue that the AP metric is less sensitive than AUROC to this a
         }
     \end{subfigure}
     \caption{
-        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets.
+        Percentile rankings of prediction scores of extremely randomized tree ensembles under different adaptation strategies to bipartite interaction data, across all 10 datasets. Source: made by the authors.
     }
     \label{fig:comparison literature}
 \end{figure*}
