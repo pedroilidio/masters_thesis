@@ -2225,13 +2225,13 @@ Having two distinct sample groups in bipartite learning settings makes the conce
 \end{enumerate}
 %
 Accordingly, we sometimes call the training set the \emph{LL set}.
-LL, TL, LT, and TT were already presented with similar names by \cite{schrynemackers2015classifying}\cite{pliakos2018} and \cite{pliakos2020drugtarget}. %TODO other previous paper before schrynemackers2015
+LL, TL, LT, and TT were already presented with similar names in previous work~\cite{schrynemackers2015classifying,pliakos201,pliakos2020drugtarget}. %TODO other previous paper before schrynemackers2015
 The authors call them $L_r \times L_c$, $T_r \times L_c$, and so on.
-\cite{pahikkala2015more,more} denotes LL-U, LT, TL and TT as C1, C2, C3 and C4, respectively.
-\cite{liu2016neighborhood} uses the same notation as \cite{pahikkala2015more} but uses C4 to designate LL-M instead of LL-U. % TODO CHECK
+\cite{pahikkala2015more,ezzat2019computational,liu2016neighborhood} denotes LL-U, LT, TL and TT as S1, S2, S3 and S4, respectively.
+\cite{liu2016neighborhood} uses a similar notation, but uses C1 to designate LL-M instead of LL-U. % TODO CHECK
 %
 The LL-U test set is most frequently used when building SGSO models~\cite{}. \cite{huang2020moltrans} also reports TL and LT scores.
-Using LL-M is more common for matrix factorization methods~\cite{}.
+Using LL-M is more common for matrix factorization methods~\cite{liu2016}.
 
 Note that a model that performs well on TT is likely to also perform reasonably well on the other test sets, but the opposite is not necessarily true.
 %
@@ -3247,9 +3247,10 @@ In spite of that, the empirical complexity of \texttt{bdt\_gso} is still observe
     \end{subfigure}
     \caption{
         Empirical time complexity estimation of the proposed bipartite global single-output (BGSO) and the global multi-output (GMO)~\cite{pliakos2018}
-        algorithms. Bipartite versions of both extremely randomized trees~\cite{geurts2006extremely} (BXT) and greedy decision trees~\cite{breiman1984} (BDT) were built under the GSO and GMO scheme and trained over artificial datasets of varying numbers of samples (as described in section \ref{sec:complexity_analysis}). Applying least-squares linear regression to the logarithm of the values in (a), as shown in (b), the empirical slopes and respective standard deviations are obtained.
+        algorithms. Bipartite versions of both extremely randomized trees~\cite{geurts2006extremely} (BXT) and greedy decision trees~\cite{breiman1984} (BDT) were built under the GSO and GMO scheme and trained over artificial datasets of varying numbers of samples (as described in \autoref{sec:complexity_analysis}). Applying least-squares linear regression to the logarithm of the values in (a), as shown in (b), the empirical slopes and respective standard deviations are obtained.
         Independent two-sample t-tests comparing the slope estimates reveal that the time complexity of \texttt{bdt\_gso} is highly significantly lower than \texttt{bdt\_gmo} (p-value $< 10^{-64}$) and even \texttt{bxt\_gmo} (p-value $< 10^{-20}$), and also that \texttt{bxt\_gso} significantly exhibits lower complexity than \texttt{bxt\_gmo} (p-value $< 10^{-22}$). Those values
-        corroborate the theoretical estimates from section \ref{sec:complexity_analysis}.
+        corroborate the theoretical estimates from \autoref{sec:complexity_analysis}.
+        Source: made by the authors.
     }
     \label{fig:empirical_complexity}
 \end{figure}
@@ -3553,7 +3554,7 @@ We select LMO, GMO, GSO, and GMOSA to be further analysed in the next section.
 \end{figure*}
 
 
-\subsection{Can label imputation aid bipartite forests?}
+\subsection{Can label imputation assist bipartite forests?}
 \label{sec:y_reconstruction}
 
 \begin{mdframed}

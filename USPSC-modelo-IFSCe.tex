@@ -50,11 +50,11 @@ a4paper,			% tamanho do papel.
 % -- opções da classe abntex2 --
 chapter=TITLE,		% títulos de capítulos convertidos em letras maiúsculas
 % -- opções do pacote babel --
-english,			% idioma adicional para hifenização
-portuguese,         % idioma adicional para hifenização
+%portuguese,         % idioma adicional para hifenização
 %brazil,             % idioma adicional para hifenização
-french,				% idioma adicional para hifenização
-spanish,			% idioma adicional para hifenização
+%french,				% idioma adicional para hifenização
+%spanish,			% idioma adicional para hifenização
+english,			% idioma adicional para hifenização
 % {USPSC-classe/USPSC} configura o cabeçalho contendo apenas o número da página
 ]{USPSC-classe/USPSC1}
 %]{USPSC-classe/USPSC1}
@@ -109,6 +109,7 @@ spanish,			% idioma adicional para hifenização
 % Sistema Numérico
 % Para citações numéricas, sistema adotado pelo IFSC, incluir % no início dos comandos acima e retirar a % dos comandos abaixo 
 \usepackage{cite}              % agrupa citações numéricas consecutivas
+%\usepackage[num, abnt-emphasize=bf, abnt-thesis-year=both, abnt-repeated-author-omit=no, abnt-last-names=abnt, abnt-etal-cite, abnt-etal-list=3, abnt-etal-text=it, abnt-and-type=e, abnt-doi=doi, abnt-url-package=none, abnt-verbatim-entry=no]{abntex2cite} 
 \usepackage[num, abnt-emphasize=bf, abnt-thesis-year=both, abnt-repeated-author-omit=no, abnt-last-names=abnt, abnt-etal-cite, abnt-etal-list=3, abnt-etal-text=it, abnt-and-type=e, abnt-doi=doi, abnt-url-package=none, abnt-verbatim-entry=no]{abntex2cite} 
 %\bibliographystyle{USPSC-classe/abntex2-num-USPSC}
 % Se o idioma for o inglês, inclua % no comando acima e exclua o % do comando abaixo
@@ -407,7 +408,8 @@ spanish,			% idioma adicional para hifenização
 % -----------------------------------------------------------
 % Referências bibliográficas
 % ----------------------------------------------------------
-\bibliography{USPSC-bib/USPSC-modelo-references}
+%\bibliography{USPSC-bib/USPSC-modelo-references}
+\bibliography{USPSC-bib/bibliography}
 
 
 % ----------------------------------------------------------
