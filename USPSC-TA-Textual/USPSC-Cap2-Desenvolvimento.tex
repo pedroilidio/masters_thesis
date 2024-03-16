@@ -44,8 +44,7 @@ The total number of elements in $M$ is written $|M| = |M|_j|M|_i$, not to be
 confused with the determinant of $M$.
 
 We display filtered matrices or vectors by writing the condition as the index,
-optionally enclosed by parentheses when necessary or improving readability (Eq.
-\ref{eq:filter_notation}).
+optionally enclosed by parentheses when necessary or improving readability (\autoref{eq:filter_notation}).
 %
 \begin{equation*}
     M\el{(i<3)j} \equiv \{M\el{kj}\;\mid \; k < 3\}
@@ -190,9 +189,9 @@ We call these datasets \emph{bipartite}, to differentiate from the more common p
 As previously discussed,
 bipartite interaction problems fundamentally differ from the usual machine learning paradigm, in which input data represents a single entity to be labeled. Interaction tasks are instead concerned with labeling a relationship between two entities, and as such, each prediction is made upon a pair of feature vectors, each vector being specific to each of the two sample domains.
 
-Such subtlety is most often bypassed by reformulating a bipartite dataset into the traditional machine learning setting~\cite{vert2008reconstruction}.
+Such subtlety is most often bypassed by reformulating a bipartite dataset into the traditional machine learning setting~\cite{vert2008reconstruction,schrynemackers2015classifying,pahikkala2015more}.
 %
-These strategies can be encompassed under two general approaches, initially termed \emph{global} and \emph{local} by \textcite{vert2008reconstruction} and later adopted and extended by \textcite{sschrynemackers2015}.  %TODO cite more
+These strategies can be encompassed under two general approaches, initially termed \emph{global} and \emph{local} by \citeonline{vert2008reconstruction} and later adopted and extended by \citeonline{sschrynemackers2015}.  %TODO cite more
 % TODO maybe direct citation to specify our changes
 For the sake of clarity and generality, we further specify these categories by defining \emph{global} and \emph{local} as general properties of estimators, rather than specific training procedures:
 %
@@ -203,7 +202,7 @@ For the sake of clarity and generality, we further specify these categories by d
 \end{itemize}
 %
 %We refer to \emph{traditional} estimators as those who are not specifically designed to deal with bipartite data, and \emph{bipartite} estimators as those who are. This distinction is important to differentiate between estimators that are naturally able to deal with bipartite data and those who are not, but can be adapted to do so.
-Furthermore, to be consistent with \cite{schrynemackers2015classifying,pliakos2018,pliakos2019,pliakos2020}, we assume the following definitions in our current context of bipartite interactions:
+Furthermore, to be consistent with \cite{schrynemackers2015classifying,pliakos2018global,pliakos2019network,pliakos2020drugtarget}, we assume the following definitions in our current context of bipartite interactions:
 %
 \begin{itemize}
     \item \emph{\textbf{Single-output}} estimators are those which consider all labels, i.e. all $Y\el{ij}$ elements, irrespectively of the column $j$ or row $i$ they are in. They are all regarded as a \emph{single type of output}.
@@ -212,7 +211,7 @@ Furthermore, to be consistent with \cite{schrynemackers2015classifying,pliakos20
 %TODO another term for multi-output, please. This is too confusing with multi-output in the traditional sense. bipartite multi-output are local models that use multi-output traditional estimators? or 3D interaction matrices with multiple labels for each interaciton?
 Notice that the label matrix $Y$ can still be represented in two dimensions even if the model is single-output in this sense, contrary to the usual case where bidimensionality of $Y$ is a defining characteristic of a multi-output problem.
 
-Finally, the two most common ways of adapting traditional estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \textcite{pliakos2018,pliakos2019,pliakos2020}. We further denote them \empth{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
+Finally, the two most common ways of adapting traditional estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \citeonline{schrynemackers2015classifying}. We further denote them \empth{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
 %
 Specific definitions and shortcomings of these procedures are now presented.
 
@@ -265,8 +264,8 @@ $i_2$ combinations are explored (see \autoref{fig:sgso}).
 To consider all possible dyads, $X_\text{SGSO}$ would have $|X_1|_i|X_2|_i$ rows and $|X_1|_j+|X_2|_j$ columns. Thus, $X_\text{SGSO}$ as defined by \autoref{eq:gsodata} is highly redundant.
 %Reformatting $Y$ has no impact in memory usage, with $Y_\text{SGSO}$ having a single column but all the same $|X_1|_i|X_2|_i$ elements as $Y$.
 %However, as stated in section \ref{sec:definitions}, $X_\text{SGSO}$ would be a $|X_1|_i|X_2|_i$ by $|X_1|_j+|X_2|_j$ matrix if one intends to consider all interactions in $Y$, which
-As a result, naively dealing with such a large $X_\text{SGSO}$ matrix is impeditive in many cases, both in terms of memory usage and computation time. Therefore, a commonly used workaround is to undersample the negative annotations, yielding a dataset with equal amounts of positive and negative interactions~\cite{}.
-This strategy is justified by the negative-annotated dyads being usually far more numerous than positives and much more likely to be truly negative interactions than false negatives~\cite{}.
+As a result, naively dealing with such a large $X_\text{SGSO}$ matrix is impeditive in many cases, both in terms of memory usage and computation time. Therefore, a commonly used workaround is to undersample the negative annotations, yielding a dataset with equal amounts of positive and negative interactions~\cite{ozturk2018deepdta,huang2020moltrans}.
+This strategy is justified by the negative-annotated dyads being usually far more numerous than positives and much more likely to be truly negative interactions than false negatives.
 %Despite such reasoning, we demonstrate in \autoref{} that taking all negative samples into consideration instead has significant benefits, and we propose new model optimizations to enable it (\autoref{}).
 Nonetheless, we demonstrate in \autoref{sec:adaptation_comparison} that undersampling negatives is significantly detrimental if the main goal is to indicate wich interactions are most likely to be true.
 
@@ -321,7 +320,7 @@ An unusual behaviour occurs if the secondary estimators are able to exploit inte
 \section{Bipartite decision forests}
 \label{sec:bipartite forests}
 
-%A \textit{sui generis} learning algorithm adaptation was proposed by \textcite{pliakos2018} to deal with bipartite data, without the need for dataset reformatting as in SGSO, or compositions of multiple estimators and secondary training steps as SLMO.
+%A \textit{sui generis} learning algorithm adaptation was proposed by \citeonline{pliakos2018} to deal with bipartite data, without the need for dataset reformatting as in SGSO, or compositions of multiple estimators and secondary training steps as SLMO.
 
 Some learning algorithms can be adapted in a deeper level to the bipartite context. These algorithms are able to directly receive the two $X$ matrices as input, without needing to combine them as a preprocessing step for training.  % TODO lmo?
 We term them \emph{learner-centered} adaptations, in contrast with the data-centered strategies discussed in \autoref{sec:standard adaptations}.  % TODO standardize names
@@ -360,7 +359,7 @@ We wish to find a systematic procedure to decide whether a given drug molecule $
 
 The hypothetical decision procedure we intend to determine could then be structured as a path with consecutive bifurcations. We always start at the same place, and, at each bifurcation, a question is asked about the drug $x_i$ in hands. The questions are in a standard format, exemplified by "Is $x_i$ more than 60\% similar to the 3rd known drug?", or $x_i\el{j} > t$, for a general known drug $j$ and similarity threshold $t$. The answer to the question in each bifurcation determines which of the two possible paths we should follow. No cycles are allowed in the path, and eventually, all routes reach final locations instead of bifurcations. Each final location contains a fixed value that will be returned as the final decision about the drug $x_i$'s effect on our protein of interest.
 
-Such a decision procedure, structured as a binary tree path, is what is commonly referred to as a \emph{decision tree} (DT) model, illustrated by \autoref{fig:dt}. 
+Such a decision procedure, structured as a binary tree path, is what is commonly referred to as a \emph{decision tree} (DT) model~\cite{breiman1984classification}, illustrated by \autoref{fig:dt}. 
 In this context, each bifurcation then represents a tree \emph{node}, and the final locations are called \emph{leaves}. The value outputted by each leaf is termed the leaf's \emph{prototype}.
 %
 %The well-known interpretability of decision trees results from these
@@ -451,7 +450,7 @@ For a feature column $X\el{\cdot f}$, this exhaustive evaluation of partitions c
 %A greedy procedure is then followed for the overall tree growing, selecting at each node the best $t$ and $f$ to represent the split, according to a predefined quality criteria we further discuss in \autoref{sec:criteria}.
 %
 The exhaustive split search procedure is detailed by the \autoref{alg:find_best_split}.
-%The algorithm \ref{alg:buildtree} then describes its application on growing a traditional decision tree (stablished by \textcite{breiman1984classification}),
+%The algorithm \ref{alg:buildtree} then describes its application on growing a traditional decision tree (stablished by \citeonline{breiman1984classification}),
 %while \ref{alg:predict} formally details how predictions are made given a model built by \ref{alg:buildtree} and a new data instance.
 
 \algFindBestSplit
@@ -494,7 +493,8 @@ All impurities are multiplied by the size of each partition relative to the tota
     \label{eq:quality}
 \end{equation}
 
-Several metrics can be chosen as the impurity function $I(\cdot)$, such as the Gini impurity, the Shannon entropy or the Poisson loss~\cite{}. In this study we utilize the variance of each output column, averaged over all outputs (\autoref{eq:mse}). 
+Several metrics can be chosen as the impurity function $I(\cdot)$, such as the Gini impurity, the Shannon entropy or the Poisson loss~\cite{breiman1984classification}.  % TODO CONFIRM CITATION
+In this study we utilize the variance of each output column, averaged over all outputs (\autoref{eq:mse}). 
 %
 %labels as the basis for calculating a split quality parameter (\ref{eq:mse}). We also set the prediction output of a leaf node (given by the prototype function) to be the average of labels in the training set encompassed by the leaf. Therefore, the impurity $I$ of a dataset partition corresponds to the variance of its labels: 
 %
@@ -545,9 +545,9 @@ Also notice that $I_\text{MSE}$ is equivalent to the Gini impurity if $Y$ contai
 In this section, we describe how the decision tree algorithm can be adapted to directly operate on bipartite interaction data.
 
 Essentially, the adaptation process consists of defining bipartite versions of each of the four key components of the decision tree algorithm (\autoref{sec:dt}): the FindSplit procedure, the split quality metric, the stopping criteria, and the prototype function. From these, the most central is the FindSplit procedure adaptation.
-%As presented by \autoref{sec:bipartite_forests}, \textcite{pliakos2018global} introduces an ingenious strategy to build a decision tree directly on bipartite-formatted datasets.
+%As presented by \autoref{sec:bipartite_forests}, \citeonline{pliakos2018global} introduces an ingenious strategy to build a decision tree directly on bipartite-formatted datasets.
  
-For bipartite trees, as proposed by \cite{pliakos2018global}, we perform the split search locally in each domain, in a similar fashion to the SLMO adaptation (\autoref{sec:slmo}).
+For bipartite trees, as proposed by \citeonline{pliakos2018global}, we perform the split search locally in each domain, in a similar fashion to the SLMO adaptation (\autoref{sec:slmo}).
 % but specifically for each tree node. 
 %
 %The main concept behind it borrows the idea of the SLMO approach described in \autoref{sec:slmo},
@@ -574,7 +574,7 @@ In essence, a bipartite decision tree algorithm uses a \FindSplit procedure that
 %
 %Interestingly, contrary to the other adaptation approaches of traditional machine learning algorithms (\autoref{sec:standard adaptations}), the PBCT procedure does not require using multiple traditional estimators and training steps (such as SLMO, \autoref{sec:slmo}) or converting bipartite datasets to the memory-expensive global format such as SGSO (\autoref{sec:sgso}). Nevertheless, considering each row or column of $Y$ as a separate output results that growing a PBCT still occurs in the same asymptotic time complexity of a decision tree under the SGSO adaptation (derived in \autoref{sec:complexity_analysis}). 
 %
-%Remarkably, we show that leveraging the single-output assumption (\autoref{sec:standard adaptations}) in the tree impurity calculation can simplify the bipartite local split searching procedure introduced by \textcite{pliakos2018global}, yielding a new PBCT-based algorithm with expressive gains in training time efficiency. A formal description of our algorithm proposal is now presented.
+%Remarkably, we show that leveraging the single-output assumption (\autoref{sec:standard adaptations}) in the tree impurity calculation can simplify the bipartite local split searching procedure introduced by \citeonline{pliakos2018global}, yielding a new PBCT-based algorithm with expressive gains in training time efficiency. A formal description of our algorithm proposal is now presented.
 %
 %%Nevertheless, an argument could be made in opposition to this idea.
 %
@@ -592,7 +592,7 @@ In essence, a bipartite decision tree algorithm uses a \FindSplit procedure that
 
 This section shows how we can grow bipartite trees more efficiently, making tree estimators more scalable to large bipartite datasets.
 
-The original bipartite tree proposed by \cite{pliakos2018global} uses the impurity metric $I_\text{MSE}$ (\autoref{eq:mse}) to evaluate splits, so that the authors classify their technique as a \emph{Global MultiOutput} (GMO) estimator. \emph{Multi-output} because the impurity evaluates the average variance of each label column (or row), as if each column (or row) were a different output. \emph{Global} because each tree utilizes features from both feature domains for training (see \autoref{sec:standard adaptations}).
+The original bipartite tree proposed by \citeonline{pliakos2018global} uses the impurity metric $I_\text{MSE}$ (\autoref{eq:mse}) to evaluate splits, so that the authors classify their technique as a \emph{Global MultiOutput} (GMO) estimator. \emph{Multi-output} because the impurity evaluates the average variance of each label column (or row), as if each column (or row) were a different output. \emph{Global} because each tree utilizes features from both feature domains for training (see \autoref{sec:standard adaptations}).
 Their GMO trees, however, are shown to have the same algorithmic complexity as traditional decision trees trained with the SGSO adaptation. We demonstrate that faster training algorithms can be developed if we assume a single-output format under the context of bipartite trees. %instead of GMO, without .
 
 %Notice that
@@ -721,7 +721,7 @@ As an extension, the most natural approach to use on single-output bipartite tre
     \label{eq:prototype_gso}
 \end{equation}
 
-Nevertheless, some considerations are possible when dealing with bipartite data, since there are cases in which one of the entities of the interaction being predicted is already known from the training set. As introduced by \textcite{pliakos2018global}, if a row or column instance is in the training set, we have the option of averaging only the column or row (respectively) of $Y_\text{leaf}$ corresponding to its known outputs. Specifically, when predicting the interaction between a sample pair $x_{1\text{, new}}$ and $x_{2\text{, new}}$, we can set \KwPrototype as in \autoref{eq:prototype2}.
+Nevertheless, some considerations are possible when dealing with bipartite data, since there are cases in which one of the entities of the interaction being predicted is already known from the training set. As introduced by \citeonline{pliakos2018global}, if a row or column instance is in the training set, we have the option of averaging only the column or row (respectively) of $Y_\text{leaf}$ corresponding to its known outputs. Specifically, when predicting the interaction between a sample pair $x_{1\text{, new}}$ and $x_{2\text{, new}}$, we can set \KwPrototype as in \autoref{eq:prototype2}.
 \begin{equation}
     \KwPrototype{$Y_\text{leaf}$} =
     \begin{cases}
@@ -1029,7 +1029,8 @@ From the algorithm description, we can infer that the complexity of both \autore
 %where we assume $n_1 \approx n_2$ and $S(n)$ is the complexity of the chosen sorting algorithm of \atoref{} when operating on $n$ values.
 where $S(n)$ is the complexity of the chosen sorting algorithm of \atoref{} when operating on $n$ values.
 %
-When features are real-valued, the current most effective algorithms are $\Theta(n \log n)$, as, for example, Quick Sort or Merge Sort~\cite{}. For integer features, the complexity is $\Theta(n)$, as in Counting Sort or Radix Sort~\cite{}.
+When features are real-valued, the current most effective algorithms are $\Theta(n \log n)$, as, for example, Quick Sort or Merge Sort~\cite{cormen2022introduction}.
+For integer features, the complexity is $\Theta(n)$, as in Counting Sort or Radix Sort~\cite{cormen2022introduction}.  % TODO cite specific algorithms instead of book?
 
 When applied on $X_\text{SGSO}$ and $Y_\text{SGSO}$, we still have that $|Y| = n^2$ 
 and $f(m) \in O(m)$.
@@ -1201,24 +1202,25 @@ The resulting complexities are presented by \autoref{tab:O_comparison}. We see t
 %Although valuable tools to understand the learning problem in hands, sole decision trees are often not enough to effectively model complex relationships among the data, lacking generalization power and being prone to overfitting~\cite{}. % under or overfitting?
 %Their most powerful prediction capabilities are unleashed when committees of such models are employed 
 %Their most valuable contribution to learning performance capabilities are observed when committees of such models are employed instead.
-While single decision trees are valuable tools for comprehending the learning problem at hand, they often fall short in effectively modeling intricate relationships within the data, displaying limited generalization capabilities and high susceptibility to overfitting~\cite{}.
+While single decision trees are valuable tools for comprehending the learning problem at hand, they often fall short in effectively modeling intricate relationships within the data, displaying limited generalization capabilities and high susceptibility to overfitting~\cite{breiman2001random,chen2016xgboost}.  %TODO CHECK CITATION
 %
 Their most significant impact on machine learning applications is observed when committees of such models are utilized, in which the final output values
 %are the combination 
 are, for example, the average predictions of all trees.
 
-These compositions of estimators are usually referred to as \emph{ensembles}~\cite{}. Being studied in the context of machine learning since the 1970s, they reflect the intuitive idea that combining multiple opinions from a diverse set of experts frequently results in better decision taking. % TODO elaborate, jury theorem
+These compositions of estimators are usually referred to as \emph{ensembles}~\cite{ddietterich2000ensemble,breiman2001random,polikar2006ensemble}.
+Being studied in the context of machine learning since the 1970s, they reflect the intuitive idea that combining multiple opinions from a diverse set of experts frequently results in better decision taking. % TODO elaborate, jury theorem
 
 %A longstanding idea is that combining predictions of multiple estimators yields better results, much like averaging opinions of several people aids in decision taking \cite{}.
 
-In fact, it has been extensively demonstrated both empirically and theoretically that the predictive perfomance a group of learners always surpasses that of its individual components if and only if the individual estimators are sufficiently accurate and diverse~\cite{dieterich2000ensemble}. % TODO cite more
+In fact, it has been extensively demonstrated both empirically and theoretically that the predictive perfomance a group of learners always surpasses that of its individual components if and only if the individual estimators are sufficiently accurate and diverse~\cite{dieterich2000ensemble,breiman2001random,polikar2006ensemble,zhou2019deepa}. % TODO cite specific
 Importantly, requiring diversity means that the individual estimators must ideally commit errors on different instances for the composition to succeed~\cite{polikar2006ensemble}.
 
-\textcite{dietterich2000ensemble,polikar2006ensemble} describe three ways in which combining diverse estimators could benefit the ensemble's performance.
+\citeonline{dietterich2000ensemble,polikar2006ensemble} describe three ways in which combining diverse estimators could benefit the ensemble's performance:
 
 \begin{enumerate}
     \item \textbf{Statistical:} Building each estimator can be seen as finding a hypothesis that explains the prediction problem as well as possible. If multiple different hypotheses are found, the likelihood that at least one of them is close to the true underlying function is increased. Furthermore, averaging multiple hypotheses can contribute to alleviate the influence of each hypothesis' variance, resulting in a more accurate approximation and reduced propensity to overfitting.
-    \item \textbf{Computational:} Finding the globally optimal decision tree or neural network is known tobe an NP-complete problem~\cite{}. Thus, finding and combining multiple approximate hypotheses, that may represent local maxima of the objetive function, is often much cheaper than expending time on the search for a global solution. % TODO
+    \item \textbf{Computational:} Finding the globally optimal decision tree or neural network is known to be an NP-complete problem~\cite{hyafil1976constructing}. Thus, finding and combining multiple approximate hypotheses, that may represent local maxima of the objetive function, is often much cheaper than expending time on the search for a global solution. % TODO
     \item \textbf{Representational:} Sometimes, a single estimator is not complex enough to represent the intricacies of the probem at hand. However, combination of models can be utilized to enhance the representational power of the ensemble, building a more general decision function as a combination of the simpler decision boundaries of each estimator.  % TODO figure and example with stumps (rokach2018)
 \end{enumerate}
 
@@ -1227,9 +1229,9 @@ Importantly, requiring diversity means that the individual estimators must ideal
 Being diversity a key factor,
 mechanisms of introducing model heterogeneity are as important to consider as strategies for enhancing the base algorithm.
 %
-In fact, many diversity-inducing techniques even degrade the performance of individual estimators, but still results in improvements for the ensemble as a whole~\cite{breiman2001random}. % TODO cite more
+In fact, many diversity-inducing techniques even degrade the performance of individual estimators, but still results in improvements for the ensemble as a whole~\cite{breiman2001random,geurts2006extremely}.
 For example, one of the most straighforward ways to promote heterogeneity is to build each estimator on randomized subsets of the training data.
-In this and in many other cases, designing ensemble models is thus a matter of balancing diversity and individual strength.
+In this and in many other cases, designing ensemble models is thus a matter of balancing diversity and individual strength~\cite{breiman2001random}.
 
 %The balance between diversity 
 %and individual strength is thus of central role when designing ensemble models.
@@ -1243,7 +1245,7 @@ This is the core idea of \emph{decision forests} (the ensembles of decision tree
 % generically called \emph{decision forests},
 %as long as proper diversification is employed.
 %
-We briefly describe some popular strategies for introducing heterogeneity in the decision tree growing procedure.
+We briefly describe some popular strategies for introducing heterogeneity in the decision tree growing procedure:
 
 \begin{enumerate}  % XXX
     \item \textbf{Instance sampling:} A new version of the training set is built by randomly drawing instances from it, with or without replacement (selecting rows of $X$). If drawing with replacement, one can optionally draw the same number of instances as the original set, a procedure known as bootstrapping.
@@ -1254,35 +1256,35 @@ We briefly describe some popular strategies for introducing heterogeneity in the
 
 Both instance and feature undersampling can be performed node-wise, occurring before the split search procedure of each node, or tree-wise, occurring once for each tree in the ensemble. Both can also be performed with or without replacement, but notice that sampling features with replacement only makes sense if randomization of split threshold is also employed. In such a case, a random candidate split threshold is selected for each repetition of a feature, whereas the same split threshold would be selected for all duplicates if the greedy approach was used, spending more time with no different result than if omitting the repeated features.
 
-The concept of sampling instances with replacement to create a different training set for each estimator in the ensemble was first proposed by \textcite{breiman1996bagging} under the name of bootstrap aggregation or \emph{bagging}.
+The concept of sampling instances with replacement to create a different training set for each estimator in the ensemble was first proposed by \citeonline{breiman1996bagging} under the name of bootstrap aggregation or \emph{bagging}.
 
-The idea of selecting a subset of features was introduced independently by \textcite{amit1997shape} and \textcite{tinkamho1998random}. While \textcite{amit1997shape} explored feature sampling as a remedy for a shape recognition problem with impeditively large sample sets, \textcite{tinkamho1998random} was mainly focused on overfitting-prevention for decision forests.
+The idea of selecting a subset of features was introduced independently by \citeonline{amit1997shape} and \citeonline{tinkamho1998random}. \citeonline{amit1997shape} explored feature sampling as a remedy for a shape recognition problem with impeditively large sample sets, whereas \citeonline{tinkamho1998random} was mainly focused on overfitting-prevention for decision forests.
 
-It was \textcite{breiman2001random} who first combined the two ideas, proposing and greatly popularizing the Random Forest algorithm, with over 115 thousand citations according to Google Scholar as of september 2023~\cite{}.
+It was \citeonline{breiman2001random} who first combined the two ideas, proposing and greatly popularizing the Random Forest algorithm, with over 120 thousand citations according to Google Scholar as of March 2024.
 
-\textcite{geurts2006extremely} later introduced the randomized split threshold concept, presenting the Extremely Randomized Trees algorithm (Extra-Trees). The algorithm shows competitive prediction scores and clear superiority in terms of training speed compared to bagging and Random Forests~\cite{geurts2006extremely}.
+\citeonline{geurts2006extremely} later introduced the randomized split threshold concept, presenting the Extremely Randomized Trees algorithm (Extra-Trees). The algorithm shows competitive prediction scores and clear superiority in terms of training speed compared to bagging and Random Forests~\cite{geurts2006extremely,schrynemackers2015classifying}.
 
 The two main ensemble-building strategies we explore in the current work can now be defined as follows:
 
 \begin{itemize}
-    \item \textbf{Random Forests (RF):} Tree-wise instance sampling with replacement and node-wise feature undersampling without replacement are employed.
-    \item \textbf{Extremely Randomized Trees (ERT):} Split threshold randomization and node-wise feature undersampling without replacement are employed. No resampling of instances is performed in the original proposal.
+    \item \textbf{Random Forests (RF)~\cite{breiman2001random}:} Tree-wise instance sampling with replacement and node-wise feature undersampling without replacement are employed.
+    \item \textbf{Extremely Randomized Trees (ERT)~\cite{geurts2006extremely}:} Split threshold randomization and node-wise feature undersampling without replacement are employed. No resampling of instances is performed in the original proposal.
 \end{itemize}
 
 %One of the notable features of decision forests that contribute to their expressive popularity is their low need for data preprocessing.
 %since the order of the values among each feature is the main factor for determining the best split points, and not their scale. Additonally, the relative scaling of different features is not a concern, since the split search procedure is performed separately for each feature. These factors, combined with their strikingly small set of hyperparameters, crown decision forests as remarkable "plug-and-play", easily configurable, models, especially suited for unstructured tabular data~\cite{breiman2001,treestabulardata}. % TODO
 
-We refer the reader to \textcite{sagi2018ensemble} and \textcite{fawagreh2014random} for a more in-depth description of prominent decision forest strategies and previous work in the field. \textcite{amasyali2011comparison} provides an experimental comparison of the most popular ensemble methods.  % XXX more (preferably newer) experimental comparisons
+We refer the reader to \citeonline{sagi2018ensemble} and \citeonline{fawagreh2014random} for a more in-depth description of prominent decision forest strategies and previous work in the field. \citeonline{amasyali2011comparison} provides an experimental comparison of the most popular ensemble methods.  % TODO more (preferably newer) experimental comparisons
 %
-Regarding interaction problems, \textcite{schrynemackers2015classifying} explores the use of decision forests under the standard global multi-output and local single-output adaptations presented by \autoref{sec:standard adaptations}.
+Regarding interaction problems, \citeonline{schrynemackers2015classifying} explores the use of decision forests under the standard global multi-output and local single-output adaptations presented by \autoref{sec:standard adaptations}.
 
 The same tree-diversification and forest building techniques discussed in this section can also be applied to bipartite decision trees, with very small modifications regarding the data sampling procedures: instance sampling and feature sampling must now occurr on both domains of the interaction dataset.
 %Under this assumption, the adptation to bipartite problems can thus occur at the tree level, not at the ensemble level as would be the case with SLMO and SGSO strategies.
 
 \cite{pliakos2019network} explores these ideas, using bipartite global multi-output decision trees to build both Random Forests and Extra-Trees ensembles. We hereafter refer to these forests as Bipartite Random Forests (BRF) and Bipartite Extra-Trees (BXT), respectively. Their study suggests superior performance of BXT in comparison to SLMO- and SGSO-adapted forests, as well as in comparison to previously proposed algorithms~\cite{pliakos2019network}. %, although no significance level or test statistic is used to describe the comparisons.
 %
-%The authors later extended their work to include a self-learning step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their GMO BXT model is not directly built upon the bipartite dataset but rather on a reconstructed version of the interaction matrix obtained through applying the Neighborhood-Regularized Logistic Matrix Factorization technique (NRLMF, \textcite{liu2016neighborhood}).
-The authors later extend their work to include a label imputation step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their model is built on a reconstructed version of the interaction matrix obtained through Neighborhood-Regularized Logistic Matrix Factorization (NRLMF, \textcite{liu2016neighborhood}).
+%The authors later extended their work to include a self-learning step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their GMO BXT model is not directly built upon the bipartite dataset but rather on a reconstructed version of the interaction matrix obtained through applying the Neighborhood-Regularized Logistic Matrix Factorization technique (NRLMF, \citeonline{liu2016neighborhood}).
+The authors later extend their work to include a label imputation step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their model is built on a reconstructed version of the interaction matrix obtained through Neighborhood-Regularized Logistic Matrix Factorization (NRLMF)~\cite{liu2016neighborhood}.
 
 %In the present work, we refine such comparisons and inroduce ensembles of our newly proposed bipartite global single-output decision trees (\autoref{sec:bgso_trees}), demonstrating competitive prediction scores under an asymptotically more efficient training framework.
 
@@ -1331,20 +1333,21 @@ The tree algorithms presented up until this point do not consider the positive-u
 
 %Therefore, the machine learning paradigm under which the discussed decision trees are proposed is still \emph{supervised}, in the sense that all training instances are associated with a label (for each sample in $X$ there is a corresponding expected output in $Y$).
 
-As several previous authors~\cite{liu2017lpinrlmf,he2017simboost}, %TODO cite more
+As several previous authors~\cite{pahikkala2015more,liu2017lpinrlmf,he2017simboost}, %TODO cite more
 we argue that accounting for the partial availability of information
 % that is often intrinsic to interaction prediction problems
 could improve prediction performance of bipartite models. %, and reduce the necessity for labeled data.
-The strategies to deal with missing labels are the main concern of the \emph{semi-supervised} learning paradigm~\cite{}, which we briefly introduce.
+The strategies to deal with missing labels are the main concern of the \emph{semi-supervised} learning paradigm~\cite{chapelle2006semisupervised,vanengelen2020survey,zhu2022introduction}, which we briefly introduce.
+% TODO  include page in citation
 
 
 \subsubsection{Semi-supervised learning}
 \label{sec:semi-supervised learning}
 
 \emph{Supervised} problems are those we have been exploring, in which the
-goal is to build a model that can predict the label of a new instance based on its features. We have a matrix $Y$ of target values and feature matrices $X$, and the model's objective is to learn the relationship between $X$ and $Y$.
+goal is to build a model that can predict the label of a new instance based on its features~\cite[p.~9]{hastie2001elements}. We have a matrix $Y$ of target values and feature matrices $X$, and the model's objective is to learn the relationship between $X$ and $Y$.
 
-When the learning problem at hand does not involve predefined labels, the task is termed \emph{unsupervised}. The most common example is clustering problems, where the goal is to group similar instances together based solely on their numerical attributes. In these problems, there is not a preconceived target to model, such as desired output values or classes to which each instance should belong. Only the $X$ matrix is utilized, there is not an associated label matrix $Y$.
+When the learning problem at hand does not involve predefined labels, the task is termed \emph{unsupervised}~\cite[p.~486]{hastie2001elements}. The most common example is clustering problems, where the goal is to group similar instances together based solely on their numerical attributes. In these problems, there is not a preconceived target to model, such as desired output values or classes to which each instance should belong. Only the $X$ matrix is utilized, there is not an associated label matrix $Y$.
 
 In summary, while supervised learning problems are concerned with the relationship between $X$ and $Y$, unsupervised learning problems target the relationships between instances themselves.
 %(between rows of $X$), describing how similar they are and how they can be taxonomically organized.
@@ -1376,16 +1379,16 @@ One possible strategy is to infer missing labels from the labels of similar inst
 %Nevertheless, both problems deal with the same underlying issue: the lack of reliable labels for all instances.
 %Both problems deal with the same underlying issue: the lack of reliable labels for all instances.
 %As such, both label inference (that characterizes supervised problems) and clustering (that characterizes unsupervised problems) are intertwined as the model's objective. The goal is to simultaneously learn to correctly classify the instances with known labels in the training set while also considering similarities to infer the labels of the unlabeled instances (or to rectify labels on which one cannot fully rely). The class of such hybrid learning paradigms is called \emph{semi-supervised learning}~\cite{}.
-In the examples, both label inference (that characterizes supervised problems) and clustering (that characterizes unsupervised problems) are intertwined as the model's objective. The goal is to simultaneously learn to correctly classify the instances with known labels while also considering similarities to infer the missing or uncertain annotations. The class of such hybrid learning tasks is called \emph{semi-supervised learning}~\cite{}.
+In the examples, both label inference (that characterizes supervised problems) and clustering (that characterizes unsupervised problems) are intertwined as the model's objective. The goal is to simultaneously learn to correctly classify the instances with known labels while also considering similarities to infer the missing or uncertain annotations. The class of such hybrid learning tasks is called \emph{semi-supervised learning}~\cite{chapelle2006semisupervised,zhu2022introduction}.
 
-Since missing labels are a defining characteristic of interaction prediction tasks, it is commonly suggested~\cite{he2017simboost,liu2016neighborhood}  %TODO cite more
+Since missing labels are a defining characteristic of interaction prediction tasks, it is commonly suggested~\cite{he2017simboost,liu2016neighborhood,alves2023semisupervised}  %TODO cite more
 that applying semi-supervised concepts to our problems could significantly improve the performance of bipartite models.
 
 %TODO survey
 %TODO terms: pu, weak labels, one-class, dyadic prediction (pu is a subclass of ss)
 %TODO terms: what are standard semi-supervision techniques
 
-For decision trees specifically, there are straightforward ways to incorporate semi-supervised assumptions, that we now describe.
+For decision trees specifically, there are straightforward ways to incorporate semi-supervised assumptions~\cite{levatic2017semisupervised,adiyeke2022semisupervised,alves2023semisupervised}, that we now describe.
 
 \subsubsection{Semi-supervised decision trees}
 \label{sec:ss trees 2}
@@ -1400,14 +1403,15 @@ This results from the definition of the impurity function $I$ governing the spli
 %
 With that in mind, decision trees can be naturally adapted to unsupervised or semi-supervised tasks by redefining the impurity function to consider the feature matrix $X_\text{node}$ instead of only the label matrix $Y_\text{node}$.
 
-In a purely unsupervised context, an example would be to utilize the average of column variances in $X_\text{node}$ as the impurity function (\autoref{eq:I unsup}). This would result in a tree that groups instances with similar features together, regardless of their labels. This idea is the main concept behind the CLUS algorithm~\cite{boley1998unsupervised}.
+In a purely unsupervised context, an example would be to utilize the average of column variances in $X_\text{node}$ as the impurity function (\autoref{eq:I unsup}). This would result in a tree that groups instances with similar features together, regardless of their labels.
+%This idea is the main concept behind the CLUS algorithm~\cite{boley1998unsupervised}.  % TODO cite examples of ss and unsup trees?
 %
 \begin{equation}
     I_\text{u, MSE}(X) = \text{MSE}(X) = \left( X\el{ij} - X^{\ang{i}[j]} \right)^{\ang{i}2\ang{j}}
     \label{eq:I unsup}
 \end{equation}
 
-To address semi-supervised scenarios, we can consider both supervised and unsupervised objectives simultaneously. This can be done by using a linear combination of unsupervised and supervised impurities to guide the split selection, taking into account both the similarities between features and between labels to build a semi-supervised decision tree.
+To address semi-supervised scenarios, we can consider both supervised and unsupervised objectives simultaneously. This can be done by using a linear combination of unsupervised and supervised impurities to guide the split selection, taking into account both the similarities between features and between labels to build a semi-supervised decision tree~\cite{levatic2017semisupervised,adiyeke2022semisupervised,alves2023semisupervised}.
 \autoref{eq:I ss} defines such a hybrid impurity function.
 %
 \begin{equation}
@@ -1440,7 +1444,7 @@ Another important notice is that features must be normalized before training the
 
 We explore two different unsupervised impurity functions for the semi-supervised decision trees: the mean feature variance (\autoref{eq:I unsup}) and the mean pairwise distance between the samples (\autoref{eq:mean distance impurity}). We describe and motivate them in this section.
 
-The initial proposal of a semi-supervised impurity function~\cite{levatic2017semisupervised} employed the mean variance of the feature matrix $X$ as the unsupervised term (\autoref{eq:I unsup}), being concerned with traditional decision trees.
+Initial proposals of a semi-supervised impurity function~\cite{levatic2017semisupervised} employed the mean variance of the feature matrix $X$ as the unsupervised term (\autoref{eq:I unsup}), being concerned with traditional decision trees.
 The strategy, however, does not scale well with the number of features.
 %which is especially a concern for bipartite trees working 
 %main concern with this strategy is that it considerably slows down the training procedure of bipartite trees.
@@ -1453,7 +1457,7 @@ The scalability is especially a concern in the scenarios under study, in which t
 Notice that, in the learning tasks under study, the $X$ matrix already represents similarities between samples, and an additional metric such as the variance of each feature is not necessary to capture how close the samples are to each other. 
 %
 Exploring this property, we propose a more efficient unsupervised impurity function based on the average similarity between the samples in the tree node (equation \ref{eq:mean distance impurity}).
-% only upper triangle is used, X symmetric
+%  adiyeke2022semisupervised proposes a similar similarity
 %
 \begin{equation}
     I_\text{MeanDistance}(X) = \frac{1}{|\mathbf{s}_\text{node}|}
@@ -1482,7 +1486,7 @@ Determining the ideal value of $\sigma$ is not a trivial task. In fact, it is no
 
 % One may also make the point that nodes with fewer instances in total (labeled or unlabeled) should favor the supervised objective, since the unsupervised impurity would be more prone to noise, and thus set larger values of $\sigma$ for smaller nodes or for deeper nodes in the tree structure.
 
-\textcite{alves2023semisupervised} argues that the unsupervised impurity should be more important for nodes with a larger number of unlabeled instances, since the supervised information would be more likely to be unreliable. Thus, they propose updating $\sigma$ according to the label density of each node, as defined by \autoref{eq:sigma density}.
+\citeonline{alves2023semisupervised} argues that the unsupervised impurity should be more important for nodes with a larger number of unlabeled instances, since the supervised information would be more likely to be unreliable. Thus, they propose updating $\sigma$ according to the label density of each node, as defined by \autoref{eq:sigma density}.
 %
 \begin{equation}
     \sigma = 0.1 + 0.9 \cdot Y_\text{node}\mel{ij}
@@ -1511,6 +1515,7 @@ We also speculate that the observed benefit of a dynamic $\sigma$ could emerge f
     \sigma \sim \mathcal{U}(0, 1)
     \label{eq:sigma random}
 \end{equation}
+
 
 
 \section{Other estimator-centered strategies}
@@ -1554,7 +1559,7 @@ We also define $W$ slightly differently, ommiting the $X\T$ factor as $W = (S + 
     \hat Y = S W = (S + \alpha I)^{-1} S
 \end{equation}
 
-For the bipartite interaction prediction case, besides standard adaptations as described in \autoref{sec:standard adaptations}, a unique formulation is presented by \textcite{vanlaarhoven2011gaussian}. Similar in concept to the standard global single output procedure (\autoref{sec:standard adaptations}), the authors consider each interaction pair as a unitary instance. The authors then propose building a kernel matrix relating each pair of instances to another pair, and not each interacting entity to another of the same domain. If $S_1 \in \mathbb{R}^{n_1 \times n_1}$ and $S_2 \in \mathbb{R}^{n_2 \times n_2}$ are the intra-domain similarity matrices, the global kernel matrix $S$ is defined as
+For the bipartite interaction prediction case, besides standard adaptations as described in \autoref{sec:standard adaptations}, a unique formulation is presented by \citeonline{vanlaarhoven2011gaussian}. Similar in concept to the standard global single output procedure (\autoref{sec:standard adaptations}), the authors consider each interaction pair as a unitary instance. The authors then propose building a kernel matrix relating each pair of instances to another pair, and not each interacting entity to another of the same domain. If $S_1 \in \mathbb{R}^{n_1 \times n_1}$ and $S_2 \in \mathbb{R}^{n_2 \times n_2}$ are the intra-domain similarity matrices, the global kernel matrix $S$ is defined as
 %
 \begin{equation}
     S\el{(i_1n_2 + i_2)(j_1 n_2 + j_2)} = S_1\el{i_1j_1} S_2\el{i_2j_2}
@@ -1579,7 +1584,7 @@ Purely for notation purposes, we organize the weight parameters as the vectorize
 
 As the reader may imagine, $S$ gets prohibitively large for big datasets (it's a $n_1 n_2$-sized square matrix!), both in terms of memory usage and the time needed to perform the matrix inversion. The authors, however, provide a clever way of circumventing this issue by decomposing each of the $S_1$ and $S_2$ kernel matrices separately and exploiting the properties of the Kronecker product.
 
-Given that $S_1$ and $S_2$ are symmetric square matrices, it follows from the spectral theorem~\cite{} that they can be decomposed as follows:
+Given that $S_1$ and $S_2$ are symmetric square matrices, it follows from the spectral theorem that they can be decomposed as follows:  % TODO cite spectral theorem
 %
 \begin{gather*}
     S_1 = U_1 \Lambda_1 U_1\T \\
@@ -1588,7 +1593,7 @@ Given that $S_1$ and $S_2$ are symmetric square matrices, it follows from the sp
 %
 where, if $\mathbf{\lambda}_1$ represents the vector of eigenvalues of $S_1$, $\Lambda_1$ is the diagonal matrix of those eigenvalues ($\Lambda_1 = \text{diag}(\mathbf{\lambda}_1)$), with $U_1$ columns representing their corresponding eigenvectors $U^{\intercal[i]}$ for each $\mathbf{\lambda}_1\el{i}$. The symmetry of the similarity matrices also implies that $U_1$ and $U_2$ are orthogonal, i.e. $U_1\T U_1 = U_1 U_1\T = \mathbb{I}$ and $U_2\T U_2 = U_2 U_2\T = \mathbb{I}$, or, equivalently, $U_1^{-1} = U_1\T$ and $U_2^{-1} = U_2\T$.
 %
-Utilizing the fact that $(AB) \otimes (CD) = (A \otimes C)(B \otimes D)$~\cite{}, the Kronecker product of $S_1$ and $S_2$ can be written as
+Utilizing the fact that $(AB) \otimes (CD) = (A \otimes C)(B \otimes D)$~\cite{schafer2017introduction}, the Kronecker product of $S_1$ and $S_2$ can be written as
 %
 \begin{equation}
     S = S_1 \otimes S_2
@@ -1612,7 +1617,7 @@ Further exploring the orthogonality of $U$, $U U\T = U \mathbb{I} U\T = \mathbb{
     \text{vec}(W) = U (\Lambda + \alpha\mathbb{I})^{-1} U\T \text{vec}(Y)
 \end{equation*}
 %
-The most crucial property of the Kronecker product for our application is its relationship with the vectorization operator~\cite{}: $(A \otimes B)\text{vec} (C) = \text{vec}(BCA\T)$, which allows us to write
+The most crucial property of the Kronecker product for our application is its relationship with the vectorization operator~\cite{schafer2017introduction}: $(A \otimes B)\text{vec} (C) = \text{vec}(BCA\T)$, which allows us to write
 %
 \begin{equation*}
     \text{vec}(W)
@@ -1698,7 +1703,7 @@ This section describes the NRLMF~\cite{liu2016neighborhood} algorithm, which is 
 %NRLMF implements semi-supervised concepts, as it is designed to handle missing labels and to take advantage of the similarities between samples to improve generalization. 
 %Further descendants of NRLMF were later proposed, using a kernel fusion procedure~\cite{hao2017dnilmf,li2019dnilmf}, or applying beta-distribution rescoring of its~outputs~\cite{ban2019nrlmfb}.
 The method is an extension of the Logistic Matrix Factorization (LMF) algorithm, which is designed for recommendation tasks~\cite{johnsonlogistic}.
-NRLMF was successfully applied to diverse bipartite interaction prediction problems, such as drug-target~\cite{liu2016nrlmf}, long non-coding RNA-protein~\cite{liu2017nrlmf}, and lncRNA-microRNA ~\cite{liu2020nrlmf}.
+NRLMF was successfully applied to diverse bipartite interaction prediction problems, such as drug-target~\cite{liu2016neighborhood}, long non-coding RNA-protein~\cite{liu2017lpinrlmf}, and lncRNA-microRNA~\cite{liu2020predicting}.
 
 
 \subsubsection{Traditional matrix factorization}
@@ -1881,13 +1886,13 @@ Therefore, if multiple values of $U$ and $V$ possibly generate the same $\hat Y 
 
 One may have noticed that the original feature matrices $X_1$ and $X_2$ were not considered in any regard when describing matrix factorization and detailing the objective functions.
 Born in the context of recommendation systems where the relationship labels are usually the only information available, matrix factorization algorithms in general encounter a significant issue when brought to our current scenario of bipartite interaction prediction:
-in its canonic formulation, they do not take sample-level features into account, often called \emph{side information} or \emph{side features} in the recommendation field~\cite{}, possibly overlooking valuable data. As a consequence, they are unable to provide predictions for new samples that were not present in the training set, since no information about them is available to be inputted to the model. This is commonly regarded as the \emph{cold-start problem}~\cite{}. As such, matrix factorization usage is usually restricted to the task of matrix completion, in which the goal is to predict the missing values of a matrix given the values of the remaining elements, without receiving completely new rows or columns during model evaluation~\cite{}.
+in its canonic formulation, they do not take sample-level features into account, often called \emph{side information} or \emph{side features} in the recommendation field~\cite{rafailidis2016modeling}, possibly overlooking valuable data. As a consequence, they are unable to provide predictions for new samples that were not present in the training set, since no information about them is available to be inputted to the model. This is commonly regarded as the \emph{cold-start problem}~\cite{lu2012recommender}. As such, matrix factorization usage is usually restricted to the task of matrix completion, in which the goal is to predict the missing values of a matrix given the values of the remaining elements, without receiving completely new rows or columns during model evaluation~\cite{lu2012recommender}.
 
 
 \subsubsection{Neighborhood regularization}
 \label{sec:neighborhood regularization}
 
-Targeting these issues, \textcite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting} proposes a modification to LMF that incorporates side information into the model, enabling predicting interactions for new samples.
+Targeting these issues, \citeonline{liu2016neighborhood} proposes a modification to LMF that incorporates side information into the model, enabling predicting interactions for new samples.
 %successfully applying their method to interaction problems such as drug-target interaction prediction~\cite{liu2016neighborhood}, long non-coding RNA interactions~\cite{liu2017lpinrlmf} and microRNA interactions~\cite{liu2020predicting}.
 %
 The core idea of their technique lies in adding one more term to the objective function, penalizing instances regarded as close when considering the original features but were separated by $U$ and $V$, placed far from each other in the latent space. As such, the algorithm is called \emph{Neighborhood-Regularized Logistic Matrix Factorization} (NRLMF).
@@ -2050,7 +2055,7 @@ and the derivatives of the objective function with respect to $U$ and $V$ to be 
 %
 The training procedure of NRLMF is presented by \autoref{alg:nrlmf_train}, and consists of alternated updates on $U$ and $V$ in the gradient's direction until certain stop criteria are satisfied. Common choices for stopping conditions are a maximum number of iterations or a minimum change in the objective function between iterations.
 
-Since faster convergence is reported by the original authors~\cite{johnsonlogistic}, we follow \textcite{johnsonlogistic,liu2016neighborhooda} by implementing the AdaGrad procedure~\cite{duchi2011adaptive}, in which the length of each gradient step is divided by the square-root sum of squared previous steps:
+Since faster convergence is reported by the original authors~\cite{johnsonlogistic}, we follow \citeonline{johnsonlogistic,liu2016neighborhooda} by implementing the AdaGrad procedure~\cite{duchi2011adaptive}, in which the length of each gradient step is divided by the square-root sum of squared previous steps:
 %
 \begin{equation}
     U_{t+1} = U_t + \frac{\eta G_{U,t}}{\sqrt{\sum_{t'=0}^t G_{U,t'}^2}}
@@ -2122,41 +2127,26 @@ We gathered ten publicly available interaction datasets to evaluate the performa
 \begin{table}[tb]
     \centering
     \footnotesize
-    \begin{tabular}{lrrr}%r}
+    \begin{tabular}{lrrrr}
         \toprule
-        Dataset & Type of interaction & $Y$ shape & Density\\% & References\\
+        Dataset & Type of interaction & $Y$ shape & Density & References\\
         \midrule
-        DPI-E & Drug-enzyme & $664 \times 445$ & 0.9902\%\\% &\cite{yamanishi2008}\\
-        DPI-G & Drug-GPCR & $95 \times 223$ & 2.997\%\\% &\cite{yamanishi2008}\\
-        DPI-G & Drug-GPCR & $95 \times 223$ & 2.997\%\\% &\cite{yamanishi2008}\\
-        DPI-I & Drug-ion channel & $204 \times 210$ & 3.445\%\\% &\cite{yamanishi2008}\\
-        DPI-N & Drug-nuclear receptor & $26 \times 54$ & 6.410\%\\% &\cite{yamanishi2008}\\
-        ERN & Gene-transcription factor & $1164 \times 154$ & 1.837\%\\% &\cite{faith2007}\\
-        SRN & Gene-transcription factor & $1821 times 113$ & 1.780\%\\% &\cite{macisaac2006, hughes2000, hu2007, chua2006, schrynemackers2015}\\
-        %SRN & Gene-transcription factor & $1821 \times 113$ & 1.780\% &\cite{macisaac2006}\\
-        DAVIS & Inhibitor-kinase & $68 \times 442$ & 5.011\%\\% &\cite{davis2011,he2017simboost,huang2020deeppurpose}\\
-        KIBA & Inhibitor-kinase & $2111 \times 229$ & 19.74\%\\% &\cite{tang2014,he2017simboost,huang2020deeppurpose}\\
-        NPInter & lncRNA-protein & $586 \times 446$ & 18.12\%\\% &\cite{wu2006npinter, teng2020npinter}\\
-        %NPInter & lncRNA-protein & $586 \times 446$ & 18.12\% &\cite{teng2020npinter}\\
-        mirTarBase & miRNA-mRNA & $1873 \times 415$ & 7.065\%\\% &\cite{hsu2011mirtarbase, huang2022mirtarbase}\\
-        %mirTarBase & miRNA-mRNA & $1873 \times 415$ & 7.065\% &\cite{huang2022mirtarbase}\\
+        DPI-E & Drug-enzyme & $664 \times 445$ & 0.9902\% &\cite{yamanishi2008prediction}\\
+        DPI-G & Drug-GPCR & $95 \times 223$ & 2.997\% &\cite{yamanishi2008prediction}\\
+        DPI-G & Drug-GPCR & $95 \times 223$ & 2.997\% &\cite{yamanishi2008prediction}\\
+        DPI-I & Drug-ion channel & $204 \times 210$ & 3.445\% &\cite{yamanishi2008prediction}\\
+        DPI-N & Drug-nuclear receptor & $26 \times 54$ & 6.410\% &\cite{yamanishi2008prediction}\\
+        ERN & Gene-transcription factor & $1164 \times 154$ & 1.837\% &\cite{faith2007largescale}\\
+        SRN & Gene-transcription factor & $1821 \times 113$ & 1.780\% & \cite{macisaac2006improved, hughes2000functional, hu2007genetic, chua2006identifying, schrynemackers2015classifying}\\
+        DAVIS & Inhibitor-kinase & $68 \times 442$ & 5.011\% &\cite{davis2011comprehensive,he2017simboost,huang2020deeppurpose}\\
+        KIBA & Inhibitor-kinase & $2111 \times 229$ & 19.74\% &\cite{tang2014making,he2017simboost,huang2020deeppurpose}\\
+        NPInter & lncRNA-protein & $586 \times 446$ & 18.12\% &\cite{wu2006npinter, teng2020npinter}\\
+        mirTarBase & miRNA-mRNA & $1873 \times 415$ & 7.065\% &\cite{hsu2011mirtarbase, huang2022mirtarbase}\\
         \bottomrule
     \end{tabular}
-    \caption{Summary of the datasets used in this study. The similarity scores for mirTarBase and NPInter were obtained from the raw sequences as their normalized Smith-Waterman alignment scores. %substitution matrices and density filters
-    %
-    Original references are:
-        DPI~\cite{yamanishi2008},
-        ERN~\cite{faith2007},
-        SRN~\cite{macisaac2006}, %, hughes2000, hu2007, chua2006, schrynemackers2015},
-        DAVIS~\cite{davis2011}, %,he2017simboost,huang2020deeppurpose},
-        KIBA~\cite{tang2014}, %,he2017simboost,huang2020deeppurpose},
-        %NPInter~\cite{wu2006npinter, teng2020npinter},
-        NPInter~\cite{teng2020npinter}, 
-        %mirTarBase~\cite{hsu2011mirtarbase, huang2022mirtarbase}.
-        mirTarBase~\cite{huang2022mirtarbase}. 
-        DAVIS and KIBA are provided by \citet{huang2020deeppurpose}. DPI datasets, SRN, and ERN are provided by \citet{schrynemackers2015}.
-    Source: made by the authors.
-}
+    \caption{
+        Summary of the datasets used in this study. The similarity scores for mirTarBase and NPInter were obtained from the raw sequences as their normalized Smith-Waterman alignment scores. See \autoref{sec:datasets} for more information. Source: made by the authors.
+    }
     \label{tab:datasets}
 \end{table}
 
@@ -2164,30 +2154,30 @@ We gathered ten publicly available interaction datasets to evaluate the performa
 %\subsection{DPI-E, DPI-G, DPI-I, DPI-N~\cite{yamanishi2008}}
 \subsubsection{DPI-E, DPI-G, DPI-I, DPI-N}
 
-These datasets comprise drug-protein interactions for four distinct classes of proteins: enzymes, GPCRs, ion channels, and nuclear receptors, respectively. Drug similarities were computed using the SIMCOMP metric, while protein similarities were computed as normalized scores of Smith-Waterman pairwise alignments~\cite{yamanishi2008}.
+These datasets comprise drug-protein interactions for four distinct classes of proteins: enzymes, GPCRs, ion channels, and nuclear receptors, respectively. Drug similarities were computed using the SIMCOMP metric, while protein similarities were computed as normalized scores of Smith-Waterman pairwise alignments~\cite{yamanishi2008prediction}.
 
 \subsubsection{ERN and SRN}
 %\subsubsection{ERN~\cite{faith2007} and SRN~\cite{macisaac2006, hughes2000, hu2007, chua2006, schrynemackers2015}}
-The datasets represent interactions between genes and transcription factors in \textit{E. coli} and \textit{S. cerevisiae}, respectively. Features for genes and trasncription factors are initially composed of experimentally measured expression levels and, in SRN, gene motif features~\cite{brohee2011,schrynemackers2015}. We compute the RBF kernel of such values to obtain the final similarity matrices. %TODO rbf equation or cite
+The datasets represent interactions between genes and transcription factors in \textit{E. coli} and \textit{S. cerevisiae}, respectively. Features for genes and trasncription factors are initially composed of experimentally measured expression levels and, in SRN, gene motif features~\cite{brohee2011unraveling,schrynemackers2015classifying}. We compute the RBF kernel of such values to obtain the final similarity matrices. %TODO rbf equation or cite
 
 %\subsection{DAVIS~\cite{davis2011,pahikkala2015}}
 \subsubsection{DAVIS}
-The DAVIS dataset contains experimentally measured drug-kinase dissociation constants~\cite{davis2011}. The dataset was binarized by considering interactions with dissociation constants $\le 30 nM$ as the positive ones, as suggested by \cite{pahikkala2015}. Drug similarities were computed using the Extended Connectivity Fingerprints (ECFP4)~\cite{rogers2005, pahikkala2015} while protein similarities were taken as the normalized Smith-Waterman score~\cite{yamanishi2008,pahikkala2015}.
+The DAVIS dataset contains experimentally measured drug-kinase dissociation constants~\cite{davis2011comprehensive}. The dataset was binarized by considering interactions with dissociation constants $\le 30 nM$ as the positive ones, as suggested by \cite{pahikkala2015more}. Drug similarities were computed using the Extended Connectivity Fingerprints (ECFP4)~\cite{rogers2005using,pahikkala2015more} while protein similarities were taken as the normalized Smith-Waterman score~\cite{yamanishi2008prediction,pahikkala2015more}.
 
 %\subsection{KIBA~\cite{tang2014,he2017simboost,huang2020deeppurpose}}
 \subsubsection{KIBA}
 
-The KIBA dataset was initially built by \citeauthor{tang2014} and contains experimentally verified affinity scores between kinase and kinase inhibitors.
+The KIBA dataset was initially built by \citeonline{tang2014making} and contains experimentally verified affinity scores between kinase and kinase inhibitors.
 
-\cite{he2017simboost} further processed the dataset by removing all drugs and targets with less than 10 observations. In alignment with \cite{tang2014,he2017simboost}, we consider positive interactions as those with $log_10$ KIBA-scores $\leq 3.0$ to reframe the task as binary classification.
+\citeonline{he2017simboost} further processed the dataset by removing all drugs and targets with less than 10 observations. In alignment with \citeonline{tang2014making,he2017simboost}, we consider positive interactions as those with $\log_{10}$ KIBA-scores $\leq 3.0$ to reframe the task as binary classification.
 
-The utilized version of the dataset with corresponding amino acid sequences and SMILES representations were provided by \cite{huang2020deeppurpose}. From them, we generated the protein similarity matrix using the same procedure employed in the preprocessing of NPInter proteins. The drug similarities were computed similarly to how \cite{pahikkala2015} processed the DAVIS dataset, using the Tanimoto distances of ECFP4 fingerprints~\cite{rogers2005, pahikkala2015}. The Python library \texttt{rdkit}~\cite{rdkit} was used to this calculation.
+The utilized version of the dataset with corresponding amino acid sequences and SMILES representations were provided by \citeonline{huang2020deeppurpose}. From them, we generated the protein similarity matrix using the same procedure employed in the preprocessing of NPInter proteins. The drug similarities were computed similarly to how \citeonline{pahikkala2015more} processed the DAVIS dataset, using the Tanimoto distances of ECFP4 fingerprints~\cite{rogers2005using,pahikkala2015more}. The Python library \texttt{rdkit}~\cite{landrum2023rdkit} was used to this calculation.
 
 
 %\subsection{mirTarBase~\cite{hsu2011mirtarbase, huang2022mirtarbase}}
 \subsubsection{mirTarBase}
 
-The mirTarBase dataset contains experimentally validated microRNA-messengerRNA interactions. MicroRNA sequences were obtained from miRBase~\cite{griffiths2006mirbase} while transcript sequences were obtained from GENCODE~\cite{frankish2021gencode}. The longest transcript for each gene was selected and the 3' UTR exonic sequences were recovered from the genome and annotation files provided by GENCODE. The similarity matrices were then built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among microRNAs and among the genes' 3' UTRs. The alignments were performed using the BLASTN substitution matrix and no gap penalty, with the help of the Biopython package~\cite{cock2009biopython}.
+The mirTarBase dataset contains experimentally validated microRNA-messengerRNA interactions. MicroRNA sequences were obtained from miRBase~\cite{griffiths-jones2006mirbase} while transcript sequences were obtained from GENCODE~\cite{frankish2021gencode}. The longest transcript for each gene was selected and the 3' UTR exonic sequences were recovered from the genome and annotation files provided by GENCODE. The similarity matrices were then built from the normalized Smith-Waterman~\cite{yamanishi2008prediction} alignment scores among microRNAs and among the genes' 3' UTRs. The alignments were performed using the BLASTN substitution matrix and no gap penalty, with the help of the Biopython package~\cite{cock2009biopython}.
 
 Each miRNA was required to have at least 10 interactions in the dataset, and each gene was required to have at least 100 interactions.
 
@@ -2195,7 +2185,7 @@ Each miRNA was required to have at least 10 interactions in the dataset, and eac
 % \subsubsection{NPInter~\cite{wu2006npinter, teng2020npinter}}
 \subsubsection{NPInter}
 
-Interactions between long non-coding RNAs (lncRNA) and proteins were recovered from NPInter~\cite{wu2006npinter, teng2020npinter}. The lncRNA sequences were obtained from NONCODE~\cite{zhao2016noncode} and the protein sequences were obtained from UniProt~\cite{uniprot2019}. The similarity matrices were built from the normalized Smith-Waterman~\cite{yamanishi2008} alignment scores among lncRNAs and among the proteins. Similarly to the preprocessing of mirTarBase, we utilized the Biopython package~\cite{cock2009biopython} to perform the alignments. using the BLASTN and BLOSUM62 substitution matrices for the lncRNA and protein alignments, respectively, and no gap penalty in both cases.
+Interactions between long non-coding RNAs (lncRNA) and proteins were recovered from NPInter~\cite{wu2006npinter, teng2020npinter}. The lncRNA sequences were obtained from NONCODE~\cite{liu2005noncode,zhao2016noncode} and the protein sequences were obtained from UniProt~\cite{consortium2019uniprot}. The similarity matrices were built from the normalized Smith-Waterman~\cite{yamanishi2008prediction} alignment scores among lncRNAs and among the proteins. Similarly to the preprocessing of mirTarBase, we utilized the Biopython package~\cite{cock2009biopython} to perform the alignments. using the BLASTN and BLOSUM62 substitution matrices for the lncRNA and protein alignments, respectively, and no gap penalty in both cases.
 
 Each lncRNA was required to interact with 50 proteins or more to be incorporated in the dataset, and each protein was required to have at least 2 interactions.
 
@@ -2225,13 +2215,14 @@ Having two distinct sample groups in bipartite learning settings makes the conce
 \end{enumerate}
 %
 Accordingly, we sometimes call the training set the \emph{LL set}.
-LL, TL, LT, and TT were already presented with similar names in previous work~\cite{schrynemackers2015classifying,pliakos201,pliakos2020drugtarget}. %TODO other previous paper before schrynemackers2015
+LL, TL, LT, and TT were already presented with similar names in previous work~\cite{schrynemackers2015classifying,pliakos2018global,pliakos2020drugtarget}. %TODO other previous paper before schrynemackers2015
 The authors call them $L_r \times L_c$, $T_r \times L_c$, and so on.
 \cite{pahikkala2015more,ezzat2019computational,liu2016neighborhood} denotes LL-U, LT, TL and TT as S1, S2, S3 and S4, respectively.
 \cite{liu2016neighborhood} uses a similar notation, but uses C1 to designate LL-M instead of LL-U. % TODO CHECK
 %
-The LL-U test set is most frequently used when building SGSO models~\cite{}. \cite{huang2020moltrans} also reports TL and LT scores.
-Using LL-M is more common for matrix factorization methods~\cite{liu2016}.
+The LL-U test set is most frequently used when building SGSO models~\cite{pahikkala2015more}.
+%\cite{huang2020moltrans} also reports TL and LT scores.
+Using LL-M is more common for matrix factorization methods~\cite{liu2016neighborhood,hao2017predicting,li2019dnilmflda}.
 
 Note that a model that performs well on TT is likely to also perform reasonably well on the other test sets, but the opposite is not necessarily true.
 %
@@ -2262,7 +2253,7 @@ For the learning problems under study, explainability is an important factor to 
 %In the present work, we make use of an adapted $k$-fold cross-validation procedure to evaluate our models' performance. With customary datasets formatted as $X_\text{SGSO}$ and $Y_\text{SGSO}$, $k$-fold cross-validation consists in equally and randomly dividing both $X_\text{SGSO}$ and $Y_\text{SGSO}$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, each time selecting a fold as the test set and the remaining ones as the training set (Figure \ref{}).
 In traditional learning tasks, $k$-fold cross-validation consists in equally and randomly dividing both $X$ and $Y$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, in each round selecting a fold as the test set and the remaining ones together as the training set.
 
-In the bipartite interaction setting, fold division can be done in each of the two axis of the interaction matrix, corresponding to each of the two $X_a$ sample domains. Each of the $k_1$ folds of $X_1$ can be combined with one of the $k_2$ folds of $X_2$, resulting in a corresponding partition of $Y$. Each bidimensional fold can be used as the TT set in a CV round, which yields the corresponding four LL, LT, TL and TT sets for each round. A $k_1$ by $k_2$ bidimensional CV then has a total of $k_1k_2$ folds.
+In the bipartite interaction setting, fold division can be done in each of the two axis of the interaction matrix, corresponding to each of the two $X_a$ sample domains~\cite{vert2008reconstruction,pahikkala2015more}. Each of the $k_1$ folds of $X_1$ can be combined with one of the $k_2$ folds of $X_2$, resulting in a corresponding partition of $Y$. Each bidimensional fold can be used as the TT set in a CV round, which yields the corresponding four LL, LT, TL and TT sets for each round. A $k_1$ by $k_2$ bidimensional CV then has a total of $k_1k_2$ folds.
 
 %If all partitions are explored, a $k_1$ by $k_2$ bidimensional cross-validation has a total of $k_1k_2$ folds. 
 
@@ -2288,7 +2279,7 @@ An important note is that the similarity matrices must be thoughtfully handled w
 
 This section is concerned with defining the two metrics used throughout this work to evaluate the predictive performance of an estimator and enable comparison between them. % TODO and explain, justify, etc
 
-Consider a test set of $N$ interaction labels to be inferred by a classifier (we are not concerned with the shape of $Y$ in this section, and $N=|Y|$). Let the classifier's predictions then be represented by a matrix $\hat Y$ of the same shape as $Y$, with $\hat Y\el{ij}$ being the predicted value for the ground-truth label $Y\el{ij}$. Since $Y$ and $\hat Y$ are both binary matrices, there are four possible outcomes when a prediction is made, traditionally quantified~\cite{} as follows:
+Consider a test set of $N$ interaction labels to be inferred by a classifier (we are not concerned with the shape of $Y$ in this section, and $N=|Y|$). Let the classifier's predictions then be represented by a matrix $\hat Y$ of the same shape as $Y$, with $\hat Y\el{ij}$ being the predicted value for the ground-truth label $Y\el{ij}$. Since $Y$ and $\hat Y$ are both binary matrices, there are four possible outcomes when a prediction is made, traditionally quantified~\cite{powers2020evaluation} as follows:
 %
 \begin{itemize}
     \item \textbf{True Positives (TP):} the number of positive labels correctly predicted, where both the predicted and actual labels are 1.
@@ -2333,7 +2324,7 @@ Those quantities can be organized in the so-called \emph{confusion matrix}, illu
 %
 Naturally, one wants their estimator to maximize TP and TN while minimizing FP and FN.
 
-Most commonly, we do not use these metrics directly, but instead normalize them to the interval [0, 1] in numerous ways. This enables score comparisons across datasets with different numbers of samples and different densities of positive annotations. Below we list the most common normalized scoring metrics for binary classification problems, from which the metrics used in this work are derived.
+Most commonly, we do not use these metrics directly, but instead normalize them to the interval [0, 1] in numerous ways. This enables score comparisons across datasets with different numbers of samples and different densities of positive annotations. Below we list the most common normalized scoring metrics for binary classification problems, from which the metrics used in this work are derived~\cite{powers2020evaluation}:
 %
 \begin{itemize}
     \item \textbf{True positive rate (TPR)} or \textbf{recall:} the ratio of correctly predicted positive labels to the total number of positive labels.
@@ -2359,6 +2350,7 @@ Most commonly, we do not use these metrics directly, but instead normalize them 
     \item \textbf{Precision:} the ratio of correctly predicted positive labels to the total number of predicted positive labels.
     \begin{equation}
         Pr = \frac{TP}{PP} = \frac{TP}{TP + FP}
+        \label{eq:precision}
     \end{equation}
 \end{itemize}
 %
@@ -2385,8 +2377,8 @@ Most often, the learning algorithms are subject to a tradeoff between the abilit
 %labels.
 %
 %
-This choice is highly application-specific. For instance, in the process of diagnosing medical conditions, TPR is often prioritized~\cite{}, favoring the identification of all true cases at the expense of some misleading positive results.
-In this case, the cost of missing a positive result is usually far greater than that of a false positive. In other scenarios such as spam email filtering~\cite{}, TNR might be favored, minimizing the number of legitimate emails marked as spam even if some spam emails go undetected.
+This choice is highly application-specific. For instance, in the process of diagnosing medical conditions, TPR is likely to be prioritized, favoring the identification of all true cases at the expense of some misleading positive results.
+In this case, the cost of missing a positive result is usually far greater than that of a false positive. In other scenarios such as spam email filtering, TNR might be favored, minimizing the number of legitimate emails marked as spam even if some spam emails go undetected.
 %The choice between these tendencies reflects the trade-off between correctly identifying positive instances and correctly identifying negative instances and should align with the specific goals and constraints of the classification problem at hand.
 
 Considering this balance across a variety of learning tasks
@@ -2403,7 +2395,7 @@ A common practice is then to consider TPR and TNR for all $t$, avoiding the infl
 %Otherwise, the score comparisons could be compromised.
 
 % TODO especially important for our test sets with diffenent density than the training sets
-Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible classification results of a model. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and TNR are each indicated by an axis. Conventionally, the TPR is plotted in the $y$ axis while the FPR values (representing the TNR, $FPR=1-TNR$) are presented as $x$ coordinates, which results in the traditional \emph{receiver operating characteristic} (ROC) curve, exemplified by \autoref{fig:roc}.
+Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible classification results of a model. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and TNR are each indicated by an axis. Conventionally, the TPR is plotted in the $y$ axis while the FPR values (representing the TNR, $FPR=1-TNR$) are presented as $x$ coordinates, which results in the traditional \emph{receiver operating characteristic} (ROC) curve~\cite{davis2006relationship,hand2009measuring,he2009learning,ezzat2019computational}, exemplified by \autoref{fig:roc}.
 %
 An ideal threshold of an ideal estimator would then be close to the top-left corner of the plot, where TPR and TNR are both 1.
 On the other hand, consider a completely random classifier outputting uniformly random values $\hat Y\_\text{proba}\el{ij}$ in the 0-1 interval. We would have $\hat Y\el{ij} = \mathbb{I}(\hat Y_\text{proba}\el{ij} > t)$ for a given threshold $t$. This implies that the number of correctly guessed positive labels is $1-t$ (the probability of yielding 1) times the total number of positive labels: $TP = (1-t) (TP+FN)$, which results in $TPR = 1-t$ from the definition. Similarly, $FPR = TPR = 1-t$, so that the ROC curve of a random classifier is a diagonal line from the bottom-left to the top-right corners.
@@ -2422,11 +2414,11 @@ Specifically, an increase of $k$ in TN will cause an increase in TNR $\frac{NEG}
 
 % Positive labels (the minority class) have more weight
 
-Given that ROC equally considers both metrics, classifiers that are more sensitive to positive labels will arguably be favored over those prioritizing negative outputs. By the same logic, ROC will also be more lenient towards false positives (that decrease TNR) rather than false negatives (that decrease TPR)~\cite{}.
+Given that ROC equally considers both metrics, classifiers that are more sensitive to positive labels will arguably be favored over those prioritizing negative outputs. By the same logic, ROC will also be more lenient towards false positives (that decrease TNR) rather than false negatives (that decrease TPR)~\cite{ozenne2015precision}.
 
-To address this issue, it is commonly suggested the usage of precision-recall (PR) curves instead~\cite{ozenne2015precision,he2009learning}, where the precision is plotted as the vertical coordinate while the \emph{recall} (another name for TPR) is represented horizontally.
+To address this issue, it is commonly suggested the usage of precision-recall (PR) curves instead~\cite{ozenne2015precision,he2009learning,pahikkala2015more,hao2019opensource,ezzat2019computational,yu2020fpscdtia}, where the precision is plotted as the vertical coordinate while the \emph{recall} (another name for TPR) is represented horizontally.
 %
-We can see the FP term in \autoref{} as the proxy for the true negatives (FP = N - TN). Notice that FP in the definition of precision (\autoref{}) is not divided by the total number of negative labels, as TN is in TNR. Thus, it is argued that AUPR is less likely than AUROC to prioritize the minority class in imbalanced scenarios~\cite{ozenne2015precision,he2009learning}.
+The FP term represents the true negatives for a fixed test set (FP = N - TN). Notice that FP in the definition of precision (\autoref{eq:precision}) is not divided by the total number of negative labels, as TN is in TNR. Thus, it is argued that AUPR is less likely than AUROC to prioritize the minority class in imbalanced scenarios~\cite{ozenne2015precision,he2009learning}.
 
 We explore these claims in further detail in the following section, formally defining the ROC and PR curves in terms of ideal label probability distributions.
 
@@ -2520,7 +2512,7 @@ We explore these claims in further detail in the following section, formally def
 \subsubsection{Ideal descriptions of AUROC and AUPRC}
 % TODO previous explanations restrained to specific examples and distant analogies. (hans2009 and davis2006 are nice exceptions)
 
-Consider a general estimator outputting a decision value $s \in \mathbb{R}$ for each input instance. The final class to be assigned is still to be defined by a threshold $s^*$ so that $\hat Y\el{ij} = \mathbb{I}(s\el{ij} > s^*)$. For the ideal case of an infinite number of test samples, the possible scoring results of the estimator would be fully determined by the two theoretical distributions of $s$ given the true label $Y\el{ij}$, i.e. the probability density functions $P(s \mid Y\el{ij} = 1)$ and $P(s \mid Y\el{ij} = 0)$. Similar to \textcite{hand2009measuring}, we thus define the probability density functions $f_k$ and their corresponding cumulative distribution functions $F_k$ for each of the two classes $k \in \{0, 1\}$:
+Consider a general estimator outputting a decision value $s \in \mathbb{R}$ for each input instance. The final class to be assigned is still to be defined by a threshold $s^*$ so that $\hat Y\el{ij} = \mathbb{I}(s\el{ij} > s^*)$. For the ideal case of an infinite number of test samples, the possible scoring results of the estimator would be fully determined by the two theoretical distributions of $s$ given the true label $Y\el{ij}$, i.e. the probability density functions $P(s \mid Y\el{ij} = 1)$ and $P(s \mid Y\el{ij} = 0)$. Similar to \citeonline{hand2009measuring}, we thus define the probability density functions $f_k$ and their corresponding cumulative distribution functions $F_k$ for each of the two classes $k \in \{0, 1\}$:
 %
 \begin{gather}
     f_0(s) = P(s \mid Y\el{ij} = 0) \\
@@ -2565,7 +2557,7 @@ and minimal when all instances are classified as negatives, which respective cor
 %
 The first factor ($1- F(s^*)$), represents the fraction of positive instances that are ranked higher than the threshold $s^*$, alternatively expressed as $\int_{s^*}^{\infty}f_1(s)\; ds$. $f_0$, as defined by \autoref{eq:ideal_decision_matrix}, represents the probability of finding a negative instance within $s^*$ and $s^* + ds$. Hence, the product of both factors represents the joint probability of having a negative instance between $s^*$ and $s^* + ds$ while also finding a positive instance with $s > s^\ast$. 
 %
-After integration over all possible thresholds, we conclude that the AUROC score represents the overall probability of randomly selecting a positive instance ranked higher than a randomly selected negative instance~\cite{}.
+After integration over all possible thresholds, we conclude that the AUROC score represents the overall probability of randomly selecting a positive instance ranked higher than a randomly selected negative instance.
 
 The baseline score $0.5$ can be derived as follows. A random classifier is defined as an estimator incapable of distinguishing between the true label distributions of each class. That is, a classifier is a random classifier if and only if $f_0(s) = f_1(s) \forall s$. As a consequence,
 %
@@ -2575,7 +2567,7 @@ The baseline score $0.5$ can be derived as follows. A random classifier is defin
     = -\int_{-\infty}^{\infty} (1 - F_0) \;d(F_0)
     = \left[\frac{(1-F_0)^2}{2}\right]_{-\infty}^{\infty}
     = \frac{1}{2}
-    \label{auroc_random}
+    \label{eq:auroc_random}
 \end{equation}
  
 \autoref{eq:auroc0} also shows a characteristic of AUROC discussed in the previous section: the AUROC score is independent of the relative prevalence of each class in the test set. There is no influence of $p$ or $n$ and only the dependency on the learned decision value distributions.
@@ -2804,7 +2796,7 @@ $\frac{d F_1(r)}{dr} \le \frac{1}{p}$.
 %  \end{equation}
 
 %%% TODO: c(r) has a maximum value of 1/p, but it shouldn't depend on p?
-%%For a sufficiently large number of samples, $c\el i$ approximates a function $c(r)$ describing the density of positive labels as a function of the classifier's percentile ranking $r$. The probability of classifying a sample between $r$ and $r+dr$ as positive is then given by $c(r)dr$, while $\int_{0}^{1}c(r)\;dr = 1$. Notice that $c(r)$ is independent of the label imbalance of the test set, since it is normalized by the fraction of positive labels $P$ and depends only on the underlying probabilities of predicting a decision value given the true label. For instance, consider a classifier characterized by the distributions% as suggested by \textcite{saito2015precisionrecall}:
+%%For a sufficiently large number of samples, $c\el i$ approximates a function $c(r)$ describing the density of positive labels as a function of the classifier's percentile ranking $r$. The probability of classifying a sample between $r$ and $r+dr$ as positive is then given by $c(r)dr$, while $\int_{0}^{1}c(r)\;dr = 1$. Notice that $c(r)$ is independent of the label imbalance of the test set, since it is normalized by the fraction of positive labels $P$ and depends only on the underlying probabilities of predicting a decision value given the true label. For instance, consider a classifier characterized by the distributions% as suggested by \citeonline{saito2015precisionrecall}:
 %%%
 %%\begin{gather}
 %%    P(\hat Y\el{ij} = 1 | Y\el{ij} = 1) = \beta(1, 4) \\
@@ -3011,7 +3003,7 @@ On the other side, AUROC compensates this effect by weighting each $\text{Pr}(r)
 
 This characteristic of AUROC might be more suitable for model comparison under the Positive-Unlabeled (PU) assumption, even though AUPR is usually reccomended for imbalanced scenarios~\cite{he2009learning,saito2015precision,fernandez2018learning}.
 In PU datasets, it is common for negative-labeled instances to rank highly due to the possibility of them being unannotated positives. These highly-ranked negatives would have a larger influence on the AUPR score in comparison to the AUROC score.
-In fact, we show in the next section that AUROC is closely related to the Mean Percentile Rank metric, which has been suggested for PU learning contexts of interaction prediction and recommendation systems~\cite{pahikkala2015more,johnsonlogistic}. \autoref{sec:comparing auroc aupr} presents further discussion on the specific usecases of AUPR and AUROC, besides a numerical analysis of their dependence on the percentile ranks.
+In fact, we show in the next section that AUROC is closely related to the Mean Percentile Rank metric, which has been suggested for PU learning contexts of interaction prediction and recommendation systems~\cite{pahikkala2015more,johnsonlogistic,hao2019opensource,yu2020fpscdtia}. \autoref{sec:comparing auroc aupr} presents further discussion on the specific usecases of AUPR and AUROC, besides a numerical analysis of their dependence on the percentile ranks.
 
 
 % TODO indeed the results tend to change less with AUROC across ILR in comparison to AUPR
@@ -3135,7 +3127,7 @@ from which is straightforward to show that
 Therefore, the AUROC can also be interpreted as the normalized MPR.
 To the best of our knowledge, this relationship is not clearly shown in previous explorations.  % TODO
 
-This result corroborates the argument that the AUROC could be preferable for PU learning scenarios, since the closely-related MPR is a known metric specifically recommended for this context~\cite{pahikkala2015more,johnsonlogistic}.
+This result corroborates the argument that the AUROC could be preferable for PU learning scenarios, since the closely-related MPR is a known metric specifically recommended for this context~\cite{pahikkala2015more,johnsonlogistic,hao2017predicting,yu2020fpscdtia}.
 %
 Furthermore, the normalization enables the comparison across different tasks, ensuring that the scores on each dataset are always in the same range. Hence, the AUROC should be preferred over the MPR for the majority of cases.
 %This is especially valid in our test configurations, % TODO dropout
@@ -3246,8 +3238,8 @@ In spite of that, the empirical complexity of \texttt{bdt\_gso} is still observe
         \caption{Logarithm of the training durations in seconds versus the logarithm of the number of samples and features.}
     \end{subfigure}
     \caption{
-        Empirical time complexity estimation of the proposed bipartite global single-output (BGSO) and the global multi-output (GMO)~\cite{pliakos2018}
-        algorithms. Bipartite versions of both extremely randomized trees~\cite{geurts2006extremely} (BXT) and greedy decision trees~\cite{breiman1984} (BDT) were built under the GSO and GMO scheme and trained over artificial datasets of varying numbers of samples (as described in \autoref{sec:complexity_analysis}). Applying least-squares linear regression to the logarithm of the values in (a), as shown in (b), the empirical slopes and respective standard deviations are obtained.
+        Empirical time complexity estimation of the proposed bipartite global single-output (BGSO) and the global multi-output (GMO)~\cite{pliakos2018global}
+        algorithms. Bipartite versions of both extremely randomized trees~\cite{geurts2006extremely} (BXT) and greedy decision trees~\cite{breiman1984classification} (BDT) were built under the GSO and GMO scheme and trained over artificial datasets of varying numbers of samples (as described in \autoref{sec:complexity_analysis}). Applying least-squares linear regression to the logarithm of the values in (a), as shown in (b), the empirical slopes and respective standard deviations are obtained.
         Independent two-sample t-tests comparing the slope estimates reveal that the time complexity of \texttt{bdt\_gso} is highly significantly lower than \texttt{bdt\_gmo} (p-value $< 10^{-64}$) and even \texttt{bxt\_gmo} (p-value $< 10^{-20}$), and also that \texttt{bxt\_gso} significantly exhibits lower complexity than \texttt{bxt\_gmo} (p-value $< 10^{-22}$). Those values
         corroborate the theoretical estimates from \autoref{sec:complexity_analysis}.
         Source: made by the authors.
@@ -3307,8 +3299,8 @@ In this experiment we compare such strategies, building BXT and BRF models for e
 To observe the effect of this early-stopping criterion by itself, we also include forests of fully-grown trees in the comparison. The compared models are described below.
 
 \begin{itemize}
-    \item \textbf{\texttt{gmosa}:} proposed by \textcite{pliakos2018global}, the output of each leaf is the average of the labels of the learned samples that reach that leaf (\autoref{eq:prototype1}).
-    \item \textbf{\texttt{uniform}:} also proposed by \textcite{pliakos2018global}, the only difference from the \texttt{gmosa} strategy occurs in TL or LT test settings, when the average is taken only among the labels of the known sample of the pair being predicted (\autoref{eq:prototype2}).
+    \item \textbf{\texttt{gmosa}:} proposed by \citeonline{pliakos2018global}, the output of each leaf is the average of the labels of the learned samples that reach that leaf (\autoref{eq:prototype1}).
+    \item \textbf{\texttt{uniform}:} also proposed by \citeonline{pliakos2018global}, the only difference from the \texttt{gmosa} strategy occurs in TL or LT test settings, when the average is taken only among the labels of the known sample of the pair being predicted (\autoref{eq:prototype2}).
     \item \textbf{\texttt{precomputed}:}
     %introduced by us (as also \texttt{square} and \texttt{softmax}),
     the labels in each leaf are weighted by the similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
@@ -3319,7 +3311,7 @@ To observe the effect of this early-stopping criterion by itself, we also includ
 
 %As shown by \autoref{fig:pred_weights_brf} and Table \ref{}, BXT models show an overall superior performance in comparison to BRF models, with each BXT model scoring significantly higher than its BRF counterpart with the same prediction weights. Furthermore, the weighted GMO predictions seem to prevail relative to the leaf-wise prototype GMOSA (Section \ref{}). Specifically, bxt\_square significantly outperforms all other bipartite forests except for bxt\_precomputed, both in terms of AUROC and average precision (AUPR) in the TT sets (Figure \ref{}).
 
-The results for BRF (\autoref{fig:pred_weights_brf}) and BXT (\autoref{fig:pred_weights_bxt}) were similar. In all cases except LT+TL average precision, using the square of the similarities to weight the labels in each leaf resulted in in the best scores. For the LT+TL average precision score, growing the decision tree to its maximal size was the best strategy, followed by \texttt{uniform}, the original proposal by \textcite{pliakos2018global} of averaging only the 
+The results for BRF (\autoref{fig:pred_weights_brf}) and BXT (\autoref{fig:pred_weights_bxt}) were similar. In all cases except LT+TL average precision, using the square of the similarities to weight the labels in each leaf resulted in in the best scores. For the LT+TL average precision score, growing the decision tree to its maximal size was the best strategy, followed by \texttt{uniform}, the original proposal by \citeonline{pliakos2018global} of averaging only the 
 outputs of the learned samples (known from the training set) in each leaf. With the exception of the LT+TL AUROC metric for BXT, the mentioned winning models were statistically distinguished from all the remaining estimators. For LT+TL AUROC, the superiority of \texttt{square} could not be attested when compared to the \texttt{uniform} strategy.
 
 The fully-grown versions of both forest algorithms are shown to be especially advantageous when considering the LT+TL average precision. This suggests that building trees to their maximum depth is the best strategy for learning tasks in which
@@ -3440,11 +3432,11 @@ We now compare each of the described approaches for adapting decision forests to
 % TODO: contribution: ensembles of gmo (not gmosa) were nevel built!
 
 \begin{itemize}
-    \item \textbf{\texttt{lmo}:} implements the standard local multi-output approach (SLMO; \autoref{sec:slmo}) by training four separate multioutput models, two for each domain. First explored by \textcite{schrynemackers2015classifying}.
-    \item \textbf{\texttt{lso}:} also implements the SLMO approach (\autoref{sec:slmo}), but each multioutput model is instead a composition of several local single-output (LSO) models, i.e. one model is trained for each row or column of the interaction matrix. This setting is similar to the early proposal by \textcite{bleakley2009supervised}, but employing decision forests as the base algorithm.
-    \item \textbf{\texttt{gmosa}:} a global multi-output forest with single-label averaging (GMOSA; \autoref{sec:gmo}), as explored by \textcite{pliakos2019network} under the name eBICT.
-    \item \textbf{\texttt{gmo}:} a global multi-output (GMO; \autoref{sec:gmo}) forest with minimum leaf dimensions of 5 by 5, implementing our proposed squared-similarities weighting for the prototype function (\autoref{sec:prototype}). Apart from the new prototype, this model is based on the original GMO trees proposed by \textcite{pliakos2018global}. Despite their original results suggesting advantage over GMOSA, to the best of our knowledge, this is the first time the GMO trees are employed in building decision forests.  % TODO explain GMOSA
-    \item \textbf{\texttt{gso}:} a bipartite global single-output (BGSO; \autoref{sec:bgso}) forest, as initially explored by \textcite{schrynemackers2015classifying} but now implementing our proposed algorithm with improved computational complexity.
+    \item \textbf{\texttt{lmo}:} implements the standard local multi-output approach (SLMO; \autoref{sec:slmo}) by training four separate multioutput models, two for each domain. First explored by \citeonline{schrynemackers2015classifying}.
+    \item \textbf{\texttt{lso}:} also implements the SLMO approach (\autoref{sec:slmo}), but each multioutput model is instead a composition of several local single-output (LSO) models, i.e. one model is trained for each row or column of the interaction matrix. This setting is similar to the early proposal by \citeonline{bleakley2009supervised}, but employing decision forests as the base algorithm.
+    \item \textbf{\texttt{gmosa}:} a global multi-output forest with single-label averaging (GMOSA; \autoref{sec:gmo}), as explored by \citeonline{pliakos2019network} under the name eBICT.
+    \item \textbf{\texttt{gmo}:} a global multi-output (GMO; \autoref{sec:gmo}) forest with minimum leaf dimensions of 5 by 5, implementing our proposed squared-similarities weighting for the prototype function (\autoref{sec:prototype}). Apart from the new prototype, this model is based on the original GMO trees proposed by \citeonline{pliakos2018global}. Despite their original results suggesting advantage over GMOSA, to the best of our knowledge, this is the first time the GMO trees are employed in building decision forests.  % TODO explain GMOSA
+    \item \textbf{\texttt{gso}:} a bipartite global single-output (BGSO; \autoref{sec:bgso}) forest, as initially explored by \citeonline{schrynemackers2015classifying} but now implementing our proposed algorithm with improved computational complexity.
     \item \textbf{\texttt{sgso\_us}:} implements the standard global single-output (SGSO; \autoref{sec:sgso}) adaptation, additionally employing undersampling of the non-interacting pairs to yield a balanced training set (\autoref{sec:sgso}).  % TODO explain that is frequently used
 \end{itemize}
 
@@ -3607,7 +3599,7 @@ In the LT+TL AP setting for BXT ensembles, NRLMF is shown to significantly degra
 For BRF models under LT+TL AP, the advantage of employing NRLMF is not clear. GSO was the only adaptation to significantly benefit from NRLMF in this setting, while GMO and LMO were significantly impaired by it. In fact, the BRF LMO model without label matrix reconstruction significantly outperformed all the other random forests for this evaluation setting.
 
 % Not clear from the data:
-%Additionally, the GSO and GMOSA models are seemingly favored by the LT+TL setting in comparison to TT, reinforcing the results of \autoref{sec:adaptation_comparison} suggesting that deeper trees are advantageous for LT+TL, while the larger leaves of GMO models seem to improve generalization for completely unknown pairs (TT average precision). Notably, the \texttt{bxt\_gmosa\_\_nrlmf} model, proposed by \textcite{pliakos2020drugtarget} under the name of BICTR, was the top scoring model among BXT for all but the TT ROC AUC test settings.
+%Additionally, the GSO and GMOSA models are seemingly favored by the LT+TL setting in comparison to TT, reinforcing the results of \autoref{sec:adaptation_comparison} suggesting that deeper trees are advantageous for LT+TL, while the larger leaves of GMO models seem to improve generalization for completely unknown pairs (TT average precision). Notably, the \texttt{bxt\_gmosa\_\_nrlmf} model, proposed by \citeonline{pliakos2020drugtarget} under the name of BICTR, was the top scoring model among BXT for all but the TT ROC AUC test settings.
 
 % TODO add hue, compare within pairs with vs without nrlmf
 % TODO
@@ -4079,33 +4071,34 @@ In this section we compare the two most promising methods we developed (BXT GMO 
 The algorithms being considered in this section are listed below, and their scoring results are shown by \autoref{fig:comparison literature}.
 
 \begin{itemize}
-    \item \textbf{BXT GSO NRLMF, BXT GMOSA NRLMF, BXT-GMO-NRLMF:} Ensembles of randomized trees using the NRLMF model to impute missing annotations. The GSO model implements our optimized method for growing the trees. GMOSA uses the global multi output strategy developed by \cite{pliakos2018global}. Both GSO and GMOSA grows the trees to their maximum depth. GMO uses the weighted-neighbors prototype we developed in \autoref{sec:prototype}, and enforces at least 5 samples of each domain in each leaf. See \autoref{sec:prototype_comparison} and \autoref{sec:y_reconstruction} for more information.
+    \item \textbf{BXT GSO NRLMF, BXT GMOSA NRLMF, BXT-GMO-NRLMF:} Ensembles of randomized trees using the NRLMF model to impute missing annotations. The GSO model implements our optimized method for growing the trees. GMOSA uses the global multi output strategy developed by \citeonline{pliakos2018global}. Both GSO and GMOSA grows the trees to their maximum depth. GMO uses the weighted-neighbors prototype we developed in \autoref{sec:prototype}, and enforces at least 5 samples of each domain in each leaf. See \autoref{sec:prototype_comparison} and \autoref{sec:y_reconstruction} for more information.
     % \item \textbf{BXT GMO NRLMF:} Bipartite ensemble of randomized trees using the NRLMF model to impute missing annotations. 
     % \item \textbf{BXT GSO NRLMF:}
     % \item \textbf{BXT GMOSA NRLMF:}
 
-    \item \textbf{NRLMF:} Neighborhood-Regularized Logistic Matrix Factorization, as proposed by \cite{liu2016neighborhood} and described in \autoref{sec:neighborhood regularization}. See \autoref{sec:y_reconstruction} for the hyperparameters we utilized.
+    \item \textbf{NRLMF:} Neighborhood-Regularized Logistic Matrix Factorization, as proposed by \citeonline{liu2016neighborhood} and described in \autoref{sec:neighborhood regularization}. See \autoref{sec:y_reconstruction} for the hyperparameters we utilized.
 
      % TODO other section
-    \item \textbf{Kron-RLS:} Kronecker Regularized Least Squares, as proposed by \cite{vanlaarhoven2011gaussian} and described in \autoref{sec:kron rls}.
+    \item \textbf{Kron-RLS:} Kronecker Regularized Least Squares, as proposed by \citeonline{vanlaarhoven2011gaussian} and described in \autoref{sec:kron rls}.
     Each of the two input kernel matrices was taken as a linear combination of the similarity matrix and the gaussian interaction profiles~\cite{vanlaarhoven2011gaussian} (\autoref{eq:}).
     The weight of the similarity kernel in this combination (the $\alpha$ parameter), was selected between the values \{0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0\}.
     The selection was performed in each fold by an internal 5 by 5 bipartite diagonal CV procedure (\autoref{sec:cross_validation}).
 
-    \item \textbf{LMO RLS:} SLMO adaptation (\autoref{sec:slmo}) of Regularized Least Squares, as proposed by \cite{vanlaarhoven2011gaussian} as RLS-avg. Both the primary and secondary models were multi-output kernel Ridge regressors~\cite{}. 
+    \item \textbf{LMO RLS:} SLMO adaptation (\autoref{sec:slmo}) of Regularized Least Squares, as proposed by \citeonline{vanlaarhoven2011gaussian} as RLS-avg. Both the primary and secondary models were multi-output kernel Ridge regressors~\cite[p.~492-493]{murphy2012machine}. 
     As Kron-RLS, the input features were linear combinations of similarity matrices and gaussian interactions profiles. The $\alpha$ parameter was selected in the same way as in Kron-RLS.
 
     % TODO: section for weighted nearest neighbors
-    \item \textbf{BLMNII RLS:} Bipartite local models~\cite{yamanishi2008prediction,bleakley2009supervised} with neighbor-based interaction-profile inferring~\cite{mei2013drug}. They use the SLMO strategy (\autoref{sec:slmo}), employing a weighted-neighbors technique (\autoref{sec:dwnn}) for the primary estimators and kernel Ridge regression~\cite{} models as secondary estimators.
+    \item \textbf{BLMNII RLS:} Bipartite local models~\cite{yamanishi2008prediction,bleakley2009supervised} with neighbor-based interaction-profile inferring~\cite{mei2013drug}. They use the SLMO strategy (\autoref{sec:slmo}), employing a weighted-neighbors technique (\autoref{sec:dwnn}) for the primary estimators and kernel Ridge regression~\cite[p.~492-493]{murphy2012machine} models as secondary estimators.
     As Kron-RLS, the input features were linear combinations of similarity matrices and gaussian interactions profiles~\cite{vanlaarhoven2011gaussian}. The $\alpha$ parameter was selected in the same way as in Kron-RLS.
 
-    \item \textbf{BLMNII SVM:} The same as BLMNII RLS, but using support vector machines~\cite{} as secondary estimators instead of regularized least squares.
+    \item \textbf{BLMNII SVM:} The same as BLMNII RLS, but using support vector machines~\cite{crammer2001algorithmic} as secondary estimators instead of regularized least squares.
 
     \item \textbf{DTHybrid:} Method proposed by \cite{dthybrid} that combines the similarity kernels with network features of each domain calculated from the interaction matrix. A weighted-neighbors approach is then used to predict new interactions.  % TODO I think it is not originally proposed for new instances
 
-    \item \textbf{MLP:} Multi-layer perceptron~\cite{} model adapted with the SGSO strategy (\autoref{sec:sgso}). We performed random undersampling of negative annotations so that the model was trained on equal number of negative and positive labels. 
+    \item \textbf{MLP:} Multi-layer perceptron~\cite{hastie2001elements} %TODO better reference
+    model adapted with the SGSO strategy (\autoref{sec:sgso}). We performed random undersampling of negative annotations so that the model was trained on equal number of negative and positive labels. 
     The architecture was selected at each fold between four options: 5 hidden layers of 100 neurons; 10 hidden layers of 50 neurons; 5 hidden layers with [200, 100, 100, 100, 50] neurons; and 6 hidden layers of [1024, 512, 256, 128, 64, 32] neurons. The architecture selection in each fold was performed by an internal 5 by 5 bipartite diagonal CV procedure (\autoref{sec:cross_validation}).
-    The activation function was always the rectified linear unit, and ADAM~\cite{adam} was the chosen optimizer. Other parameters were kept as the defaults from the scikit-learn library~\cite{sklearn}.
+    The activation function was always the rectified linear unit, and ADAM~\cite{kingma2017adam} was the chosen optimizer. Other parameters were kept as the defaults from the Scikit-learn library~\cite{pedregosa2011scikitlearn}.
 \end{itemize}
 
 BXT GMO NRLMF was the best ranked model in 11 out of the 16 test settings analysed. The exceptions were the four LT+TL AP configurations and TT AP 0\%. In TT AP 0\%, BXT GMO NRLMF was only behind lmo rls, and among the three models that could not be statistically distinguished from lmo rls (the others being kron rls bxt and gmosa nrlmf). In LT+TL AUROC 0\%, the comparison between BXT GMO NRLMF and the second best model, bxt gmosa nrlmf, was also not statistically significant. In the remaining 10 cases where BXT GMO NRLMF prevails, it was significantly better than all other learning algorithms analysed.

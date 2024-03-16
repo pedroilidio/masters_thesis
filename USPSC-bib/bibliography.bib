@@ -8,7 +8,25 @@
   pages = {108393},
   publisher = {Elsevier BV},
   doi = {10.1016/j.patcog.2021.108393},
-  annotation = {2 citations (Crossref) [2023-08-29]}
+  annotation = {2 citations (Crossref) [2023-08-29]},
+  file = {/home/pd/Zotero/storage/YIM5FJ8E/Adıyeke and Baydoğan - 2022 - Semi-supervised extensions of multi-task tree ense.pdf}
+}
+
+@misc{agarwal2023mdi,
+  title = {{{MDI}}+: {{A Flexible Random Forest-Based Feature Importance Framework}}},
+  shorttitle = {{{MDI}}+},
+  author = {Agarwal, Abhineet and Kenney, Ana M. and Tan, Yan Shuo and Tang, Tiffany M. and Yu, Bin},
+  year = {2023},
+  month = jul,
+  number = {arXiv:2307.01932},
+  eprint = {2307.01932},
+  primaryclass = {cs, stat},
+  publisher = {arXiv},
+  urldate = {2024-01-13},
+  abstract = {Mean decrease in impurity (MDI) is a popular feature importance measure for random forests (RFs). We show that the MDI for a feature \$X\_k\$ in each tree in an RF is equivalent to the unnormalized \$R\^{}2\$ value in a linear regression of the response on the collection of decision stumps that split on \$X\_k\$. We use this interpretation to propose a flexible feature importance framework called MDI+. Specifically, MDI+ generalizes MDI by allowing the analyst to replace the linear regression model and \$R\^{}2\$ metric with regularized generalized linear models (GLMs) and metrics better suited for the given data structure. Moreover, MDI+ incorporates additional features to mitigate known biases of decision trees against additive or smooth models. We further provide guidance on how practitioners can choose an appropriate GLM and metric based upon the Predictability, Computability, Stability framework for veridical data science. Extensive data-inspired simulations show that MDI+ significantly outperforms popular feature importance measures in identifying signal features. We also apply MDI+ to two real-world case studies on drug response prediction and breast cancer subtype classification. We show that MDI+ extracts well-established predictive genes with significantly greater stability compared to existing feature importance measures. All code and models are released in a full-fledged python package on Github.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Statistics - Machine Learning,Statistics - Methodology},
+  file = {/home/pd/Zotero/storage/CDI8ZX8H/Agarwal et al. - 2023 - MDI+ A Flexible Random Forest-Based Feature Impor.pdf;/home/pd/Zotero/storage/37SPKG68/2307.html}
 }
 
 @article{alaimo2013drug,
@@ -222,6 +240,41 @@
   file = {/home/pd/Zotero/storage/RWLSPCTY/Brown et al. - 2005 - Diversity creation methods a survey and categoris.pdf}
 }
 
+@book{chapelle2006semisupervised,
+  title = {Semi-Supervised Learning},
+  editor = {Chapelle, Olivier and Sch{\"o}lkopf, Bernhard and Zien, Alexander},
+  year = {2006},
+  series = {Adaptive Computation and Machine Learning},
+  publisher = {MIT Press},
+  address = {Cambridge, Mass},
+  isbn = {978-0-262-03358-9},
+  langid = {english},
+  lccn = {Q325.75 .S42 2006},
+  keywords = {Supervised learning (Machine learning)},
+  annotation = {OCLC: ocm64898359},
+  file = {/home/pd/Zotero/storage/C8KDYWQS/Chapelle et al. - 2006 - Semi-supervised learning.pdf}
+}
+
+@inproceedings{chen2016xgboost,
+  title = {{{XGBoost}}: {{A Scalable Tree Boosting System}}},
+  shorttitle = {{{XGBoost}}},
+  booktitle = {Proceedings of the 22nd {{ACM SIGKDD International Conference}} on {{Knowledge Discovery}} and {{Data Mining}}},
+  author = {Chen, Tianqi and Guestrin, Carlos},
+  year = {2016},
+  month = aug,
+  series = {{{KDD}} '16},
+  pages = {785--794},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  doi = {10.1145/2939672.2939785},
+  urldate = {2024-03-15},
+  abstract = {Tree boosting is a highly effective and widely used machine learning method. In this paper, we describe a scalable end-to-end tree boosting system called XGBoost, which is used widely by data scientists to achieve state-of-the-art results on many machine learning challenges. We propose a novel sparsity-aware algorithm for sparse data and weighted quantile sketch for approximate tree learning. More importantly, we provide insights on cache access patterns, data compression and sharding to build a scalable tree boosting system. By combining these insights, XGBoost scales beyond billions of examples using far fewer resources than existing systems.},
+  isbn = {978-1-4503-4232-2},
+  keywords = {large-scale machine learning},
+  annotation = {17806 citations (Crossref) [2024-03-15]},
+  file = {/home/pd/Zotero/storage/87YL5UCL/Chen and Guestrin - 2016 - XGBoost A Scalable Tree Boosting System.pdf}
+}
+
 @article{chen2018machine,
   title = {Machine {{Learning}} for {{Drug-Target Interaction Prediction}}},
   author = {Chen, Ruolan and Liu, Xiangrong and Jin, Shuting and Lin, Jiawei and Liu, Juan},
@@ -280,6 +333,18 @@
   isbn = {978-0-262-04630-5},
   langid = {english},
   file = {/home/pd/Zotero/storage/BDIF8AKY/Introduction.to.Algorithms.4th.Leiserson.Stein.Rivest.Cormen.MIT.Press.9780262046305.EBooksWorld.ir.pdf}
+}
+
+@article{crammer2001algorithmic,
+  title = {On the Algorithmic Implementation of Multiclass Kernel-Based Vector Machines},
+  author = {Crammer, Koby and Singer, Yoram},
+  year = {2001},
+  journal = {Journal of machine learning research},
+  volume = {2},
+  number = {Dec},
+  pages = {265--292},
+  urldate = {2024-03-16},
+  file = {/home/pd/Zotero/storage/RQNTHJ9H/Crammer and Singer - 2001 - On the algorithmic implementation of multiclass ke.pdf}
 }
 
 @inproceedings{davis2006relationship,
@@ -495,6 +560,19 @@
   publisher = {Oxford University Press}
 }
 
+@article{grinsztajn2022why,
+  title = {Why Do Tree-Based Models Still Outperform Deep Learning on Typical Tabular Data?},
+  author = {Grinsztajn, Leo and Oyallon, Edouard and Varoquaux, Gael},
+  year = {2022},
+  month = dec,
+  journal = {Advances in Neural Information Processing Systems},
+  volume = {35},
+  pages = {507--520},
+  urldate = {2024-03-15},
+  langid = {english},
+  file = {/home/pd/Zotero/storage/S6D3ZEPV/Grinsztajn et al. - 2022 - Why do tree-based models still outperform deep lea.pdf}
+}
+
 @article{hand2009measuring,
   title = {Measuring Classifier Performance: A~Coherent Alternative to the Area under the {{ROC}} Curve},
   shorttitle = {Measuring Classifier Performance},
@@ -541,6 +619,19 @@
   abstract = {While novel technologies such as high-throughput screening have advanced together with significant investment by pharmaceutical companies during the past decades, the success rate for drug development has not yet been improved prompting researchers looking for new strategies of drug discovery. Drug repositioning is a potential approach to solve this dilemma. However, experimental identification and validation of potential drug targets encoded by the human genome is both costly and time-consuming. Therefore, effective computational approaches have been proposed to facilitate drug repositioning, which have proved to be successful in drug discovery. Doubtlessly, the availability of open-accessible data from basic chemical biology research and the success of human genome sequencing are crucial to develop effective in silico drug repositioning methods allowing the identification of potential targets for existing drugs. In this work, we review several chemogenomic data-driven computational algorithms with source codes publicly accessible for predicting drug--target interactions (DTIs). We organize these algorithms by model properties and model evolutionary relationships. We re-implemented five representative algorithms in R programming language, and compared these algorithms by means of mean percentile ranking, a new recall-based evaluation metric in the DTI prediction research field. We anticipate that this review will be objective and helpful to researchers who would like to further improve existing algorithms or need to choose appropriate algorithms to infer potential DTIs in the projects. The source codes for DTI predictions are available at: https://github.com/minghao2016/chemogenomicAlg4DTIpred.},
   annotation = {25 citations (Crossref) [2023-10-31]},
   file = {/home/pd/Zotero/storage/NLY33QRD/Hao et al. - 2019 - Open-source chemogenomic data-driven algorithms fo.pdf}
+}
+
+@book{hastie2001elements,
+  title = {The {{Elements}} of {{Statistical Learning}}},
+  author = {Hastie, Trevor and Friedman, Jerome and Tibshirani, Robert},
+  year = {2001},
+  series = {Springer {{Series}} in {{Statistics}}},
+  publisher = {Springer New York},
+  address = {New York, NY},
+  doi = {10.1007/978-0-387-21606-5},
+  urldate = {2024-03-15},
+  isbn = {978-1-4899-0519-2 978-0-387-21606-5},
+  file = {/home/pd/Zotero/storage/7NEMCYVG/Hastie et al. - 2001 - The Elements of Statistical Learning.pdf}
 }
 
 @article{he2009learning,
@@ -703,6 +794,24 @@
   file = {/home/pd/Zotero/storage/MWG5X3UU/Keyvanpour et al. - 2022 - DTIP-TC2A An analytical framework for drug-target.pdf;/home/pd/Zotero/storage/KIQUBBF4/S1476927122000871.html}
 }
 
+@misc{kingma2017adam,
+  title = {Adam: {{A Method}} for {{Stochastic Optimization}}},
+  shorttitle = {Adam},
+  author = {Kingma, Diederik P. and Ba, Jimmy},
+  year = {2017},
+  month = jan,
+  number = {arXiv:1412.6980},
+  eprint = {1412.6980},
+  primaryclass = {cs},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.1412.6980},
+  urldate = {2024-03-16},
+  abstract = {We introduce Adam, an algorithm for first-order gradient-based optimization of stochastic objective functions, based on adaptive estimates of lower-order moments. The method is straightforward to implement, is computationally efficient, has little memory requirements, is invariant to diagonal rescaling of the gradients, and is well suited for problems that are large in terms of data and/or parameters. The method is also appropriate for non-stationary objectives and problems with very noisy and/or sparse gradients. The hyper-parameters have intuitive interpretations and typically require little tuning. Some connections to related algorithms, on which Adam was inspired, are discussed. We also analyze the theoretical convergence properties of the algorithm and provide a regret bound on the convergence rate that is comparable to the best known results under the online convex optimization framework. Empirical results demonstrate that Adam works well in practice and compares favorably to other stochastic optimization methods. Finally, we discuss AdaMax, a variant of Adam based on the infinity norm.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Machine Learning},
+  file = {/home/pd/Zotero/storage/NIAFXVRI/Kingma and Ba - 2017 - Adam A Method for Stochastic Optimization.pdf;/home/pd/Zotero/storage/JBRXAD32/1412.html}
+}
+
 @incollection{kornbrot2014point,
   title = {Point {{Biserial Correlation}}},
   booktitle = {Wiley {{StatsRef}}: {{Statistics Reference Online}}},
@@ -756,7 +865,9 @@
   journal = {Journal of Intelligent Information Systems},
   volume = {49},
   pages = {461--486},
-  publisher = {Springer}
+  publisher = {Springer},
+  doi = {10.1007/s10844-017-0457-4},
+  file = {/home/pd/Zotero/storage/7IYJFW5X/Levatić et al. - 2017 - Semi-supervised classification trees.pdf}
 }
 
 @article{li2019dnilmflda,
@@ -768,6 +879,20 @@
   number = {8},
   pages = {608},
   publisher = {MDPI}
+}
+
+@article{liu2005noncode,
+  title = {{{NONCODE}}: An Integrated Knowledge Database of Non-Coding {{RNAs}}},
+  shorttitle = {{{NONCODE}}},
+  author = {Liu, Changning and Bai, Baoyan and Skogerb{\o}, Geir and Cai, Lun and Deng, Wei and Zhang, Yong and Bu, Dongbo and Zhao, Yi and Chen, Runsheng},
+  year = {2005},
+  journal = {Nucleic acids research},
+  volume = {33},
+  number = {suppl\_1},
+  pages = {D112--D115},
+  publisher = {Oxford University Press},
+  urldate = {2024-03-15},
+  file = {/home/pd/Zotero/storage/YCN3ZR6V/2505275.html}
 }
 
 @article{liu2016neighborhood,
@@ -851,16 +976,41 @@
   file = {/home/pd/Zotero/storage/AWFMB9GF/Loyola-Gonzalez et al. - 2020 - An Explainable Artificial Intelligence Model for C.pdf}
 }
 
-@article{lu2012recommender,
+@article{lu2012recommenderb,
   title = {Recommender Systems},
   author = {L{\"u}, Linyuan and Medo, Mat{\'u}{\v s} and Yeung, Chi Ho and Zhang, Yi-Cheng and Zhang, Zi-Ke and Zhou, Tao},
   year = {2012},
-  journal = {Physics reports},
+  month = oct,
+  journal = {Physics Reports},
+  series = {Recommender {{Systems}}},
   volume = {519},
   number = {1},
   pages = {1--49},
-  publisher = {Elsevier},
-  keywords = {review}
+  issn = {0370-1573},
+  doi = {10.1016/j.physrep.2012.02.006},
+  urldate = {2024-03-15},
+  abstract = {The ongoing rapid expansion of the Internet greatly increases the necessity of effective recommender systems for filtering the abundant information. Extensive research for recommender systems is conducted by a broad range of communities including social and computer scientists, physicists, and interdisciplinary researchers. Despite substantial theoretical and practical achievements, unification and comparison of different approaches are lacking, which impedes further advances. In this article, we review recent developments in recommender systems and discuss the major challenges. We compare and evaluate available algorithms and examine their roles in the future developments. In addition to algorithms, physical aspects are described to illustrate macroscopic behavior of recommender systems. Potential impacts and future directions are discussed. We emphasize that recommendation has great scientific depth and combines diverse research fields which makes it interesting for physicists as well as interdisciplinary researchers.},
+  keywords = {Information filtering,Networks,Recommender systems},
+  annotation = {766 citations (Crossref) [2024-03-15]},
+  file = {/home/pd/Zotero/storage/RRG9JB2C/Lü et al. - 2012 - Recommender systems.pdf;/home/pd/Zotero/storage/KUTF6XJ6/S0370157312000828.html}
+}
+
+@misc{lundberg2019explainable,
+  title = {Explainable {{AI}} for {{Trees}}: {{From Local Explanations}} to {{Global Understanding}}},
+  shorttitle = {Explainable {{AI}} for {{Trees}}},
+  author = {Lundberg, Scott M. and Erion, Gabriel and Chen, Hugh and DeGrave, Alex and Prutkin, Jordan M. and Nair, Bala and Katz, Ronit and Himmelfarb, Jonathan and Bansal, Nisha and Lee, Su-In},
+  year = {2019},
+  month = may,
+  number = {arXiv:1905.04610},
+  eprint = {1905.04610},
+  primaryclass = {cs, stat},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.1905.04610},
+  urldate = {2024-03-15},
+  abstract = {Tree-based machine learning models such as random forests, decision trees, and gradient boosted trees are the most popular non-linear predictive models used in practice today, yet comparatively little attention has been paid to explaining their predictions. Here we significantly improve the interpretability of tree-based models through three main contributions: 1) The first polynomial time algorithm to compute optimal explanations based on game theory. 2) A new type of explanation that directly measures local feature interaction effects. 3) A new set of tools for understanding global model structure based on combining many local explanations of each prediction. We apply these tools to three medical machine learning problems and show how combining many high-quality local explanations allows us to represent global structure while retaining local faithfulness to the original model. These tools enable us to i) identify high magnitude but low frequency non-linear mortality risk factors in the general US population, ii) highlight distinct population sub-groups with shared risk characteristics, iii) identify non-linear interaction effects among risk factors for chronic kidney disease, and iv) monitor a machine learning model deployed in a hospital by identifying which features are degrading the model's performance over time. Given the popularity of tree-based machine learning models, these improvements to their interpretability have implications across a broad set of domains.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Artificial Intelligence,Computer Science - Machine Learning,Statistics - Machine Learning},
+  file = {/home/pd/Zotero/storage/MCSLU27G/Lundberg et al. - 2019 - Explainable AI for Trees From Local Explanations .pdf;/home/pd/Zotero/storage/N7ET69ZS/1905.html}
 }
 
 @article{macisaac2006improved,
@@ -952,6 +1102,21 @@
   file = {/home/pd/Zotero/storage/ZUCZUUWS/Pahikkala et al. - 2015 - Toward more realistic drug-target interaction pred.pdf}
 }
 
+@article{pedregosa2011scikitlearn,
+  title = {Scikit-Learn: {{Machine Learning}} in {{Python}}},
+  shorttitle = {Scikit-Learn},
+  author = {Pedregosa, Fabian and Varoquaux, Ga{\"e}l and Gramfort, Alexandre and Michel, Vincent and Thirion, Bertrand and Grisel, Olivier and Blondel, Mathieu and Prettenhofer, Peter and Weiss, Ron and Dubourg, Vincent and Vanderplas, Jake and Passos, Alexandre and Cournapeau, David and Brucher, Matthieu and Perrot, Matthieu and Duchesnay, {\'E}douard},
+  year = {2011},
+  journal = {Journal of Machine Learning Research},
+  volume = {12},
+  number = {85},
+  pages = {2825--2830},
+  issn = {1533-7928},
+  urldate = {2024-03-16},
+  abstract = {Scikit-learn is a Python module integrating a wide range of state-of-the-art machine learning algorithms for medium-scale supervised and unsupervised problems. This package focuses on bringing machine learning to non-specialists using a general-purpose high-level language. Emphasis is put on ease of use, performance, documentation, and API consistency. It has minimal dependencies and is distributed under the simplified BSD license, encouraging its use in both academic and commercial settings. Source code, binaries, and documentation can be downloaded from http://scikit-learn.sourceforge.net.},
+  file = {/home/pd/Zotero/storage/PEJBGGX5/Pedregosa et al. - 2011 - Scikit-learn Machine Learning in Python.pdf}
+}
+
 @article{pliakos2018global,
   title = {Global Multi-Output Decision Trees for Interaction Prediction},
   author = {Pliakos, Konstantinos and Geurts, Pierre and Vens, Celine},
@@ -994,6 +1159,86 @@
   doi = {10.1109/MCAS.2006.1688199},
   urldate = {2023-09-23},
   annotation = {1864 citations (Crossref) [2023-09-23]}
+}
+
+@misc{powers2020evaluation,
+  title = {Evaluation: From Precision, Recall and {{F-measure}} to {{ROC}}, Informedness, Markedness and Correlation},
+  shorttitle = {Evaluation},
+  author = {Powers, David M. W.},
+  year = {2020},
+  month = oct,
+  number = {arXiv:2010.16061},
+  eprint = {2010.16061},
+  primaryclass = {cs, stat},
+  publisher = {arXiv},
+  urldate = {2024-03-15},
+  abstract = {Commonly used evaluation measures including Recall, Precision, F-Measure and Rand Accuracy are biased and should not be used without clear understanding of the biases, and corresponding identification of chance or base case levels of the statistic. Using these measures a system that performs worse in the objective sense of Informedness, can appear to perform better under any of these commonly used measures. We discuss several concepts and measures that reflect the probability that prediction is informed versus chance. Informedness and introduce Markedness as a dual measure for the probability that prediction is marked versus chance. Finally we demonstrate elegant connections between the concepts of Informedness, Markedness, Correlation and Significance as well as their intuitive relationships with Recall and Precision, and outline the extension from the dichotomous case to the general multi-class case.},
+  archiveprefix = {arxiv},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning,Statistics - Methodology},
+  file = {/home/pd/Zotero/storage/998CX29F/Powers - 2020 - Evaluation from precision, recall and F-measure t.pdf;/home/pd/Zotero/storage/5TT3C623/2010.html}
+}
+
+@article{quinlan1986induction,
+  title = {Induction of Decision Trees},
+  author = {Quinlan, J. R.},
+  year = {1986},
+  month = mar,
+  journal = {Machine Learning},
+  volume = {1},
+  number = {1},
+  pages = {81--106},
+  issn = {1573-0565},
+  doi = {10.1007/BF00116251},
+  urldate = {2024-03-15},
+  abstract = {The technology for building knowledge-based systems by inductive inference from examples has been demonstrated successfully in several practical applications. This paper summarizes an approach to synthesizing decision trees that has been used in a variety of systems, and it describes one such system, ID3, in detail. Results from recent studies show ways in which the methodology can be modified to deal with information that is noisy and/or incomplete. A reported shortcoming of the basic algorithm is discussed and two means of overcoming it are compared. The paper concludes with illustrations of current research directions.},
+  langid = {english},
+  keywords = {classification,decision trees,expert systems,induction,information theory,knowledge acquisition},
+  annotation = {8796 citations (Crossref) [2024-03-15]},
+  file = {/home/pd/Zotero/storage/SCC8M9SC/Quinlan - 1986 - Induction of decision trees.pdf}
+}
+
+@article{quinlan1986inductiona,
+  title = {Induction of Decision Trees},
+  author = {Quinlan, J. R.},
+  year = {1986},
+  month = mar,
+  journal = {Machine Learning},
+  volume = {1},
+  number = {1},
+  pages = {81--106},
+  issn = {0885-6125, 1573-0565},
+  doi = {10.1007/BF00116251},
+  urldate = {2024-03-15},
+  langid = {english},
+  annotation = {8796 citations (Crossref) [2024-03-15]},
+  file = {/home/pd/Zotero/storage/796KZYJC/Quinlan - 1986 - Induction of decision trees.pdf}
+}
+
+@book{quinlan2014c4,
+  title = {C4. 5: Programs for Machine Learning},
+  shorttitle = {C4. 5},
+  author = {Quinlan, J. Ross},
+  year = {2014},
+  publisher = {Elsevier},
+  urldate = {2024-03-15}
+}
+
+@article{rafailidis2016modeling,
+  title = {Modeling {{Users Preference Dynamics}} and {{Side Information}} in {{Recommender Systems}}},
+  author = {Rafailidis, Dimitrios and Nanopoulos, Alexandros},
+  year = {2016},
+  month = jun,
+  journal = {IEEE Transactions on Systems, Man, and Cybernetics: Systems},
+  volume = {46},
+  number = {6},
+  pages = {782--792},
+  issn = {2168-2232},
+  doi = {10.1109/TSMC.2015.2460691},
+  urldate = {2024-03-15},
+  abstract = {In recommender systems user preferences can be fairly dynamic, as users tend to exploit a wide range of items and modify their tastes accordingly over time. In this paper, we model user-item interactions over time using a tensor that has time as a dimension (mode). To account for the fact that user preferences change individually, we propose a new measure of user-preference dynamics (UPD) that captures the rate with which the current preferences of each user have been shifted. UPD shows the variability in how users interact with items in recommender systems. We generate recommendations based on a tensor factorization technique, where the importance of past user preferences are weighted according to their UPD values, that is, higher UPD values downweigh more past user preferences. Additionally, we exploit users' side data, such as demographics, which improve the accuracy of recommendations based on a coupled tensor-matrix factorization scheme. Our empirical evaluation uses two real benchmark datasets from the social media platforms Last.fm and MovieLens, containing users' history records pertaining to listening to songs and viewing movies, respectively. We demonstrate that in both datasets, there are users with a varying level of dynamics, expressed by the UPD metric. Our experimental results show that the proposed method outperforms several baselines, by taking into account both dynamics and side data of users.},
+  keywords = {Approximation methods,Collaboration,Coupled tensor factorization (CTF),Motion pictures,Music,Optimization,recommender systems,Recommender systems,Tensile stress,users' dynamics},
+  annotation = {82 citations (Crossref) [2024-03-15]},
+  file = {/home/pd/Zotero/storage/SIJGHELP/Rafailidis and Nanopoulos - 2016 - Modeling Users Preference Dynamics and Side Inform.pdf;/home/pd/Zotero/storage/DNILAR59/7194815.html}
 }
 
 @article{rogers2005using,
@@ -1063,6 +1308,14 @@
   file = {/home/pd/Zotero/storage/WH5S8GHK/Saito and Rehmsmeier - 2015 - The Precision-Recall Plot Is More Informative than.pdf}
 }
 
+@book{schafer2017introduction,
+  title = {An Introduction to Nonassociative Algebras},
+  author = {Schafer, Richard D.},
+  year = {2017},
+  publisher = {Courier Dover Publications},
+  urldate = {2024-03-15}
+}
+
 @article{schrynemackers2015classifying,
   title = {Classifying Pairs with Trees for Supervised Biological Network Inference},
   author = {Schrynemackers, Marie and Wehenkel, Louis and Babu, M Madan and Geurts, Pierre},
@@ -1071,7 +1324,9 @@
   volume = {11},
   number = {8},
   pages = {2116--2125},
-  publisher = {Royal Society of Chemistry}
+  publisher = {Royal Society of Chemistry},
+  doi = {10.1039/c5mb00174a},
+  file = {/home/pd/Zotero/storage/DEUEP6HJ/Schrynemackers et al. - 2015 - Classifying pairs with trees for supervised biolog.pdf}
 }
 
 @inproceedings{tan2016improved,
@@ -1090,7 +1345,8 @@
   volume = {54},
   number = {3},
   pages = {735--743},
-  publisher = {ACS Publications}
+  publisher = {ACS Publications},
+  doi = {10.1021/ci400709d}
 }
 
 @article{teng2020npinter,
@@ -1136,6 +1392,43 @@
   urldate = {2023-09-23},
   annotation = {4272 citations (Crossref) [2023-09-23]},
   file = {/home/pd/Zotero/storage/T4QDXYMR/Tin Kam Ho - 1998 - The random subspace method for constructing decisi.pdf}
+}
+
+@article{vanengelen2020survey,
+  title = {A Survey on Semi-Supervised Learning},
+  author = {{van Engelen}, Jesper E. and Hoos, Holger H.},
+  year = {2020},
+  month = feb,
+  journal = {Machine Learning},
+  volume = {109},
+  number = {2},
+  pages = {373--440},
+  issn = {1573-0565},
+  doi = {10.1007/s10994-019-05855-6},
+  urldate = {2024-03-15},
+  abstract = {Semi-supervised learning is the branch of machine learning concerned with using labelled as well as unlabelled data to perform certain learning tasks. Conceptually situated between supervised and unsupervised learning, it permits harnessing the large amounts of unlabelled data available in many use cases in combination with typically smaller sets of labelled data. In recent years, research in this area has followed the general trends observed in machine learning, with much attention directed at neural network-based models and generative learning. The literature on the topic has also expanded in volume and scope, now encompassing a broad spectrum of theory, algorithms and applications. However, no recent surveys exist to collect and organize this knowledge, impeding the ability of researchers and engineers alike to utilize it. Filling this void, we present an up-to-date overview of semi-supervised learning methods, covering earlier work as well as more recent advances. We focus primarily on semi-supervised classification, where the large majority of semi-supervised learning research takes place. Our survey aims to provide researchers and practitioners new to the field as well as more advanced readers with a solid understanding of the main approaches and algorithms developed over the past two decades, with an emphasis on the most prominent and currently relevant work. Furthermore, we propose a new taxonomy of semi-supervised classification algorithms, which sheds light on the different conceptual and methodological approaches for incorporating unlabelled data into the training process. Lastly, we show how the fundamental assumptions underlying most semi-supervised learning algorithms are closely connected to each other, and how they relate to the well-known semi-supervised clustering assumption.},
+  langid = {english},
+  keywords = {Classification,Machine learning,Semi-supervised learning},
+  annotation = {1213 citations (Crossref) [2024-03-15]},
+  file = {/home/pd/Zotero/storage/6P8PULWL/van Engelen and Hoos - 2020 - A survey on semi-supervised learning.pdf}
+}
+
+@article{vanengelen2020surveya,
+  title = {A Survey on Semi-Supervised Learning},
+  author = {Van Engelen, Jesper E. and Hoos, Holger H.},
+  year = {2020},
+  month = feb,
+  journal = {Machine Learning},
+  volume = {109},
+  number = {2},
+  pages = {373--440},
+  issn = {0885-6125, 1573-0565},
+  doi = {10.1007/s10994-019-05855-6},
+  urldate = {2024-03-15},
+  abstract = {Abstract             Semi-supervised learning is the branch of machine learning concerned with using labelled as well as unlabelled data to perform certain learning tasks. Conceptually situated between supervised and unsupervised learning, it permits harnessing the large amounts of unlabelled data available in many use cases in combination with typically smaller sets of labelled data. In recent years, research in this area has followed the general trends observed in machine learning, with much attention directed at neural network-based models and generative learning. The literature on the topic has also expanded in volume and scope, now encompassing a broad spectrum of theory, algorithms and applications. However, no recent surveys exist to collect and organize this knowledge, impeding the ability of researchers and engineers alike to utilize it. Filling this void, we present an up-to-date overview of semi-supervised learning methods, covering earlier work as well as more recent advances. We focus primarily on semi-supervised classification, where the large majority of semi-supervised learning research takes place. Our survey aims to provide researchers and practitioners new to the field as well as more advanced readers with a solid understanding of the main approaches and algorithms developed over the past two decades, with an emphasis on the most prominent and currently relevant work. Furthermore, we propose a new taxonomy of semi-supervised classification algorithms, which sheds light on the different conceptual and methodological approaches for incorporating unlabelled data into the training process. Lastly, we show how the fundamental assumptions underlying most semi-supervised learning algorithms are closely connected to each other, and how they relate to the well-known semi-supervised clustering assumption.},
+  langid = {english},
+  annotation = {1213 citations (Crossref) [2024-03-15]},
+  file = {/home/pd/Zotero/storage/HAPLDWHV/Van Engelen and Hoos - 2020 - A survey on semi-supervised learning.pdf;/home/pd/Zotero/storage/QARQZ4PV/s10994-019-05855-6.html}
 }
 
 @article{vanlaarhoven2011gaussian,
@@ -1233,4 +1526,58 @@
   langid = {english},
   annotation = {4 citations (Crossref) [2023-10-31]},
   file = {/home/pd/Zotero/storage/6WW3IIGU/Yu et al. - 2020 - FPSC-DTI drug–target interaction prediction based.pdf;/home/pd/Zotero/storage/XXJKBNH8/Yu et al. - 2020 - FPSC-DTI drug–target interaction prediction based.pdf}
+}
+
+@article{zhao2016noncode,
+  title = {{{NONCODE}} 2016: An Informative and Valuable Data Source of Long Non-Coding {{RNAs}}},
+  shorttitle = {{{NONCODE}} 2016},
+  author = {Zhao, Yi and Li, Hui and Fang, Shuangsang and Kang, Yue and Wu, Wei and Hao, Yajing and Li, Ziyang and Bu, Dechao and Sun, Ninghui and Zhang, Michael Q.},
+  year = {2016},
+  journal = {Nucleic acids research},
+  volume = {44},
+  number = {D1},
+  pages = {D203--D208},
+  publisher = {Oxford University Press},
+  urldate = {2024-03-15},
+  file = {/home/pd/Zotero/storage/WMND95NK/2503065.html}
+}
+
+@article{zhou2019deepa,
+  title = {Deep Forest},
+  author = {Zhou, Zhi-Hua and Feng, Ji},
+  year = {2019},
+  month = jan,
+  journal = {National Science Review},
+  volume = {6},
+  number = {1},
+  pages = {74--86},
+  issn = {2095-5138},
+  doi = {10.1093/nsr/nwy108},
+  urldate = {2023-12-18},
+  abstract = {Current deep-learning models are mostly built upon neural networks, i.e. multiple layers of parameterized differentiable non-linear modules that can be trained by backpropagation. In this paper, we explore the possibility of building deep models based on non-differentiable modules such as decision trees. After a discussion about the mystery behind deep neural networks, particularly by contrasting them with shallow neural networks and traditional machine-learning techniques such as decision trees and boosting machines, we conjecture that the success of deep neural networks owes much to three characteristics, i.e. layer-by-layer processing, in-model feature transformation and sufficient model complexity. On one hand, our conjecture may offer inspiration for theoretical understanding of deep learning; on the other hand, to verify the conjecture, we propose an approach that generates deep forest holding these characteristics. This is a decision-tree ensemble approach, with fewer hyper-parameters than deep neural networks, and its model complexity can be automatically determined in a data-dependent way. Experiments show that its performance is quite robust to hyper-parameter settings, such that in most cases, even across different data from different domains, it is able to achieve excellent performance by using the same default setting. This study opens the door to deep learning based on non-differentiable modules without gradient-based adjustment, and exhibits the possibility of constructing deep models without backpropagation.},
+  annotation = {323 citations (Crossref) [2023-12-18]},
+  file = {/home/pd/Zotero/storage/FLGZNTY8/Zhou and Feng - 2019 - Deep forest.pdf;/home/pd/Zotero/storage/KUIT2NKQ/5123737.html}
+}
+
+@inbook{zhou2021semisupervised,
+  title = {Semi-{{Supervised Learning}}},
+  booktitle = {Machine {{Learning}}},
+  author = {Zhou, Zhi-Hua},
+  year = {2021},
+  pages = {315--341},
+  publisher = {Springer Singapore},
+  address = {Singapore},
+  doi = {10.1007/978-981-15-1967-3_13},
+  urldate = {2024-03-15},
+  collaborator = {Zhou, Zhi-Hua},
+  isbn = {9789811519666 9789811519673},
+  langid = {english}
+}
+
+@book{zhu2022introduction,
+  title = {Introduction to Semi-Supervised Learning},
+  author = {Zhu, Xiaojin and Goldberg, Andrew B.},
+  year = {2022},
+  publisher = {Springer Nature},
+  urldate = {2024-03-15}
 }

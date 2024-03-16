@@ -156,14 +156,14 @@ Despite their importance, interaction prediction problems pose unique challenges
     %However, the differences between them are not fully clear, and the choice of which metric to use can have a significant impact on the conclusions drawn from the model's performance.
 \end{enumerate}
 
-% TODO: cv
+% TODO: cv, pahikalla2015
 
 %Those issues can be obfuscated or even amplified if one fails to acknowledge defining aspects of the interaction prediction problem.
 These issues are an integral part of interaction prediction problems,
 %arising from their fundamental definition.
 that arise from how they are fundamentally defined around combinations of objects.
 %
-However, these differences are often overlooked when developing machine learning algorithms.  %~\cite{pahikkala2015more}.
+However, these differences are often overlooked when developing machine learning algorithms~\cite{pahikkala2015more}.
 %
 %If, in a given bipartite interaction problem, the feature vector characterizing a pair of possibly interacting entities is a simple combination of independent representations of each entity, we can see the training set as two separate design matrices rather than the usual single one, disregarding their combination as a data preprocessing step and leaving the treatment of both in conjunction as a matter of estimator design. This view defines a different machine learning paradigm, in which what we call "instances" or "samples" are not the dyads themselves, but rather each individual interacting object.
 %For instance, it is common for the input vector describing each dyad to be a simple concatenation of feature vectors describing each interacting entity.
@@ -182,7 +182,8 @@ In conclusion, acknowledging such defining aspects and incorporating the biparti
 
 \subsection{How to build bipartite models}
 
-% RELATED TERMS section
+% RELATED TERMS section TODO
+% \cite{liu2017computational} pu dyadic prediction
 %one-class classification
 %While \emph{link prediction} and \emph{dyadic prediction} are common terms in the literature referring to similar concepts, they are not specific to the presence of two distinct groups of objects nor make clear the presence of describing attributes for both of them (often called \emph{side-features} or \emph{side-information} in the context of recommendation systems). While \emph{interaction prediction} seems a closer alternative,
 %usually assuming side-features, % TODO I do not think so
@@ -190,7 +191,8 @@ In conclusion, acknowledging such defining aspects and incorporating the biparti
 %As an abuse of terminology, we thus refer to this "heterogeneous bipartite interaction prediction" paradigm as \emph{bipartite learning}.
 There are two general strategies for developing machine learning algorithms for bipartite interaction prediction. We call them \emph{data-centric} and \emph{estimator-centric} approaches.
 %
-The majority of methods proposed for bipartite learning is based on organizing the data to enable the use of traditional learning algorithms. These data-centric adaptations can be broadly classified into two categories~\cite{schrynemackers2015classifying,pliakos2018global,pliakos2020drugtarget}, which we describe below.
+The majority of methods proposed for bipartite learning is based on organizing the data to enable the use of traditional learning algorithms.
+These data-centric adaptations can be broadly classified into two categories~\cite{schrynemackers2015classifying,pliakos2018global,pliakos2020drugtarget}, which we describe below.
 
 \begin{itemize}
     \item \textbf{Global single output:} The most common approach observed in the literature. The dataset is formatted so that each dyad is an instance. Each dyad has a single label associated with it, and the feature vector describing the dyad is the concatenation of the two feature vectors describing the interacting entities.
@@ -219,19 +221,19 @@ Other methods adapt the learning algorithm itself to take full advantage of the 
         \item \textbf{Main advantage:} It is a remarkably efficient method.
         \item \textbf{Main disadvantage:} Linear relationships frequently are too simplistic to capture the complexity of the underlying interactions.
     \end{itemize}
-    \item \textbf{Matrix factorization:} The adjacency matrix of the bipartite network is decomposed into two latent feature matrices, one for each domain. The product of these matrices approximates the original adjacency matrix, and can be used to predict new interactions between known instances. \textcite{liu2016neighborhood} introduces a method to extend this idea to predict interactions with new instances, by encouraging instance-instance vicinities to be transfered from the original to the latent feature space.
+    \item \textbf{Matrix factorization:} The adjacency matrix of the bipartite network is decomposed into two latent feature matrices, one for each domain. The product of these matrices approximates the original adjacency matrix, and can be used to predict new interactions between known instances. \citeonline{liu2016neighborhood} introduces a method to extend this idea to predict interactions with new instances, by encouraging instance-instance vicinities to be transfered from the original to the latent feature space.
     % TODO nrlmf uses side info
     \begin{itemize}
         \item \textbf{Main advantage:} It is a naturally scalable technique, being designed from the ground up for interaction prediction tasks.
-        \item \textbf{Main disadvantage:} Interpretability is limited and a large number of hyperparameters are necessary.  % TODO it does not seem too much serious
+        \item \textbf{Main disadvantage:} Interpretability is limited and a large number of hyperparameters is necessary.  % TODO it does not seem too much serious
         % other algorithms were shown to surpass it
     \end{itemize}
     %
     %\item \textbf{Kernel-based methods:} \cite{} demonstrates that a linear regression model can be built as if a dyad-dyad kernel matrix was used (which would be prohibitively large), by instead separately eigendecomposing the two intra-domain kernel matrices. However, while remarkably efficient, linear relationships frequently are too simplistic to capture the complexity of the underlying interactions, displaying limited predictive power.
-    \item \textbf{Decision trees:} \cite{pliakos2018predictive} proposes an adaptation to the split search procedure occurring at each decision tree node. The search is performed locally for each domain, similarly to the local multi-output approach, but the resulting model is a single decision tree.
+    \item \textbf{Decision trees:} \citeonline{pliakos2018global} proposes an adaptation to the split search procedure occurring at each decision tree node. The search is performed locally for each domain, similarly to the local multi-output approach, but the resulting model is a single decision tree.
     \begin{itemize}
         \item \textbf{Main advantage:} Better scores are achieved in comparison to decision trees adapted with data-centric approaches~\cite{pliakos2018global}.
-        \item \textbf{Main disadvantage:} No improvement in training complexity is observed relative to decision trees under the global single output adaptation.
+        \item \textbf{Main disadvantage:} No improvement in training complexity is observed relative to decision trees under the global single output adaptation~\cite{pliakos2018global}.
     \end{itemize}
 \end{enumerate}
 
@@ -257,19 +259,19 @@ Other methods adapt the learning algorithm itself to take full advantage of the 
 \subsection{Why decision trees?}
 %\subsection{Why forest estimators are the \textit{bestimators}}
 
-In particular, decision trees are a very interesting option to explore. They show remarkable interpretability, flexibility to different tasks, and straightforward usage, besides demonstrating remarkable predictive power when combined into ensembles~\cite{breiman2001random, whyarebestfortabular}.  % TODO cite more
+In particular, decision trees are a very interesting option to explore. They show remarkable interpretability, flexibility to different tasks, and straightforward usage, besides demonstrating remarkable predictive power when combined into ensembles~\cite{breiman2001random,chen2016xgboost,zhou2019deepa,grinsztajn2022why}.  % TODO cite more
 We list below some of the main advantages of learning algorithms based on decision trees.
 
 \begin{enumerate}
-    \item \textbf{Interpretability:} Decision trees and forests are well-known transparent models, with several methods being available to interpret their predictions~\cite{mdi, mdi+, treeshap}. For instance, the frequency with which a feature is used by the tree can reflect its importance in the prediction process~\cite{breiman1984classification}.
-    \item \textbf{No need for preprocessing:} In most cases, very little preprocessing is necessary to use decision trees. They can directly handle continuous or categorical features, and natively deal with missing feature values~\cite{xgboost}. They are also not sensible to feature scaling, so normalization is most often not necessary.
-    \item \textbf{Flexibility:} Decision trees can be used for both classification and regression tasks, and can handle either single or multi-output problems. They were successfully adapted to a wide range of scenarios including time series forecasting~\cite{}, survival analysis~\cite{}, and unstructured inputs in general~\cite{zhang2017deepforest}.
+    \item \textbf{Interpretability:} Decision trees and forests are well-known transparent models, with several methods being available to interpret their predictions~\cite{breiman1984classification, lundberg2019explainable, agarwal2023mdi}. For instance, the frequency with which a feature is used by the tree can reflect its importance in the prediction process~\cite{breiman1984classification}.
+    \item \textbf{No need for preprocessing:} In most cases, very little preprocessing is necessary to use decision trees. They can directly handle continuous or categorical features, and natively deal with missing feature values~\cite{breiman1984classification}. They are also not sensible to feature scaling, so normalization is most often not necessary.
+    \item \textbf{Flexibility:} Decision trees can be used for both classification and regression tasks, and can handle either single or multi-output problems. They were successfully adapted to a wide range of scenarios including time series forecasting~\cite{}, survival analysis~\cite{}, and unstructured inputs in general~\cite{zhou2019deepa}.
     \item \textbf{Small number of hyperparameters:}
-    They have a small number of hyperparameters in comparison to other algorithms such as deep neural networks, which makes them easy to use and tune. 
+    They have a small number of hyperparameters in comparison to other algorithms such as deep neural networks, which makes them easy to use and tune~\cite{zhou2019deepa}. % TODO cite more
     %The most common hyperparameters are the maximum depth of the tree, the minimum number of samples required to split a node, and the minimum number of samples required to be at a leaf node.
     %\item \textbf{Non-parametric:}
     %Decision trees are non-parametric models, meaning they make no assumptions about the underlying distribution of the data. This flexibility allows them to capture complex relationships without being constrained by a specific functional form.
-    \item \textbf{Predictive power:} They can uncover complex non-linear relationships between features and labels, while being notably resistant to overfitting when combined into ensembles. They are widely recognized for their predictive performance especially on structured data~\cite{whyarebestfortabular}.
+    \item \textbf{Predictive power:} They can uncover complex non-linear relationships between features and labels, while being notably resistant to overfitting when combined into ensembles. They are widely recognized for their predictive performance especially on structured data~\cite{grinsztajn2022why}.
     \item \textbf{Fast inference:} Once trained, they can make predictions in logarithmic time complexity~\cite{breiman1984classification}.
 \end{enumerate}
 
@@ -319,10 +321,10 @@ We introduce three main methodology refinements, aimed at the high dimensionalit
 REESCREVER E COMPLEMENTAR  %TODO
 
 
-\cite{schrynemackers2015classifying} define the ideas of the GSO and LMO adaptations of traditional machine learning algorithms. In their study, \cite{schrynemackers2015classifying} analyses the performance of Random Forests~\citep{breiman2001random} (RF) and Extremely Randomized Trees~\citep{geurts2006extremely} (ExtraTrees) adapted in both ways to be applied to DTI prediction, suggesting a greater potential to generalization of ExtraTrees in comparison to RF.
+\citeonline{schrynemackers2015classifying} define the ideas of the GSO and LMO adaptations of traditional machine learning algorithms. In their study, \cite{schrynemackers2015classifying} analyses the performance of Random Forests~\cite{breiman2001random} (RF) and Extremely Randomized Trees~\cite{geurts2006extremely} (ExtraTrees) adapted in both ways to be applied to DTI prediction, suggesting a greater potential to generalization of ExtraTrees in comparison to RF.
 
-In \citeyear{pliakos2018global}, \cite{pliakos2018global} presents the PBCT algorithm, an original adaptation of decision trees to bipartite scenarios, and demonstrates improved results over the previous, more superficial, adaptations. Although directly considering the bipartite data format, with separate design matrices for each domain, their proposal is still limited by the same asymptotic complexity of GSO-adapted trees.
-The authors later extend the PBCT algorithm to ensembles, building bipartite versions of Random Forests and ExtraTrees~\cite{pliakos2019network}. Later still, they explore the use of Neighborhood-Regularized Logistic Matrix Factorization (NRLMF)~\citep{liu2016neighborhood} as a pre-training step to bipartite ExtraTrees, generating continuous pseudo-labels for negative interactions to be inputted to the forest estimator. They demonstrate significant improvements in predictive performance resulting from this procedure~\cite{pliakos2019network}, reinforcing the hypothesized potential of semi-supervised techniques. Nevertheless, the authors refrain from experimenting with random forests, and their bipartite models are still subject to the same training complexity.
+In \citeyear{pliakos2018global}, \citeonline{pliakos2018global} presents the PBCT algorithm, an original adaptation of decision trees to bipartite scenarios, and demonstrates improved results over the previous, more superficial, adaptations. Although directly considering the bipartite data format, with separate design matrices for each domain, their proposal is still limited by the same asymptotic complexity of GSO-adapted trees.
+The authors later extend the PBCT algorithm to ensembles, building bipartite versions of Random Forests and ExtraTrees~\cite{pliakos2019network}. Later still, they explore the use of Neighborhood-Regularized Logistic Matrix Factorization (NRLMF)~\cite{liu2016neighborhood} as a pre-training step to bipartite ExtraTrees, generating continuous pseudo-labels for negative interactions to be inputted to the forest estimator. They demonstrate significant improvements in predictive performance resulting from this procedure~\cite{pliakos2019network}, reinforcing the hypothesized potential of semi-supervised techniques. Nevertheless, the authors refrain from experimenting with random forests, and their bipartite models are still subject to the same training complexity.
 
 \cite{levatic2017semisupervised} and {} independently propose a way to consider semi-supervised assumptions on the level of a decision tree's split search procedure rather than the whole model. They do so by penalizing the selection of split points that separate close training instances, so that instances within the same tree node, that tend to yield the same output, also will now tend to have similar feature vectors. Under the assumption that neighboring instances are more likely to have similar labels (the \emph{smoothness} assumption), delegating part of the split's influence to the feature space directly is expected to reduce the impact of missing or incorrect labels. 
 
