@@ -25,12 +25,12 @@ THESIS_TEXTWIDTH = 6.29707  # inches
 PLOT_WIDTH = 0.45 * THESIS_TEXTWIDTH
 
 METRIC_FORMATTING = {
-    "test_average_precision_micro": "Micro AP",
-    "test_roc_auc_micro": "Micro AUROC",
-    "test_matthews_corrcoef_micro": "Micro MCC",
-    "test_f1_micro": "Micro F1",
-    "test_neg_label_ranking_loss": "Ranking Error",
-    "test_neg_hamming_loss_micro": "Micro Hamming Loss",
+    "score_time": "Scoring time (s)",
+    "fit_time": "Training time (s)",
+    "TT_average_precision": "TT AUPR",
+    "TT_roc_auc": "TT AUROC",
+    "LT+TL_average_precision": "LT+TL AUPR",
+    "LT+TL_roc_auc": "LT+TL AUROC",
 }
 
 
@@ -288,10 +288,12 @@ def make_visualizations(
         data = data.copy()
         pvalue_crosstable = pvalue_crosstable.copy()
         mean_ranks = mean_ranks.copy()
+
         data.loc[:, estimator_col] = data[estimator_col].str.rsplit("__", n=1).str[0]
         pvalue_crosstable.index = pvalue_crosstable.index.str.rsplit("__", n=1).str[0]
         pvalue_crosstable.columns = pvalue_crosstable.columns.str.rsplit("__", n=1).str[0]
         mean_ranks.index = mean_ranks.index.str.rsplit("__", n=1).str[0]
+
         # If estimator names do not include hue:
         # mean_ranks.index = mean_ranks.index.set_levels(
         #     mean_ranks.index.get_level_values(estimator_col).str.rsplit("__", n=1).str[0],
@@ -299,6 +301,17 @@ def make_visualizations(
         # )
     else:
         drop = None
+
+    # HACK
+    # "bxt_gmo__nrlmf" -> "BXT-GMO-NRLMF"
+    # data.loc[:, estimator_col] = data[estimator_col].str.replace("_+", "-", regex=True).str.upper()
+    # pvalue_crosstable.index = pvalue_crosstable.index.str.replace("_+", "-", regex=True).str.upper()
+    # pvalue_crosstable.columns = pvalue_crosstable.columns.str.replace("_+", "-", regex=True).str.upper()
+    # mean_ranks.index = mean_ranks.index.str.replace("_+", "-", regex=True).str.upper()
+    data.loc[:, estimator_col] = data[estimator_col].str.replace("_+", " - ", regex=True)
+    pvalue_crosstable.index = pvalue_crosstable.index.str.replace("_+", " - ", regex=True)
+    pvalue_crosstable.columns = pvalue_crosstable.columns.str.replace("_+", " - ", regex=True)
+    mean_ranks.index = mean_ranks.index.str.replace("_+", " - ", regex=True)
 
     if data.dataset.iloc[0] == "all_datasets":
         # formatted_metric_name += "\n(mean percentile ranks)"
@@ -337,7 +350,6 @@ def make_visualizations(
 
     # plt.figure(figsize=(6, 0.5 * n_groups / 2.54 + 1))
     plt.figure()
-    set_axes_size(PLOT_WIDTH, 3)
 
     plot_critical_difference_diagram(
         mean_ranks,
@@ -345,6 +357,7 @@ def make_visualizations(
         crossbar_props={"marker": "."},
     )
     plt.title(title, wrap=True)
+    set_axes_size(PLOT_WIDTH, 3)
     plt.tight_layout()
     plt.savefig(cdd_outpath.with_suffix(".png"))
     plt.savefig(
@@ -366,7 +379,6 @@ def make_visualizations(
 
     # plt.figure(figsize=(0.3 * n_groups + 1, 3))
     plt.figure()
-    set_axes_size(PLOT_WIDTH, 3)
 
     ax = sns.boxplot(
         data=data,
@@ -461,6 +473,7 @@ def make_visualizations(
             # annotation_clip=False,
         )
 
+    set_axes_size(PLOT_WIDTH, 3)
     plt.tight_layout()
     plt.savefig(boxplot_outpath.with_suffix(".png"))
     plt.savefig(

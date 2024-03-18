@@ -145,18 +145,20 @@ Despite their importance, interaction prediction problems pose unique challenges
     \item \textbf{High dimensionality:} Due to the intrinsic combinatory nature of this type of problem, the interactions to be processed are usually very numerous, even if the number of training instances in each domain is not that expressive.  %TODO cite
     Specifically, for each new object introduced to the training set, a new interaction could be considered for each training sample in the other domain, rendering the number of interactions to grow quadratically with the number of entities of each type.
     \item \textbf{Knowledge sparsity:} As a consequence of the previous point, no amount of research efforts in characterizing new interactions can keep up with the rate at which possible relationships appear, resulting in a fundamental sparsity of confidently verified interactions~\cite{bagherian2020machine}. % TODO cite more
-    \item \textbf{Lack of validated negative annotations:} In many cases, the absence of a relationship between two objects is much harder to validate than its presence. For instance, negative results in biochemical essays asserting molecular interactions can often be caused by a plethora of external experimental factors other than the actual lack of interaction under optimal conditions, unlike positive results that usually imply a successful assay~\cite{pahikkala2015more,chen2018machine,bagherian2020machine}. Furthermore, since positive results are often much more informative, negative results in such interaction characterization settings are naturally less valued in the scientific community, and therefore less likely to be reported~\cite{}. These factors result in a general lack of high-quality negative data in interaction datasets, requiring special considerations from machine learning pipelines that are often overlooked in the literature.
+    \item \textbf{Lack of validated negative annotations:} In many cases, the absence of a relationship between two objects is much harder to validate than its presence. For instance, negative results in biochemical essays asserting molecular interactions can often be caused by a plethora of external experimental factors other than the actual lack of interaction under optimal conditions, unlike positive results that usually imply a successful assay~\cite{pahikkala2015more,chen2018machine,bagherian2020machine}.
+    %Furthermore, since positive results are often much more informative, negative results in such interaction characterization settings are naturally less valued in the scientific community, and therefore less likely to be reported~\cite{}.  TODO find citation
+    These factors result in a general lack of high-quality negative data in interaction datasets, requiring special considerations from machine learning pipelines that are often overlooked in the literature.
     %\item \textbf{New instances:} validation is delicate
-    \item \textbf{Impact on model evaluation:} Two rank-based metrics are mainly used to evaluate the performance of interaction prediction models~\cite{pahikkala2015more,chen2018machine}: the area under the receiver operating characteristic curve (AUROC)~\cite{davis2006relationship,hand2009measuring} and the area under the precision-recall curve (AUPR)~\cite{davis2006relationship,ozenne2015precision,flach2015precisionrecallgain}. These metrics are known to assess the performance of a model in different ways, and are often used in conjunction to provide a more comprehensive view.
+    \item \textbf{Impact on model evaluation:} Two rank-based metrics are mainly used to evaluate the performance of interaction prediction models~\cite{lu2011link,zhou2021progresses,pahikkala2015more,chen2018machine}: the area under the receiver operating characteristic curve (AUROC)~\cite{davis2006relationship,hand2009measuring} and the area under the precision-recall curve (AUPR)~\cite{davis2006relationship,ozenne2015precision,flach2015precisionrecallgain}. These metrics are known to assess the performance of a model in different ways, and are often used in conjunction to provide a more comprehensive view.
     However, these differences are not fully clear, and neither is how they are affected by the missing annotations.
     This makes it difficult to interpret why different models are sometimes chosen,
     and to decide which metric to prioritize in each experiment. For instance, AUPR is often recommended for imbalanced scenarios~\cite{davis2006relationship,hand2009measuring,he2009learning,ezzat2019computational}, but metrics similar to AUROC are also suggested in interaction prediction contexts~\cite{pahikkala2015more,johnsonlogistic,hao2019opensource,ezzat2019computational,yu2020fpscdtia}.
     %which metric to take into account when selecting a model.
     %how are they affected by the particularities of the interaction prediction problem.
     %However, the differences between them are not fully clear, and the choice of which metric to use can have a significant impact on the conclusions drawn from the model's performance.
+    % TODO no inductive algorithms, only transductive
+    \item \textbf{Lack of inductive algorithms:} Many of the algorithms proposed for interaction prediction assume a \emph{transductive}~\cite{chapelle2006semisupervised} setting, where attributes of the test instances are available at training time~\cite{pahikkala2015more,ezzat2019computational}. This setting hinders the interpretability of those models and their application to completely new entities.
 \end{enumerate}
-
-% TODO: cv, pahikalla2015
 
 %Those issues can be obfuscated or even amplified if one fails to acknowledge defining aspects of the interaction prediction problem.
 These issues are an integral part of interaction prediction problems,
@@ -180,8 +182,6 @@ Ideally, we would want to avoid the combination of feature vectors as a data pre
 %Acknowledging such defining aspects and limitations and incorporating the bipartite nature of the problem from the ground up in the algorithm design process can be a crucial step in developing successful and scalable machine learning models for interaction prediction.
 In conclusion, acknowledging such defining aspects and incorporating the bipartite nature of the problem are crucial steps in developing successful and scalable machine learning models for interaction prediction.
 
-\subsection{How to build bipartite models}
-
 % RELATED TERMS section TODO
 % \cite{liu2017computational} pu dyadic prediction
 %one-class classification
@@ -189,6 +189,10 @@ In conclusion, acknowledging such defining aspects and incorporating the biparti
 %usually assuming side-features, % TODO I do not think so
 %it is also not concerned with the heterogeneity of the network.
 %As an abuse of terminology, we thus refer to this "heterogeneous bipartite interaction prediction" paradigm as \emph{bipartite learning}.
+
+
+\subsection{How to build bipartite models}
+
 There are two general strategies for developing machine learning algorithms for bipartite interaction prediction. We call them \emph{data-centric} and \emph{estimator-centric} approaches.
 %
 The majority of methods proposed for bipartite learning is based on organizing the data to enable the use of traditional learning algorithms.
@@ -256,18 +260,22 @@ Other methods adapt the learning algorithm itself to take full advantage of the 
 
 %Deep learning strategies have been gaining popularity in the last years for problems such as the prediction of drug-target affinities~\citep{} or microRNA-gene interactions~\citep{}. However, they often rely on the same GSO transformation we mentioned before, suffering from the scalability issues we mentioned and often not reporting predictive performance for new instances, only new combinations. Furthermore, the particular lack of interpretability of these models is a long-discussed matter in the scientific literature~\citep{}, and more transparent reasoning supporting the obtained predictions could be an invaluable asset in the advancement of human knowledge, potentially uncovering new insights about underlying molecular dynamics or genetic regulatory mechanisms of various interaction phenomena.
 
+This work will focus on decision trees. We explore how tree-based algorithms can be adapted to the bipartite learning paradigm, and how they can be tailored to address the challenges imposed by our learning setup.
+
+
 \subsection{Why decision trees?}
 %\subsection{Why forest estimators are the \textit{bestimators}}
 
-In particular, decision trees are a very interesting option to explore. They show remarkable interpretability, flexibility to different tasks, and straightforward usage, besides demonstrating remarkable predictive power when combined into ensembles~\cite{breiman2001random,chen2016xgboost,zhou2019deepa,grinsztajn2022why}.  % TODO cite more
+Decision trees are a very interesting option to explore. They show remarkable interpretability, flexibility to different tasks, and straightforward usage, besides demonstrating remarkable predictive power when combined into ensembles~\cite{breiman2001random,chen2016xgboost,zhou2019deep,grinsztajn2022why}.  % TODO cite more
 We list below some of the main advantages of learning algorithms based on decision trees.
 
 \begin{enumerate}
     \item \textbf{Interpretability:} Decision trees and forests are well-known transparent models, with several methods being available to interpret their predictions~\cite{breiman1984classification, lundberg2019explainable, agarwal2023mdi}. For instance, the frequency with which a feature is used by the tree can reflect its importance in the prediction process~\cite{breiman1984classification}.
     \item \textbf{No need for preprocessing:} In most cases, very little preprocessing is necessary to use decision trees. They can directly handle continuous or categorical features, and natively deal with missing feature values~\cite{breiman1984classification}. They are also not sensible to feature scaling, so normalization is most often not necessary.
-    \item \textbf{Flexibility:} Decision trees can be used for both classification and regression tasks, and can handle either single or multi-output problems. They were successfully adapted to a wide range of scenarios including time series forecasting~\cite{}, survival analysis~\cite{}, and unstructured inputs in general~\cite{zhou2019deepa}.
+    \item \textbf{Flexibility:} Decision trees can be used for both classification and regression tasks, and can handle either single or multi-output problems. They were successfully adapted to a wide range of scenarios~\cite{grinsztajn2022why}.
+    %including time series forecasting~\cite{}, survival analysis~\cite{}, and unstructured inputs in general~\cite{zhou2019deep}.
     \item \textbf{Small number of hyperparameters:}
-    They have a small number of hyperparameters in comparison to other algorithms such as deep neural networks, which makes them easy to use and tune~\cite{zhou2019deepa}. % TODO cite more
+    They have a small number of hyperparameters in comparison to other algorithms such as deep neural networks, which makes them easy to use and tune~\cite{zhou2019deep}. % TODO cite more
     %The most common hyperparameters are the maximum depth of the tree, the minimum number of samples required to split a node, and the minimum number of samples required to be at a leaf node.
     %\item \textbf{Non-parametric:}
     %Decision trees are non-parametric models, meaning they make no assumptions about the underlying distribution of the data. This flexibility allows them to capture complex relationships without being constrained by a specific functional form.
@@ -276,11 +284,11 @@ We list below some of the main advantages of learning algorithms based on decisi
 \end{enumerate}
 
 %Whith all these benefits in mind, the main focus of this study is to explore the potential of decision forests for bipartite learning.
-Hence, the main focus of this study is to explore the potential of decision forests for bipartite learning.
+We thus investigate how the potential of decision forests can be applied to bipartite learning.
 %
 %We introduce three main methodology refinements to address the challenges imposed by our learning setup:
 We introduce three main methodology refinements, aimed at the high dimensionality, sparsity, and lack of information imposed by our learning settings.
-
+%
 \begin{enumerate}
     \item \textbf{More scalable trees:}
     We experiment with different metrics to guide the tree growing procedure. Optimizing the algorithm for these metrics can offer improvements in training complexity, making bipartite trees more scalable.
@@ -312,32 +320,49 @@ We introduce three main methodology refinements, aimed at the high dimensionalit
 
 %Methods such as \cite{} consist of a preprocessing step and further global adaptation
 
-% TODO: problems with evaluation
 % TODO: our previous paper
 
 \section{Related work}
 \label{sec:related_work}
 
-REESCREVER E COMPLEMENTAR  %TODO
+% REESCREVER E COMPLEMENTAR  %TODO (other than dti, more forest approaches)
 
+This section provides a brief overview of previous investigations related to bipartite forests, pointing out limitations to be addressed in this work.
 
-\citeonline{schrynemackers2015classifying} define the ideas of the GSO and LMO adaptations of traditional machine learning algorithms. In their study, \cite{schrynemackers2015classifying} analyses the performance of Random Forests~\cite{breiman2001random} (RF) and Extremely Randomized Trees~\cite{geurts2006extremely} (ExtraTrees) adapted in both ways to be applied to DTI prediction, suggesting a greater potential to generalization of ExtraTrees in comparison to RF.
+\citeonline{schrynemackers2015classifying} stablishes the idea of the global single output, local single output, and local multi-output adaptations of traditional machine learning algorithms. In their study, they analyse the performance of random forests (RF)~\cite{breiman2001random} and ensembles of randomized trees (ERT)~\cite{geurts2006extremely} adapted in both ways and applied to biological interaction prediction. They consider not only bipartite but also homogeneous networks, such as protein-protein interactions or gene-gene interactions~\cite{schrynemackers2015classifying}.
 
-In \citeyear{pliakos2018global}, \citeonline{pliakos2018global} presents the PBCT algorithm, an original adaptation of decision trees to bipartite scenarios, and demonstrates improved results over the previous, more superficial, adaptations. Although directly considering the bipartite data format, with separate design matrices for each domain, their proposal is still limited by the same asymptotic complexity of GSO-adapted trees.
-The authors later extend the PBCT algorithm to ensembles, building bipartite versions of Random Forests and ExtraTrees~\cite{pliakos2019network}. Later still, they explore the use of Neighborhood-Regularized Logistic Matrix Factorization (NRLMF)~\cite{liu2016neighborhood} as a pre-training step to bipartite ExtraTrees, generating continuous pseudo-labels for negative interactions to be inputted to the forest estimator. They demonstrate significant improvements in predictive performance resulting from this procedure~\cite{pliakos2019network}, reinforcing the hypothesized potential of semi-supervised techniques. Nevertheless, the authors refrain from experimenting with random forests, and their bipartite models are still subject to the same training complexity.
+In \citeyear{pliakos2018global}, \citeauthor{pliakos2018global} presents a global multi-output decision tree for interaction prediction, named the predictive bi-clustering tree (PBCT) algorithm.
+The method adapts decision trees on a more fundamental level to interaction scenarios, resulting in improved results over the previous adaptations~\cite{pliakos2018global}.
+However, the training complexity of the proposed trees is still the same as that of the previous adaptations~\cite{pliakos2018global}, and the authors do not explore the use of semi-supervised techniques.
+% Although directly considering the bipartite data format, with separate design matrices for each domain, their proposal is still limited by the same asymptotic complexity of GSO-adapted trees.
 
-\cite{levatic2017semisupervised} and {} independently propose a way to consider semi-supervised assumptions on the level of a decision tree's split search procedure rather than the whole model. They do so by penalizing the selection of split points that separate close training instances, so that instances within the same tree node, that tend to yield the same output, also will now tend to have similar feature vectors. Under the assumption that neighboring instances are more likely to have similar labels (the \emph{smoothness} assumption), delegating part of the split's influence to the feature space directly is expected to reduce the impact of missing or incorrect labels. 
+The authors in \citeyear{pliakos2019network} extend the PBCT algorithm to ensembles, building bipartite versions of RF and ERT~\cite{pliakos2019network}. They demonstrate superior performance against the other models in the comparison.
+%
+Later, in \citeyear{pliakos2020drugtarget}, they explore the use of neighborhood-regularized logistic matrix factorization (NRLMF)~\cite{liu2016neighborhood} as a pre-training step to the bipartite ERT~\cite{pliakos2020drugtarget}. NRLMF is used to generate continuous pseudo-labels for negative interactions, that are imputed in the interaction matrix before training the forest estimator. They demonstrate significant improvements in prediction scores resulting from this procedure~\cite{pliakos2020drugtarget}, sugesting that label imputation and other semi-supervised techniques could be beneficial.
 
-More recently, \cite{alves2023semisupervised} applied a more computationally efficient variant of this idea to bipartite trees, using a semi-supervised evaluation not in every possible split but to choose between the two best supervised splits of each domain at each tree node. The authors, however, do not explore ensembles of bipartite trees or the more expensive semi-supervised evaluation of every candidate split.
+\citeonline{santos2021predictive} extends the application of PBCTs to hierarchical multi-label classification problems. In ths context, the bipartite trees are able to split apart not only samples but also labels, resulting in competitive predictive performance.
+
+\citeonline{levatic2017semisupervised} and \citeonline{adiyeke2022semisupervised} independently propose a way to consider semi-supervised assumptions when building decision trees.
+They do so by penalizing the selection of split points that separate close training instances. As a result, instances within the same tree node, that tend to yield the same output, also will tend to have similar feature vectors.
+The method is based on the assumption that neighboring instances are more likely to have similar labels (the \emph{smoothness} assumption~\cite{chapelle2006semisupervised,vanengelen2020survey}). The impact of missing or incorrect labels on the split selection is then reduced, since we delegate part of their influence to the feature space directly.
+%
+While \citeonline{levatic2017semisupervised} uses variances of features as the impurity function, \citeonline{adiyeke2022semisupervised} uses the structure of random trees to determine similarity values~\cite{liu2008isolation}. Neither of these works, however, is centered in interaction prediction.
+
+In \citeyear{alves2023semisupervised}, \citeonline{alves2023semisupervised} employed semi-supervised impurities with bipartite trees.
+To enhance performance, the authors do not use the semi-supervised impurity to evaluate every possible split. Instead, they first determine the best split of each of each feature domain in a supervised manner, and then use the semi-supervised impurity to choose between the two best supervised splits. This procedure is performed at each tree node. The algorithm results in better predictions than the fully supervised approach, while being faster than the original semi-supervised proposal~\cite{alves2023semisupervised}.
+The authors also propose a different way to balance the influences of the supervised and unsupervised objectives. They dynamically determine new weights for each objective in each tree node, based on the amount of labeled data available~\cite{alves2023semisupervised}.
+Nonetheless, the authors do not explore ensembles of bipartite trees, or the more expensive semi-supervised evaluation of every candidate split. They also do not explore other heuristics for dynamic supervision.
 
 %In the present work, we thus demonstrate how bipartite trees can be grown faster with a modification of their training procedure. We also apply the original proposal of a semi-supervised split choice criterion to bipartite trees and compare it to the more efficient variant proposed by \cite{alves2023semisupervised}. We also propose an intermediate-complexity approach for kernel features, enabling semi-supervised evaluation of every candidate split while still being faster than the original idea. 
 
 %TODO cv pairwise, an important detail often not mentioned
 %TODO new heuristics for dynamic supervision
 
-\section{Main objectives}
+\section{Research questions}
+\label{sec:research questions}
 
-The present work will be centered at the following research questions:
+%The present work will be centered at the following research questions:
+The present work will explore current open questions regarding bipartite forests. We explore how these algorithms can be improved both in terms of training complexity and predictive performance, and how they compare with other prominent techniques for interaction prediction. We enumerate our main research questions below.
 
 \begin{enumerate}
     \item \textbf{Can bipartite trees be faster?}

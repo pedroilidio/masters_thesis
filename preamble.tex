@@ -23,8 +23,14 @@
 \newcommand{\concat}{+\!\!\!+}
 \newcommand{\avg}[1]{\left\langle#1\right\rangle}
 \newcommand{\T}{^\intercal}
-\addto\extrasenglish{\renewcommand{\sectionautorefname}{Section} 	\let\subsectionautorefname\sectionautorefname 	\let\subsubsectionautorefname\sectionautorefname}
+\addto\extrasenglish{
+    \renewcommand{\sectionautorefname}{Section}
+    \renewcommand{\functionautorefname}{Function}
+    \let\subsectionautorefname\sectionautorefname
+    \let\subsubsectionautorefname\sectionautorefname
+}
 
+\newcommand{\model}[1]{\texttt{\MakeLowercase{#1}}}
 %\renewcommand{\sectionautorefname}{Section}
 %\renewcommand{\subsectionautorefname}{Section}
 %\renewcommand{\subsubsectionautorefname}{Section}

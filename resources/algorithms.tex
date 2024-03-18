@@ -30,12 +30,12 @@
 %     \ForAll {$i \in \mathbb{N},\;1 \le i \le n_r$}{
 %         $X_l, X_r, Y_l, Y_r \gets$ \SplitDataset{$X_a$, $Y$, $i$}\;
 %         % TODO: organize impurity funcs.
-%         $Q\gets$ \SplitQuality{$X_l$, $X_r$, $Y_l$, $Y_r$}\;
+%         $\Delta I\gets$ \SplitQuality{$X_l$, $X_r$, $Y_l$, $Y_r$}\;
 %         \BlankLine
-%         \If{$Q >$\BestSplit.Quality}{
+%         \If{$\Delta I >$\BestSplit.Quality}{
 %             \BestSplit $\gets$ \Split{}{
 %                 $X_l$, $X_r$, $Y_l$, $Y_r$\;
-%                 Quality $\gets Q$\; 
+%                 Quality $\gets \Delta I$\; 
 %                 Index $\gets i$\; 
 %                 Feature $\gets j$\; 
 %                 Threshold $\gets \frac{1}{2}(X_a\el{i, j} + X_a\el{i+1, j})$\;
@@ -52,7 +52,7 @@
 \newcommand{\algFindBestSplit}{
 \begin{function}[htb]
     \KwIn{A partition of the training data in a given node.}
-    \KwOut{The highest quality score $Q^*$ found among all splits evaluated,
+    \KwOut{The highest quality score $\Delta I^*$ found among all splits evaluated,
         with its corresponding feature column $f^*$ and threshold value $t^*$.}
     \BlankLine
     %\SetKwFunction{SplitQuality}{SplitQuality}
@@ -65,9 +65,9 @@
     \BlankLine
     %$S_l \gets 0$ \tcp*{The same but for $Y_l$}
     % $f^* \gets 0$ \tcp*{best split's feature}
-    % $Q^* \gets 0$ \tcp*{best split's quality}
+    % $\Delta I^* \gets 0$ \tcp*{best split's quality}
     % $t^* \gets 0$ \tcp*{best split's threshold}
-    $Q^*$, $f^*$, $t^* \gets \mathbf {0}$\;
+    $\Delta I^*$, $f^*$, $t^* \gets \mathbf {0}$\;
     \BlankLine
     Draw $\tilde n_f$ columns (features) of $X$ without replacement\;
     \BlankLine
@@ -102,20 +102,20 @@
             %$\savg{(\savg{Y_l\el{ij}}_i\el j)^2} \gets S_l / n_l$\;
             %$\savg{Y_r\el{ij}}\el j \gets S_r / (|Y|_i - n_l)$\;
             \BlankLine
-            % Calculate $Q$ with Eq. \ref{eq:quality}\;
-            Use $S_l$, $S_r$ and $n_l$ to calculate $Q$ (Eq. \ref{eq:q_optimization}).
+            % Calculate $\Delta I$ with Eq. \ref{eq:quality}\;
+            Use $S_l$, $S_r$ and $n_l$ to calculate $\Delta I$ (\autoref{eq:quality}).
             Notice that other node-specific constants might be needed\;
-            %Calculate $Q$ with Eq. \ref{eq:q_optimization}\;
+            %Calculate $\Delta I$ with Eq. \ref{eq:q_optimization}\;
             \BlankLine
-            \If{$Q > Q^*$}{
-                $Q^* \gets Q$\; 
+            \If{$\Delta I > \Delta I^*$}{
+                $\Delta I^* \gets \Delta I$\; 
                 $f^*\gets f$\; 
                 $t^* \gets \frac{1}{2}(X_P\el{\ihat} + X_P\el{\ihat+1})$\;
             }
         }
     }
     \BlankLine
-    \Return $Q^*$, $f^*$, $t^*$\;
+    \Return $\Delta I^*$, $f^*$, $t^*$\;
     \caption{FindSplitBest($X$, $Y$)}
     \label{alg:find_best_split}
 \end{function}}
@@ -124,16 +124,16 @@
 \newcommand{\algFindRandomSplit}{
 \begin{function}[htb]
     \KwIn{A partition of the training data in a given node.}
-    \KwOut{The highest quality score $Q^*$ found among all splits evaluated,
+    \KwOut{The highest quality score $\Delta I^*$ found among all splits evaluated,
         with its corresponding feature column $f^*$ and threshold value $t^*$.}
     \BlankLine
     \SetKwFunction{min}{min}
     \SetKwFunction{max}{max}
     %$S_l \gets 0$ \tcp*{The same but for $Y_l$}
     % $f^* \gets 0$ \tcp*{best split's feature}
-    % $Q^* \gets 0$ \tcp*{best split's quality}
+    % $\Delta I^* \gets 0$ \tcp*{best split's quality}
     % $t^* \gets 0$ \tcp*{best split's threshold}
-    $Q^*$, $f^*$, $t^* \gets \mathbf {0}$\;
+    $\Delta I^*$, $f^*$, $t^* \gets \mathbf {0}$\;
     \BlankLine
     Draw $\tilde n_f$ columns (features) of $X$ without replacement\;
     \BlankLine
@@ -143,18 +143,18 @@
         Draw a random threshold value $t\in \mathbb{R}$ so that
             \min{$X\el{\cdot f}$}$ < t < $\max{$X\el{\cdot f}$}\;
         \BlankLine
-        % Calculate $Q$ with Eq. \ref{eq:quality}\;
-        Calculate $Q$ for the drawn $t$ (Eq. \ref{eq:q_optimization}) \tcp*{$O(|Y|)$}
+        % Calculate $\Delta I$ with Eq. \ref{eq:quality}\;
+        Calculate $\Delta I$ for the drawn $t$ (\autoref{eq:quality}) \tcp*{$O(|Y|)$}
         
         \BlankLine
-        \If{$Q > Q^*$}{
-            $Q^* \gets Q$\; 
+        \If{$\Delta I > \Delta I^*$}{
+            $\Delta I^* \gets \Delta I$\; 
             $f^*\gets f$\; 
             $t^* \gets \frac{1}{2}(X_P\el{\ihat} + X_P\el{\ihat+1})$\;
         }
     }
     \BlankLine
-    \Return $Q^*$, $f^*$, $t^*$
+    \Return $\Delta I^*$, $f^*$, $t^*$
     \label{alg:find_random_split}
     \caption{FindSplit$_\text{random}$($X$, $Y$)}
 \end{function}}
@@ -167,10 +167,10 @@
     \KwIn{The training data for the current node.}
     \KwOut{Current node, with all information of subsequent splits.}
     
-    $Q^*$, $f^*$, $t^*\gets$ \FindSplit($X$, $Y$, $\tilde n_f$)\;
+    $\Delta I^*$, $f^*$, $t^*\gets$ \FindSplit($X$, $Y$, $\tilde n_f$)\;
     \BlankLine
     \tcp{Many stopping criteria are possible}  % refer to discussion
-    \eIf{\DecideToStop{$Q^*$, $f^*$, $t^*$, $X$, $Y$}}{
+    \eIf{\DecideToStop{$\Delta I^*$, $f^*$, $t^*$, $X$, $Y$}}{
         \Return \Node {}{
             isLeaf $\gets$ True\\
             $X_\text{leaf}\gets X$\\
@@ -217,7 +217,7 @@ Node $\gets$ RootNode\;
 \begin{function}[htb]
     \KwIn{A partition of the bipartite training data in a given node.
         $X$ encodes one design matrix for each axis, $X_1$ and $X_2$.}
-    \KwOut{The highest quality score $Q^*$ found among all splits evaluated
+    \KwOut{The highest quality score $\Delta I^*$ found among all splits evaluated
         in both row and column directions,
         with its corresponding feature column $f^*$ and threshold value $t^*$.}
     \SetKwData{adapter}{adapterStrategy}
@@ -238,16 +238,16 @@ Node $\gets$ RootNode\;
     %RowSplitIndex, RowSplitFeature $\gets$ \FindSplit{$X_1$, $\tilde Y_1$}\;
     %ColumnSplitIndex, ColumnSplitFeature $\gets$ \FindSplit{$X_2$, $\tilde Y_2$}\;
     \tcp{Generate a split in each axis. Get each split's position, feature and quality score}
-    $Q_r^*, f_r^*, t_r^*\gets$ \FindSplit{$X_1$, $\tilde Y_1$}\;
-    $Q_c^*, f_c^*, t_c^*\gets$ \FindSplit{$X_2$, $\tilde Y_2$}\;
+    $\Delta I_r^*, f_r^*, t_r^*\gets$ \FindSplit{$X_1$, $\tilde Y_1$}\;
+    $\Delta I_c^*, f_c^*, t_c^*\gets$ \FindSplit{$X_2$, $\tilde Y_2$}\;
     \BlankLine
     %Calculate ColumnSplitQuality and RowSplitQuality\;
     
-    \eIf{$Q_r^* > Q_c^*$}{
-        \Return $Q_r^*$, $f_r^*$, $t_r^*$
+    \eIf{$\Delta I_r^* > \Delta I_c^*$}{
+        \Return $\Delta I_r^*$, $f_r^*$, $t_r^*$
     }{
         \tcp{$f_c^*$ value lets clear its $X_2$ ownership}
-        \Return $Q_c^*$, $f_c^*$, $t_c^*$
+        \Return $\Delta I_c^*$, $f_c^*$, $t_c^*$
     }
     
     \caption{FindBipartiteSplit($X$, $Y$)}
