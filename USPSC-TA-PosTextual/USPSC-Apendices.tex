@@ -6,57 +6,592 @@
 \begin{apendicesenv}
 % Imprime uma página indicando o início dos apêndices
 \partapendices
-\chapter{Apêndice(s)}
-Elemento opcional, que consiste em texto ou documento elaborado pelo autor, a fim de complementar sua argumentação, conforme a ABNT NBR 14724 \cite{nbr14724}.
 
-Os apêndices devem ser identificados por letras maiúsculas consecutivas, seguidas de hífen e pelos respectivos títulos. Excepcionalmente, utilizam-se letras maiúsculas dobradas na identificação dos apêndices, quando esgotadas as 26 letras do alfabeto. A paginação deve ser contínua, dando seguimento ao texto principal. \cite{aguia2020}
-% ----------------------------------------------------------
-\chapter{Exemplo de tabela centralizada verticalmente e horizontalmente}
-\index{tabelas}A \autoref{tab-centralizada} exemplifica como proceder para obter uma tabela centralizada verticalmente e horizontalmente.
-% utilize \usepackage{array} no PREAMBULO (ver em USPSC-modelo.tex) obter uma tabela centralizada verticalmente e horizontalmente
-\begin{table}[htb]
-\ABNTEXfontereduzida
-\caption[Exemplo de tabela centralizada verticalmente e horizontalmente]{Exemplo de tabela centralizada verticalmente e horizontalmente}
-\label{tab-centralizada}
+\chapter{Other estimator-centric strategies}
+\label{sec:estimator-centric}
 
-\begin{tabular}{ >{\centering\arraybackslash}m{6cm}  >{\centering\arraybackslash}m{6cm} }
-\hline
- \centering \textbf{Coluna A} & \textbf{Coluna B}\\
-\hline
-  Coluna A, Linha 1 & Este é um texto bem maior para exemplificar como é centralizado verticalmente e horizontalmente na tabela. Segundo parágrafo para verificar como fica na tabela\\
-  Quando o texto da coluna A, linha 2 é bem maior do que o das demais colunas  & Coluna B, linha 2\\
-\hline
-\end{tabular}
-\begin{flushleft}
-		Fonte: Elaborada pelos autores.\
-\end{flushleft}
-\end{table}
+This section presents two other methods for optimizing estimators for interaction prediction tasks.
+Like bipartite trees (\autoref{sec:bipartite forests}), these methods focus on adapting the learning algorithm in a more fundamental level than data-centric approaches (\autoref{sec:standard adaptations}). 
+The first method is an adaptation of linear models to the bipartite setting, named RLS-Kron~\cite{vanlaarhoven2011gaussian}. It explores properties of the Kronecker product to build an estimator on a large global kernel matrix, without in fact having to calculate such matrix.
+The second method adapts matrix factorization approaches to take similarity side-features into account. Named Neighborhood-Regularized Logistic Matrix Factorization (NRLMF), this technique allows obtaining latent features for unseen instances, which is commonly not possible with traditional matrix factorization.
 
-% ----------------------------------------------------------
-\chapter{Exemplo de tabela com grade}
-\index{tabelas}A \autoref{tab-grade} exemplifica a inclusão de traços estruturadores de conteúdo para melhor compreensão do conteúdo da tabela, em conformidade com as normas de apresentação tabular do IBGE.
-% utilize \usepackage{array} no PREAMBULO (ver em USPSC-modelo.tex) obter uma tabela centralizada verticalmente e horizontalmente
-\begin{table}[htb]
-\ABNTEXfontereduzida
-\caption[Exemplo de tabelas com grade]{Exemplo de tabelas com grade}
-\label{tab-grade}
-\begin{tabular}{ >{\centering\arraybackslash}m{8cm} | >{\centering\arraybackslash}m{6cm} }
-\hline
- \centering \textbf{Coluna A} & \textbf{Coluna B}\\
-\hline
-  A1 & B1\\
-\hline
-  A2 & B2\\
-\hline
-  A3 & B3\\
-\hline
-  A4 & B4\\
-\hline
-\end{tabular}
-\begin{flushleft}
-		Fonte: Elaborada pelos autores.\
-\end{flushleft}
-\end{table}
+\section{Linear models}
+\label{sec:linear_models}
+
+One of the simplest approaches to learning problems in general is to assume a linear relationship between the input features and output labels. Formally, for the non-bipartite case, one assumes that the training output matrix $Y$ can be approximated as follows:
+%
+\begin{equation}
+    \hat Y = X W
+\end{equation}
+%
+in which $W$ is a matrix representing the set of parameters to be learned. To determine $W$, the mean squared error (MSE) is usually defined as the loss function to be minimized, to which we add an extra regularization term controlled by the hyperparameter $\alpha$:
+%
+\begin{equation}
+    \mathcal{J} = \frac{1}{2} \|Y - \hat Y\|^2 + \frac{\alpha}{2} \|W\|^2
+    = \frac{1}{2} \|Y - XW\|^2 + \frac{\alpha}{2} \|W\|^2
+\end{equation}
+%
+An analytical solution for $W$ can be obtained by taking the derivative of $\mathcal{J}$ with respect to $W$ and setting it to zero:
+%
+\begin{equation} %TODO FIX THE ORDER OF THE multiplications
+    \frac{\partial \mathcal{J}}{\partial W} = 0
+    = X\T (XW - Y) + \alpha W
+    %= (Y - XW) + (\alpha\mathbb{I}) W
+    \implies W = (X\T X + \alpha I)^{-1} X\T Y
+\end{equation}
+
+There are scenarios, however, where the specific values of $X$ are less interesting than the pairwise similarities between them. In those settings, while $X$ may not be directly available, we do have access to similarity matrices $S$ (also called \emph{kernel} matrices) in which $S\el{ij}$ designates a similarity score between $X\el{i}$ and $X\el{j}$. Rather than simply considering $S$ in the same way we would treat $X$ in linear regression, we could instead employ the \emph{kernel trick}~\cite{murphy2012machine}: replacing the $XX\T$ terms in the above equations by $S$. In this case, we are assuming that similarities $S\el{ij}$ represent the internal product of the vectors $X\el{i}$ and $X\el{j}$ in some feature space, which is based on the intuition that the internal product by itself can be regarded as a similarity metric.
+%
+We also define $W$ slightly differently, ommiting the $X\T$ factor as $W = (S + \alpha I)^{-1} Y$, so that the final prediction is given by
+%
+\begin{equation}
+    \hat Y = S W = (S + \alpha I)^{-1} S
+\end{equation}
+
+For the bipartite interaction prediction case, besides standard adaptations as described in \autoref{sec:standard adaptations}, a unique formulation is presented by \citeonline{vanlaarhoven2011gaussian}. Similar in concept to the standard global single output procedure (\autoref{sec:standard adaptations}), the authors consider each interaction pair as a unitary instance. The authors then propose building a kernel matrix relating each pair of instances to another pair, and not each interacting entity to another of the same domain. If $S_1 \in \mathbb{R}^{n_1 \times n_1}$ and $S_2 \in \mathbb{R}^{n_2 \times n_2}$ are the intra-domain similarity matrices, the global kernel matrix $S$ is defined as
+%
+\begin{equation}
+    S\el{(i_1n_2 + i_2)(j_1 n_2 + j_2)} = S_1\el{i_1j_1} S_2\el{i_2j_2}
+\end{equation}
+%
+or, more succinctly, as the Kronecker product of $S_1$ and $S_2$:
+%
+\begin{equation}
+    S = S_1 \otimes S_2
+\end{equation}
+%
+Each entry on $S$ thus represents the similarity between the pair $X_1\el{i_1}$-$X_2\el{j_1}$ and another pair $X_1\el{i_2}$-$X_2\el{j_2}$ by the product of the similarities between $X_1\el{i_1}$ and $X_1\el{j_1}$ and between $X_2\el{i_2}$ and $X_2\el{j_2}$.
+
+The bipartite linear regression is then framed on the vectorized $Y$, denoted $\text{vec}(Y)$, built by concatenating the columns of $Y$ into a single $|Y|$ by $1$ column vector.
+Purely for notation purposes, we organize the weight parameters as the vectorized version of a matrix $W$ with the same dimensions of $Y$.
+%
+\begin{gather}
+    \text{vec}(\hat Y) = S\,\text{vec}(W) \approx \text{vec}(Y)
+    \\
+    \text{vec}(W) = (S + \alpha I)^{-1} \text{vec}(Y)
+\end{gather}
+
+As the reader may imagine, $S$ gets prohibitively large for big datasets (it's a $n_1 n_2$-sized square matrix!), both in terms of memory usage and the time needed to perform the matrix inversion. The authors, however, provide a clever way of circumventing this issue by decomposing each of the $S_1$ and $S_2$ kernel matrices separately and exploiting the properties of the Kronecker product.
+
+Given that $S_1$ and $S_2$ are symmetric square matrices, it follows from the spectral theorem that they can be decomposed as follows:  % TODO cite spectral theorem
+%
+\begin{gather*}
+    S_1 = U_1 \Lambda_1 U_1\T \\
+    S_2 = U_2 \Lambda_2 U_2\T
+\end{gather*}
+%
+where, if $\mathbf{\lambda}_1$ represents the vector of eigenvalues of $S_1$, $\Lambda_1$ is the diagonal matrix of those eigenvalues ($\Lambda_1 = \text{diag}(\mathbf{\lambda}_1)$), with $U_1$ columns representing their corresponding eigenvectors $U^{\intercal[i]}$ for each $\mathbf{\lambda}_1\el{i}$. The symmetry of the similarity matrices also implies that $U_1$ and $U_2$ are orthogonal, i.e. $U_1\T U_1 = U_1 U_1\T = \mathbb{I}$ and $U_2\T U_2 = U_2 U_2\T = \mathbb{I}$, or, equivalently, $U_1^{-1} = U_1\T$ and $U_2^{-1} = U_2\T$.
+%
+Utilizing the fact that $(AB) \otimes (CD) = (A \otimes C)(B \otimes D)$~\cite{schafer1966introduction}, the Kronecker product of $S_1$ and $S_2$ can be written as
+%
+\begin{equation}
+    S = S_1 \otimes S_2
+    = (U_1 \Lambda_1 U_1\T) \otimes (U_2 \Lambda_2 U_2\T)
+    % = (U_1 \otimes U_2) (\Lambda_1 V_1\T \otimes \Lambda_2 V_2\T)
+    % = (U_1 \otimes U_2) (\Lambda_1 \otimes \Lambda_2) (V_1\T \otimes V_2\T)
+    = (U_1 \otimes U_2) (\Lambda_1 \otimes \Lambda_2) (U_1 \otimes U_2)\T
+    = U \Lambda U\T
+\end{equation}
+%
+in which we denote $U = U_1 \otimes U_2$ and $\Lambda = \Lambda_1 \otimes \Lambda_2$.
+$W$ now becomes
+%
+\begin{equation*}
+    \text{vec}(W) = (U \Lambda U\T + \alpha \mathbb{I})^{-1} \text{vec}(Y)
+\end{equation*}
+%
+Further exploring the orthogonality of $U$, $U U\T = U \mathbb{I} U\T = \mathbb{I}$, so that
+%
+\begin{equation*}
+    \text{vec}(W) = U (\Lambda + \alpha\mathbb{I})^{-1} U\T \text{vec}(Y)
+\end{equation*}
+%
+The most crucial property of the Kronecker product for our application is its relationship with the vectorization operator~\cite{schafer1966introduction}: $(A \otimes B)\text{vec} (C) = \text{vec}(BCA\T)$, which allows us to write
+%
+\begin{equation*}
+    \text{vec}(W)
+    = U (\Lambda + \alpha\mathbb{I})^{-1} (U_1\T \otimes U_2\T) \text{vec}(Y)
+    = U (\Lambda + \alpha\mathbb{I})^{-1} \text{vec}(U_2\T Y U_1)
+\end{equation*}
+%
+Since $(\Lambda + \alpha\mathbb{I})^{-1}$ is diagonal, its multiplication by the vector $\text{vec}(U_2\T Y U_1)\T$ can be expressed as a Hadamard product (element-wise multiplication, denoted by $\odot$) between two vectors. Acting element-wise, the Hadamard product is unaffected by vectorization, so that we can simplify the above expression by employing the matrix
+%
+\begin{equation}
+    (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1[ij]}
+    = \frac{1}{\alpha + \mathbf{\lambda}_1\el{i} \mathbf{\lambda}_2\el{j}}
+\end{equation}
+%
+In this context, $\mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T$ represents the $n_1$ by $n_2$ matrix resulting from the \emph{outer product} of the vectors containing the eigenvalues of $S_1$ and $S_2$, respectively, while $A^{\circ -1}$ denotes the Hadamard inverse, corresponding to the matrix formed by taking the reciprocal of each element in $A$. Thus,
+%
+\begin{multline*}
+    \text{vec}(W)
+    = U \text{diag}(\Lambda + \alpha^{-1}\mathbb{I}) \odot \text{vec}(U_2\T Y U_1)
+    =\\
+    = (U_1 \otimes U_2) \text{vec}(
+        (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+        \odot (U_2\T Y U_1)
+    )
+    =\\
+    = \text{vec}(
+        U_2
+        [
+            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+            \odot (U_2\T Y U_1)
+        ]
+        U_1\T
+    )
+\end{multline*}
+%
+Which yields
+%
+\begin{equation}
+    W = 
+        U_2
+        [
+            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+            \odot (U_2\T Y U_1)
+        ]
+        U_1\T
+\end{equation}
+
+Finally, predictions for a new group of instances in the test set are obtained as follows from the similarities with the train instances ($S_\text{1, test}\el{ij}$ specifies the similarity between $X_\text{1, test}\el{i}$ and $X_\text{1, train}\el{j}$).
+%
+\begin{equation}
+    \text{vec}(\hat Y_\text{test})
+    = (S_\text{1, test} \otimes S_\text{2, test}) \text{vec}(W)
+    = \text{vec}(S_\text{2, test} W S_\text{1, test}\T)
+\end{equation}
+%
+which summarizes to
+%
+\begin{equation}
+    \hat Y_\text{test} =
+        S_\text{2, test}
+        U_2
+        [
+            (\alpha + \mathbf{\lambda}_1 \otimes \mathbf{\lambda}_2\T)^{\circ -1}
+            \odot (U_2\T Y U_1)
+        ]
+        U_1\T
+        S_\text{1, test}\T
+\end{equation}
+
+%TODO rlskron did not worry about new instances
+%TODO complexity
+%TODO using all neighbors in BLM is prone to overfitting
+%TODO converting usual problems to bipartite format
+%TODO although nrlmf is fast, building a complete tree after is not
+%TODO grid search can be even detrimental in small sparse datasets, since test sets are not representative
+
+
+
+\section{Neighborhood-Regularized Matrix Factorization}
+\label{sec:nrlmf}
+
+This section describes the NRLMF~\cite{liu2016neighborhood} algorithm, which is a matrix factorization technique that incorporates similarity information between samples in the learning process. It enables latent features of new instances to be inferred from the features of their neighbors.
+%NRLMF implements semi-supervised concepts, as it is designed to handle missing labels and to take advantage of the similarities between samples to improve generalization. 
+%Further descendants of NRLMF were later proposed, using a kernel fusion procedure~\cite{hao2017dnilmf,li2019dnilmf}, or applying beta-distribution rescoring of its~outputs~\cite{ban2019nrlmfb}.
+The method is an extension of the Logistic Matrix Factorization (LMF) algorithm, which is designed for recommendation tasks~\cite{johnsonlogistic}.
+NRLMF was successfully applied to diverse bipartite interaction prediction problems, such as drug-target~\cite{liu2016neighborhood}, long non-coding RNA-protein~\cite{liu2017lpinrlmf}, and lncRNA-microRNA~\cite{liu2020predicting}.
+
+
+\subsection{Traditional matrix factorization}
+\label{sec:traditional matrix factorization}
+
+% Several algorithm proposals have been made throughout the last decades to tackle the problem of bipartite interaction prediction. 
+%TODO collaborative filtering in the context of recommendation systems
+
+
+% Traditional in the context of recommendation systems, matrix 
+The idea behind matrix factorization is to find an approximation of the interaction matrix $Y$ by decomposing it into two matrices $U$ and $V$ of lower dimensions, such that %TODO not decomposing
+%
+\begin{equation}
+    \hat Y = U V^T \approx Y
+    \label{eq:traditional matrix_factorization}
+\end{equation}
+%
+The rows of $U$ and $V$ can be seen as learned representations in a new vector space (usually called \emph{latent} space) of each sample in the row and column domains, so that $U\el{i}$ represents $X_1\el{i}$ and $V\el{j}$ represents $X_2\el{j}$.
+%
+Notice that the number of latent features is constrained by \autoref{eq:traditional matrix_factorization} to be the same for both instance domains: $|U|_j=|V|_j$, being an arbitrary hyperparameter to be defined by the user. Usually, the number of latent features is set to be much smaller than the number of original features ($|U|_j \ll |X_1|_j$ and $|V|_j \ll |X_2|_j$), requiring less computational labor and generating models less susceptible to overfitting.
+
+The learning procedure of matrix factorization algorithms thus consists of obtaining such latent feature matrices $U$ and $V$ so to approximate $Y$ as best as possible. The most common approach is to define a loss function that penalizes the difference between the predicted and the true values of $Y$ and to employ gradient descent techniques to gradually change $U$ and $V$ in the direction that minimizes such loss.
+%
+% TODO For instance, 
+
+As can be deduced from \autoref{eq:traditional matrix_factorization}, the dot product of each row of $U$ and $V$ approximates the corresponding element of $Y$:
+%
+\begin{equation}
+    \hat Y\el{ij} = U\el{i} \cdot V\el{j}
+\end{equation}
+%
+Logistic matrix factorization (LMF) slightly redefines the problem by introducing one more step to obtain $\hat Y$ from $U$ and $V$~\cite{johnsonlogistic}: it assumes that the interaction matrix $Y$ is the result of the logistic function applied to $UV\T$ and not only $UV\T$ anymore.
+%
+\begin{equation}
+    \hat Y\el{ij} = \text{logistic}(U\el{i} \cdot V\el{j})
+    = \frac{\exp(U\el{i} \cdot V\el{j})}{1 + \exp(U\el{i} \cdot V\el{j})}
+    \label{eq:lmf_prediction}
+\end{equation}
+%
+where $\mathbf{a} \cdot \mathbf{b}$ represents the dot product between the vectors $\mathbf{a}$ and $\mathbf{b}$. When applied to a matrix, we assume that $\log$ and $\exp$ functions operate element-wise:
+%
+\begin{equation*}
+    (\log M)\el{ij} = \log M\el{ij}
+\end{equation*}
+
+If $\hat Y$ is interpreted as the probability of being positive as predicted by the model ($\hat Y\el{ij} = P(Y\el{ij} = 1)$ and $1-\hat Y\el{ij} = P(Y\el{ij} = 0)$),
+the optimization objective is usually based on maximizing the joint probability of correctly guessing all interactions in $Y$:
+%
+\begin{equation}
+    P(\hat Y = Y) = \prod_{ij} | \hat Y\el{ij} + Y\el{ij} - 1|
+    \label{eq:lmf_objective_raw}
+\end{equation}
+%
+in which $|a|$ represents the absolute value of $a$. A few modifications are then further made:
+%
+\begin{enumerate}
+    \item The logarithm of the objective function is taken to simplify the expression without affecting the optimization problem, since $\log$ is a monotonic function;
+    \item Since positive interactions are usually less numerous but more important in matrix completion problems, a factor $\alpha$ is introduced to prioritize them, multiplying the terms corresponding to $Y\el{ij}=1$ in the objective function. It results as if $alpha$ copies of each positive interaction are present in the training set;
+    \item To discourage overfitting and avoid $U$ and $V$ being arbitrarily large, quadratic regularization terms are added, penalizing the magnitude of the elements of $U$ and $V$.
+    \item Similarity information between samples is incorporated by NRLMF,%TODO
+\end{enumerate}
+%
+%The resulting objective function is then given by
+To simplify notation, we define matrices $J$ whose combined sum of all elements corresponds to the objective function $\mathcal{J}$:
+%
+\begin{equation}
+    \mathcal{J} =
+        \sum J_\text{labels}
+        + \sum J_\text{1, regularization}
+        + \sum J_\text{2, regularization}
+        + \sum J_\text{1, neighborhood}
+        + \sum J_\text{2, neighborhood}
+    \label{eq:lmf_objective_matrices}
+\end{equation}
+%
+where by $\sum J$ we denote $\sum_i^{|J|i}\sum_j^{|J|_j} J$. The sums must be performed individually due to the $J$ matrices having different dimensions.
+
+Applying the logarithm to \autoref{eq:lmf_objective_raw} we have our first term of $\mathcal{J}$:
+%
+\begin{equation*}
+    J_\text{labels} = \log |\hat Y + Y - 1| = Y \odot \log \hat Y + (1 - Y) \odot \log (1 - \hat Y)
+\end{equation*}
+%
+where we separate the cases in which $Y\el{ij} = 1$ and $Y\el{ij} = 0$. $\odot$ represents the Hadamard product (element-wise multiplication) between matrices:
+%
+\begin{equation*}
+    (A \odot B)\el{ij} = A\el{ij} B\el{ij}
+\end{equation*}
+%
+Adding the aforementioned positive importance factor $\alpha$ and expanding $\hat Y$ according to \autoref{eq:lmf_prediction} we have
+%
+%%% Using indices instead of J matrix
+% \begin{multline}
+%     %- \lambda \|U\|^2 - \|V\|^2
+%     \mathcal{L} =
+%         \sum_{ij} \alpha Y\el{ij} \log \hat Y\el{ij}
+%         + (1 - Y\el{ij}) \log (1 - \hat Y\el{ij})
+%     =\\
+%     =
+%     \sum_{ij}
+%         \alpha Y\el{ij} \left\{W\el{ij} - \log\left[1 + \exp(W\el{ij})\right]\right\} 
+%         - (1 - Y\el{ij}) \log \left[1 + \exp(W\el{ij})\right]
+%     =\\
+%     =
+%     \sum_{ij}
+%         \alpha Y\el{ij} W\el{ij}
+%         + [(1 - \alpha) Y\el{ij} - 1] \log \left[1+\exp(W\el{ij})\right]
+% \end{multline}
+%
+\begin{multline}
+    J_\text{labels} =
+        \alpha Y \odot \left\{UV\T - \log\left[1 + \exp(UV\T)\right]\right\} 
+        - (1 - Y) \odot \log \left[1 + \exp(UV\T)\right]
+    =\\
+    =
+        \alpha Y \odot UV\T
+        + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]
+\end{multline}
+
+To discourage large values in $U$ and $V$, we consider quadratic regularization terms weighted by hyperparameters $\lambda_1$ and $\lambda_2$:
+%
+\begin{gather}
+    J_\text{1, regularization}
+        = -\frac{\lambda_1}{2} U \odot U
+        = -\frac{\lambda_1}{2} \mathbb{I} \odot (UU\T)\\
+    J_\text{2, regularization}
+        = - \frac{\lambda_2}{2} V \odot V
+        = - \frac{\lambda_2}{2} \mathbb{I} \odot (VV\T)
+    \label{eq:lmf_regularization}
+\end{gather}
+%
+%In the LMF context of \autoref{eq:lmf_prediction}, the regularization terms can be interpreted as a Gaussian prior on the latent features, centered at the origin with variance $\lambda_1$ and $\lambda_2$ for $U$ and $V$, respectively~\cite{johnsonlogistic}.
+If the initial objective proposal can be interpreted as maximizing the probability of guessing all labels correctly given specific $U$ and $V$ ($\sum J_\text{labels} = \log P(\hat Y=Y\mid U,V)$), adding the regularization terms is equivalent to introduce prior assumptions about $U$ and $V$ distributions and define a slightly different objective: maximizing the posterior probability to obtain the current $U$ and $V$ given that $\hat Y = Y$. Applying Bayes' theorem and assuming $P(Y) = 1$ we have
+%
+\begin{equation}
+    P(U,V\mid \lambda_1, \lambda_2, Y) = P(Y\mid U,V)\; P(U\mid \lambda_1) \; P(V\mid \lambda_2)
+\end{equation}
+%
+Under the assumption that the values in $U$ and $V$ follow zero-centered spherical gaussian distributions with variances given by $\frac{1}{\lambda}$, that is, $U\el{ij}\sim\mathcal{N}(0, \lambda_1^{-1}\mathbf{I})$ and $V\el{ij}\sim\mathcal{N}(0, \lambda_2^{-1}\mathbf{I})$, we recover the regularized objective function of \autoref{eq:lmf_regularization}~\cite{johnsonlogistic}.
+%
+\begin{multline}
+    \log P(U,V\mid \lambda_1, \lambda_2, Y)
+    =\\
+    = \log P(Y\mid U,V)
+        + \sum \log(\exp(-\frac{\lambda_1}{2} U \odot U))
+        + \sum \log(\exp(-\frac{\lambda_2}{2} V \odot V))
+    =\\
+    = \sum J_\text{labels}
+        - \sum \frac{\lambda_1}{2} U \odot U
+        - \sum \frac{\lambda_2}{2} V \odot V
+\end{multline}
+%
+Therefore, if multiple values of $U$ and $V$ possibly generate the same $\hat Y = Y$, applying the regularization can be understood as not only finding one of such combinations but, between those $U$ and $V$ that satisfy $\hat Y = Y$, finding the $U$ and $V$ that are most likely to be randomly sampled. If $P(U, V\mid \lambda_1, \lambda_2, Y)$ continuously varies as a function of $U$ and $V$, pooling $U$ and $V$ from a region of maximal $P(U, V\mid \lambda_1, \lambda_2, Y)$ should improve generality, arguably ensuring that stochastic deviations of $U$ and $V$ would still result in high $P(\hat Y = Y)$ and justifying the use of regularization as a way to avoid overfitting. %TODO confuso?
+
+% Being bounded by $[0, 1]$, the predictions $\hat Y$ are interpreted as the probabilities of each interaction to be positive.
+% %
+% \begin{equation}
+%     \hat Y\el{ij} = P(Y\el{ij} = 1)
+% \end{equation}
+% %
+% The probability of correctly guessing the label $Y\el{ij}$ is then given by
+% \begin{equation}
+%     P(\hat Y\el{ij} = Y\el{ij})
+%     =
+%     \begin{cases}
+%         \hat Y\el{ij} & \text{if } Y\el{ij} = 1\\
+%         1 - \hat Y\el{ij} & \text{if } Y\el{ij} = 0
+%     \end{cases}
+% \end{equation}
+% %
+% alternatively formulated as
+% %
+% \begin{equation}
+%     P(\hat Y\el{ij} = Y\el{ij})
+%     = \hat Y\el{ij}^{Y\el{ij}} (1 - \hat Y\el{ij})^{1 - Y\el{ij}}
+% \end{equation}
+% 
+% We will then define the objective function based on the probability of correctly guessing all interactions in $Y$:
+% TODO must assume independent Y
+
+One may have noticed that the original feature matrices $X_1$ and $X_2$ were not considered in any regard when describing matrix factorization and detailing the objective functions.
+Born in the context of recommendation systems where the relationship labels are usually the only information available, matrix factorization algorithms in general encounter a significant issue when brought to our current scenario of bipartite interaction prediction:
+in its canonic formulation, they do not take sample-level features into account, often called \emph{side information} or \emph{side features} in the recommendation field~\cite{rafailidis2016modeling}, possibly overlooking valuable data. As a consequence, they are unable to provide predictions for new samples that were not present in the training set, since no information about them is available to be inputted to the model. This is commonly regarded as the \emph{cold-start problem}~\cite{lu2012recommender}. As such, matrix factorization usage is usually restricted to the task of matrix completion, in which the goal is to predict the missing values of a matrix given the values of the remaining elements, without receiving completely new rows or columns during model evaluation~\cite{lu2012recommender}.
+
+
+\subsection{Neighborhood regularization}
+\label{sec:neighborhood regularization}
+
+Targeting these issues, \citeonline{liu2016neighborhood} proposes a modification to LMF that incorporates side information into the model, enabling predicting interactions for new samples.
+%successfully applying their method to interaction problems such as drug-target interaction prediction~\cite{liu2016neighborhood}, long non-coding RNA interactions~\cite{liu2017lpinrlmf} and microRNA interactions~\cite{liu2020predicting}.
+%
+The core idea of their technique lies in adding one more term to the objective function, penalizing instances regarded as close when considering the original features but were separated by $U$ and $V$, placed far from each other in the latent space. As such, the algorithm is called \emph{Neighborhood-Regularized Logistic Matrix Factorization} (NRLMF).
+%
+To precisely define it, let's consider similarity-weighted adjacency matrices $A_1$ and $A_2$ referring to each sample domain that specifies neighborhood relationships between samples. If $S_1\el{ij}$ denotes a similarity score between $X_1\el i$ and $X_1\el j$, $A_1\el{ij}$ is set to this similarity value if $X_1\el{j}$ belongs to the neighborhood of $X_1\el{i}$, denoted $N(X_1\el i)$, and 0 otherwise:
+%
+\begin{equation}
+    A_1\el{ij} =
+    \begin{cases}
+        S_1\el{ij} & \text{if } X_1\el{j} \in N(X_1\el i)\\
+        0 & \text{otherwise}
+    \end{cases}
+    \label{eq:nrlmf_A}
+\end{equation}
+%
+Multiple options are available for the definition of neighborhoods, such as considering all samples within a certain radius of each other or only the $k$ nearest neighbors of each sample. In this work, following the original proposal of NRLMF~\cite{liu2016neighborhood}, we will consider the latter, defining $A_1$ and $A_2$ as the adjacency matrices of the $k$-nearest neighbors graphs of $X_1$ and $X_2$, respectively. In other words, $N(X_1\el{i})$ is the set formed by the $k$ rows $X_1\el{j}$ with the $k$ highest $s_ij$. In the interaction prediction problems we analyze, similarities are precalculated so that the $X$ matrices directly provide the distance metric over which the nearest neighbors are selected. That is, $X_1$ and $X_2$ themselves already constitute pairwise similarity matrices: $S_1\el{ij} = X_1\el{ij}$. In general, however, one may need to define a kernel matrix $S$ as a preprocessing step, choosing a distance metric over the original features to be used in the nearest neighbors search such as the Euclidean distance or a radial basis function~\cite{vanlaarhoven2011gaussian}. In any case, notice that $A$ is a function of $X$ alone for NRLMF. While $Y$ may also be considered in similar scenarios (as will be discussed ahead), $A$ does not depend on $U$ or $V$ and can be built as a single pre-training step.
+
+The loss term proposed by NRLMF is then given by the sum of the Euclidean distances in the latent space between samples in the same neighborhood, weighted by their similarities:
+%
+\begin{gather}
+    \mathcal{J}_\text{1, neighborhood} =
+    - \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
+    \\
+    \mathcal{J}_\text{2, neighborhood} =
+    - \sum_{ij}A_2\el{ij} \|V\el{i} - V\el{j}\|^2
+    \label{eq:neighborhood_regularization}
+\end{gather}
+%
+in which $\|\mathbf{v}\|$ represents the Euclidean norm of a vector $\mathbf{v}$.
+Concentrating on the row instances and expanding the last definition we have
+%
+\begin{multline*}
+    \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
+    = \sum_{ij} A\el{ij}
+    \left(
+        U\el{i}\cdot U\el{i} + U\el{j}\cdot U\el{j} - 2 U\el{i}\cdot U\el{j}
+    \right)
+    =\\
+    =
+        \sum_i \left(\sum_j A_1\el{ij}\right) U\el{i}\cdot U\el{i}
+        + \sum_j \left(\sum_i A_1\el{ij}\right) U\el{j}\cdot U\el{i}
+\end{multline*}
+%
+The terms in which $U$ appears with the same index ($U\el{i}\cdot U\el{i}$ and $U\el{j}\cdot U\el{j}$) can be rewritten to include both by multiplying them by the identity matrix $\mathbb{I}$. Essentially, we consider $\sum_i U\el{i}\cdot U\el{i} = \text{trace}(U U\T) = \sum_{ij} (\mathbb{I} \odot UU\T)\el{ij}$.
+%
+\begin{equation*}
+    \sum_i \left(\sum_j A_1\el{ij}\right) U\el{i}\cdot U\el{i}
+    = \sum_i \left(\sum_j A_1\el{ij}\right) \sum_k \mathbb{I}\el{ik}U\el{i}\cdot U\el{k}
+    = \sum_{ij} \left(\sum_k A_1\el{ik}\right) \mathbb{I}\el{ij} U\el{i}\cdot U\el{j}
+\end{equation*}
+%
+This allows us to write
+%
+\begin{multline*}
+    \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
+    =\\
+    = \sum_{ij}
+        \left[
+            \left(\sum_k A_1\el{ik} + \sum_l A_1\el{lj}\right)
+            \mathbb{I}\el{ij}
+            - 2 A_1\el{ij} 
+        \right]
+        U\el{i}\cdot U\el{j}
+    =\\
+    = \sum L_1 \odot (UU\T)
+    %= tr ( U L U\T )
+\end{multline*}
+%
+in which we define
+%
+\begin{equation}
+    L_1\el{ij}
+    = \left(\sum_k A_1\el{ik} + \sum_l A_1\el{lj}\right)
+        \mathbb{I}\el{ij}
+        - 2 A_1\el{ij} 
+    %
+    = \left(\sum_k A_1\el{ik} + A_1\el{kj}\right)
+        \mathbb{I}\el{ij}
+        - 2 A_1\el{ij} 
+    \label{eq:laplacian}
+\end{equation}
+%
+Notice that taking $A_1\T$ instead of $A_1$ has no effect on the final result, since $\sum A_1 UU\T = \sum A_1\T UU\T$. We could then work with a symmetrized version of $A_1$ from the start:
+%
+\begin{equation*}
+    \tilde A_1 = A_1 + A_1\T
+\end{equation*}
+yielding
+%
+\begin{equation*}
+    L_1 = \left(\sum_k \tilde A_1\el{ik}\right)
+        \mathbb{I}\el{ij}
+        - \tilde A_1\el{ij} 
+\end{equation*}
+%
+We can see that the first term of $L_1$ acts in a similar way to the quadratic regularization terms presented by \autoref{eq:lmf_regularization}, multiplying the main diagonal of $UU\T$ and thus penalizing the model for latent vectors with large Euclidean norms (the diagonal of $UU\T$ holds the squared norms $U\el{i}\cdot U\el{i}$). The amount of regularization is however pondered by the weighted number of neighbors of each sample in this case: $\sum_k A_1\el{ik}$ represents the sum of similarities of $X_1\el{i}$ with all its neighbors, also called the \emph{degree} of a sample. This results in samples with larger and more compact neighborhoods being more heavily penalized for having large norms in the latent space. The second term of \autoref{eq:laplacian}, on the other hand, rewards the model for placing close neighbors colinear to each other in the latent space, summing over $S\el{ij} U\el{i}\cdot U\el{j}$ terms
+%(a metric of vector colinearity)
+between each sample and its neighbors ($A_1\el{ij}$ is $0$ if $U\el{i}$ and $U\el{j}$ are not neighbors).
+%TODO more on interpretation and properties of laplacian matrix
+
+Finally, the neighborhood regularization terms are written as
+%
+\begin{gather}
+    J_\text{1, neighborhood} = -\frac{\beta_1}{2} L_1 \odot (UU\T)\\
+    J_\text{2, neighborhood} = -\frac{\beta_2}{2} L_2 \odot (VV\T)
+\end{gather}
+%
+%
+% \begin{equation}
+%     \begin{split}
+%         \mathcal{L} &=\\
+%             &= \alpha Y \odot UV\T
+%             + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]\\
+%             &- \frac{\lambda_1}{2} U \odot U
+%             - \frac{\lambda_2}{2} V \odot V\\
+%             &- \frac{\beta_1}{2} L_1 \odot (UU\T)
+%             - \frac{\beta_2}{2} L_2 \odot (VV\T)
+%     \end{split}
+% \end{equation}
+
+Combining the matrix terms as in \autoref{eq:lmf_objective_matrices}, NRLMF's objective function is given by
+%
+\begin{equation}
+    \begin{split}
+        \mathcal{J} = &\; \sum
+                \alpha Y \odot UV\T
+                + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]\\
+            &- \sum \frac{1}{2} (\lambda_1\mathbb{I} + \beta_1 L_1) \odot (U U\T)\\
+            &- \sum \frac{1}{2} (\lambda_2\mathbb{I} + \beta_2 L_2) \odot (V V\T)
+    \end{split}
+    \label{eq:nrlmf_objective}
+\end{equation}
+%
+and the derivatives of the objective function with respect to $U$ and $V$ to be used in the gradient descent procedure are given by
+% \begin{equation}
+%     \begin{split}
+%         \mathcal{L} =
+%             \alpha Y \odot UV\T
+%             + [(1 - \alpha) Y - 1] \odot \log \left[1+\exp(UV\T)\right]
+%             - \frac{\lambda_1}{2} U \odot U
+%             - \frac{\lambda_2}{2} V \odot V
+%             - \frac{\beta_1}{2} L_1 \odot (UU\T)
+%             - \frac{\beta_2}{2} L_2 \odot (VV\T)
+%     \end{split}
+% \end{equation}
+% TODO: appendix showing d(A \odot U V\T) / dU = A V
+% TODO: appendix showing d(A \odot U V\T) / dV = A\T U
+% TODO: appendix showing d(A \odot U U\T) / dU = A U + A\T U
+\begin{gather}
+    G_U = \frac{\partial \mathcal{J}}{\partial U} =
+        \{[(1 - \alpha) Y - 1] \odot \hat Y + \alpha Y\}V
+        - (\lambda_1\mathbb{I} + \beta_1 L_1) U
+    \label{eq:nrlmf_gradient_U}
+    \\
+    G_V = \frac{\partial \mathcal{J}}{\partial V} =
+        \{[(1 - \alpha) Y - 1] \odot \hat Y + \alpha Y\}\T U
+        - (\lambda_2\mathbb{I} + \beta_2 L_2) V
+    \label{eq:nrlmf_gradient_V}
+\end{gather}
+%
+The training procedure of NRLMF is presented by \autoref{alg:nrlmf_train}, and consists of alternated updates on $U$ and $V$ in the gradient's direction until certain stop criteria are satisfied. Common choices for stopping conditions are a maximum number of iterations or a minimum change in the objective function between iterations.
+
+Since faster convergence is reported by the original authors~\cite{johnsonlogistic}, we follow previous work~\cite{johnsonlogistic,liu2016neighborhood,hao2017predicting,li2019dnilmflda} by implementing the AdaGrad procedure~\cite{duchi2011adaptive}, in which the length of each gradient step is divided by the square-root sum of squared previous steps:
+%
+\begin{equation}
+    U_{t+1} = U_t + \frac{\eta G_{U,t}}{\sqrt{\sum_{t'=0}^t G_{U,t'}^2}}
+\end{equation}
+%
+where $G_{U,t}$ is the partial derivative $\frac{\partial\mathcal{J}}{\partial U}$ of the objective function with respect to $U$ at step $t$, and $\eta$ is the user-defined learning rate. The same is done for $V$.
+
+\algNRLMFTrain
+
+The main importance of NRLMF however lies in the inference phase. As mentioned, matrix factorization methods are not designed to deal with new input samples, that are not present in the training set. Specifically, traditional matrix factorization is incapable of generating latent vectors for the unseen samples to be used for label prediction. An idea that may seem natural at first glance is to delay training to the arrival of new instances, including them in the training set with zero-only labels before performing the optimization. But even then, using an objective function based only on $Y$ as is traditionally done, no new information is brought by the new instances and adding new zeroed rows or columns to $Y$ will mainly introduce noise to the training data and likely degrade the model's predictive performance.
+
+NRLMF, however, leverages proximity information encoded by $X$ to remarkably enable determining latent feature vectors for completely new instances. The neighborhood regularization terms in the objective function now reveal their full importance: they support proximity as a transferable property between the original and the latent spaces. By encouraging that neighbors in $X_1$ and $X_2$ remain close in $U$ and $V$, we can infer latent features of new instances based on their neighborhood.
+
+Consider the test similarity matrices $S_{1\text{, test}}$ and $S_{2\text{, test}}$ respectively derived from $X_\text{1, test}$ and $X_\text{2, test}$, relating the new instances to the known training samples. For instance, $S_{1\text{, test}}\el{ij}$ represents the similarity between $X_\text{1, test}\el{i}$ and $X_\text{1, train}\el{j}$. If $A_\text{1, test}$, like before in \autoref{eq:nrlmf_A}, accordingly restricts the similarity matrix to the neighborhood of each sample,
+%
+\begin{equation}
+    A_\text{1, test}\el{ij} =
+    \begin{cases}
+        S_\text{1, test}\el{ij} & \text{if } X_\text{1, train}\el{j} \in N(X_\text{1, test}\el i)\\
+        0 & \text{otherwise}
+    \end{cases}
+    \label{eq:nrlmf_A_test}
+\end{equation}
+%
+the latent feature vector of a new instance is simply estimated as the weighted average of its neighbors' latent representations:
+% \begin{equation}
+%     U_\text{test} = A_\text{1, test} U_\text{train}
+% \end{equation}
+%
+\begin{equation}
+    U_\text{test}\el{i} = \frac{A_\text{1, test}\el{i} U_\text{train}}{\sum A_\text{1, test}\el{i}}
+\end{equation}
+%
+the analogous being held for $V$, so that new predictions are made as usual with \autoref{eq:lmf_prediction}, where $U_\text{test}$, $U_\text{train}$, $V_\text{test}$ and $V_\text{train}$ can be used in accordance with the prediction task under study (see \autoref{sec:cross_validation} for details on the different prediction scenarios):
+%
+\begin{gather}
+    \begin{aligned}
+        \hat Y_\text{TT} = \frac{\exp(U_\text{test} V_\text{test}\T)}{1 + \exp(U_\text{test} V_\text{test}\T)}&&
+        \hat Y_\text{TL} = \frac{\exp(U_\text{test} V_\text{train}\T)}{1 + \exp(U_\text{test} V_\text{train}\T)}&&
+        \hat Y_\text{LT} = \frac{\exp(U_\text{train} V_\text{test}\T)}{1 + \exp(U_\text{train} V_\text{test}\T)}
+    \end{aligned}
+\end{gather}
+
+
+%\subsection{Further developments on NRLMF}
+%\label{sec:further nrlmf}
+
 
 
 \end{apendicesenv}

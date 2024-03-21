@@ -6,9 +6,10 @@
 \chapter[Introduction]{Introduction}
 \label{sec:introduction}
 
-As the starting point, we provide a brief overview of the concepts explored along this thesis. We begin by describing the learning paradigm of interest,
-and proceed by outlining its main challenges and current approaches.
-We then present the guiding research questions of our work, and describe how the remainder of this document will be organized.
+As the starting point, we provide a brief overview of the concepts explored along this thesis. We begin by describing the learning paradigm of interest (\autoref{sec:bipartite learning}), and proceed by outlining its main challenges and current approaches (\autoref{sec:challenges} and \autoref{sec:approaches}).
+A brief discussion on the advantages of decision trees is then presented (\autoref{sec:why dt}), followed by a summary of previous literature on bipartite forests (\autoref{sec:related_work}).
+We conclude this introduction by presenting the guiding research questions of our work (\autoref{sec:research questions}).
+%, and describe how the remainder of this document will be organized.
 
 %Thus, bipartite interactions also naturally encompasses the data format targeted by the broadly-known recommender systems \cite{}.
 
@@ -100,8 +101,9 @@ We then present the guiding research questions of our work, and describe how the
 
 % TT is a highlight of our paper
 
-%\section{What is bipartite learning?}
-\section{Context and motivation}
+\section{What is \emph{bipartite learning}?}
+\label{sec:bipartite learning}
+%\section{Context and motivation}
 
 
 % the problem is common
@@ -124,25 +126,95 @@ All those scenarios share the same underlying structure: there are two distinct 
 Frequently, great importance lies in computationally describing such relationships. For instance, developing new drug molecules is a costly and time-consuming process,
 %A large portion of that cost derives from the
 requiring years of complex computer simulations, large screening assays, and extensive trials~\cite{chen2018machine,bagherian2020machine}.  % TODO: not ml citations
-Being able to predict beforehand the interactions in a large dataset of drugs and protein targets holds a remarkable potential to accelerate drug development and reduce its costs, enabling the concentration of financial resources and human expertise to a set of most promising candidates. Furthermore, being able to characterize on a large scale the relationships between microRNAs and genes or other biomolecular entities can greatly aid the understanding of regulatory mechanisms of gene expression, a valuable step towards the discovery and development of new therapies. 
+Being able to predict beforehand the interactions in a large dataset of drugs and protein targets holds a remarkable potential to accelerate drug development and reduce its costs, enabling the concentration of financial resources and human expertise to a set of most promising candidates. Furthermore, being able to characterize on a large scale the relationships between microRNAs and genes or other biomolecular entities can greatly assist the understanding of regulatory mechanisms of gene expression, a valuable step towards the discovery and development of new therapies. 
 
 % TODO why machine learning
 % TODO define bipartite learn in topics
 
-Therefore, it is natural that numerous machine learning algorithms have been proposed to predict interactions in bipartite networks~\cite{chen2018machine,bagherian2020machine}. 
-The role of a learning algorithm in this setting is to receive a feature vector describing the heterogeneous pair, and characterize their interaction through a binary label.
-Additionally, we focus on cases where the input vector can be split into two: one vector representing each interacting entity.
+Therefore, it is natural that numerous machine learning algorithms have been proposed to predict interactions in bipartite networks~\cite{chen2018machine,ezzat2019computational,bagherian2020machine}. 
+The role of a learning algorithm in this setting is to receive a feature vector describing the heterogeneous pair, and characterize their interaction through a binary label or affinity score.
+We focus on cases where the input vector can be split into two: one vector representing each interacting entity.
 %The role of a learning algorithm in this setting is to receive a feature vector describing the heterogeneous pair, and characterize their interaction through, namely, a binary label, affinity score or predicted user-item rating. Additionally, we focus on cases where the input vector can be split into two: one vector representing each interacting entity.
 %often composed of independent representations of each interacting entity,
 %
+More specifically, our setting is characterized by:
+%
+\begin{enumerate}
+    \item \textbf{Interaction prediction:}
+        The goal is to infer interactions that occur each between two objects (called a \emph{dyad}).
+    \item \textbf{Heterogeneus dyads:}
+        Each dyad is composed of objects of different types.
+    \item \textbf{Bipartite network:}
+        There are two types of objects.
+    \item \textbf{Available side-features:}
+        Each object has its own feature vector that is not derived from its set of known outputs.
+\end{enumerate}
 
-Despite their importance, interaction prediction problems pose unique challenges to machine learning approaches, that we enumerate below.
+Several similar concepts have emerged when referring to learning tasks that aim to describe relationships.
+%
+%link prediction~\cite{lu2011link,zhou2021progresses}
+%    non-bipartite
+%    usualy assumes hidden node-attributes~\cite{lu2011link}
+%    transductive~\cite{chapelle2006semisupervised}: predicting links between known nodes~\cite{lu2011link,zhou2021progresses}
+%
+\emph{Link prediction}~\cite{lu2011link,zhou2021progresses} refers to the task of predicting the existence of connections between two nodes in a network. Usually, is assumes that node attributes are unavailable, being concerned with recovering attributes from the network structure~\cite{lu2011link}. Furthermore, the output is usually binary (or probabilistic), indicating the presence or absence of a link~\cite{lu2011link}.
+%
+%The task is usually transductive, so that all nodes are present in the training set and only the links between them are to be predicted.
+%evaluation in the context of link prediction is usually 
+%
+%It is also not concerned with bipartite networks specifically, and assumes all the nodes are of the same type and can interact with each other.
+%
+%dyadic prediction
+%    non-bipartite
+%    side-features sometimes
+%    transductive
+%    not necessarily binary
+%
+\emph{Dyadic prediction}~\cite{menon2010loglinear,pahikkala2014twostep,jin2017multitask} is a broader category of tasks involving predicting relationships between two objects. The availability of side-features is considered, but not required~\cite{menon2010loglinear}, and possible outputs encompass both classification and regression~\cite{menon2010loglinear}. The presence of two separate domains is sometimes assumed~\cite{menon2010loglinear,pahikkala2014twostep}, but there are also cases in which the network is homogeneous~\cite{jin2017multitask}. 
+%
+%% recommendation systems
+%% collaborative filtering  % TODO
+%interaction prediction
+%    features
+%    non-bipartite
+%
+\emph{Interaction prediction} is a term often used in the context of biological networks~\cite{schrynemackers2015classifying,pliakos2019network,chen2018machine,bagherian2020machine}. As such, it usually assumes the presence of side-features.
+%
+The output can be either a binary indicator or real values such as drug-target affinities~\cite{pahikkala2015more}.
+
+None of these terms are specific to bipartite networks. They include cases in which a single type of entity composes the network, and thus a single feature matrix is sufficient to describe all the nodes.
+Furthermore, it is common for these contexts to assume \emph{transductive}~\cite{chapelle2006semisupervised} approaches. In such cases, the attributes of all nodes are available for training, and only the set of links is split between training and validation sets~\cite{lu2011link,zhou2021progresses}. As a result, the models are not guaranteed to be able to predict interactions between unseen instances.
+
+In this study, we are mostly concerned with the bipartite scenario, where two distinct sets of entities interact with each other and each set has its own feature matrix.
+We are also interested in \emph{inductive}~\cite{chapelle2006semisupervised} techniques, in which the main goal is to model a function from the node feature space to the output space. This property allows us to predict interactions between new instances that were not present in the training set, while also enabling transparent models to provide new insights about the underlying phenomena.
+
+If feature vectors are not available for both interacting entities, the problem becomes essentially a multi-output supervised task or a transductive dyadic prediction problem.
+For that reason, we require side-features to be available for both axes.
+
+Possible denominations for the current setting include \emph{inductive heterogeneous dyadic prediction} and \emph{inductive bipartite interaction learning}. For simplicity, we refer to this paradigm as \emph{bipartite learning}.
+
+%The symmetry of homogeneous networks can be exploited to enhance our trees
+
+%transductive
+
+%, and involves both inductive and transductive approaches.
+
+
+%inductive
+%heterogeneous dyadic prediction
+%bipartite interaction prediction
+
+
+\section{Challenges of bipartite learning problems}
+\label{sec:challenges}
+
+Despite their importance, bipartite interaction prediction problems pose unique challenges to machine learning approaches, that we enumerate below.
 %Despite their importance, interaction prediction problems pose unique challenges to machine learning approaches, that we enumerate below.
 %
 \begin{enumerate}
     \item \textbf{Heterogeneous data:} The input data is often composed of two very dissimilar types of objects, each with its own set of features. As a result, estimators may be required to simultaneously deal with descriptors of very different natures~\cite{bagherian2020machine}.  %TODO cite more
     % Namely, in the drug-target interaction prediction problem, the drug domain is composed of chemical compounds, while the target domain is composed of proteins. Each of those domains has its own set of features, such as the chemical structure of the drug or the amino acid sequence of the protein. The features of each domain are usually of a different nature, and therefore require different types of processing. For instance, the chemical structure of a drug can be represented as a graph, while the amino acid sequence of a protein is a string of characters.
-    \item \textbf{High dimensionality:} Due to the intrinsic combinatory nature of this type of problem, the interactions to be processed are usually very numerous, even if the number of training instances in each domain is not that expressive.  %TODO cite
+    \item \textbf{Large datasets:} Due to the intrinsic combinatory nature of this type of problem, the interactions to be processed are usually very numerous, even if the number of training instances in each domain is not that expressive.  %TODO cite
     Specifically, for each new object introduced to the training set, a new interaction could be considered for each training sample in the other domain, rendering the number of interactions to grow quadratically with the number of entities of each type.
     \item \textbf{Knowledge sparsity:} As a consequence of the previous point, no amount of research efforts in characterizing new interactions can keep up with the rate at which possible relationships appear, resulting in a fundamental sparsity of confidently verified interactions~\cite{bagherian2020machine}. % TODO cite more
     \item \textbf{Lack of validated negative annotations:} In many cases, the absence of a relationship between two objects is much harder to validate than its presence. For instance, negative results in biochemical essays asserting molecular interactions can often be caused by a plethora of external experimental factors other than the actual lack of interaction under optimal conditions, unlike positive results that usually imply a successful assay~\cite{pahikkala2015more,chen2018machine,bagherian2020machine}.
@@ -161,7 +233,7 @@ Despite their importance, interaction prediction problems pose unique challenges
 \end{enumerate}
 
 %Those issues can be obfuscated or even amplified if one fails to acknowledge defining aspects of the interaction prediction problem.
-These issues are an integral part of interaction prediction problems,
+Most of these issues are an integral part of interaction prediction problems,
 %arising from their fundamental definition.
 that arise from how they are fundamentally defined around combinations of objects.
 %
@@ -191,7 +263,8 @@ In conclusion, acknowledging such defining aspects and incorporating the biparti
 %As an abuse of terminology, we thus refer to this "heterogeneous bipartite interaction prediction" paradigm as \emph{bipartite learning}.
 
 
-\subsection{How to build bipartite models}
+\section{How can bipartite models be built?}
+\label{sec:approaches}
 
 There are two general strategies for developing machine learning algorithms for bipartite interaction prediction. We call them \emph{data-centric} and \emph{estimator-centric} approaches.
 %
@@ -263,7 +336,8 @@ Other methods adapt the learning algorithm itself to take full advantage of the 
 This work will focus on decision trees. We explore how tree-based algorithms can be adapted to the bipartite learning paradigm, and how they can be tailored to address the challenges imposed by our learning setup.
 
 
-\subsection{Why decision trees?}
+\section{Why decision trees?}
+\label{sec:why dt}
 %\subsection{Why forest estimators are the \textit{bestimators}}
 
 Decision trees are a very interesting option to explore. They show remarkable interpretability, flexibility to different tasks, and straightforward usage, besides demonstrating remarkable predictive power when combined into ensembles~\cite{breiman2001random,chen2016xgboost,zhou2019deep,grinsztajn2022why}.  % TODO cite more
@@ -383,6 +457,7 @@ The present work will explore current open questions regarding bipartite forests
 
 \end{enumerate}
 
-\section{Organization}
-
-EESCREVER %TODO
+%\section{Organization}
+%\label{sec:organization}
+%
+%We begin by describing the mathematical notation employed throughout this work (\autoref{sec:notation}), and by formally defining the learning problem at hand (\autoref{sec:problem_statement}). We then present the 

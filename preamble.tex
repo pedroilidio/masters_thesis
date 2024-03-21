@@ -4,7 +4,13 @@
 %\usepackage{hyperref}  % not needed
 \usepackage{subcaption}
 \usepackage{layouts}
-\usepackage{mdframed}
+\usepackage[framemethod=TikZ]{mdframed}
+\mdfsetup{  % Pretty frame titles config
+    frametitle={\colorbox{white}{\space#1\space}},
+    innertopmargin=10pt,
+    %frametitleaboveskip=-\ht\strutbox,
+    %frametitlealignment=\center
+}
 %\usepackage{biblatex}
 %\usepackage{natbib}
 %\usepackage{algorithm2e}
@@ -17,12 +23,17 @@
 
 \newcommand{\ihat}{\hat\imath}
 \newcommand{\jhat}{\hat\jmath}
+
 \newcommand{\el}[1]{^{[#1]}}
 \newcommand{\mel}[1]{^{\langle #1 \rangle}}
 \newcommand{\ang}[1]{\langle#1\rangle}
 \newcommand{\concat}{+\!\!\!+}
 \newcommand{\avg}[1]{\left\langle#1\right\rangle}
 \newcommand{\T}{^\intercal}
+
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\y}{\mathbf{y}}
+
 \addto\extrasenglish{
     \renewcommand{\sectionautorefname}{Section}
     \renewcommand{\functionautorefname}{Function}

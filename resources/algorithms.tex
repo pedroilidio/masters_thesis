@@ -50,7 +50,7 @@
 % \end{function}}
 
 \newcommand{\algFindBestSplit}{
-\begin{function}[htb]
+\begin{function}[tb]
     \KwIn{A partition of the training data in a given node.}
     \KwOut{The highest quality score $\Delta I^*$ found among all splits evaluated,
         with its corresponding feature column $f^*$ and threshold value $t^*$.}
@@ -69,10 +69,10 @@
     % $t^* \gets 0$ \tcp*{best split's threshold}
     $\Delta I^*$, $f^*$, $t^* \gets \mathbf {0}$\;
     \BlankLine
-    Draw $\tilde n_f$ columns (features) of $X$ without replacement\;
+    Draw $\tilde m$ columns (features) of $X$ without replacement\;
     \BlankLine
     
-    \ForEach {feature index $f$ of the $\tilde n_f$ drawn features}{
+    \ForEach {feature index $f$ of the $\tilde m$ drawn features}{
         $n_l \gets 0$\tcp*{Holds $|Y_l|_i$}
         %\tcp{$S_r$ (resp. $S_l$) will store sums for each $Y_r$ ($Y_l$) column}
         $S_r \gets \sum_i Y\el{i\jhat}$\tcp*{Holds $\sum_i Y_r\el{i\jhat}$} \label{algline:gmo_loop1}
@@ -122,7 +122,7 @@
 
 
 \newcommand{\algFindRandomSplit}{
-\begin{function}[htb]
+\begin{function}[tb]
     \KwIn{A partition of the training data in a given node.}
     \KwOut{The highest quality score $\Delta I^*$ found among all splits evaluated,
         with its corresponding feature column $f^*$ and threshold value $t^*$.}
@@ -135,10 +135,10 @@
     % $t^* \gets 0$ \tcp*{best split's threshold}
     $\Delta I^*$, $f^*$, $t^* \gets \mathbf {0}$\;
     \BlankLine
-    Draw $\tilde n_f$ columns (features) of $X$ without replacement\;
+    Draw $\tilde m$ columns (features) of $X$ without replacement\;
     \BlankLine
     
-    \ForEach {feature index $f$ of the $\tilde n_f$ drawn features}{
+    \ForEach {feature index $f$ of the $\tilde m$ drawn features}{
         Find \min{$X\el{\cdot f}$} and \max{$X\el{\cdot f}$}\;
         Draw a random threshold value $t\in \mathbb{R}$ so that
             \min{$X\el{\cdot f}$}$ < t < $\max{$X\el{\cdot f}$}\;
@@ -161,13 +161,13 @@
 
 
 \newcommand{\algBuildTree}{
-\begin{function}[htb]
+\begin{function}[tb]
     \SetKwFunction{BuildTree}{BuildTree}
     \SetKwFunction{DecideToStop}{DecideToStop}
     \KwIn{The training data for the current node.}
     \KwOut{Current node, with all information of subsequent splits.}
     
-    $\Delta I^*$, $f^*$, $t^*\gets$ \FindSplit($X$, $Y$, $\tilde n_f$)\;
+    $\Delta I^*$, $f^*$, $t^*\gets$ \FindSplit($X$, $Y$, $\tilde m$)\;
     \BlankLine
     \tcp{Many stopping criteria are possible}  % refer to discussion
     \eIf{\DecideToStop{$\Delta I^*$, $f^*$, $t^*$, $X$, $Y$}}{
@@ -187,20 +187,20 @@
             threshold $\gets$ $t^*$\\
         }
     }
-    \caption{BuildTree($X$, $Y$): Recursively build a Decision Tree}%, $\tilde n_f$)}
+    \caption{BuildTree($X$, $Y$): Recursively build a Decision Tree}%, $\tilde m$)}
     \label{alg:buildtree}
 \end{function}}
 
 
 \newcommand{\algPredict}{
-\begin{function}[htb]
+\begin{function}[tb]
 \KwIn{A new interaction sample to be evaluated and the root node of a Decision Tree.}
 \KwOut{The Decision Tree's predicted value for the given sample attributes.}
 
 Node $\gets$ RootNode\;
 \BlankLine
 \While{Node is not a leaf}{
-    \eIf{$x\el{\text{Node.feature}}>$ Node.threshold}{
+    \eIf{$\x_\text{new}\el{\text{Node.feature}}>$ Node.threshold}{
         Node $\gets$ Node.childRight
     }{
         Node $\gets$ Node.childLeft
@@ -208,13 +208,13 @@ Node $\gets$ RootNode\;
 }
 \BlankLine
 \Return \KwPrototype{Node.X, Node.Y}\label{ln:prototype}
-\caption{Predict(RootNode, $x$): Compute a Decision Tree's prediction.}
+\caption{Predict(RootNode, $\x_\text{new}$): Compute a Decision Tree's prediction.}
 \label{alg:predict}
 \end{function}}
 
 
 \newcommand{\algFindBipartiteSplit}{
-\begin{function}[htb]
+\begin{function}[tb]
     \KwIn{A partition of the bipartite training data in a given node.
         $X$ encodes one design matrix for each axis, $X_1$ and $X_2$.}
     \KwOut{The highest quality score $\Delta I^*$ found among all splits evaluated
@@ -255,7 +255,7 @@ Node $\gets$ RootNode\;
 \end{function}}
 
 \newcommand{\algSplitDataset}{
-\begin{procedure}[htb]
+\begin{procedure}[tb]
 $Y_l \gets Y\el{1..\ihat, 1..n_{s2}}$\;
 $Y_r \gets Y\el{\hat i..n_{s1}, 1..n_{s2}}$\;
 $X_l \gets X\el{1..\ihat,\;\cdots}$\;
@@ -267,7 +267,7 @@ $X_r \gets X\el{\hat i..n_{s1}, 1..n_{s2}}$\;
 
 
 \newcommand{\algForest}{
-\begin{procedure}[htb]
+\begin{procedure}[tb]
 
 % TODO \tilde is already Y proxies
 Build $\tilde n_s$ bootstrap samples $\tilde X$, $\tilde Y$ from the original data.
@@ -281,7 +281,7 @@ Grow
 
 
 \newcommand{\algTrainLocalModel}{
-\begin{function}[htb]
+\begin{function}[tb]
     \KwIn{The bipartite training dataset.}
     \KwOut{A bipartite local model.}
     \BlankLine
@@ -300,7 +300,7 @@ Grow
 
 
 \newcommand{\algPredictLocalModel}{
-\begin{function*}[htb]
+\begin{function*}[tb]
     \KwIn{
         The trained primary models and the unseen sample matrices $X_\text{new}$ for both axes.
     }
@@ -310,12 +310,12 @@ Grow
     \BlankLine
     
     %\tcp{Use the primary rows estimator to predict new label rows from $X_1$}
-    $Y_\text{new rows} \gets$ \predict{\primaryRows, $X_{1\text{new}}$}
+    $Y_\text{new rows} \gets$ \predict{\primaryRows, $X_\text{1, new}$}
     
     \BlankLine
     \BlankLine
     %\tcp{Use the primary columns estimator to predict new label columns from $X_2$}
-    $Y_\text{new cols} \gets$ \predict{\primaryColumns, $X_{2\text{new}}$}
+    $Y_\text{new cols} \gets$ \predict{\primaryColumns, $X_\text{2, new}$}
     \BlankLine
     \BlankLine
     
@@ -333,21 +333,21 @@ Grow
     }
     \BlankLine
     \BlankLine
-    %\tcp{Train the secondary columns estimator on $X_{2\text{new}}$ and $Y_\text{new rows}^\intercal$}
+    %\tcp{Train the secondary columns estimator on $X_\text{2, new}$ and $Y_\text{new rows}^\intercal$}
     \train{\secondaryRows, $X_1$, $Y_\text{new cols}^\intercal$}\;
     \train{\secondaryColumns, $X_2$, $Y_\text{new rows}^\intercal$}\;
     \BlankLine
     \BlankLine
-    $Y_\text{pred rows}\gets$ \predict{\secondaryRows, $X_{1\text{new}}$}\;
-    $Y_\text{pred cols}\gets$ \predict{\secondaryColumns, $X_{2\text{new}}$}\;
-    %\tcp{Train the secondary rows estimator on $X_{1\text{new}}$ and $Y_\text{new cols}$}
+    $Y_\text{pred rows}\gets$ \predict{\secondaryRows, $X_\text{1, new}$}\;
+    $Y_\text{pred cols}\gets$ \predict{\secondaryColumns, $X_\text{2, new}$}\;
+    %\tcp{Train the secondary rows estimator on $X_\text{1, new}$ and $Y_\text{new cols}$}
     
     \BlankLine
     \BlankLine
     \If{Secondary estimators consider label dependencies}{
-        \tcp{Skip predictions not referring to $X_{1\text{new}}$ and $X_{2\text{new}}$}
-        $Y_\text{pred rows}\gets Y_\text{pred rows}\el{\cdot j> |X_1|_i}$\;
-        $Y_\text{pred cols}\gets Y_\text{pred cols}\el{\cdot j> |X_2|_i}$\;
+        \tcp{Skip predictions not referring to $X_\text{1, new}$ and $X_\text{2, new}$}
+        $Y_\text{pred rows}\gets Y_\text{pred rows}\el{\cdot \; (j\; >\; n_1)}$\;
+        $Y_\text{pred cols}\gets Y_\text{pred cols}\el{\cdot \; (j\; >\; n_2)}$\;
     }
     
     \BlankLine
