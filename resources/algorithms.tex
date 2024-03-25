@@ -213,6 +213,31 @@ Node $\gets$ RootNode\;
 \end{function}}
 
 
+\newcommand{\algBipartiteTreePredict}{
+    \begin{function}[tb]
+    \KwIn{A new dyad and the root node of a Bipartite Decision Tree.}
+    \KwOut{The tree's predicted value for the given feature vectors.}
+
+    Node $\gets$ RootNode\;
+    \BlankLine
+    \While{Node is not a leaf}{
+        %$\x_\text{new} \gets \x_\text{1, new}\text{ if Node.axis}=1$ else $\x_\text{2, new}$\;
+        \lIf{$\text{Node.axis}=1$}{$\x_\text{new} \gets \x_\text{1, new}$}
+        \lElse{$\x_\text{new} \gets \x_\text{2, new}$}
+        \BlankLine
+        \lIf{$\x_\text{new}\el{\text{Node.feature}}>$ Node.threshold}{
+            Node $\gets$ Node.childRight
+        }
+        \lElse{Node $\gets$ Node.childLeft}
+    }
+    \BlankLine
+    \Return \prototype($\x_\text{1, new}$, $\x_\text{2, new}$, Node.$Y$)\label{ln:prototype bipartite}
+    \caption{BipartiteTreePredict(RootNode, $\x_\text{1, new}$, $\x_\text{2, new}$)} %: Compute a Decision Tree's prediction.}
+    \label{alg:bipartite tree predict}
+\end{function}
+}
+
+
 \newcommand{\algFindBipartiteSplit}{
 \begin{function}[tb]
     \KwIn{A partition of the bipartite training data in a given node.

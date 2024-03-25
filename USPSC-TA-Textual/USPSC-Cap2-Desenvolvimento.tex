@@ -260,9 +260,9 @@ Furthermore, to be consistent with \cite{schrynemackers2015classifying,pliakos20
 %TODO another term for multi-output, please. This is too confusing with multi-output in the traditional sense. bipartite multi-output are local models that use multi-output traditional estimators? or 3D interaction matrices with multiple labels for each interaciton?
 Notice that the label matrix $Y$ can still be represented in two dimensions even if the model is single-output in this sense, contrary to the usual case where bidimensionality of $Y$ is a defining characteristic of a multi-output problem.
 
-Finally, the two most common ways of adapting traditional estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \citeonline{schrynemackers2015classifying}. We further denote them \emph{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
+Finally, the two most common ways of adapting traditional estimators to bipartite data are then named \emph{global single-output} and \emph{local multi-output}, as proposed by \citeonline{schrynemackers2015classifying}. We further denote them \emph{standard}, to clearly distinguish them from new adaptation proposals that could be described as LMO or GSO, but work in an entirely different way.
 %
-Specific definitions and shortcomings of these procedures are now presented.
+Specific definitions and shortcomings of the SGSO and SLMO procedures are now presented.
 
 
 \subsection{The standard global single-output adaptation}
@@ -431,6 +431,12 @@ In this context, each bifurcation then represents a tree \emph{node}, and the fi
 %is what results in the well-known transparency of decision trees, an attractive characteristic in fields such as drug discovery or regulatory network inference, where insights into the underlying processes are greatly valued.
 
 %The described binary-tree structure is by far the most utilized~\cite{}, being ubiquitous to all tree-based estimators in the present study.
+\begin{figure}
+    \centering
+    \includegraphics[width=.5\textwidth]{figures/decision_tree.pdf}
+    \caption{A decision tree model. A new sample $\x$ traverses the tree structure from the root node to a leaf, where a final decision is made. Each bifurcation represents a decision rule in the format $\x\el{f} > t$. The validity of the rule determines if the sample should follow the left or right path.}
+    \label{fig:dt}
+\end{figure}
 
 The main challenge, however, lies in the building process of such models: in how to determine the rules that define each fork and how we define the stopping criteria for a final decision to be yielded.
 
@@ -987,7 +993,12 @@ The resulting complexities are presented by \autoref{tab:O_comparison}. We see t
 \subsection{Prototype functions for bipartite trees}
 \label{sec:prototype}
 
-When a leaf is reached during the prediction step of a decision tree, the \KwPrototype function is called to determine the output value to be returned (\autoref{ln:prototype} of \autoref{alg:predict}).
+In this work we propose a different prototyping strategy to determine the output value of each leaf in a global multi-output (GMO) decision tree, taking the similarity matrices of our use cases into consideration.
+
+When a leaf is reached during the prediction step of a decision tree, the \KwPrototype function is called to determine the output value to be returned (\autoref{ln:prototype bipartite} of \autoref{alg:bipartite tree predict}).
+
+\algBipartiteTreePredict
+
 With traditional datasets, the \KwPrototype function
 %of traditional decision trees
 most often returns the average label of the leaf's partition (\autoref{eq:prototype1})~\cite{breiman1984classification}.
@@ -1000,17 +1011,23 @@ most often returns the average label of the leaf's partition (\autoref{eq:protot
 
 As an extension, the most natural approach to use on single-output bipartite trees is the analogous average of the whole partition of the interaction matrix (\autoref{eq:prototype_gso}).
 %
+%
+%As an extension, the most natural approach to use on single-output bipartite trees is the analogous average of the whole partition of the interaction matrix (\autoref{eq:prototype_gso}).
+%
 \begin{equation}
-    \KwPrototype{Y\textsubscript{leaf}}
+    \prototype_\texttt{GMOsa}(\x_\text{1, new}, \x_\text{2, new}, Y\textsubscript{leaf})
         = Y_\text{SGSO, leaf}^{\ang{i}[1]}
         = Y_\text{leaf}^{\ang{ij}}
     \label{eq:prototype_gso}
 \end{equation}
-
-Nevertheless, some considerations are possible when dealing with bipartite data, since there are cases in which one of the entities of the interaction being predicted is already known from the training set. As introduced by \citeonline{pliakos2018global}, if a row or column instance is in the training set, we have the option of averaging only the column or row (respectively) of $Y_\text{leaf}$ corresponding to its known outputs. Specifically, when predicting the interaction between a sample pair $x_{1\text{, new}}$ and $x_{2\text{, new}}$, we can set \KwPrototype as in \autoref{eq:prototype2}.
+%
+$X_\text{1, leaf}$, $X_\text{2, leaf}$ and $Y_\text{leaf}$ represent the partition of the training set that reaches the leaf.
+%
+Nevertheless, some considerations are possible when dealing with bipartite data, since there are cases in which one of the entities of the interaction being predicted is already known from the training set. As introduced by \cite{pliakos2018global}, if a row instance is in the training set, we have the option of averaging only the column of $Y_\text{leaf}$ corresponding to its known outputs (the analogous being performed for a known column instance). Specifically, when predicting the interaction between a sample pair $\x_{1\text{, new}}$ and $\x_{2\text{, new}}$, we can set \prototype{} as in \autoref{eq:prototype2} (the arguments are omitted).
 \begin{equation}
-    \KwPrototype{$Y_\text{leaf}$} =
-    \begin{cases}
+    %\prototype_\texttt{uniform}(\x_\text{1, new}, \x_\text{2, new}, Y\textsubscript{leaf})
+    \prototype_\texttt{uniform}(\cdot)
+    = \begin{cases}
         Y_\text{leaf}^{[k]\ang{j}} & \text{ if }
             \exists \; k \mid \x_{1\text{, new}} = X_{1\text{, leaf}}\el{k}\\
         Y_\text{leaf}^{\ang{i}[k]} & \text{ if }
@@ -1019,34 +1036,14 @@ Nevertheless, some considerations are possible when dealing with bipartite data,
     \end{cases}
     \label{eq:prototype2}
 \end{equation}
-
-A drawback of this approach, especially when working with very imbalanced interaction matrices and sufficiently small leaf partitions, is a possibly greater susceptibility to random fluctuations, since the label averages in the prediction step are taken over a much smaller sample size (a single row or column of $Y_\text{leaf}$ instead of the whole $Y_\text{leaf}$). 
+%especially when working with very imbalanced interaction matrices and sufficiently small leaf partitions,
+A drawback of this approach is a possibly greater susceptibility to random fluctuations, since the label averages in the prediction step are taken over a much smaller sample size (a single row or column of $Y_\text{leaf}$ instead of the whole $Y_\text{leaf}$). 
 %Given we are working with similarity scores as sample attributes, we propose an intermediate approach: to weight the rows and columns of $Y_\text{leaf}$ by the similarity values in the form $w_{s1}\el i = \text{similarity}(\x_1\el i, \, X_1\el{i})$ between $\x_\text{new}$ and the training samples in the leaf node (\autoref{eq:prototype3}).
 Given we are working with similarity scores, we propose an intermediate approach. We weight the rows and columns of $Y_\text{leaf}$ by similarity values in the form $\mathbf{s}_a\el i = \text{similarity}(\x_{a,\;\text{new}}, \, X_a\el{i})$ between $\x_\text{new}$ and the training samples (\autoref{eq:prototype3}).
-% \begin{multline}
-%     \KwPrototype{Y\textsubscript{leaf}} =\\
-%     =\frac{
-%         \sum_{i\in \text{leaf}}
-%             s(x_1\el i, X_1\el{i\cdot})
-%             Y_\text{leaf}^{[i]\ang j}
-%     }{
-%         2\sum_{i\in \text{leaf}}
-%             s(x_1\el i, X_1\el{i\cdot})
-%     }
-%     +
-%     \frac{
-%         \sum_{j\in \text{leaf}}
-%             s(x_2\el j, X_j\el{j\cdot})
-%             Y_\text{leaf}^{\ang i[j]}
-%     }{
-%         2\sum_{j\in \text{leaf}}
-%             s(x_2\el j, X_2\el{j\cdot})
-%     }
-%     \label{eq:prototype3}
-% \end{multline}
 
 \begin{equation}
-    \KwPrototype{Y\textsubscript{leaf}}
+    %\prototype_\texttt{weighted}(\x_\text{1, new}, \x_\text{2, new}, Y\textsubscript{leaf})
+    \prototype_\texttt{weighted}(\cdot)
     = \frac{
         \sum_{i\in \text{leaf}}
             \mathbf{s}_1\el i
@@ -1067,15 +1064,19 @@ Given we are working with similarity scores, we propose an intermediate approach
     \label{eq:prototype3}
 \end{equation}
 
-
-Since we are dealing with precomputed pairwise similarities, $X_1$ and $X_2$ are square matrices in which $X_a\el{i_1i_2} = \text{similarity}(X_a\el{i_1},\, X_a \el{i_2})$. Therefore, $\x_{a,\;\text{new}}$ already represents a similarity vector $\mathbf{s}_a$. We explore this property in three different ways:
+Furthermore, the similarities we are dealing with are precomputed: $X_1$ and $X_2$ are square matrices in which $X_a\el{i_1i_2} = \text{similarity}(X_a\el{i_1},\, X_a \el{i_2})$. Therefore, $\x_{a,\;\text{new}}$ already represents a similarity vector $\mathbf{s}_a$. We explore this property in three different ways, termed \texttt{precomputed}, \texttt{square}, and \texttt{softmax}:
+\begin{align}
+   \mathbf{s}_{a,\texttt{precomputed}} = \x_{a,\;\text{new}} &&
+   \mathbf{s}_{a,\texttt{square}}\el i = (\x_{a,\;\text{new}}\el{i})^2 &&
+   \mathbf{s}_{a,\texttt{softmax}}\el i = \exp(\x_{a,\;\text{new}}\el i)
+\end{align}
 %
-% So satisfying the alignment of the lines below:
-\begin{enumerate}
-    \item \textbf{Precomputed:} $\mathbf{s}_a = \x_{a,\;\text{new}}$
-    \item \textbf{Square:} $\mathbf{s}_a = \x_{a,\;\text{new}}^2$
-    \item \textbf{Softmax:} $\mathbf{s}_a\el i = \exp(\x_{a,\;\text{new}}\el i)$
-\end{enumerate}
+%\begin{enumerate}
+%    \item \textbf{Precomputed:} $\mathbf{s}_a = \x_{a,\;\text{new}}$
+%    \item \textbf{Square:} $\mathbf{s}_a = \x_{a,\;\text{new}}^2$
+%    \item \textbf{Softmax:} $\mathbf{s}_a\el i = \exp(\x_{a,\;\text{new}}\el i)$
+%\end{enumerate}
+%
 %
 The first case uses the similarity scores directly. The second case employs the square of the similarity scores to emphasize the importance of the most similar samples. The third case amplifies even further this effect by using the exponential of the similarity scores.
 Experimental comparisons between these three prototype functions are presented in \autoref{sec:prototype_comparison}.
@@ -1090,46 +1091,6 @@ Experimental comparisons between these three prototype functions are presented i
    \end{itemize}
 \end{mdframed}
 
-% If the input values consist of precomputed pairwise similarities so that $X_1$ and $X_2$ are square matrices in which $X_a\el{i_1i_2} = s(X_a\el{i_1\cdot},\; X_a\el{i_2\cdot})$, \autoref{eq:prototype3} reduces to \autoref{eq:prototype4}.
-% \begin{multline}
-%     \KwPrototype{Y\textsubscript{leaf}} =\\
-%     =\frac{
-%         \sum_{i\in \text{leaf}}
-%             x_1\el i
-%             Y_\text{leaf}^{[i]\ang j}
-%     }{
-%         2\sum_{i\in \text{leaf}}
-%             x_1\el i
-%     }
-%     +
-%     \frac{
-%         \sum_{j\in \text{leaf}}
-%             x_2\el j
-%             Y_\text{leaf}^{\ang i[j]}
-%     }{
-%         2\sum_{j\in \text{leaf}}
-%             x_2\el j
-%     }
-%     \label{eq:prototype4}
-% \end{multline}
-
-%---------------------------------------
-
-%When the traditional global adaptation $Y_\text{SGSO}$ is utilized (see Section \ref{sec:definitions}), a global version of $I_\text{MSE}(\cdot)$ can be used to achieve the same result in the corresponding bipartite partition $Y$.
-%%
-%\begin{multline*}
-%        I_\text{MSE}(Y_\text{SGSO})
-%            = Y_\text{SGSO}^2\mel{ij} - Y_\text{SGSO}\mel i^2\mel j
-%            = (Y_\text{SGSO}^\intercal)^2\mel i - (Y_\text{SGSO}^\intercal)\mel i^2 =\\
-%            = Y^2\mel{ij} - Y\mel{ij}^2
-%\end{multline*}
-%so that we can define $I_\text{GMSE}$ as in \autoref{eq:gso_mse}.
-%\begin{equation}
-%    I_\text{GMSE}(Y) \equiv I_\text{MSE}(Y_\text{SGSO})
-%    = Y^2\mel{ij} - Y\mel{ij}^2
-%    \label{eq:gso_mse}
-%\end{equation}
-%
 %%and therefore the sorting procedure to search for split thresholds can be applied to the bipartite feature matrices $X_1$ and $X_2$ instead of $X_\text{SGSO}$, naturally avoiding the redundant values generated by \ref{eq:gsodata} but still generating the exatc same tree structure.
 %
 %%Since the sorting procedure itself often is the most computationally expensive step in decision tree growing, avoiding iteration through these repetitions drastically improves time and memory usage during training (see \ref{sec:complexity_analysis}).
@@ -2833,25 +2794,25 @@ We also argue that AUROC could be preferable for comparing models under the PU a
 
         \item The empirical results match the theoretical expectations from \autoref{sec:complexity_analysis}.
         
-        \item The difference in complexity between GMO and GSO is less pronounced for the Extra-Trees, but the GSO models still present significantly lower complexity than the GMO models.
+        \item The difference in complexity between GMO and BGSO is less pronounced for the Extra-Trees, but the BGSO models still present significantly lower complexity than the GMO models.
     \end{itemize}
 \end{mdframed}
 
 This experiment empirically measures the training time complexity of the tree models under study. We artificially generate a series of bipartite datasets by filling three $n$ by $n$ matrices with pseudo-random values, representing the two $X$ matrices and the $Y$ matrix on each interaction. Values were taken uniformly from the interval $[0, 1]$ for the feature matrices and from the interval $[0, 100]$ for the target matrix.
 %We thus represent interactions between $n$ drugs and $n$ proteins, each being described by $n$ features.
 
-We then train the GMO and the optimized GSO versions of a single bipartite decision tree (BDT) and a single bipartite Extra-Tree (BXT) on each of the generated datasets, measuring their training duration in seconds. The results are shown in \autoref{fig:empirical_complexity}. From the least squares linear regression on the log-log plot, we see that the estimated training time complexities closely follow the theoretical expectations developed under Section \ref{sec:complexity_analysis}, with slopes referring to the GSO models (predicted to be $O(n^3)$) approaching 3 while the GMO models (predicted to be $O(n^3\log(n))$) produce slope between 3 and 4.
+We then train the GMO and the BGSO versions of a single bipartite decision tree (BDT) and a single bipartite Extra-Tree (BXT) on each of the generated datasets, measuring their training duration in seconds. The results are shown in \autoref{fig:empirical_complexity}. From the least squares linear regression on the log-log plot, we see that the estimated training time complexities closely follow the theoretical expectations developed under Section \ref{sec:complexity_analysis}, with slopes referring to the BGSO models (predicted to be $O(n^3)$) approaching 3 while the GMO models (predicted to be $O(n^3\log(n))$) produce slope between 3 and 4.
 
-Statistical testing further shows that the empirical time complexity of the proposed GSO algorithms are indeed significantly lower than that of their GMO counterparts (see the caption for \autoref{fig:empirical_complexity}).
+Statistical testing further shows that the empirical time complexity of the proposed BGSO algorithms are indeed significantly lower than that of their GMO counterparts (see the caption for \autoref{fig:empirical_complexity}).
 
 % The value slighly above 3 for bdt\_gso also do not defy expectations, since the theoretical analises were based on the assumption of balanced trees and a small increase in tree depth is expected in real scenarios.
 
-We also notice slightly lower slopes for the Extra-Trees in comparison with the BDTs. In fact, they seem to be closer to the theoretical expectations for the GSO models. This is expected,
+We also notice slightly lower slopes for the Extra-Trees in comparison with the BDTs. In fact, they seem to be closer to the theoretical expectations for the BGSO models. This is expected,
 since the randomized split search performs far less operations than the exhaustive search (\autoref{sec:split search}). Notwithstanding, both algorithms have the same order of complexity.
 %since the bottleneck calculation for these models in the asymptotic regime is the search for the minimum and maximum values of each feature in each node (lines \ref{}), which can be done much faster than the search for the best split employed by the greedy decision trees (\autoref{alg:find_best_split}), even though both procedures have the same order of asymptotic complexity.
 %
 We then suggest that much larger datasets would be required to observe the asymptotic behavior of the Extra-Trees.
-In spite of that, the empirical complexity of \model{bdt-gso} is still observed to be highly significantly lower than that of \model{bxt-gmo}, validating once more the prediction that \model{bdt-gso} should present faster training times than \model{bxt-gmo} on sufficiently large datasets.
+In spite of that, the empirical complexity of \model{bdt-bgso} is still observed to be highly significantly lower than that of \model{bxt-sq}, validating once more the prediction that \model{bdt-bgso} should present faster training times than \model{bxt-sq} on sufficiently large datasets.
 
 \begin{figure}[tb]
     \centering
@@ -2868,8 +2829,8 @@ In spite of that, the empirical complexity of \model{bdt-gso} is still observed 
     \end{subfigure}
     \caption{
         Empirical time complexity estimation of the proposed bipartite global single-output (BGSO) and the global multi-output (GMO)~\cite{pliakos2018global}
-        algorithms. Bipartite versions of both extremely randomized trees~\cite{geurts2006extremely} (BXT) and greedy decision trees~\cite{breiman1984classification} (BDT) were built under the GSO and GMO scheme and trained over artificial datasets of varying numbers of samples (as described in \autoref{sec:complexity_analysis}). The training time versus the number of samples is presented on the left. On the right, we present the same plot on a logarithmic scale. The slopes and respective standard deviations are obtained by applying least-squares linear regression.
-        Independent two-sample t-tests comparing the slope estimates reveal that the time complexity of \model{bdt-gso} is highly significantly lower than \model{bdt-gmo} ($p < 10^{-64}$) and even \model{bxt-gmo} ($p < 10^{-20}$), and also that \model{bxt-gso} significantly exhibits lower complexity than \model{bxt-gmo} ($p < 10^{-22}$).
+        algorithms. Bipartite versions of both extremely randomized trees~\cite{geurts2006extremely} (BXT) and greedy decision trees~\cite{breiman1984classification} (BDT) were built under the BGSO and GMO scheme and trained over artificial datasets of varying numbers of samples (as described in \autoref{sec:complexity_analysis}). The training time versus the number of samples is presented on the left. On the right, we present the same plot on a logarithmic scale. The slopes and respective standard deviations are obtained by applying least-squares linear regression.
+        Independent two-sample t-tests comparing the slope estimates reveal that the time complexity of \model{bdt-bgso} is highly significantly lower than \model{bdt-gmo} ($p < 10^{-64}$) and even \model{bxt-sq} ($p < 10^{-20}$), and also that \model{bxt-gso} significantly exhibits lower complexity than \model{bxt-sq} ($p < 10^{-22}$).
         % Those values corroborate the theoretical estimates from \autoref{sec:complexity_analysis}.
         \newline Source: By the author.
     }
@@ -2934,8 +2895,8 @@ To observe the effect of this early-stopping criterion by itself, we also includ
     \item \textbf{\texttt{precomputed}:}
     %introduced by us (as also \texttt{square} and \texttt{softmax}),
     the labels in each leaf are weighted by the similarities between the learned samples and the test instances (\autoref{eq:prototype3}).
-    \item \textbf{\texttt{square}:} similar to \texttt{precomputed}, but the squared similarities being predicted (\autoref{eq:prototype3}).
-    \item \textbf{\texttt{softmax}:} the labels in each leaf are weighted by the exponential of the similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
+    \item \textbf{\texttt{square}:} similar to \texttt{precomputed}, but the squared similarities are used instead (\autoref{eq:prototype3}).
+    \item \textbf{\texttt{softmax}:} also a weighting approach, but using the exponential of the similarities (\autoref{eq:prototype3}).
     \item \textbf{\texttt{full}:} the trees are grown until a single interaction remains in each leaf. %, so that the prediction for each pair is the label of the single learned sample in the leaf.
 \end{itemize}
 
@@ -2977,26 +2938,26 @@ We select the squared weighting strategy and the fully grown trees to be further
 \begin{figure}[tb]
     \centering
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics{%
+        \includegraphics[width=\textwidth]{%
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics{%
+        \includegraphics[width=\textwidth]{%
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/LT+TL_average_precision.pdf
         }
     \end{subfigure}
 
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics{%
+        \includegraphics[width=\textwidth]{%
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/TT_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics{%
+        \includegraphics[width=\textwidth]{%
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/TT_average_precision.pdf
         }
@@ -3060,35 +3021,35 @@ We select the squared weighting strategy and the fully grown trees to be further
     \begin{itemize}
         \item SLMO is the best strategy for BRF models on LT+TL sets.
         \item GMO is the best strategy for completely new dyads.
-        \item Undersampling of negative annotations is beneficial for GSO BXT in terms of AUROC, but should be avoided if the goal is to select the highest ranked interactions.
+        \item Undersampling of negative annotations is beneficial for a GSO BXT in terms of AUROC, but should be avoided if the goal is to select the highest ranked interactions.
     \end{itemize}
 \end{mdframed}
 
 We now compare each of the described approaches for adapting decision forests to bipartite data, including data-centric adaptations (\autoref{sec:standard adaptations}) and the natively bipartite forests (\autoref{sec:bipartite_trees} and \autoref{sec:bgso_trees}). We briefly describe below the suffixes in the model names of this section, indicating the employed bipartite adaptations.
 
-% TODO: contribution: ensembles of gmo (not gmosa) were nevel built!
+% TODO: contribution: ensembles of gmo (not gmo) were nevel built!
 
 \begin{itemize}
-    \item \textbf{\texttt{lmo}:} implements the standard local multi-output approach (SLMO; \autoref{sec:slmo}) by training four separate multioutput models, two for each domain. First explored by \citeonline{schrynemackers2015classifying}.
-    \item \textbf{\texttt{lso}:} also implements the SLMO approach (\autoref{sec:slmo}), but each multioutput model is instead a composition of several local single-output (LSO) models, i.e. one model is trained for each row or column of the interaction matrix. This setting is similar to the early proposal by \citeonline{bleakley2009supervised}, but employing decision forests as the base algorithm.
-    \item \textbf{\texttt{gmosa}:} a global multi-output forest with single-label averaging (GMOSA; \autoref{sec:prototype}), as explored by \citeonline{pliakos2019network} under the name eBICT.
-    \item \textbf{\texttt{gmo}:} a global multi-output (GMO; \autoref{sec:bipartite_trees}) forest with minimum leaf dimensions of 5 by 5, implementing our proposed squared-similarities weighting for the prototype function (\autoref{sec:prototype}). Apart from the new prototype, this model is based on the original GMO trees proposed by \citeonline{pliakos2018global}. Despite their original results suggesting advantage over GMOSA, to the best of our knowledge, this is the first time the GMO trees are employed in building decision forests.  % TODO explain GMOSA
-    \item \textbf{\texttt{gso}:} a bipartite global single-output (BGSO; \autoref{sec:bgso_trees}) forest, as initially explored by \citeonline{schrynemackers2015classifying} but now implementing our proposed algorithm with improved computational complexity.
-    \item \textbf{\texttt{sgso\_us}:} implements the standard global single-output (SGSO; \autoref{sec:sgso}) adaptation, additionally employing undersampling of the non-interacting pairs to yield a balanced training set (\autoref{sec:sgso}).  % TODO explain that is frequently used
+    \item \textbf{\texttt{slmo}:} implements the standard local multi-output approach (SLMO; \autoref{sec:slmo}) by training four separate multioutput models, two for each domain. First explored by \citeonline{schrynemackers2015classifying}.
+    \item \textbf{\texttt{slso}:} also implements the SLMO approach (\autoref{sec:slmo}), but each multioutput model is instead a composition of several local single-output (SLSO) models, i.e. one model is trained for each row or column of the interaction matrix. This setting is similar to the early proposal by \citeonline{bleakley2009supervised}, but employing decision forests as the base algorithm.
+    \item \textbf{\texttt{gmo}:} a fully-grown global multi-output forest, as explored by \citeonline{pliakos2019network} under the name eBICT.
+    \item \textbf{\texttt{sq}:} a global multi-output forest with minimum leaf dimensions of 5 by 5, implementing our proposed squared-similarities weighting for the prototype function (\autoref{sec:prototype}). %Apart from the new prototype, this model is based on the original GMO trees proposed by \citeonline{pliakos2018global}. %Despite their original results suggesting advantage over gmo, to the best of our knowledge, this is the first time the GMO trees are employed in building decision forests.  % TODO explain gmo
+    \item \textbf{\texttt{bgso}:} a bipartite global single-output forest, implementing our proposed algorithm with improved computational complexity over SGSO and GMO (\autoref{sec:bgso_trees}).
+    \item \textbf{\texttt{sgso-us}:} implements the standard global single-output adaptation~\cite{schrynemackers2015classifying}, additionally employing undersampling of the negative annotations to yield a balanced training set (see \autoref{sec:sgso}).  % TODO explain that is frequently used
 \end{itemize}
 
-All the global models were built with 100 trees. For SLMO, each of the four forests used 50 trees, while for LSO 50 trees were used for each row or column of the interaction matrix.
+All the global models were built with 100 trees. For SLMO, each of the four forests used 50 trees, while for SLSO 50 trees were used for each row or column of the interaction matrix.
 
-In the LT+TL AUPR evaluation setting, the pattern observed in \autoref{sec:prototype_comparison} again emerges: the label averaging strategy employed by GMO performs considerably worse in comparison to forests that separately consider each known instance. In particular, the SLMO and SLSO adaptations yield the clear best BRF models in terms of LT+TL AUPR, and these adaptations interpret each instance as a separate output to be predicted. Among the local adaptations, SLMO significantly ouperforms SLSO. SLSO treats each training instance as a completely independent task, building a separate forest for each row and column of the interaction matrix. As such, the previous result shows that this complete independence is not desirable for the learning problems under study, and exploring label correlations between instances of the same domain is beneficial (as demonstrated by SLMO). This result could partially be a consequence of the very sparse nature of our problems: if the interaction information of each instance is limited, it becomes advantageus to aggregate information from other instances with correlated interactomes. We then speculate that the advantage of SLMO over SLSO could become less prominent once the number of known interactions per instance increases and more data are available for training.
+In the LT+TL AUPR evaluation setting, the pattern observed in \autoref{sec:prototype_comparison} again emerges: the label averaging strategy employed by SQ performs considerably worse in comparison to forests that separately consider each known instance. In particular, the SLMO and SLSO adaptations yield the clear best BRF models in terms of LT+TL AUPR, and these adaptations interpret each instance as a separate output to be predicted. Among the local adaptations, SLMO significantly ouperforms SLSO. SLSO treats each training instance as a completely independent task, building a separate forest for each row and column of the interaction matrix. As such, the previous result shows that this complete independence is not desirable for the learning problems under study, and exploring label correlations between instances of the same domain is beneficial (as demonstrated by SLMO). This result could partially be a consequence of the very sparse nature of our problems: if the interaction information of each instance is limited, it becomes advantageus to aggregate information from other instances with correlated interactomes. We then speculate that the advantage of SLMO over SLSO could become less prominent once the number of known interactions per instance increases and more data are available for training.
 
-Still considering LT+TL AUPR but focusing on BXT models instead, we notice that SLMO loses the advantage to the fully-grown bipartite trees GMO and GSO. A possible explanation comes from the fact that local approaches yield shallower trees, and much more extra-trees could be required to achieve comparable performance. In more detail, first notice that the individual performance of each tree in a BXT forest is lower than that of a tree in a BRF. Thus, a BXT ensemble requires a larger number of trees to reach satisfactory performance. Additionally, if the trees are shallow, they tend to be less representative of the training data (each tree node brings a little more information on the dataset).
+Still considering LT+TL AUPR but focusing on BXT models instead, we notice that SLMO loses the advantage to the fully-grown bipartite trees SQ and BGSO. A possible explanation comes from the fact that local approaches yield shallower trees, and much more extra-trees could be required to achieve comparable performance. In more detail, first notice that the individual performance of each tree in a BXT forest is lower than that of a tree in a BRF. Thus, a BXT ensemble requires a larger number of trees to reach satisfactory performance. Additionally, if the trees are shallow, they tend to be less representative of the training data (each tree node brings a little more information on the dataset).
 Even more trees then should be required to compensate the randomness of each individual. Finally, building a forest locally as in SLMO or SLSO results that each tree is trained on a much smaller number of samples in comparison to considering each dyad as a separate instance. Therefore, local approaches generate smaller and less representative trees. We then suggest that the advantage of SLMO could also manifest for BXT estimators if the number of trees in the ensemble were to be increased.
 
-For both BXT and BRF in all the TT settings, the GMO model significantly outperforms the other estimators. GMO is also the best model in the LT+TL AUROC setting when comparing BXTs and the second best for BRFs. This reinforces the findings of \autoref{sec:prototype_comparison} suggesting that larger leaves and label weighting seems to improve generalization to unseen instances.
+For both BXT and BRF in all the TT settings, the SQ model significantly outperforms the other estimators. SQ is also the best model in the LT+TL AUROC setting when comparing BXTs and the second best for BRFs. This reinforces the findings of \autoref{sec:prototype_comparison} suggesting that larger leaves and label weighting seems to improve generalization to unseen instances.
 %
 We also highlight SLMO as a prominent strategy for BRFs under TT AUROC and TT AUPR, being the second best model in both cases.
 
-The SGSO US strategy performed consistently worse than the others under the AUPR metric. Conversely, it was significantly the second best BXT model in both LT+TL and TT AUROC settings, while surpassing BRF GMOSA also under both AUROC test sets.
+The SGSO US strategy performed consistently worse than the others under the AUPR metric. Conversely, it was significantly the second best BXT model in both LT+TL and TT AUROC settings, while surpassing BRF gmo also under both AUROC test sets.
 This shows that unsersampling is a viable technique when when considering the overall ranking of interactions. However, it is detrimental when the goal is to select the most likely interactions. That is, SGSO US allows a larger number of false positives in the highest ranked positions.
 
 This behaviour is expected. Notice that SGSO US models are trained in a balanced dataset, while the other models are trained in the original dataset where negative annotations are much more frequent. With more training examples, the other models tend to be considerably better in correctly classifying negative annotations. This suggests that AUPR tends to favor models of high specificity, that are strictly avoid predicting false positives.
@@ -3097,21 +3058,21 @@ This behaviour is expected. Notice that SGSO US models are trained in a balanced
 
 % TODO sgso us is popular but not good
 
-%We select LMO, GMO, GSO, and GMOSA to be further analysed in the next section.
+%We select SLMO, SQ, BGSO, and gmo to be further analysed in the next section.
 
 % TODO: relationship with previous work
 
-% The GMO approach is also highlighted by the results of BXT ensembles, being undisputed for the LT+TL AUROC and TT scores. Interestingly, for the LT+TL AUPR score, its mean percentile ranking was the second to last, being only better than SGSOUS. These results corroborate the idea discussed in \autoref{sec:prototype_comparison} that reaching the maximum tree depth is the best strategy for LT+TL, 
+% The sq approach is also highlighted by the results of BXT ensembles, being undisputed for the LT+TL AUROC and TT scores. Interestingly, for the LT+TL AUPR score, its mean percentile ranking was the second to last, being only better than SGSOUS. These results corroborate the idea discussed in \autoref{sec:prototype_comparison} that reaching the maximum tree depth is the best strategy for LT+TL, 
 
 % TODO training times
 
-% To avoid differences in random sampling when using the naive GSO adapter versus the natively bipartite GSO tree, no bootstraping was applied to any forest, providing all trees with the whole training samples space. To still ensure randomization in random forest estimators, the maximum features parameter was set to $0.5$, meaning that each tree in a random forest was trained on a random subset of half the features from each sample domain. Due to implementation details, this means the naive GSO forests will sample features slightly differently: they will pick half the features from the whole feature space combined, while the natively bipartite GSO forests will ensure half the features from each sample domain is selected. This is not expected to have a significant impact on the results, given that the total number of features is especially high in the present scenario, where similarity matrices are being employed. 
+% To avoid differences in random sampling when using the SGSO adapter versus the BGSO tree, no bootstraping was applied to any forest, providing all trees with the whole training samples space. To still ensure randomization in random forest estimators, the maximum features parameter was set to $0.5$, meaning that each tree in a random forest was trained on a random subset of half the features from each sample domain. Due to implementation details, this means the SGSO forests will sample features slightly differently: they will pick half the features from the whole feature space combined, while the BGSO forests will ensure half the features from each sample domain is selected. This is not expected to have a significant impact on the results, given that the total number of features is especially high in the present scenario, where similarity matrices are being employed. 
 
-%All forests were composed of 100 tree estimators and were fully grown, with the exception of the GMO models, whose leaf sizes were limited to a minimum of 5 by 5 samples (at least 5 samples from each domain) in order to take advantage of neighborhood weighting (which was set to the squared similarities, see Section \ref{}).
+%All forests were composed of 100 tree estimators and were fully grown, with the exception of the sq models, whose leaf sizes were limited to a minimum of 5 by 5 samples (at least 5 samples from each domain) in order to take advantage of neighborhood weighting (which was set to the squared similarities, see Section \ref{}).
 
-%In all of the evaluated scenarios, a BXT model was ranked the best. In both TT-MCC and TL-AUPR, the BRF models and bxt\_gmo were significantly surpassed by the remaining BXT forests. In TL-MCC, bxt\_lso significantly outperformed all the other models. Given that this test-set provides the greatest intersection with the training set, due to the overall higher number of column samples in the datasets we used, we suggest that the LSO model could be better at taking advantage of already seen information from a sample domain, since a forest is grown separately for each row and column. From another perspective, this effect could be regarded as a form of overfitting. This hypothesis is further supported by the fact that both GMO models, which were the only forests subject to a minimum leaf size constraint and thus less prone, in theory, to overfitting, were the most frequently outperformed models in the TL-MCC and TL-AUPR.
+%In all of the evaluated scenarios, a BXT model was ranked the best. In both TT-MCC and TL-AUPR, the BRF models and bxt\_sq were significantly surpassed by the remaining BXT forests. In TL-MCC, bxt\_lso significantly outperformed all the other models. Given that this test-set provides the greatest intersection with the training set, due to the overall higher number of column samples in the datasets we used, we suggest that the SLSO model could be better at taking advantage of already seen information from a sample domain, since a forest is grown separately for each row and column. From another perspective, this effect could be regarded as a form of overfitting. This hypothesis is further supported by the fact that both sq models, which were the only forests subject to a minimum leaf size constraint and thus less prone, in theory, to overfitting, were the most frequently outperformed models in the TL-MCC and TL-AUPR.
 
-%Contrastingly, both GMO models were consistently the best performing models in all AUROC settings, which is commonly assumed to be a less indicative metric in highly imbalanced classification contexts such as the present one \cite{}. This could be explained by a bias towards the majority class, possibly caused by the averaging of the larger leaves employed in this methods. %FIXME: actually, a bias towards minority class
+%Contrastingly, both sq models were consistently the best performing models in all AUROC settings, which is commonly assumed to be a less indicative metric in highly imbalanced classification contexts such as the present one \cite{}. This could be explained by a bias towards the majority class, possibly caused by the averaging of the larger leaves employed in this methods. %FIXME: actually, a bias towards minority class
 
 \begin{figure}[tb]
     \centering
@@ -3197,13 +3158,13 @@ This behaviour is expected. Notice that SGSO US models are trained in a balanced
 \begin{mdframed}[frametitle={Key findings}]
     \begin{itemize}
         \item Imputing positive annotations with NRLMF improves the performance of bipartite forests in the majority of cases.
-        \item For LT+TL AUPR, the best BRF is \model{BRF-LMO} and the best BXT is \model{BXT-GMOSA-NRLMF}.
-        % \item For LT+TL AUROC, the best BRF is \model{BRF-LMO-NRLMF}
-        \item GMO NRLMF is the overall best model for TT.
+        \item For LT+TL AUPR, the best BRF is \model{BRF-SLMO} and the best BXT is \model{BXT-gmo-yr}.
+        % \item For LT+TL AUROC, the best BRF is \model{BRF-SLMO-yr}
+        \item sq NRLMF is the overall best model for TT.
     \end{itemize}
 \end{mdframed}
 
-In this section, we compare bipartite forests with and without label imputation by matrix factorization. We employ the adaptations SLMO, GMO, BGSO, and GMOSA based on the results of \autoref{sec:adaptation_comparison}.
+In this section, we compare bipartite forests with and without label imputation by matrix factorization. We investigate the adaptations SLMO, BGSO, GMO and SQ (which is GMO our squared similarities prototype). See \autoref{sec:adaptation_comparison} for a more detailed description of each model.
 
 It was previously suggested that creating a dense representation of the interaction matrix improves the performance of BXT in drug-target interaction tasks~\cite{pliakos2020drugtarget}.
 To test this result on our datasets, we compare the bipartite forests scores with and without the interaction matrix reconstruction step. As \cite{pliakos2020drugtarget}, the reconstruction step was performed using neighborhood-regularized logistic matrix factorization (NRLMF)~\cite{liu2016neighborhood}.
@@ -3217,51 +3178,50 @@ The best combination of parameters according to the inner CV loop was then used 
 The hyperparameters $\lambda_1$, $\lambda_2$, $\beta_1$, $\beta_2$, and $\eta$ were all independently sampled from a log-uniform distribution bounded by $\frac{1}{4}$ and $2$ (\autoref{alg:nrlmf_train}).
 The number of latent vector components was set to be equal for both axes, and chosen between 50 and 100. The number of neighbors was randomly selected as 3, 5 or 10 in each iteration, and the maximum number of optimization steps was always set to 100. The parameter $\alpha$ (\autoref{alg:nrlmf_train}), as in the original paper~\cite{liu2016neighborhood}, was set to $5$. This parameter specifies the emphasis on positive annotations, so each positive annotation contributes $5$ times more to the loss function in our settings, as if 5 copies of each positive interaction were present in the training set.
 %
-See \autoref{sec:adaptation_comparison} for descriptions on the bipartite forests being compared.
+%
+The results for BRF and BXT are shown by figures \ref{fig:brf_y_reconstruction} and \ref{fig:bxt_y_reconstruction}, respectively. The \texttt{yr} suffix to a model indicates that it was trained after $Y$ reconstruction, that is, on the output of NRLMF.
 
-The results for BRF and BXT are shown by figures \ref{fig:brf_y_reconstruction} and \ref{fig:bxt_y_reconstruction}, respectively. The \texttt{nrlmf} suffix to a model indicates that it was built on the output of NRLMF.
-
-The interaction matrix reconstruction step is shown to be especially beneficial in terms of AUROC scores, improving this score for almost all forest algorithms investigated. The only exceptions were \model{bxt-gmo} and \model{brf-gmo} in LT+TL ROC AUC, where the improvement is still observed but not statistically significant.
+The interaction matrix reconstruction step is shown to be especially beneficial in terms of AUROC scores, improving this score for almost all forest algorithms investigated. The only exceptions were \model{bxt-sq} and \model{brf-sq} in LT+TL ROC AUC, where the improvement is still observed but not statistically significant.
 %
 %As discussed in \autoref{sec:comparing auroc aupr}, ROC AUC is characterized by more leniency towards highly-ranked false positives, which explains the advantage posed by NRLMF in this setting: NRLMF explicitly defines a parameter to prioritize outputting positive interactions (\autoref{sec}). % TODO
 %
 %In accordance with previous investigations~\cite{liu2016neighborhood,liu2017lpinrlmf,liu2020predicting,pliakos2020drugtarget},
 %this parameter was set to 5, meaning that the loss function employed in the gradient descent procedure of NRLMF is weighted 5 times more for positive interactions than for negative interactions, as if 5 copies of each positive interaction were present in the training set.
 
-Even without the help from NRLMF, the \model{bxt-gmo} and \model{brf-gmo} models employing our squared similarities output weighting (sections \autoref{sec:prototype} and \autoref{sec:prototype_comparison}) are placed second in their corresponding TT ROC AUC results, both significantly outperforming all NRLMF-combined models except for their own versions, \model{bxt-gmo-nrlmf} and \model{brf-gmo-nrlmf}. % (as aforementioned).
-\model{brf-gmo} was also the top performing BRF model in terms of TT AUPR, significantly surpassing all but \model{brf-gmo-nrlmf} and \model{brf-lmo-nrlmf}.
-Similarly, \model{bxt-gmo} was the top performing BXT model under the same metric, significantly surpassing all estimators but \model{bxt-gmo-nrlmf}, \model{bxt-lmo-nrlmf} and \model{BXT-GMOSA-NRLMF}.
+Even without assistance from NRLMF, the \model{bxt-sq} and \model{brf-sq} models employing our squared similarities output weighting (\autoref{sec:prototype} and \autoref{sec:prototype_comparison}) are placed second in their corresponding TT AUROC results, both significantly outperforming all NRLMF-combined models except for their own versions, \model{bxt-sq-yr} and \model{brf-sq-yr}. % (as aforementioned).
+\model{brf-sq} was also the top performing BRF model in terms of TT AUPR, significantly surpassing all but \model{brf-sq-yr} and \model{brf-SLMO-yr}.
+Similarly, \model{bxt-sq} was the top performing BXT model under the same metric, significantly surpassing all estimators but \model{bxt-sq-yr}, \model{bxt-SLMO-yr} and \model{BXT-gmo-yr}.
 
-Regarding TT AUPR, NRLMF still provides a significant improvement for all models except \model{brf-gmo}, \model{bxt-gmo} and \model{bxt-lmo}. While both BRF GMO and BXT GMO resulted in the highest average ranks for TT AUPR, the top position could not be statistically resolved between the BRFs using GMO, GMO NRLMF, and LMO NRLMF, nor between the BXTs using GMO, GMO NRLMF, LMO NRLMF, and GMOSA NRLMF.
+Regarding TT AUPR, NRLMF still provides a significant improvement for all models except \model{brf-sq}, \model{bxt-sq} and \model{bxt-SLMO}. While both BRF sq and BXT sq resulted in the highest average ranks for TT AUPR, the top position could not be statistically resolved between the BRFs using sq, sq NRLMF, and SLMO NRLMF, nor between the BXTs using sq, sq NRLMF, SLMO NRLMF, and gmo NRLMF.
 
-In the LT+TL AUPR setting for BXT ensembles, NRLMF is shown to significantly degrade the performance of \model{bxt-gmo}. Therefore, the combination of the squared neighbors prototype and NRLMF likely results in more high-rank false positives under LT+TL, especially since such degradation is not observed under LT+TL AUROC.  % TODO name prototype
+In the LT+TL AUPR setting for BXT ensembles, NRLMF is shown to significantly degrade the performance of \model{bxt-sq}. Therefore, the combination of the squared neighbors prototype and NRLMF likely results in more high-rank false positives under LT+TL, especially since such degradation is not observed under LT+TL AUROC.  % TODO name prototype
 %
-%We attribute this effect to the aforementioned increase in false positives caused by NRLMF, especially since such degradation is not observed under LT+TL AUROC. Notwithstanding, we note that this degradation of LT+TL AUPR is exclusive to the GMO adaptation, as all other BXT models are significantly improved by NRLMF in this setting. Moreover, we highlight the differences between the LT+TL AUROC and LT+TL AUPR results considering BXT GMO and \model{BXT-GMO-NRLMF}: while these models are the best ranked in the former setting, they are the clear worst in the latter. We thus argue that both the GMO strategy and the NRLMF reconstruction step, each in and of itself, have the effect of increasing the tendency towards false positives in the predictions. Their summed effects could thus impair predictive performance especially under LT+TL AUPR evaluation, whereas in other settings they could  missing positives or AUROC evaluation in general, the combina...  % TODO finish this discussion
+%We attribute this effect to the aforementioned increase in false positives caused by NRLMF, especially since such degradation is not observed under LT+TL AUROC. Notwithstanding, we note that this degradation of LT+TL AUPR is exclusive to the sq adaptation, as all other BXT models are significantly improved by NRLMF in this setting. Moreover, we highlight the differences between the LT+TL AUROC and LT+TL AUPR results considering BXT sq and \model{BXT-sq-yr}: while these models are the best ranked in the former setting, they are the clear worst in the latter. We thus argue that both the sq strategy and the NRLMF reconstruction step, each in and of itself, have the effect of increasing the tendency towards false positives in the predictions. Their summed effects could thus impair predictive performance especially under LT+TL AUPR evaluation, whereas in other settings they could  missing positives or AUROC evaluation in general, the combina...  % TODO finish this discussion
 
-%This suggests that the combination of GMO's label averaging method 
+%This suggests that the combination of sq's label averaging method 
 
-% TODO: (last section) gmo more fp
+% TODO: (last section) sq more fp
 
-% Interestingly, the scores for \model{bxt-gmo}, \model{brf-gmo}, and \model{brf-lmo} are instead significantly reduced by combination with the matrix factorization technique in LT+TL AUPR, contrary to the overall tendency.
+% Interestingly, the scores for \model{bxt-sq}, \model{brf-sq}, and \model{brf-SLMO} are instead significantly reduced by combination with the matrix factorization technique in LT+TL AUPR, contrary to the overall tendency.
 %
 
-For BRF models under LT+TL AUPR, the advantage of employing NRLMF is not clear. GSO was the only adaptation to significantly benefit from NRLMF in this setting, while GMO and LMO were significantly impaired by it. In fact, the \model{BRF-LMO} model without label matrix reconstruction significantly outperformed all the other random forests for this evaluation setting.
+For BRF models under LT+TL AUPR, the advantage of employing NRLMF is not clear. BGSO was the only adaptation to significantly benefit from NRLMF in this setting, while sq and SLMO were significantly impaired by it. In fact, the \model{BRF-SLMO} model without label matrix reconstruction significantly outperformed all the other random forests for this evaluation setting.
 
 % Not clear from the data:
-%Additionally, the GSO and GMOSA models are seemingly favored by the LT+TL setting in comparison to TT, reinforcing the results of \autoref{sec:adaptation_comparison} suggesting that deeper trees are advantageous for LT+TL, while the larger leaves of GMO models seem to improve generalization for completely unknown pairs (TT AUPR). Notably, the \model{bxt-gmosa-nrlmf} model, proposed by \citeonline{pliakos2020drugtarget} under the name of BICTR, was the top scoring model among BXT for all but the TT ROC AUC test settings.
+%Additionally, the BGSO and gmo models are seemingly favored by the LT+TL setting in comparison to TT, reinforcing the results of \autoref{sec:adaptation_comparison} suggesting that deeper trees are advantageous for LT+TL, while the larger leaves of sq models seem to improve generalization for completely unknown pairs (TT AUPR). Notably, the \model{bxt-gmo-yr} model, proposed by \citeonline{pliakos2020drugtarget} under the name of BICTR, was the top scoring model among BXT for all but the TT ROC AUC test settings.
 
 % TODO add hue, compare within pairs with vs without nrlmf
 % TODO
 % fullly grown doesnt mean n_leaf == 1
 % we expect more trees to make nrlmf irrelevant
 % nrlmf probably makes more false positives
-% less relevant for gmo and degrades performance in lttl AUPR only for rf
+% less relevant for sq and degrades performance in lttl AUPR only for rf
 % complexity of other adaptations
 % why nrlmf is detrimental to BRF lt+tl AUPR?
-% why nrlmf is detrimental to GMO?
-% why nrlmf is not detrimental to bxt lmo?
+% why nrlmf is detrimental to sq?
+% why nrlmf is not detrimental to bxt SLMO?
 
-%So why does NRLMF seem detrimental to \model{brf-gmo}, \model{bxt-gmo} and \text{brf-lmo} in terms of LT+TL AUPR? For any tree, if one of the interacting entities is known from the training data (let's call it $\x_\text{known}$), the leaf at which the interaction from the TL or LT sets arrives is guaranteed to hold a partition of $Y_\text{train}$ with a column corresponding to $\x_\text{known}$. The GMO and LMO models are the only ones to emphasize the effect of this column: LMO will output the average of only the labels in this column (see \autoref{sec:slmo}), while GMO will weight it considerably higher than the other columns when computing the leaf's prototype (\autoref{sec:prototype}). The usage of NRLMF however, causes the negative labels in such column of $Y_\text{leaf}$ to be influenced by neighbors from the training set. While this should improve generalization, we speculate that the LT+TL setting could benefit from this "partial overfitting" that occurs when NRLMF is not employed. We thus hypothesize this effect is less pronounced in BXT due to the naturally lower tendency to overfit of Extra-Trees, resulting from the randomized selection of thresholds (\autoref{sec:bipartite_forests}). We also suppose that this effect in LT+TL ROC AUC is overruled by the sensitivity improvement brought by NRLMF, as discussed above, hence it not being apparent from the results.
+%So why does NRLMF seem detrimental to \model{brf-sq}, \model{bxt-sq} and \text{brf-SLMO} in terms of LT+TL AUPR? For any tree, if one of the interacting entities is known from the training data (let's call it $\x_\text{known}$), the leaf at which the interaction from the TL or LT sets arrives is guaranteed to hold a partition of $Y_\text{train}$ with a column corresponding to $\x_\text{known}$. The sq and SLMO models are the only ones to emphasize the effect of this column: SLMO will output the average of only the labels in this column (see \autoref{sec:slmo}), while sq will weight it considerably higher than the other columns when computing the leaf's prototype (\autoref{sec:prototype}). The usage of NRLMF however, causes the negative labels in such column of $Y_\text{leaf}$ to be influenced by neighbors from the training set. While this should improve generalization, we speculate that the LT+TL setting could benefit from this "partial overfitting" that occurs when NRLMF is not employed. We thus hypothesize this effect is less pronounced in BXT due to the naturally lower tendency to overfit of Extra-Trees, resulting from the randomized selection of thresholds (\autoref{sec:bipartite_forests}). We also suppose that this effect in LT+TL ROC AUC is overruled by the sensitivity improvement brought by NRLMF, as discussed above, hence it not being apparent from the results.
 
 %Another hypothesis can be formulated based on the fact that the dense reconstructed matrix will cause trees to grow to a much deeper extent.
 %%as homogeneity of leaves is harder to obtain.
@@ -3274,17 +3234,17 @@ For BRF models under LT+TL AUPR, the advantage of employing NRLMF is not clear. 
 
 % Additionally, imputting the negative labels allows the trees to grow deeper
 
-%\model{brf-gmo} and \model{lmo} are the models most likely to overfit the training data, given that 
+%\model{brf-sq} and \model{SLMO} are the models most likely to overfit the training data, given that 
 
 %We speculate that the addition of the NRLMF training step does introduce more information into the training set, of which downstream trees can take advantage, at the expense of elevating type I errors and reducing estimator variance. The first effect, increasing FPR, could explain the positive effect of NRLMF on ROC AUC, as aforementioned...
 
 % The second effect would be to decrease the correlation of each tree with the original interaction matrix.
 
-% nrlmf and gmo
+% nrlmf and sq
 % TODO: future testing with less positive importance and larger trees
 % some of the estimators are definitely not calibrated (explain)
 
-In summary, interaction matrix reconstruction by NRLMF seems to consistently improve BRF and BXT results in terms of AUROC and also the results of BXT regarding LT+TL AUPR. On TT AUPR, while less evidence is found, the results still seem to point in the same direction of a beneficial NRLMF transformation step. On the other hand, the comparisons of BRF under LT+TL AUPR evaluation indicate the opposite conclusion, disfavoring usage of NRLMF especially for \model{brf-lmo} and \model{brf-gmo}. We thus discourage the application of NRLMF with BRF in scenarios where i) one of the entities of the dyad is always known to the model, such as in drug repositioning; and ii) the main interest is to select a small set of most-likely interactions.
+In summary, interaction matrix reconstruction by NRLMF seems to consistently improve BRF and BXT results in terms of AUROC and also the results of BXT regarding LT+TL AUPR. On TT AUPR, while less evidence is found, the results still seem to point in the same direction of a beneficial NRLMF transformation step. On the other hand, the comparisons of BRF under LT+TL AUPR evaluation indicate the opposite conclusion, disfavoring usage of NRLMF especially for \model{brf-SLMO} and \model{brf-sq}. We thus discourage the application of NRLMF with BRF in scenarios where i) one of the entities of the dyad is always known to the model, such as in drug repositioning; and ii) the main interest is to select a small set of most-likely interactions.
 
 % TODO: remake the following explanation after displaying the rank boxplots
 
@@ -3384,7 +3344,7 @@ In summary, interaction matrix reconstruction by NRLMF seems to consistently imp
     \end{itemize}
 \end{mdframed}
 
-In this experiment, we compare the performances of semi-supervised bipartite forests \autoref{sec:ss trees}. All forests in this section are based on the BGSO BXT, as described in \autoref{sec:adaptation_comparison}. We evaluate all combinations of the three strategies for calculating the unsupervised impurity and the four strategies for determining the supervision balance at each node.
+In this experiment, we compare the performances of semi-supervised bipartite forests \autoref{sec:ss trees}. All forests in this section are based on the BXT BGSO, as presented by \autoref{sec:bipartite_trees} and used in \autoref{sec:adaptation_comparison}. We evaluate all combinations of the three strategies for calculating the unsupervised impurity and the four strategies for determining the supervision balance at each node.
 
 \paragraph*{Strategies for determining the unsupervised impurity:}
 \begin{itemize}
@@ -3538,7 +3498,8 @@ In conclusion, the best unsupervised impurity under LT+TL seems to be the mean d
 \end{figure}
 
 
-\subsection{Which forests are the best?}
+% \subsection{Label imputation or semi-supervised impurities?}
+\subsection{Which forests are the most promising?}
 \label{sec:best_forests}
 
 \begin{mdframed}[frametitle={Key findings}]
@@ -3549,51 +3510,52 @@ In conclusion, the best unsupervised impurity under LT+TL seems to be the mean d
     \end{itemize}
 \end{mdframed}
 
-% TODO bxt better than brf?
-In this experiment, we compare the performances of various models from the previous sections. For more information on each model see the corresponding section in the list bellow.
+In this experiment, we compare the performances of various forests from the previous sections.
+%, including those employing label impuation by NRLMF and those grown with semi-supervised impurities.
+For more information on each model see the corresponding section in the list bellow.
 
 \begin{itemize}
-    \item \textbf{\model{BXT-GSO}, \model{BRF-LMO}:}
+    \item \textbf{\model{BXT-BGSO}, \model{BRF-SLMO}:}
     Bipartite forests without label imputation.
     See \autoref{sec:adaptation_comparison} for more information.
     \item \textbf{\model{MD-SIZE}, \model{MD-FIXED}, \model{AD-SIZE}, \model{AD-FIXED}:}
     Bipartite forests employing semi-supervised impurities.
     See \autoref{sec:ss_comparison}.
-    %\item \textbf{\model{BRF-GMO-NRLMF}, \model{BXT-GMO-NRLMF}, \model{BXT-GSO-NRLMF}, \model{BXT-GMOSA-NRLMF}:} 
-    \item \textbf{Models with the NRLMF suffix:} 
+    %\item \textbf{\model{BRF-sq-yr}, \model{BXT-sq-yr}, \model{BXT-bgSO-yr}, \model{BXT-gmo-yr}:} 
+    \item \textbf{Models with the \model{yr} suffix:} 
     Bipartite forests using NRLMF to impute positive annotations.
     See \autoref{sec:y_reconstruction}.
 \end{itemize}
-%For information on models BXT GSO and \model{BRF-LMO}, see \autoref{sec:adaptation_comparison}. For information on MD SIZE, MD FIXED, AD SIZE and AD FIXED, see \autoref{sec:ss_comparison}. For information on 
+%For information on models BXT BGSO and \model{BRF-SLMO}, see \autoref{sec:adaptation_comparison}. For information on MD SIZE, MD FIXED, AD SIZE and AD FIXED, see \autoref{sec:ss_comparison}. For information on 
 
 %Based on the results of \autoref{sec:y_reconstruction}, we select the following models for further comparison:
 
 % TODO: nrlmf very efficient for missing data
-% gmo is faster than full trees
+% sq is faster than full trees
 % ss less efficient
 % bxt better than brf
-% gmo king
-% is gmo ss as well?
+% sq king
+% is sq ss as well?
 % using nrlmf makes trees deeper -> diversity / ovefitting
 % time to train is complicated with NRLMF
 
-The comparisons are presented by \autoref{fig:best_forests}. The results reveal a clear superiority of forests employing the NRLMF as a label imputation strategy, in comparison to those using semi-supervised impurities. The four models employing NRLMF were the four highest ranked estimators in almost all evaluation settings, the two exceptions being LT+TL AUPR with ILR = 0\% and ILR = 50\%. In the first exception (LT+TL AUPR 0\%), \model{BRF-GMO-NRLMF} and \model{BXT-GMO-NRLMF} are the two worst-performing models, whereas \model{BXT-GMOSA-NRLMF} and \model{BXT-GSO-NRLMF} are the first and second best, respectively. In the second exception (LT+TL AUPR 50\%), the two best models are the same, and \model{BRF-GMO-NRLMF} is still one the worst performers. However, \model{BXT-GMO-NRLMF} jumps to the third best position. 
+The comparisons are presented by \autoref{fig:best_forests}. The results reveal a clear superiority of forests employing the NRLMF as a label imputation strategy, in comparison to those using semi-supervised impurities. The four models employing NRLMF were the four highest ranked estimators in almost all evaluation settings, the two exceptions being LT+TL AUPR with ILR = 0\% and ILR = 50\%. In the first exception (LT+TL AUPR 0\%), \model{BRF-sq-yr} and \model{BXT-sq-yr} are the two worst-performing models, whereas \model{BXT-gmo-yr} and \model{BXT-bgSO-yr} are the first and second best, respectively. In the second exception (LT+TL AUPR 50\%), the two best models are the same, and \model{BRF-sq-yr} is still one the worst performers. However, \model{BXT-sq-yr} jumps to the third best position. 
 
-% TODO gmo better on less info: less info, more imputation better
+% TODO sq better on less info: less info, more imputation better
 
-Furthermore, under the other metrics (LT+TL AUROC, TT AUROC, and TT AUPR), \model{BXT-GMO-NRLMF} was the highest ranked estimator in almost all cases, the only exception being TT AUPR IRL=0\%, where it was only behind \model{BXT-GMOSA-NRLMF}. Notwithstanding, the comparison between \model{BXT-GMO-NRLMF} and \model{BXT-GMOSA-NRLMF} was still not statistically significant in this setting. Similarly, no statistical difference is found between these models in the LT+TL AUROC 0\% setting, where they also occupy the first positions. The leadership of \model{BXT-GMO-NRLMF} is also not significant in comparison to \model{BXT-GSO-NRLMF} under TT AUPR 50\% and TT AUPR 70\%. For all remaining cases where \model{BXT-GMO-NRLMF} was the best model, it was statistically significantly better than all other estimators (TT AUPR 90\%, LT+TL AUROC 50\%, LT+TL AUROC 70\%, LT+TL AUROC 90\%, and all TT AUROC).
+Furthermore, under the other metrics (LT+TL AUROC, TT AUROC, and TT AUPR), \model{BXT-sq-yr} was the highest ranked estimator in almost all cases, the only exception being TT AUPR IRL=0\%, where it was only behind \model{BXT-gmo-yr}. Notwithstanding, the comparison between \model{BXT-sq-yr} and \model{BXT-gmo-yr} was still not statistically significant in this setting. Similarly, no statistical difference is found between these models in the LT+TL AUROC 0\% setting, where they also occupy the first positions. The leadership of \model{BXT-sq-yr} is also not significant in comparison to \model{BXT-bgSO-yr} under TT AUPR 50\% and TT AUPR 70\%. For all remaining cases where \model{BXT-sq-yr} was the best model, it was statistically significantly better than all other estimators (TT AUPR 90\%, LT+TL AUROC 50\%, LT+TL AUROC 70\%, LT+TL AUROC 90\%, and all TT AUROC).
 
 % TODO: metrics section: define questions: there is difference of performance between metrics? between ILR?
 % TODO: metrics section: how is AUPR and AUROC affected by PU?
-% TODO: unsupervised impurity according to the prototype of GMO with similarity weighting? (Iu predicts the prototype)
+% TODO: unsupervised impurity according to the prototype of sq with similarity weighting? (Iu predicts the prototype)
 % TODO: leaf weighting with BGSO
 % TODO: SS with other adaptations
 
-Another observation is that some semi-supervised impurities significantly improve predictive performance relative to the original BXT GSO, especially when more annotations are missing. This conclusion is based on the fact that, in all settings with ILR $\neq$ 0 except LT+TL AUPR, the original BXT GSO is among the three worst performers. For all AUROC settings with ILR $\neq$ 0, it was the lowest ranked model. On the other hand, md fixed is noted to significantly surpass BXT GSO in 10 of the 16 evaluation settings, the exceptions being LT+TL AUROC 0\%, TT AUROC 0\%, TT AUROC 90\%, TT AUPR 0\%, TT AUPR 70\% and TT AUPR 90\%. Therefore, although not as effective as the NRLMF reconstruction technique, using semi-supervised trees seems indeed beneficial when label information is scarce.
+Another observation is that some semi-supervised impurities significantly improve predictive performance relative to the original BXT BGSO, especially when more annotations are missing. This conclusion is based on the fact that, in all settings with ILR $\neq$ 0 except LT+TL AUPR, the original BXT BGSO is among the three worst performers. For all AUROC settings with ILR $\neq$ 0, it was the lowest ranked model. On the other hand, md fixed is noted to significantly surpass BXT BGSO in 10 of the 16 evaluation settings, the exceptions being LT+TL AUROC 0\%, TT AUROC 0\%, TT AUROC 90\%, TT AUPR 0\%, TT AUPR 70\% and TT AUPR 90\%. Therefore, although not as effective as the NRLMF reconstruction technique, using semi-supervised trees seems indeed beneficial when label information is scarce.
 
-% TODO: future work: GMO + SS impurity
+% TODO: future work: sq + SS impurity
 
-When comapring the BXT against the BRF models, we notice that \model{BXT-GMO-NRLMF} significantly outperformed \model{BRF-GMO-NRLMF} in all settings. The other random forest, \model{BRF-LMO}, was also significantly outperformed by \model{BXT-GMO-NRLMF} in all cases but LT+TL AUPR 0\%, where the opposite was observed. Similar results hold for the other BXT models as well: they significantly surpassed \model{BRF-LMO} in the vast majority of test configurations, with the only exception being TT AUROC 0\%, in which the comparison between \model{BXT-GMOSA-NRLMF} and \model{BRF-LMO} was not significant. These results suggest that BXT models could offer significant advantages over BRF models in the context of interaction prediction. This conclusion is especially relevant given that the BXT training algorithm is considerably faster than the procedure for building BRFs, as discussed in \autoref{sec:complexity_analysis}.
+When comapring the BXT against the BRF models, we notice that \model{BXT-sq-yr} significantly outperformed \model{BRF-sq-yr} in all settings. The other random forest, \model{BRF-SLMO}, was also significantly outperformed by \model{BXT-sq-yr} in all cases but LT+TL AUPR 0\%, where the opposite was observed. Similar results hold for the other BXT models as well: they significantly surpassed \model{BRF-SLMO} in the vast majority of test configurations, with the only exception being TT AUROC 0\%, in which the comparison between \model{BXT-gmo-yr} and \model{BRF-SLMO} was not significant. These results suggest that BXT models could offer significant advantages over BRF models in the context of interaction prediction. This conclusion is especially relevant given that the BXT training algorithm is considerably faster than the procedure for building BRFs, as discussed in \autoref{sec:complexity_analysis}.
 
 % TODO: do they never compared BXT vs BRF?
 
@@ -3724,38 +3686,38 @@ When comapring the BXT against the BRF models, we notice that \model{BXT-GMO-NRL
 \begin{mdframed}[frametitle={Key findings}]
     \begin{itemize}
         \item Forests with NRLMF surpass NRLMF alone.
-        \item \model{BXT-GMO-NRLMF} is the best overall performer, with the exception of LT+TL AUPR. 
-        \item For LT+TL AUPR, \model{BXT-GSO-NRLMF} and \model{BXT-GMOSA-NRLMF} are the best models overall.
-        % TODO \item who is more affected by missing labels? gso and gmo
+        \item \model{BXT-sq-yr} is the best overall performer, with the exception of LT+TL AUPR. 
+        \item For LT+TL AUPR, \model{BXT-bgSO-yr} and \model{BXT-gmo-yr} are the best models overall.
+        % TODO \item who is more affected by missing labels? bgso and sq
     \end{itemize}
 \end{mdframed}
 
-In this section we compare the two most promising methods we developed (\model{BXT-GMO-NRLMF} and \model{BXT-GSO-NRLMF}) with several prominent models from the literature. 
+In this section we compare the two most promising methods we developed (\model{BXT-sq-yr} and \model{BXT-bgSO-yr}) with several prominent models from the literature. 
 %
 The algorithms being considered in this section are listed below, and their scoring results are shown by \autoref{fig:comparison literature}.
 
 \begin{itemize}
-    \item \textbf{\model{BXT-GSO-NRLMF}, \model{BXT-GMOSA-NRLMF}, \model{BXT-GMO-NRLMF}:} Bipartite Extra-Trees using the NRLMF model to impute missing annotations. The GSO model implements our optimized method for growing the trees. GMOSA uses the global multi output strategy developed by \citeonline{pliakos2018global}. Both GSO and GMOSA grows the trees to their maximum depth. GMO uses the weighted-neighbors prototype we developed in \autoref{sec:prototype}, and enforces at least 5 samples of each domain in each leaf. See \autoref{sec:prototype_comparison} and \autoref{sec:y_reconstruction} for more information.
-    % \item \textbf{\model{BXT-GMO-NRLMF}:} Bipartite ensemble of randomized trees using the NRLMF model to impute missing annotations. 
-    % \item \textbf{\model{BXT-GSO-NRLMF}:}
-    % \item \textbf{\model{BXT-GMOSA-NRLMF}:}
+    \item \textbf{\model{BXT-bgSO-yr}, \model{BXT-gmo-yr}, \model{BXT-sq-yr}:} Bipartite Extra-Trees using the NRLMF model to impute missing annotations. The BGSO model implements our optimized method for growing the trees. GMO uses the global multi output strategy developed by \citeonline{pliakos2018global}. Both BGSO and GMO grows the trees to their maximum depth. SQ uses the weighted-neighbors prototype we developed in \autoref{sec:prototype}, and enforces at least 5 samples of each domain in each leaf. See \autoref{sec:prototype_comparison} and \autoref{sec:y_reconstruction} for more information.
+    % \item \textbf{\model{BXT-sq-yr}:} Bipartite ensemble of randomized trees using the NRLMF model to impute missing annotations. 
+    % \item \textbf{\model{BXT-bgSO-yr}:}
+    % \item \textbf{\model{BXT-gmo-yr}:}
 
     \item \textbf{NRLMF:} Neighborhood-Regularized Logistic Matrix Factorization, as proposed by \citeonline{liu2016neighborhood} and described in \autoref{sec:neighborhood regularization}. See \autoref{sec:y_reconstruction} for the hyperparameters we utilized.
 
      % TODO other section
-    \item \textbf{Kron-RLS:} Kronecker Regularized Least Squares, as proposed by \citeonline{vanlaarhoven2011gaussian} and described in \autoref{sec:linear_models}.
+    \item \textbf{RLS-Kron:} Kronecker Regularized Least Squares, as proposed by \citeonline{vanlaarhoven2011gaussian} and described in \autoref{sec:linear_models}.
     Each of the two input kernel matrices was taken as a linear combination of the similarity matrix and the gaussian interaction profiles~\cite{vanlaarhoven2011gaussian}. %TODO (\autoref{eq:}).
     The weight of the similarity kernel in this combination (the $\alpha$ parameter~\cite{vanlaarhoven2011gaussian}), was selected between the values \{0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0\}.
     The selection was performed in each fold by an internal 5 by 5 bipartite diagonal CV procedure (\autoref{sec:cross_validation}).
 
-    \item \textbf{LMO-RLS:} SLMO adaptation (\autoref{sec:slmo}) of Regularized Least Squares, as proposed by \citeonline{vanlaarhoven2011gaussian} as RLS-avg. Both the primary and secondary models were multi-output kernel Ridge regressors~\cite[p.~492-493]{murphy2012machine}. 
-    As Kron-RLS, the input features were linear combinations of similarity matrices and gaussian interactions profiles. The $\alpha$ parameter was selected in the same way as in Kron-RLS.
+    \item \textbf{SLMO-RLS:} SLMO adaptation (\autoref{sec:slmo}) of Regularized Least Squares, as proposed by \citeonline{vanlaarhoven2011gaussian} as RLS-avg. Both the primary and secondary models were multi-output kernel Ridge regressors~\cite[p.~492-493]{murphy2012machine}. 
+    As RLS-Kron, the input features were linear combinations of similarity matrices and gaussian interactions profiles. The $\alpha$ parameter was selected in the same way as in RLS-Kron.
 
     % TODO: section for weighted nearest neighbors
     \item \textbf{BLMNII-RLS:} Bipartite local models~\cite{yamanishi2008prediction,bleakley2009supervised} with neighbor-based interaction-profile inferring~\cite{mei2013drug}. They use the SLMO strategy (\autoref{sec:slmo}), employing a weighted-neighbors technique 
     %TODO (\autoref{sec:dwnn})
     for the primary estimators and kernel Ridge regression~\cite[p.~492-493]{murphy2012machine} models as secondary estimators.
-    As Kron-RLS, the input features were linear combinations of similarity matrices and gaussian interactions profiles~\cite{vanlaarhoven2011gaussian}. The $\alpha$ parameter was selected in the same way as in Kron-RLS.
+    As RLS-Kron, the input features were linear combinations of similarity matrices and gaussian interactions profiles~\cite{vanlaarhoven2011gaussian}. The $\alpha$ parameter was selected in the same way as in RLS-Kron.
 
     \item \textbf{BLMNII SVM:} The same as BLMNII RLS, but using support vector machines~\cite{crammer2001algorithmic} as secondary estimators instead of regularized least squares.
 
@@ -3767,19 +3729,19 @@ The algorithms being considered in this section are listed below, and their scor
     The activation function was always the rectified linear unit, and ADAM~\cite{kingma2017adam} was the chosen optimizer. Other parameters were kept as the defaults from the Scikit-learn library~\cite{pedregosa2011scikitlearn}.
 \end{itemize}
 
-\model{BXT-GMO-NRLMF} was the best ranked model in 11 out of the 16 test settings analysed. The exceptions were the four LT+TL AUPR configurations and TT AUPR 0\%. In TT AUPR 0\%, \model{BXT-GMO-NRLMF} was only behind lmo rls, and among the three models that could not be statistically distinguished from lmo rls (the others being kron rls and \model{bxt-gmosa-nrlmf}). In LT+TL AUROC 0\%, the comparison between \model{BXT-GMO-NRLMF} and the second best model, \model{bxt-gmosa-nrlmf}, was also not statistically significant. In the remaining 10 cases where \model{BXT-GMO-NRLMF} prevails, it was significantly better than all other learning algorithms analysed.
+\model{BXT-sq-yr} was the best ranked model in 11 out of the 16 test settings analysed. The exceptions were the four LT+TL AUPR configurations and TT AUPR 0\%. In TT AUPR 0\%, \model{BXT-sq-yr} was only behind SLMO rls, and among the three models that could not be statistically distinguished from SLMO rls (the others being RLS-Kron and \model{bxt-gmo-yr}). In LT+TL AUROC 0\%, the comparison between \model{BXT-sq-yr} and the second best model, \model{bxt-gmo-yr}, was also not statistically significant. In the remaining 10 cases where \model{BXT-sq-yr} prevails, it was significantly better than all other learning algorithms analysed.
 
-Regarding LT+TL AUPR, in ILR = 50 and ILR = 70 \model{bxt-gso-nrlmf} and \model{bxt-gmosa-nrlmf} significantly outperform the other models. In ILR = 0, \model{bxt-gmosa-nrlmf} was the best model and \model{bxt-gso-nrlmf} was the second best, but neither could be statistically distinguished from the third best model, \model{kron rls}. In ILR = 90, \model{bxt-gso-nrlmf} was the best model and \model{bxt-gmosa-nrlmf} was the second best, but neither could be statistically distinguished from the third best model, kron rls. Under ILR = 90, \model{bxt-gso-nrlmf} and \model{bxt-gmo-nrlmf} are shown to significantly outperform the others.
+Regarding LT+TL AUPR, in ILR = 50 and ILR = 70 \model{bxt-bgso-yr} and \model{bxt-gmo-yr} significantly outperform the other models. In ILR = 0, \model{bxt-gmo-yr} was the best model and \model{bxt-bgso-yr} was the second best, but neither could be statistically distinguished from the third best model, \model{RLS-Kron}. In ILR = 90, \model{bxt-bgso-yr} was the best model and \model{bxt-gmo-yr} was the second best, but neither could be statistically distinguished from the third best model, RLS-Kron. Under ILR = 90, \model{bxt-bgso-yr} and \model{bxt-sq-yr} are shown to significantly outperform the others.
 
 We notice that the highest ranked bipartite forests in each evaluation setting are always able to significantly surpass NRLMF alone. This demonstrates that the forests are able to capture different patterns than the NRLMF model, even though they are trained on NRLMF's outputs. If this result were to not hold, one could argue that the forests might be merely approximating the predictive function learned by NRLMF, rather than expanding on the information extracted in the matrix factorization step.
 
-We also note that the competitiveness of the \model{kron rls} model for TT AUPR 0\% and LT+TL AUPR 0\% is remarkable, since \model{kron rls} has notably low training times in comparison to the other models.  %TODO figure
+We also note that the competitiveness of the \model{RLS-Kron} model for TT AUPR 0\% and LT+TL AUPR 0\% is remarkable, since \model{RLS-Kron} has notably low training times in comparison to the other models.  %TODO figure
 However, the algorithm seems to not perform as well when a larger number of positive annotations is missing. This can be seen when comparing those same test metrics under higher ILR: TT AUPR 70\%, TT AUPR 90\%, LT+TL AUPR 70\% LT+TL AUPR 90\%.
-Furthermore, \model{Kron-RLS} seems to be prioritized by AUPR in comparison to AUROC. This is especially suggested when observing the four TT AUROC, in which \model{Kron-RLS} performs poorly in comparison to the other cases.
-According to the discussion in \autoref{sec:comparing auroc aupr}, this could mean that \model{Kron-RLS} is mostly effective when considering a restricted number of top predictions.
+Furthermore, \model{RLS-Kron} seems to be prioritized by AUPR in comparison to AUROC. This is especially suggested when observing the four TT AUROC, in which \model{RLS-Kron} performs poorly in comparison to the other cases.
+According to the discussion in \autoref{sec:comparing auroc aupr}, this could mean that \model{RLS-Kron} is mostly effective when considering a restricted number of top predictions.
 %This would suggest that only a small number of interactions in the dataset can be modeled by a linear relationship, and that 
 
-Conversely, the performance of \model{BXT-GMO-NRLMF} for the LT+TL AUPR setting seems to improve relative to the other models as the number of missing annotations increases. A possible explanation comes from BXT GMO having higher generalization capabilities, as demonstrated in the TT AUROC setting. Notice that the LT+TL setting could possibly still benefit from some form of overfitting, since it considers instances that are present in the training set (\autoref{sec:cross_validation}). However, being able to generalize becomes more important as the number of missing annotations increases, since the model has to rely on less information to make predictions. And that could be why we see the \model{BXT-GMO-NRLMF} model being more valued in the LT+TL AUPR setting for higher ILR.
+Conversely, the performance of \model{BXT-sq-yr} for the LT+TL AUPR setting seems to improve relative to the other models as the number of missing annotations increases. A possible explanation comes from BXT SQ having higher generalization capabilities, as demonstrated in the TT AUROC setting. Notice that the LT+TL setting could possibly still benefit from some form of overfitting, since it considers instances that are present in the training set (\autoref{sec:cross_validation}). However, being able to generalize becomes more important as the number of missing annotations increases, since the model has to rely on less information to make predictions. And that could be why we see the \model{BXT-sq-yr} model being more valued in the LT+TL AUPR setting for higher ILR.
 Additionally, we argue that the AUPR metric is less sensitive than AUROC to this ability of discovering missing positives \autoref{sec:comparing auroc aupr}, which explains why AUROC does not show the same pattern as AUPR in the LT+TL setting.
 
 % one could use c estimation to choose the best model based on the amout of missing annotations
@@ -3791,7 +3753,7 @@ Additionally, we argue that the AUPR metric is less sensitive than AUROC to this
 % partial conclusions:
 % no need for matrix factorization step
 % calibration is needed
-% gso is competing in the top, even if theorically faster
+% bgso is competing in the top, even if theorically faster
 % extratrees are better than rf for these datasets
 
 
@@ -3897,7 +3859,7 @@ Additionally, we argue that the AUPR metric is less sensitive than AUROC to this
         }
     \end{subfigure}
     \caption{
-        Comparison of two proposed bipartite forests (\model{BXT-GMO-NRLMF} and \model{BXT-GSO-NRLMF}) with several prominent models from the literature.
+        Comparison of two proposed bipartite forests (\model{BXT-sq-yr} and \model{BXT-bgSO-yr}) with several prominent models from the literature.
         An omnibus p-value is obtained through a Friedman test and indicated below the title of each subfigure.
         We then perform pairwise Wilcoxon rank-sum tests as a post-hoc analysis.
         Estimators that could \emph{not} be significantly distinguished from each other ($p > 0.05$) are connected by crossbars above their respective boxes. 
@@ -3917,7 +3879,7 @@ Additionally, we argue that the AUPR metric is less sensitive than AUROC to this
 %    \item transformer\_raw: DNN employing transformer modules to embedd the raw amino acid sequence of target proteins and SMILES string of drug molecules. Parameters were based on MolTrans \cite{}
 %\end{itemize}
 %
-%The bxt\_gmosa model \cite{Pliakos_2020} significantly outperforms both neural networks and brf\_gso in all scenarios. bxt\_gso also outperforms the neural networks and brf\_gso in the TT setting, and score significantly higher than brf\_gso and transformer\_raw in the remaining configurations. Most impressively, the forest models take considerably less time to train than the neural networks given the experimental setup, as shown by Figure \ref{fig:davis_mse}, with the bxt\_gso still displaying highly competitive performance despite providing sensible gains in time complexity in comparison to the GMO forests and a naive GSO implementation (see sections \ref{sec:complexity_analysis} and \ref{sec:empirical_complexity}).
+%The bxt\_gmo model \cite{Pliakos_2020} significantly outperforms both neural networks and brf\_gso in all scenarios. bxt\_gso also outperforms the neural networks and brf\_gso in the TT setting, and score significantly higher than brf\_gso and transformer\_raw in the remaining configurations. Most impressively, the forest models take considerably less time to train than the neural networks given the experimental setup, as shown by Figure \ref{fig:davis_mse}, with the bxt\_gso still displaying highly competitive performance despite providing sensible gains in time complexity in comparison to the sq forests and a naive GSO implementation (see sections \ref{sec:complexity_analysis} and \ref{sec:empirical_complexity}).
 %
 %This result points bipartite Extra-Tree ensembles as state-of-the-art regression models in drug-target affinity prediction tasks, with highly competitive improvements in training efficiency.
 %

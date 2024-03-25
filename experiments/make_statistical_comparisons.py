@@ -13,6 +13,7 @@ import scikit_posthocs as sp
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -21,6 +22,7 @@ from critical_difference_diagrams import (
     _find_maximal_cliques,
 )
 
+plt.rcParams.update({"font.family": "Times New Roman"})
 THESIS_TEXTWIDTH = 6.29707  # inches
 PLOT_WIDTH = 0.45 * THESIS_TEXTWIDTH
 
@@ -264,7 +266,10 @@ def make_visualizations(
     metric,
     omnibus_pvalue,
     hue_col=None,
+    estimator_renaming: dict | None = None,
 ):
+    estimator_renaming = estimator_renaming or {}
+
     # Define base paths
     sigmatrix_outpath = outdir / f"significance_matrices/{metric}"
     cdd_outpath = outdir / f"critical_difference_diagrams/{metric}"
@@ -303,15 +308,21 @@ def make_visualizations(
         drop = None
 
     # HACK
-    # "bxt_gmo__nrlmf" -> "BXT-GMO-NRLMF"
-    # data.loc[:, estimator_col] = data[estimator_col].str.replace("_+", "-", regex=True).str.upper()
-    # pvalue_crosstable.index = pvalue_crosstable.index.str.replace("_+", "-", regex=True).str.upper()
-    # pvalue_crosstable.columns = pvalue_crosstable.columns.str.replace("_+", "-", regex=True).str.upper()
-    # mean_ranks.index = mean_ranks.index.str.replace("_+", "-", regex=True).str.upper()
-    data.loc[:, estimator_col] = data[estimator_col].str.replace("_+", " - ", regex=True)
-    pvalue_crosstable.index = pvalue_crosstable.index.str.replace("_+", " - ", regex=True)
-    pvalue_crosstable.columns = pvalue_crosstable.columns.str.replace("_+", " - ", regex=True)
-    mean_ranks.index = mean_ranks.index.str.replace("_+", " - ", regex=True)
+    # TODO XXX FIXME
+    # "bxt_gmo__nrlmf" -> "bxt - gmo - nrlmf"
+    def _rename_estimator(estimators):
+        result = pd.Series(estimators.astype(str))
+        return (
+            result
+            .map(estimator_renaming)
+            .fillna(result)
+            .str.replace("_+", " - ", regex=True)
+        )
+
+    data.loc[:, estimator_col] = _rename_estimator(data[estimator_col])
+    pvalue_crosstable.index = _rename_estimator(pvalue_crosstable.index)
+    pvalue_crosstable.columns = _rename_estimator(pvalue_crosstable.columns)
+    mean_ranks.index = _rename_estimator(mean_ranks.index)
 
     if data.dataset.iloc[0] == "all_datasets":
         # formatted_metric_name += "\n(mean percentile ranks)"
@@ -533,7 +544,12 @@ def plot_everything(
     sep="_",
     transpose_hue=False,
     raise_missing=False,
+    estimator_renaming: Path | None = None,
 ):
+    if estimator_renaming is not None:
+        with open(estimator_renaming, "r") as f:
+            estimator_renaming = yaml.safe_load(f)
+
     # Read results table and sort runs by start time (necessary to select latest run)
     df = (
         pd.read_table(results_table_path)
@@ -728,6 +744,7 @@ def plot_everything(
                 outdir=outdir,
                 omnibus_pvalue=omnibus_pvalue,
                 hue_col="hue",
+                estimator_renaming=estimator_renaming,
             )
             table_line = make_text_table(
                 data=dataset_group,
@@ -824,6 +841,12 @@ def main():
             " metrics are not found in the results table."
         ),
     )
+    parser.add_argument(
+        "--estimator-renaming",
+        default=None,
+        type=Path,
+        help="Path to a YAML file with renaming rules for the estimator names.",
+    )
 
     args = parser.parse_args()
 
@@ -837,6 +860,7 @@ def main():
         sep=args.sep,
         transpose_hue=args.transpose_hue,
         raise_missing=args.raise_missing,
+        estimator_renaming=args.estimator_renaming,
     )
 
 

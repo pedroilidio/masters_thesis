@@ -2,6 +2,7 @@
 set -e
 
 BASEDIR=bipartite_adaptations
+RENAMING=$BASEDIR/estimator_renaming.yml
 METRICS=(
     "fit_time"
     "score_time"
@@ -18,6 +19,7 @@ python make_statistical_comparisons.py \
     --estimators \
         brf_gmo brf_gmosa brf_lmo brf_lso brf_gso brf_sgso_us \
     --metrics ${METRICS[@]} \
+    --estimator-renaming $RENAMING \
     --raise-missing
 
 python make_statistical_comparisons.py \
@@ -26,6 +28,7 @@ python make_statistical_comparisons.py \
     --estimators \
         bxt_gmo bxt_gmosa bxt_lmo bxt_lso bxt_gso bxt_sgso_us \
     --metrics ${METRICS[@]} \
+    --estimator-renaming $RENAMING \
     --raise-missing
 
 python make_statistical_comparisons.py \
@@ -35,4 +38,5 @@ python make_statistical_comparisons.py \
         bxt_gso bxt_sgso bxt_sgso_us \
         bxt_gso bxt_sgso bxt_sgso_us \
     --metrics ${METRICS[@]} \
+    --estimator-renaming $RENAMING \
     --raise-missing

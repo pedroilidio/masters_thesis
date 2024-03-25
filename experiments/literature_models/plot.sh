@@ -4,6 +4,7 @@ set -e
 DEBUG=$1
 echo "DEBUG=$DEBUG"
 BASEDIR=literature_models
+RENAMING=$BASEDIR/estimator_renaming.yml
 METRICS=(
     "fit_time"
     "score_time"
@@ -40,7 +41,9 @@ python $DEBUG make_statistical_comparisons.py \
     --outdir $BASEDIR/statistical_comparisons/no_drop \
     --estimators ${ESTIMATORS[@]} \
     --metrics ${METRICS[@]} \
-    --raise-missing
+    --raise-missing \
+    --estimator-renaming $RENAMING \
+
 
 for drop in 50 70 90; do
     echo "*** DROP $drop% ***"
@@ -49,5 +52,7 @@ for drop in 50 70 90; do
         --outdir $BASEDIR/statistical_comparisons/drop$drop \
         --estimators $(for E in ${ESTIMATORS[@]}; do echo $E"__"$drop; done) \
         --metrics ${METRICS[@]} \
-        --raise-missing
+        --raise-missing \
+    --estimator-renaming $RENAMING \
+
 done

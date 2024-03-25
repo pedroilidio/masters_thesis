@@ -2,6 +2,7 @@
 set -e
 
 BASEDIR=prediction_weights
+RENAMING=$BASEDIR/estimator_renaming.yml
 METRICS=(
     "fit_time"
     "score_time"
@@ -32,10 +33,12 @@ python make_statistical_comparisons.py \
     --results-table $BASEDIR/results.tsv \
     --outdir $BASEDIR/statistical_comparisons/bxt \
     --estimators ${BXT_ESTIMATORS[@]} \
-    --metrics ${METRICS[@]}
+    --metrics ${METRICS[@]} \
+    --estimator-renaming $RENAMING
 
 python make_statistical_comparisons.py \
     --results-table $BASEDIR/results.tsv \
     --outdir $BASEDIR/statistical_comparisons/brf \
     --estimators ${BRF_ESTIMATORS[@]} \
-    --metrics ${METRICS[@]}
+    --metrics ${METRICS[@]} \
+    --estimator-renaming $RENAMING

@@ -4,6 +4,7 @@ set -e
 DEBUG=$1
 
 BASEDIR=best_forests_with_dropout
+RENAMING=$BASEDIR/estimator_renaming.yml
 METRICS=(
     "fit_time"
     "score_time"
@@ -42,6 +43,7 @@ python $DEBUG make_statistical_comparisons.py \
     --outdir $BASEDIR/statistical_comparisons/no_drop \
     --estimators ${ESTIMATORS[@]} \
     --metrics ${METRICS[@]} \
+    --estimator-renaming $RENAMING \
     --raise-missing
 
 for drop in 50 70 90; do
@@ -51,5 +53,6 @@ for drop in 50 70 90; do
         --outdir $BASEDIR/statistical_comparisons/drop$drop \
         --estimators $(for E in ${ESTIMATORS[@]}; do echo $E"__"$drop; done) \
         --metrics ${METRICS[@]} \
+        --estimator-renaming $RENAMING \
         --raise-missing
 done
