@@ -11,7 +11,7 @@
 \label{sec:estimator-centric}
 
 This section presents two other methods for optimizing estimators for interaction prediction tasks.
-Like bipartite trees (\autoref{sec:bipartite forests}), these methods focus on adapting the learning algorithm in a more fundamental level than data-centric approaches (\autoref{sec:standard adaptations}). 
+Like bipartite trees (\autoref{sec:bipartite_trees}), these methods focus on adapting the learning algorithm in a more fundamental level than data-centric approaches (\autoref{sec:standard adaptations}). 
 The first method is an adaptation of linear models to the bipartite setting, named RLS-Kron~\cite{vanlaarhoven2011gaussian}. It explores properties of the Kronecker product to build an estimator on a large global kernel matrix, without in fact having to calculate such matrix.
 The second method adapts matrix factorization approaches to take similarity side-features into account. Named Neighborhood-Regularized Logistic Matrix Factorization (NRLMF), this technique allows obtaining latent features for unseen instances, which is commonly not possible with traditional matrix factorization.
 
@@ -191,7 +191,7 @@ which summarizes to
 This section describes the NRLMF~\cite{liu2016neighborhood} algorithm, which is a matrix factorization technique that incorporates similarity information between samples in the learning process. It enables latent features of new instances to be inferred from the features of their neighbors.
 %NRLMF implements semi-supervised concepts, as it is designed to handle missing labels and to take advantage of the similarities between samples to improve generalization. 
 %Further descendants of NRLMF were later proposed, using a kernel fusion procedure~\cite{hao2017dnilmf,li2019dnilmf}, or applying beta-distribution rescoring of its~outputs~\cite{ban2019nrlmfb}.
-The method is an extension of the Logistic Matrix Factorization (LMF) algorithm, which is designed for recommendation tasks~\cite{johnsonlogistic}.
+The method is an extension of the Logistic Matrix Factorization (LMF) algorithm, which is designed for recommendation tasks~\cite{johnson2014logistic}.
 NRLMF was successfully applied to diverse bipartite interaction prediction problems, such as drug-target~\cite{liu2016neighborhood}, long non-coding RNA-protein~\cite{liu2017lpinrlmf}, and lncRNA-microRNA~\cite{liu2020predicting}.
 
 
@@ -224,7 +224,7 @@ As can be deduced from \autoref{eq:traditional matrix_factorization}, the dot pr
     \hat Y\el{ij} = U\el{i} \cdot V\el{j}
 \end{equation}
 %
-Logistic matrix factorization (LMF) slightly redefines the problem by introducing one more step to obtain $\hat Y$ from $U$ and $V$~\cite{johnsonlogistic}: it assumes that the interaction matrix $Y$ is the result of the logistic function applied to $UV\T$ and not only $UV\T$ anymore.
+Logistic matrix factorization (LMF) slightly redefines the problem by introducing one more step to obtain $\hat Y$ from $U$ and $V$~\cite{johnson2014logistic}: it assumes that the interaction matrix $Y$ is the result of the logistic function applied to $UV\T$ and not only $UV\T$ anymore.
 %
 \begin{equation}
     \hat Y\el{ij} = \text{logistic}(U\el{i} \cdot V\el{j})
@@ -261,10 +261,10 @@ To simplify notation, we define matrices $J$ whose combined sum of all elements 
 \begin{equation}
     \mathcal{J} =
         \sum J_\text{labels}
-        + \sum J_\text{1, regularization}
-        + \sum J_\text{2, regularization}
-        + \sum J_\text{1, neighborhood}
-        + \sum J_\text{2, neighborhood}
+        + \sum J_\text{1, reg.}
+        + \sum J_\text{2, reg.}
+        + \sum J_\text{1, neigh.}
+        + \sum J_\text{2, neigh.}
     \label{eq:lmf_objective_matrices}
 \end{equation}
 %
@@ -315,23 +315,23 @@ Adding the aforementioned positive importance factor $\alpha$ and expanding $\ha
 To discourage large values in $U$ and $V$, we consider quadratic regularization terms weighted by hyperparameters $\lambda_1$ and $\lambda_2$:
 %
 \begin{gather}
-    J_\text{1, regularization}
+    J_\text{1, reg.}
         = -\frac{\lambda_1}{2} U \odot U
         = -\frac{\lambda_1}{2} \mathbb{I} \odot (UU\T)\\
-    J_\text{2, regularization}
+    J_\text{2, reg.}
         = - \frac{\lambda_2}{2} V \odot V
         = - \frac{\lambda_2}{2} \mathbb{I} \odot (VV\T)
     \label{eq:lmf_regularization}
 \end{gather}
 %
-%In the LMF context of \autoref{eq:lmf_prediction}, the regularization terms can be interpreted as a Gaussian prior on the latent features, centered at the origin with variance $\lambda_1$ and $\lambda_2$ for $U$ and $V$, respectively~\cite{johnsonlogistic}.
+%In the LMF context of \autoref{eq:lmf_prediction}, the regularization terms can be interpreted as a Gaussian prior on the latent features, centered at the origin with variance $\lambda_1$ and $\lambda_2$ for $U$ and $V$, respectively~\cite{johnson2014logistic}.
 If the initial objective proposal can be interpreted as maximizing the probability of guessing all labels correctly given specific $U$ and $V$ ($\sum J_\text{labels} = \log P(\hat Y=Y\mid U,V)$), adding the regularization terms is equivalent to introduce prior assumptions about $U$ and $V$ distributions and define a slightly different objective: maximizing the posterior probability to obtain the current $U$ and $V$ given that $\hat Y = Y$. Applying Bayes' theorem and assuming $P(Y) = 1$ we have
 %
 \begin{equation}
     P(U,V\mid \lambda_1, \lambda_2, Y) = P(Y\mid U,V)\; P(U\mid \lambda_1) \; P(V\mid \lambda_2)
 \end{equation}
 %
-Under the assumption that the values in $U$ and $V$ follow zero-centered spherical gaussian distributions with variances given by $\frac{1}{\lambda}$, that is, $U\el{ij}\sim\mathcal{N}(0, \lambda_1^{-1}\mathbf{I})$ and $V\el{ij}\sim\mathcal{N}(0, \lambda_2^{-1}\mathbf{I})$, we recover the regularized objective function of \autoref{eq:lmf_regularization}~\cite{johnsonlogistic}.
+Under the assumption that the values in $U$ and $V$ follow zero-centered spherical gaussian distributions with variances given by $\frac{1}{\lambda}$, that is, $U\el{ij}\sim\mathcal{N}(0, \lambda_1^{-1}\mathbf{I})$ and $V\el{ij}\sim\mathcal{N}(0, \lambda_2^{-1}\mathbf{I})$, we recover the regularized objective function of \autoref{eq:lmf_regularization}~\cite{johnson2014logistic}.
 %
 \begin{multline}
     \log P(U,V\mid \lambda_1, \lambda_2, Y)
@@ -402,10 +402,10 @@ Multiple options are available for the definition of neighborhoods, such as cons
 The loss term proposed by NRLMF is then given by the sum of the Euclidean distances in the latent space between samples in the same neighborhood, weighted by their similarities:
 %
 \begin{gather}
-    \mathcal{J}_\text{1, neighborhood} =
+    \mathcal{J}_\text{1, neigh.} =
     - \sum_{ij}A_1\el{ij} \|U\el{i} - U\el{j}\|^2
     \\
-    \mathcal{J}_\text{2, neighborhood} =
+    \mathcal{J}_\text{2, neigh.} =
     - \sum_{ij}A_2\el{ij} \|V\el{i} - V\el{j}\|^2
     \label{eq:neighborhood_regularization}
 \end{gather}
@@ -485,8 +485,8 @@ between each sample and its neighbors ($A_1\el{ij}$ is $0$ if $U\el{i}$ and $U\e
 Finally, the neighborhood regularization terms are written as
 %
 \begin{gather}
-    J_\text{1, neighborhood} = -\frac{\beta_1}{2} L_1 \odot (UU\T)\\
-    J_\text{2, neighborhood} = -\frac{\beta_2}{2} L_2 \odot (VV\T)
+    J_\text{1, neigh.} = -\frac{\beta_1}{2} L_1 \odot (UU\T)\\
+    J_\text{2, neigh.} = -\frac{\beta_2}{2} L_2 \odot (VV\T)
 \end{gather}
 %
 %
@@ -544,7 +544,7 @@ and the derivatives of the objective function with respect to $U$ and $V$ to be 
 %
 The training procedure of NRLMF is presented by \autoref{alg:nrlmf_train}, and consists of alternated updates on $U$ and $V$ in the gradient's direction until certain stop criteria are satisfied. Common choices for stopping conditions are a maximum number of iterations or a minimum change in the objective function between iterations.
 
-Since faster convergence is reported by the original authors~\cite{johnsonlogistic}, we follow previous work~\cite{johnsonlogistic,liu2016neighborhood,hao2017predicting,li2019dnilmflda} by implementing the AdaGrad procedure~\cite{duchi2011adaptive}, in which the length of each gradient step is divided by the square-root sum of squared previous steps:
+Since faster convergence is reported by the original authors~\cite{johnson2014logistic}, we follow previous work~\cite{johnson2014logistic,liu2016neighborhood,hao2017predicting,li2019dnilmflda} by implementing the AdaGrad procedure~\cite{duchi2011adaptive}, in which the length of each gradient step is divided by the square-root sum of squared previous steps:
 %
 \begin{equation}
     U_{t+1} = U_t + \frac{\eta G_{U,t}}{\sqrt{\sum_{t'=0}^t G_{U,t'}^2}}

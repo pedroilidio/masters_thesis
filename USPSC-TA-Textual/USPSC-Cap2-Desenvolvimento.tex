@@ -35,7 +35,7 @@ This section defines the notation used throughout this work (\autoref{sec:notati
 \subsection{Mathematical notation}
 \label{sec:notation}
 
-REESCREVER E PADRONIZAR %TODO
+%REESCREVER E PADRONIZAR %TODO
 
 % TODO link prediction is different, no side features?
 We use lowercase letters for scalars, bold lowercase letters for vectors and uppercase letters for bidimensional matrices.
@@ -127,6 +127,7 @@ We also omit parentheses in some situations, as exemplified by \autoref{eq:avg_i
     \label{eq:avg_index_notation}
 \end{equation}
 
+
 \subsection{Problem statement}
 \label{sec:problem_statement}
 
@@ -155,10 +156,17 @@ The procedure that takes $\mathcal{D}$ and generates the model for $f$ is called
 
 In our specific case, $\mathcal{X}_1 = \mathbb R^{m_1}$, $\mathcal{X}_2 = \mathbb R^{m_2}$, and $\mathcal{Y} = \{0, 1\}$, so that $f$ is a binary single-output classifier.
 %
-$\mathcal{D}$ can then be represented by a set of matrices: $\mathcal{D} = (X_1,\; X_2,\;Y)$, where $X_1\el{ij}=\x\el{j}_{1,i}$, $X_2\el{ij}=\x\el{j}_{2,i}$, and $Y\el{ij}=y_{i,j}$.
+$\mathcal{D}$ can then be represented by a set of matrices: $\mathcal{D} = (X_1,\; X_2,\;Y)$, where $X_1\el{ij}=\x\el{j}_{1,i}$, $X_2\el{ij}=\x\el{j}_{2,i}$, and $Y\el{ij}=y_{i,j}$ (see \autoref{fig:bipartite dataset}).
 We call $X_1$ and $X_2$ \emph{feature matrices}, \emph{attribute matrices} or \emph{design matrices}. $Y$ is called the \emph{label matrix}, the \emph{interaction matrix}, or the \emph{adjacency matrix}.
 %
 Since each sample in $X_1$ refers to a \emph{row} of $Y$ and each sample in $X_2$ corresponds to a \emph{column} of $Y$, we sometimes refer to the samples of $X_1$ and $X_2$ as the \emph{row samples} and the \emph{column samples}, respectively. Analogously, we say that our datasets have $m_1$ \emph{row features} and $m_2$ \emph{column features}.
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=.7\textwidth]{figures/bipartite_dataset.pdf}
+    \caption{Representation of a bipartite network and its corresponding dataset.\newline Source: By the author.}
+    \label{fig:bipartite dataset}
+\end{figure}
 
 Another important characteristic of our learning problems is that only the positive labels ($y=1$) are reliable. This means that an interaction between two instances may occur in reality even if annotated as negative ($y=0$) in the dataset. The datasets are thus termed positive-unlabeled (PU)~\cite{bekker2020learning}.
 
@@ -224,7 +232,7 @@ Another important characteristic of our learning problems is that only the posit
 \label{sec:standard adaptations}
 
 %As previously stated in \autoref{sec:problem_statement},
-As previously discussed,
+As discussed in \autoref{sec:approaches},
 bipartite interaction problems fundamentally differ from the usual machine learning paradigm, in which input data represents a single entity to be labeled. Interaction tasks are instead concerned with labeling a relationship between two entities, and as such, each prediction is made upon a pair of feature vectors, each vector being specific to each of the two sample domains.
 
 Such subtlety is often bypassed by reformulating a bipartite dataset into the traditional machine learning setting~\cite{vert2008reconstruction,schrynemackers2015classifying,pahikkala2015more}.
@@ -252,7 +260,7 @@ Furthermore, to be consistent with \cite{schrynemackers2015classifying,pliakos20
 %TODO another term for multi-output, please. This is too confusing with multi-output in the traditional sense. bipartite multi-output are local models that use multi-output traditional estimators? or 3D interaction matrices with multiple labels for each interaciton?
 Notice that the label matrix $Y$ can still be represented in two dimensions even if the model is single-output in this sense, contrary to the usual case where bidimensionality of $Y$ is a defining characteristic of a multi-output problem.
 
-Finally, the two most common ways of adapting traditional estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \citeonline{schrynemackers2015classifying}. We further denote them \empth{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
+Finally, the two most common ways of adapting traditional estimators to bipartite data are then named \emph{global single-output} (GSO) and \emph{local multi-output} (LMO), as proposed by \citeonline{schrynemackers2015classifying}. We further denote them \emph{standard}, to clearly distinguish them from new adaptation proposals that could share the globality, locality, or outputness properties, but work in an entirely different way.
 %
 Specific definitions and shortcomings of these procedures are now presented.
 
@@ -301,6 +309,17 @@ all combinations of $i_1$ with $i_2$ are explored (see \autoref{fig:sgso}).
     \label{eq:gsodata}
 \end{equation}
 
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=.5\textwidth]{figures/gso.pdf}
+    \caption{
+        The standard global single-output (SGSO) approach. The bipartite dataset is represented as two matrices $X_1$ and $X_2$, and a matrix $Y$ of shape $|X_1|_i$ by $|X_2|_j$. The SGSO approach concatenates the rows of $X_1$ and $X_2$ to form a new feature matrix, in which each row represents a dyad. The interaction matrix $Y$ is then reshaped into a column vector, so that each element of $Y$ is associated with a row of the new feature matrix. The resulting dataset is then used to train a conventional single-output estimator.
+        \newline Source: By the author.
+    }
+    \label{fig:sgso}
+\end{figure}
+
+
 To consider all possible dyads, $X_\text{SGSO}$ would have $|X_1|_i|X_2|_i$ rows and $|X_1|_j+|X_2|_j$ columns. Thus, $X_\text{SGSO}$ as defined by \autoref{eq:gsodata} is highly redundant.
 %Reformatting $Y$ has no impact in memory usage, with $Y_\text{SGSO}$ having a single column but all the same $|X_1|_i|X_2|_i$ elements as $Y$.
 %However, as stated in section \ref{sec:definitions}, $X_\text{SGSO}$ would be a $|X_1|_i|X_2|_i$ by $|X_1|_j+|X_2|_j$ matrix if one intends to consider all interactions in $Y$, which
@@ -322,6 +341,17 @@ In general, they must be multi-output estimators, each being able to output a bi
 
 The procedure for training the estimators in an SLMO setting consists of simply training the primary estimators. The primary rows estimator is trained on $X_1$ and $Y$, and the primary columns estimator on $X_2$ and $Y^\intercal$ (\autoref{alg:train_local_model}). The prediction step is however more complicated, involving the training of the secondary estimators on predictions of the primary models.
 The procedure is described in details by \autoref{alg:predict_local_model} and illustrated by \autoref{fig:slmo}. The \KwCombine function used in line \autoref{ln:combine_local_outputs} of the \autoref{alg:predict_local_model} procedure can be arbitrarily chosen, and is usually defined as the simple element-wise average of both matrices (\KwCombine{$Y_1$, $Y_2$} $= \frac{1}{2}(Y_1 + Y_2)$).
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=.6\textwidth]{figures/lmo.pdf}
+    \caption{
+        The standard global single-output (SLMO) approach. The bipartite dataset is represented as two matrices $X_1$ and $X_2$, and a matrix $Y$ of shape $|X_1|_i$ by $|X_2|_j$. The SLMO approach trains two primary multi-output estimators, one for each axis, and then trains two secondary multi-output estimators on the predictions of the primary models. The secondary models are then used to predict the interactions between new row samples and new column samples.
+        \newline Source: By the author.
+    }
+    \label{fig:slmo}
+    %\caption{Illustration of the training procedure under the local multi-output approach for adapting traditional learning algorithms to bipartite data. To be able to predict interactions among completely new sample pairs, this approach aggregates four multi-output monopartite estimators. In a first step, a primary rows estimator is trained on X_0 and y, and a primary columns estimator on X_1 and y.T. The predictions of the primary estimators are used to extend the interaction matrix, as shown as the step 1 in figure (only the columns estimation is shown). The extended matrix then is used to train a secondary rows estimator and a secondary columns estimator. Finally, the predictions of both secondary estimators are arbitrarily combined to yield the final predictions (the most common combination method is taking the simple average between both axes). Note that, although not necessary, one may consider using the training set also when training the secondary estimators, if these estimators are able to take advantage of possible cross-output inter-dependencies.}
+\end{figure}
 
 %, optionally combined with the original training data
 
@@ -846,7 +876,14 @@ The resulting complexities are presented by \autoref{tab:O_comparison}. We see t
 
 % TODO: best vs random
 
-\begin{table*}[h]
+\begin{table}[tb]
+    \caption{
+        Comparison between asymptotic time complexities of decision tree-building procedures.
+        We assume $n \sim |X_1|_i \sim |X_2|_i$.
+        Similarly, $\tilde m$ represents the number of features to be considered for the split search in each node.
+        $S(n)$ denotes the complexity of the sorting procedure, usually $n$ for integral features or $n \log n$ for decimal values.
+        The last column refers to the case where $\tilde m \sim n$. This scenario could arise, for instance, when $X_a$ are pairwise similarities or kernel matrices. 
+    }
     \centering
     \begin{tabular}{c|c|c|c}
         \toprule
@@ -879,16 +916,9 @@ The resulting complexities are presented by \autoref{tab:O_comparison}. We see t
         \\
         \bottomrule
     \end{tabular}
-    \caption{
-        Comparison between asymptotic time complexities of decision tree-building procedures.
-        We assume $n \sim |X_1|_i \sim |X_2|_i$.
-        Similarly, $\tilde m$ represents the number of features to be considered for the split search in each node.
-        $S(n)$ denotes the complexity of the sorting procedure, usually $n$ for integral features or $n \log n$ for decimal values.
-        The last column refers to the case where $\tilde m \sim n$. This scenario could arise, for instance, when $X_a$ are pairwise similarities or kernel matrices. 
-        Source: made by the authors.
-    }
+    \newline \newline {\ABNTEXfontereduzida Source: By the author.}
     \label{tab:O_comparison}
-\end{table*}
+\end{table}
 
 \begin{mdframed}[frametitle={Related experiments}]
 
@@ -1653,6 +1683,13 @@ Finally, we present and theoretically compare the two evaluation metrics utilize
 
 To evaluate machine learning models, the standard procedure consists of separating a subset of data samples not to be used in the training process. These samples are subsequently inputted to the trained model and its known labels are compared to the model's predictions in order to estimate the algorithm performance. The held-out samples are collectively called the \emph{test set} while the ones used for model building are called the \emph{training set}.
 
+\begin{wrapfigure}{R}{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.4\textwidth]{figures/train_test_split.pdf}
+    \caption{Different split configurations for validating models with bipartite datasets.\newline Source: By the author.}
+    \label{fig:bipartite test sets}
+\end{wrapfigure}
+
 Having two distinct sample groups in bipartite learning settings makes the concept of a held-out set more nuanced. We list five reasonable test configurations we encounter in the literature. Given two samples $\x_1$ and $\x_2$ from each respective domain, a "test set" could refer to:
 %
 \begin{enumerate}
@@ -1706,7 +1743,14 @@ For the learning problems under study, explainability is an important factor to 
 %In the present work, we make use of an adapted $k$-fold cross-validation procedure to evaluate our models' performance. With customary datasets formatted as $X_\text{SGSO}$ and $Y_\text{SGSO}$, $k$-fold cross-validation consists in equally and randomly dividing both $X_\text{SGSO}$ and $Y_\text{SGSO}$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, each time selecting a fold as the test set and the remaining ones as the training set (Figure \ref{}).
 In traditional learning tasks, $k$-fold cross-validation consists in equally and randomly dividing both $X$ and $Y$ together in $k$ non-overlapping partitions (or folds). The model is then evaluated $k$ times, in each round selecting a fold as the test set and the remaining ones together as the training set.
 
-In the bipartite interaction setting, fold division can be done in each of the two axis of the interaction matrix, corresponding to each of the two $X_a$ sample domains~\cite{vert2008reconstruction,pahikkala2015more}. Each of the $k_1$ folds of $X_1$ can be combined with one of the $k_2$ folds of $X_2$, resulting in a corresponding partition of $Y$. Each bidimensional fold can be used as the TT set in a CV round, which yields the corresponding four LL, LT, TL and TT sets for each round. A $k_1$ by $k_2$ bidimensional CV then has a total of $k_1k_2$ folds.
+In the bipartite interaction setting, fold division can be done in each of the two axis of the interaction matrix, corresponding to each of the two $X_a$ sample domains~\cite{vert2008reconstruction,pahikkala2015more}. Each of the $k_1$ folds of $X_1$ can be combined with one of the $k_2$ folds of $X_2$, resulting in a corresponding partition of $Y$. Each bidimensional fold can be used as the TT set in a CV round, which yields the corresponding four LL, LT, TL and TT sets for each round (\autoref{fig:bipartite diagonal cv}). A $k_1$ by $k_2$ bidimensional CV then has a total of $k_1k_2$ folds.
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=\textwidth]{figures/cv.pdf}
+    \caption{Bipartite cross-validation. We represent the 9 train-test splits of a 3 by 3 bipartite cross-validation procedure.\newline Source: By the author.}
+    \label{fig:bipartite cv}
+\end{figure}
 
 %If all partitions are explored, a $k_1$ by $k_2$ bidimensional cross-validation has a total of $k_1k_2$ folds. 
 
@@ -1716,11 +1760,18 @@ In the bipartite interaction setting, fold division can be done in each of the t
 
 We can optionally enforce independent test sets, so that each dyad composes only one bidimensional fold. This can be done by selecting $k=k_1=k_2$ and pairing each $X_1$ partition with a single $X_2$ partition, yielding a total of $k$ folds, not $k^2$ as before.
 %While $k_1\neq k_2$ is still theoretically possible, the total number of folds will always be equal to the least $k_a$ value, and the axis corresponding to the greater $k_a$ would have unexploited axis-folds when creating the test sets.
-We refer to this procedure as \emph{diagonal} cross-validation.
+We refer to this procedure as \emph{diagonal} cross-validation (\autoref{fig:bipartite diagonal cv}).
 
 In our settings, we average the results of all folds of each dataset before computing test statistics. Therefore, the number of folds and the independence between test folds will not affect the final significance estimates. We thus use all $k^2$ folds in our experiments. Diagonal cross-validation is still used, but for the nested validation used for parameter tuning in some experiments.
 
 An important note is that the similarity matrices must be thoughtfully handled when splitting the datasets: we must not include similarities with the test samples in the training set.  % TODO: say that this is usually not addressed?
+
+\begin{figure}[tb]
+    \centering
+    \includegraphics[width=\textwidth]{figures/diagonal_cv.pdf}
+    \caption{Diagonal bipartite cross-validation. We represent the 3 train-test splits of a 3 by 3 diagonal bipartite cross-validation procedure.\newline Source: By the author.}
+    \label{fig:bipartite diagonal cv}
+\end{figure}
 
 %%In order to maximize the amount of training data in each fold, several studies \ref{} perform LT and TL validation separately from the TT validation, employing 1 by $k$ and $k$ by 1 cross-validation procedures respectively for LT and TL settings. Nevertheless, this requires performing cross-validation three times for each estimator, while TT cross-validation already unavoidably generates LT and TL partitions that could be used for scoring. Furthermore, using separate LT, TL and TT validation procedures hinders score comparison between LT and TT and between TL and TT, since different amounts of training data would be used for validating TT in comparison to validating the partially-learned test sets.
 
@@ -2457,7 +2508,7 @@ On the other side, AUROC compensates this effect by weighting each $\text{Pr}(r)
 
 This characteristic of AUROC might be more suitable for model comparison under the ositive-unlabeled assumption, even though AUPR is usually reccomended for imbalanced scenarios~\cite{he2009learning,saito2015precisionrecall,fernandez2018learning}.
 In PU datasets, it is common for negative-labeled instances to rank highly due to the possibility of them being unannotated positives. These highly-ranked negatives would have a larger influence on the AUPR score in comparison to the AUROC score.
-In fact, we show in the next section that AUROC is closely related to the Mean Percentile Rank metric, which has been suggested for PU learning contexts of interaction prediction and recommendation systems~\cite{pahikkala2015more,johnsonlogistic,hao2019opensource,yu2020fpscdtia}. \autoref{sec:comparing auroc aupr} presents further discussion on the specific usecases of AUPR and AUROC, besides a numerical analysis of their dependence on the percentile ranks.
+In fact, we show in the next section that AUROC is closely related to the Mean Percentile Rank metric, which has been suggested for PU learning contexts of interaction prediction and recommendation systems~\cite{pahikkala2015more,johnson2014logistic,hao2019opensource,yu2020fpscdtia}. \autoref{sec:comparing auroc aupr} presents further discussion on the specific usecases of AUPR and AUROC, besides a numerical analysis of their dependence on the percentile ranks.
 
 
 % TODO indeed the results tend to change less with AUROC across ILR in comparison to AUPR
@@ -2508,9 +2559,9 @@ From \autoref{eq:auroc ranks}, we can express AUROC as
 % TODO XXX moment of inertia
 % TODO roc is again interesting for PU data, MPR
 %
-%The term $\int_{0}^{1} r\,c(r) \;dr$ represents the average percentile ranking of positive labels, or the average distance of a positive label from the origin in the plot of $c(r)$. This quantity by itself, the mean percentile ranking (MPR), is a common metric in the realm of collaborative filtering for recommendation systems~\cite{hu2008collaborative,johnsonlogistic} and has also been proposed to bipartite interaction prediction~\cite{ezzat2019computational,hao2019opensource,yu2020fpscdti}.
+%The term $\int_{0}^{1} r\,c(r) \;dr$ represents the average percentile ranking of positive labels, or the average distance of a positive label from the origin in the plot of $c(r)$. This quantity by itself, the mean percentile ranking (MPR), is a common metric in the realm of collaborative filtering for recommendation systems~\cite{hu2008collaborative,johnson2014logistic} and has also been proposed to bipartite interaction prediction~\cite{ezzat2019computational,hao2019opensource,yu2020fpscdti}.
 %or the average distance of a positive label from the origin in the plot of $c(r)$.
-This quantity is sometimes referred to as the \emph{mean percentile ranking} (MPR) in the previous literature~\cite{johnsonlogistic}, being proposed in contexts of recommendation systems~\cite{hu2008collaborative,johnsonlogistic} and bipartite interaction prediction~\cite{ezzat2019computational,hao2019opensource,yu2020fpscdtia}.
+This quantity is sometimes referred to as the \emph{mean percentile ranking} (MPR) in the previous literature~\cite{johnson2014logistic}, being proposed in contexts of recommendation systems~\cite{hu2008collaborative,johnson2014logistic} and bipartite interaction prediction~\cite{ezzat2019computational,hao2019opensource,yu2020fpscdtia}.
 %
 %\begin{equation}
 %    \text{MPR} = \int_0^1 r\,c(r) \;dr
@@ -2581,7 +2632,7 @@ from which is straightforward to show that
 Therefore, the AUROC can also be interpreted as the normalized MPR.
 To the best of our knowledge, this relationship is not clearly shown in previous explorations.  % TODO
 
-This result corroborates the argument that the AUROC could be preferable for PU learning scenarios, since the closely-related MPR is a known metric specifically recommended for this context~\cite{pahikkala2015more,johnsonlogistic,hao2017predicting,yu2020fpscdtia}.
+This result corroborates the argument that the AUROC could be preferable for PU learning scenarios, since the closely-related MPR is a known metric specifically recommended for this context~\cite{pahikkala2015more,johnson2014logistic,hao2017predicting,yu2020fpscdtia}.
 %
 Furthermore, the normalization enables the comparison across different tasks, ensuring that the scores on each dataset are always in the same range. Hence, the AUROC should be preferred over the MPR for the majority of cases.
 %This is especially valid in our test configurations, % TODO dropout
@@ -2627,7 +2678,10 @@ We gathered ten publicly available interaction datasets to evaluate the performa
 % TODO: organize
 \begin{table}[tb]
     \centering
-    \footnotesize
+    \caption{
+        Summary of the datasets used in this study. The similarity scores for mirTarBase and NPInter were obtained from the raw sequences as their normalized Smith-Waterman alignment scores. See \autoref{sec:datasets} for more information.
+    }
+    \label{tab:datasets}
     \begin{tabular}{lrrrr}
         \toprule
         Dataset & Type of interaction & $Y$ shape & Density & References\\
@@ -2645,10 +2699,7 @@ We gathered ten publicly available interaction datasets to evaluate the performa
         mirTarBase & miRNA-mRNA & $1873 \times 415$ & 7.065\% &\cite{hsu2011mirtarbase, huang2022mirtarbase}\\
         \bottomrule
     \end{tabular}
-    \caption{
-        Summary of the datasets used in this study. The similarity scores for mirTarBase and NPInter were obtained from the raw sequences as their normalized Smith-Waterman alignment scores. See \autoref{sec:datasets} for more information. Source: made by the authors.
-    }
-    \label{tab:datasets}
+    \newline \newline {\ABNTEXfontereduzida Source: By the author.}
 \end{table}
 
 
@@ -2747,15 +2798,16 @@ This experiment was designed to evaluate the hypotheses raised in \autoref{sec:m
 
 % TODO p-values
 
-\begin{figure*}[bth]
+\begin{figure}[tb]
     \includegraphics[width=\textwidth]{
         experiments/theoretical_scoring/results/rank_correlation.pdf
     }
     \caption{
-        Point biserial correlation between the binary labels at each percentile rank and the AUROC and AUPR scores. The correlation was calculated between the ranks and the scores for $N=10^5$ random sets of $R=10^3$ binary labels. The results show that AUPR is very sensitive to a small group of highest ranks, while AUROC has a more distributed weigthing profile. For AUROC, both higher and lower ranks have a higher impact than ranks around $0.5$, contributing in opposite directions to the final metric. The results confirm the theoretical analyses from \autoref{sec:metrics from ranks}. Source: made by the authors.
+        Point biserial correlation between the binary labels at each percentile rank and the AUROC and AUPR scores. The correlation was calculated between the ranks and the scores for $N=10^5$ random sets of $R=10^3$ binary labels. The results show that AUPR is very sensitive to a small group of highest ranks, while AUROC has a more distributed weigthing profile. For AUROC, both higher and lower ranks have a higher impact than ranks around $0.5$, contributing in opposite directions to the final metric. The results confirm the theoretical analyses from \autoref{sec:metrics from ranks}.
+        \newline Source: By the author.
     }
     \label{fig:correlation ranks}
-\end{figure*}
+\end{figure}
 
 The plot shows that AUPR is highly sensitive to a small set of highest ranks, while ranks closer to $0$ have little influence on the metric. On the other hand, the correlations with the AUROC score are more distributed across ranks. Also, for AUROC, both higher and lower ranks have a higher impact, but in opposite directions.
 This behaviour in agreement with the theoretical analyses from \autoref{sec:metrics from ranks}.
@@ -2788,7 +2840,7 @@ We also argue that AUROC could be preferable for comparing models under the PU a
 This experiment empirically measures the training time complexity of the tree models under study. We artificially generate a series of bipartite datasets by filling three $n$ by $n$ matrices with pseudo-random values, representing the two $X$ matrices and the $Y$ matrix on each interaction. Values were taken uniformly from the interval $[0, 1]$ for the feature matrices and from the interval $[0, 100]$ for the target matrix.
 %We thus represent interactions between $n$ drugs and $n$ proteins, each being described by $n$ features.
 
-We then train the GMO and the optimized GSO versions of a single bipartite decision tree (BDT) and a single bipartite Extra-Tree (BXT) on each of the generated datasets, measuring their training duration in seconds. The results are shown in Figure \ref{fig:empirical_complexity}. From the least squares linear regression on the log-log plot, we see that the estimated training time complexities closely follow the theoretical expectations developed under Section \ref{sec:complexity_analysis}, with slopes referring to the GSO models (predicted to be $O(n^3)$) approaching 3 while the GMO models (predicted to be $O(n^3\log(n))$) produce slope between 3 and 4.
+We then train the GMO and the optimized GSO versions of a single bipartite decision tree (BDT) and a single bipartite Extra-Tree (BXT) on each of the generated datasets, measuring their training duration in seconds. The results are shown in \autoref{fig:empirical_complexity}. From the least squares linear regression on the log-log plot, we see that the estimated training time complexities closely follow the theoretical expectations developed under Section \ref{sec:complexity_analysis}, with slopes referring to the GSO models (predicted to be $O(n^3)$) approaching 3 while the GMO models (predicted to be $O(n^3\log(n))$) produce slope between 3 and 4.
 
 Statistical testing further shows that the empirical time complexity of the proposed GSO algorithms are indeed significantly lower than that of their GMO counterparts (see the caption for \autoref{fig:empirical_complexity}).
 
@@ -2801,27 +2853,25 @@ since the randomized split search performs far less operations than the exhausti
 We then suggest that much larger datasets would be required to observe the asymptotic behavior of the Extra-Trees.
 In spite of that, the empirical complexity of \model{bdt-gso} is still observed to be highly significantly lower than that of \model{bxt-gmo}, validating once more the prediction that \model{bdt-gso} should present faster training times than \model{bxt-gmo} on sufficiently large datasets.
 
-\begin{figure}[h]
+\begin{figure}[tb]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
             experiments/empirical_complexity/time_vs_n_artificial_data.pdf
         }
-        \caption{Training durations in seconds versus the the number of samples and features.}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
             experiments/empirical_complexity/%
             time_vs_n_artificial_data_loglog.pdf
         }
-        \caption{Logarithm of the training durations in seconds versus the logarithm of the number of samples and features.}
     \end{subfigure}
     \caption{
         Empirical time complexity estimation of the proposed bipartite global single-output (BGSO) and the global multi-output (GMO)~\cite{pliakos2018global}
-        algorithms. Bipartite versions of both extremely randomized trees~\cite{geurts2006extremely} (BXT) and greedy decision trees~\cite{breiman1984classification} (BDT) were built under the GSO and GMO scheme and trained over artificial datasets of varying numbers of samples (as described in \autoref{sec:complexity_analysis}). Applying least-squares linear regression to the logarithm of the values in (a), as shown in (b), the empirical slopes and respective standard deviations are obtained.
+        algorithms. Bipartite versions of both extremely randomized trees~\cite{geurts2006extremely} (BXT) and greedy decision trees~\cite{breiman1984classification} (BDT) were built under the GSO and GMO scheme and trained over artificial datasets of varying numbers of samples (as described in \autoref{sec:complexity_analysis}). The training time versus the number of samples is presented on the left. On the right, we present the same plot on a logarithmic scale. The slopes and respective standard deviations are obtained by applying least-squares linear regression.
         Independent two-sample t-tests comparing the slope estimates reveal that the time complexity of \model{bdt-gso} is highly significantly lower than \model{bdt-gmo} ($p < 10^{-64}$) and even \model{bxt-gmo} ($p < 10^{-20}$), and also that \model{bxt-gso} significantly exhibits lower complexity than \model{bxt-gmo} ($p < 10^{-22}$).
         % Those values corroborate the theoretical estimates from \autoref{sec:complexity_analysis}.
-        Source: made by the authors.
+        \newline Source: By the author.
     }
     \label{fig:empirical_complexity}
 \end{figure}
@@ -2879,12 +2929,12 @@ The minimum rows per leaf and minimum columns per leaf were both set to 5, ensur
 To observe the effect of this early-stopping criterion by itself, we also include forests of fully-grown trees in the comparison. The compared models are described below.
 
 \begin{itemize}
-    \item \textbf{\texttt{gmosa}:} proposed by \citeonline{pliakos2018global}, the output of each leaf is the average of the labels of the learned samples that reach that leaf (\autoref{eq:prototype1}).
-    \item \textbf{\texttt{uniform}:} also proposed by \citeonline{pliakos2018global}, the only difference from the \texttt{gmosa} strategy occurs in TL or LT test settings, when the average is taken only among the labels of the known sample of the pair being predicted (\autoref{eq:prototype2}).
+    \item \textbf{\texttt{GMOsa}:} proposed by \citeonline{pliakos2018global}, the output of each leaf is the average of the labels of the learned samples that reach that leaf (\autoref{eq:prototype1}). Their proposal had not been extended yet to ensembles of bipartite trees or to BXT.
+    \item \textbf{\texttt{uniform}:} also proposed by \citeonline{pliakos2018global}, but in the context of a single tree. It works as \texttt{GMOsa} for TT, but for TL and LT the average is taken only among the labels of the known instance (\autoref{eq:prototype2}).
     \item \textbf{\texttt{precomputed}:}
     %introduced by us (as also \texttt{square} and \texttt{softmax}),
-    the labels in each leaf are weighted by the similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
-    \item \textbf{\texttt{square}:} the labels in each leaf are weighted by the squared similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
+    the labels in each leaf are weighted by the similarities between the learned samples and the test instances (\autoref{eq:prototype3}).
+    \item \textbf{\texttt{square}:} similar to \texttt{precomputed}, but the squared similarities being predicted (\autoref{eq:prototype3}).
     \item \textbf{\texttt{softmax}:} the labels in each leaf are weighted by the exponential of the similarities between the learned samples and the pair being predicted (\autoref{eq:prototype3}).
     \item \textbf{\texttt{full}:} the trees are grown until a single interaction remains in each leaf. %, so that the prediction for each pair is the label of the single learned sample in the leaf.
 \end{itemize}
@@ -2924,29 +2974,29 @@ On the other hand, \texttt{full} and \texttt{uniform} show notable inferior perf
 We select the squared weighting strategy and the fully grown trees to be further investigated in the downstream analyses. %, keeping 5 by 5 as the minimum leaf partition size besides.
 
 
-\begin{figure*}[tbh]
+\begin{figure}[tb]
     \centering
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics{
+        \includegraphics{%
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/LT+TL_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics{
+        \includegraphics{%
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/LT+TL_average_precision.pdf
         }
     \end{subfigure}
 
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics{
+        \includegraphics{%
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/TT_roc_auc.pdf
         }
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics{
+        \includegraphics{%
             experiments/prediction_weights/statistical_comparisons/%
             brf/all_datasets/boxplots/TT_average_precision.pdf
         }
@@ -2957,10 +3007,10 @@ We select the squared weighting strategy and the fully grown trees to be further
         We then perform pairwise Wilcoxon rank-sum tests as a post-hoc analysis.
         Estimators that could \emph{not} be significantly distinguished from each other ($p > 0.05$) are connected by crossbars above their respective boxes. 
         The pairwise test results are corrected by the Benjamini-Hochberg procedure~\cite{benjamini1995controlling,haynes2013benjamini} in each subfigure. All pairwise comparisons are considered for the correction, even if not visible in the plot.
-        See \autoref{sec:exp settings} for further description of the evaluation procedure. Source: made by the authors.
+        See \autoref{sec:exp settings} for further description of the evaluation procedure. \newline Source: By the author.
     }
     \label{fig:pred_weights_brf}
-\end{figure*}
+\end{figure}
 
 
 \begin{figure*}[tbh]
@@ -2996,7 +3046,7 @@ We select the squared weighting strategy and the fully grown trees to be further
         We then perform pairwise Wilcoxon rank-sum tests as a post-hoc analysis.
         Estimators that could \emph{not} be significantly distinguished from each other ($p > 0.05$) are connected by crossbars above their respective boxes. 
         The pairwise test results are corrected by the Benjamini-Hochberg procedure~\cite{benjamini1995controlling,haynes2013benjamini} in each subfigure. All pairwise comparisons are considered for the correction, even if not visible in the plot.
-        See \autoref{sec:exp settings} for further description of the evaluation procedure. Source: made by the authors.
+        See \autoref{sec:exp settings} for further description of the evaluation procedure. \newline Source: By the author.
     }
     \label{fig:pred_weights_bxt}
 \end{figure*}
@@ -3063,7 +3113,7 @@ This behaviour is expected. Notice that SGSO US models are trained in a balanced
 
 %Contrastingly, both GMO models were consistently the best performing models in all AUROC settings, which is commonly assumed to be a less indicative metric in highly imbalanced classification contexts such as the present one \cite{}. This could be explained by a bias towards the majority class, possibly caused by the averaging of the larger leaves employed in this methods. %FIXME: actually, a bias towards minority class
 
-\begin{figure*}[tbh]
+\begin{figure}[tb]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
@@ -3096,13 +3146,13 @@ This behaviour is expected. Notice that SGSO US models are trained in a balanced
         We then perform pairwise Wilcoxon rank-sum tests as a post-hoc analysis.
         Estimators that could \emph{not} be significantly distinguished from each other ($p > 0.05$) are connected by crossbars above their respective boxes. 
         The pairwise test results are corrected by the Benjamini-Hochberg procedure~\cite{benjamini1995controlling,haynes2013benjamini} in each subfigure. All pairwise comparisons are considered for the correction, even if not visible in the plot.
-        See \autoref{sec:exp settings} for further description of the evaluation procedure. Source: made by the authors.
+        See \autoref{sec:exp settings} for further description of the evaluation procedure. \newline Source: By the author.
     }
     \label{fig:adaptations_brf}
-\end{figure*}
+\end{figure}
 
 
-\begin{figure*}[tbh]
+\begin{figure}[tb]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
@@ -3135,10 +3185,10 @@ This behaviour is expected. Notice that SGSO US models are trained in a balanced
         We then perform pairwise Wilcoxon rank-sum tests as a post-hoc analysis.
         Estimators that could \emph{not} be significantly distinguished from each other ($p > 0.05$) are connected by crossbars above their respective boxes. 
         The pairwise test results are corrected by the Benjamini-Hochberg procedure~\cite{benjamini1995controlling,haynes2013benjamini} in each subfigure. All pairwise comparisons are considered for the correction, even if not visible in the plot.
-        See \autoref{sec:exp settings} for further description of the evaluation procedure. Source: made by the authors.
+        See \autoref{sec:exp settings} for further description of the evaluation procedure. \newline Source: By the author.
     }
     \label{fig:adaptations_bxt}
-\end{figure*}
+\end{figure}
 
 
 \subsection{Can label imputation assist bipartite forests?}
@@ -3153,16 +3203,19 @@ This behaviour is expected. Notice that SGSO US models are trained in a balanced
     \end{itemize}
 \end{mdframed}
 
-In this section, we compare bipartite forest with and without label imputation by matrix factorization. We employ the adaptations SLMO, GMO, BGSO, and GMOSA based on the results of \autoref{sec:adaptation_comparison}.
+In this section, we compare bipartite forests with and without label imputation by matrix factorization. We employ the adaptations SLMO, GMO, BGSO, and GMOSA based on the results of \autoref{sec:adaptation_comparison}.
 
-It was previously suggested to employ logistic matrix factorization to create a dense representation of the interaction matrix. Using this representation as the training data for a BXT forest could improve the performance on DTI datasets \cite{pliakos2020drugtarget}.
-To test this hypothesis, we compare the bipartite forests cross-validation scores with and without the interaction matrix reconstruction step. As done by \cite{pliakos2020drugtarget}, the reconstruction step was performed using neighborhood-regularized logistic matrix factorization (NRLMF)\cite{liu2016neighborhood}.
+It was previously suggested that creating a dense representation of the interaction matrix improves the performance of BXT in drug-target interaction tasks~\cite{pliakos2020drugtarget}.
+To test this result on our datasets, we compare the bipartite forests scores with and without the interaction matrix reconstruction step. As \cite{pliakos2020drugtarget}, the reconstruction step was performed using neighborhood-regularized logistic matrix factorization (NRLMF)~\cite{liu2016neighborhood}.
 
 %\subsubsection{Hyperparameter selection}
 %\subsubsection{Experimental settings}
 We performed a randomized search to select hyperparameters for the NRLMF algorithm. 100 different combinations of hyperparameters were evaluated
 in terms of their resulting mean squared error in a nested bipartite 5-fold diagnonal cross-validation.
-The best combination of parameters according to the inner CV loop was then used to reconstruct the interaction matrix of each outer CV fold. Only then the resulting matrices were used as the training data for the bipartite forests. Note that a single forest was built per outer CV fold, so that the NRLMF hyperparameter search was performed independently from the downstream forest performance. The hyperparameters \texttt{lambda\_rows}, \texttt{lambda\_cols}, \texttt{alpha\_cols}, \texttt{alpha\_cols}, and \texttt{learning\_rate} were all independently sampled from a log-uniform distribution bounded by $\frac{1}{4}$ and $2$. The number of latent vector components was set to be equal for both axes, and chosen between 50 and 100. The number of neighbors was randomly selected as 3, 5 or 10 in each iteration, and the maximum number of optimization steps was always set to 100. The parameter $c$, as in the original paper, was set to $5$. This parameter specifies the emphasis on positive annotations, so each positive annotation contributes $5$ times more to the loss function in our settings, as if 5 copies of each positive interaction were present in the training set.
+The best combination of parameters according to the inner CV loop was then used to reconstruct the interaction matrix of each outer CV fold. Only then the resulting matrices were used as the training data for the bipartite forests. Note that a single forest was built per outer CV fold, so that the NRLMF hyperparameter search was performed independently from the downstream forest performance.
+% The hyperparameters \texttt{lambda\_rows}, \texttt{lambda\_cols}, \texttt{alpha\_cols}, \texttt{alpha\_cols}, and \texttt{learning\_rate} were all independently sampled from a log-uniform distribution bounded by $\frac{1}{4}$ and $2$.
+The hyperparameters $\lambda_1$, $\lambda_2$, $\beta_1$, $\beta_2$, and $\eta$ were all independently sampled from a log-uniform distribution bounded by $\frac{1}{4}$ and $2$ (\autoref{alg:nrlmf_train}).
+The number of latent vector components was set to be equal for both axes, and chosen between 50 and 100. The number of neighbors was randomly selected as 3, 5 or 10 in each iteration, and the maximum number of optimization steps was always set to 100. The parameter $\alpha$ (\autoref{alg:nrlmf_train}), as in the original paper~\cite{liu2016neighborhood}, was set to $5$. This parameter specifies the emphasis on positive annotations, so each positive annotation contributes $5$ times more to the loss function in our settings, as if 5 copies of each positive interaction were present in the training set.
 %
 See \autoref{sec:adaptation_comparison} for descriptions on the bipartite forests being compared.
 
@@ -3177,7 +3230,7 @@ The interaction matrix reconstruction step is shown to be especially beneficial 
 
 Even without the help from NRLMF, the \model{bxt-gmo} and \model{brf-gmo} models employing our squared similarities output weighting (sections \autoref{sec:prototype} and \autoref{sec:prototype_comparison}) are placed second in their corresponding TT ROC AUC results, both significantly outperforming all NRLMF-combined models except for their own versions, \model{bxt-gmo-nrlmf} and \model{brf-gmo-nrlmf}. % (as aforementioned).
 \model{brf-gmo} was also the top performing BRF model in terms of TT AUPR, significantly surpassing all but \model{brf-gmo-nrlmf} and \model{brf-lmo-nrlmf}.
-Similarly, \model{bxt-gmo} was the top performing BXT model under the same metric, significantly surpassing all estimators but \model{brf-gmo-nrlmf}, \model{brf-lmo-nrlmf} and \model{BXT-GMOSA-NRLMF}.
+Similarly, \model{bxt-gmo} was the top performing BXT model under the same metric, significantly surpassing all estimators but \model{bxt-gmo-nrlmf}, \model{bxt-lmo-nrlmf} and \model{BXT-GMOSA-NRLMF}.
 
 Regarding TT AUPR, NRLMF still provides a significant improvement for all models except \model{brf-gmo}, \model{bxt-gmo} and \model{bxt-lmo}. While both BRF GMO and BXT GMO resulted in the highest average ranks for TT AUPR, the top position could not be statistically resolved between the BRFs using GMO, GMO NRLMF, and LMO NRLMF, nor between the BXTs using GMO, GMO NRLMF, LMO NRLMF, and GMOSA NRLMF.
 
@@ -3241,7 +3294,7 @@ In summary, interaction matrix reconstruction by NRLMF seems to consistently imp
 
 % (False, they also used nested CV) The authors of \cite{Pliakos_2020} also do not clearly specify the could have employed the reconstruction step before splitting the data into the cross-validation folds, in which case the observed performance improvement could be attributed to indirect data leakage, where the labels used to train the downstream forest estimator were generated from neighbor samples that are possibly in the test sets.
 
-\begin{figure*}[tbh]
+\begin{figure}[tb]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
@@ -3274,13 +3327,13 @@ In summary, interaction matrix reconstruction by NRLMF seems to consistently imp
         We then perform pairwise Wilcoxon rank-sum tests as a post-hoc analysis.
         Estimators that could \emph{not} be significantly distinguished from each other ($p > 0.05$) are connected by crossbars above their respective boxes. 
         The pairwise test results are corrected by the Benjamini-Hochberg procedure~\cite{benjamini1995controlling,haynes2013benjamini} in each subfigure. All pairwise comparisons are considered for the correction, even if not visible in the plot.
-        See \autoref{sec:exp settings} for further description of the evaluation procedure. Source: made by the authors.
+        See \autoref{sec:exp settings} for further description of the evaluation procedure. \newline Source: By the author.
     }
     \label{fig:brf_y_reconstruction}
-\end{figure*}
+\end{figure}
 
 
-\begin{figure*}[tbh]
+\begin{figure}[tb]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{
@@ -3313,10 +3366,10 @@ In summary, interaction matrix reconstruction by NRLMF seems to consistently imp
         We then perform pairwise Wilcoxon rank-sum tests as a post-hoc analysis.
         Estimators that could \emph{not} be significantly distinguished from each other ($p > 0.05$) are connected by crossbars above their respective boxes. 
         The pairwise test results are corrected by the Benjamini-Hochberg procedure~\cite{benjamini1995controlling,haynes2013benjamini} in each subfigure. All pairwise comparisons are considered for the correction, even if not visible in the plot.
-        See \autoref{sec:exp settings} for further description of the evaluation procedure. Source: made by the authors.
+        See \autoref{sec:exp settings} for further description of the evaluation procedure. \newline Source: By the author.
     }
     \label{fig:bxt_y_reconstruction}
-\end{figure*}
+\end{figure}
 
 
 
@@ -3371,7 +3424,7 @@ In conclusion, the best unsupervised impurity under LT+TL seems to be the mean d
 
 % md size, md fixed, ad size, ad fixed, mse density
 
-\begin{figure*}[tb]
+\begin{figure}[tb]
     \centering
     \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
@@ -3479,10 +3532,10 @@ In conclusion, the best unsupervised impurity under LT+TL seems to be the mean d
         We then perform pairwise Wilcoxon rank-sum tests as a post-hoc analysis.
         Estimators that could \emph{not} be significantly distinguished from each other ($p > 0.05$) are connected by crossbars above their respective boxes. 
         The pairwise test results are corrected by the Benjamini-Hochberg procedure~\cite{benjamini1995controlling,haynes2013benjamini} in each subfigure. All pairwise comparisons are considered for the correction, even if not visible in the plot.
-        See \autoref{sec:exp settings} for further description of the evaluation procedure. Source: made by the authors.
+        See \autoref{sec:exp settings} for further description of the evaluation procedure. \newline Source: By the author.
     }
     \label{fig:ss_comparison}
-\end{figure*}
+\end{figure}
 
 
 \subsection{Which forests are the best?}
@@ -3545,7 +3598,7 @@ When comapring the BXT against the BRF models, we notice that \model{BXT-GMO-NRL
 % TODO: do they never compared BXT vs BRF?
 
 
-\begin{figure*}[tbh]
+\begin{figure}[tb]
     \centering
     \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
@@ -3652,10 +3705,10 @@ When comapring the BXT against the BRF models, we notice that \model{BXT-GMO-NRL
         We then perform pairwise Wilcoxon rank-sum tests as a post-hoc analysis.
         Estimators that could \emph{not} be significantly distinguished from each other ($p > 0.05$) are connected by crossbars above their respective boxes. 
         The pairwise test results are corrected by the Benjamini-Hochberg procedure~\cite{benjamini1995controlling,haynes2013benjamini} in each subfigure. All pairwise comparisons are considered for the correction, even if not visible in the plot.
-        See \autoref{sec:exp settings} for further description of the evaluation procedure. Source: made by the authors.
+        See \autoref{sec:exp settings} for further description of the evaluation procedure. \newline Source: By the author.
     }
     \label{fig:best_forests}
-\end{figure*}
+\end{figure}
 
 
 % \begin{table}[h]
@@ -3742,7 +3795,7 @@ Additionally, we argue that the AUPR metric is less sensitive than AUROC to this
 % extratrees are better than rf for these datasets
 
 
-\begin{figure*}[tb]
+\begin{figure}[tb]
     \centering
     \begin{subfigure}{0.24\textwidth}
         \includegraphics[width=\textwidth]{
@@ -3849,10 +3902,10 @@ Additionally, we argue that the AUPR metric is less sensitive than AUROC to this
         We then perform pairwise Wilcoxon rank-sum tests as a post-hoc analysis.
         Estimators that could \emph{not} be significantly distinguished from each other ($p > 0.05$) are connected by crossbars above their respective boxes. 
         The pairwise test results are corrected by the Benjamini-Hochberg procedure~\cite{benjamini1995controlling,haynes2013benjamini} in each subfigure. All pairwise comparisons are considered for the correction, even if not visible in the plot.
-        See \autoref{sec:exp settings} for further description of the evaluation procedure. Source: made by the authors.
+        See \autoref{sec:exp settings} for further description of the evaluation procedure. \newline Source: By the author.
     }
     \label{fig:comparison literature}
-\end{figure*}
+\end{figure}
 
 
 %\subsection{Drug-Target affinity prediction}

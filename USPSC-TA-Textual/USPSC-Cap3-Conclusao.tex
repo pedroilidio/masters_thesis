@@ -124,7 +124,7 @@ The present study opens several paths for future research. We list some of the m
 
     The neighborhood regularization terms in \autoref{eq:nrlmf_objective} are not strictly necessary if the labels are used to train a second model. Their main importance is in inferring labels for new instances, which could be done solely be the downstream model in this case.
     More generally speaking, the step of label imputation can be purely transductive~\cite{chapelle2006semisupervised,vanengelen2020survey}, as no induction of a function $f:\mathbf{x} \mapsto y$ is necessary.
-    Therefore, it is possible that simpler methods achieve similar results in less time. Examples of promising options to try would be logistic matrix factorization~\cite{johnsonlogistic} and graph-based learning methods in general~\cite{chapelle2006semisupervised,vanengelen2020survey}.
+    Therefore, it is possible that simpler methods achieve similar results in less time. Examples of promising options to try would be logistic matrix factorization~\cite{johnson2014logistic} and graph-based learning methods in general~\cite{chapelle2006semisupervised,vanengelen2020survey}.
 
     Additionally, there have been further developments of NRLMF that could be explored. NRLMF-$\beta$~\cite{ban2019nrlmf} adds beta-distribution-rescoring to the outputs of NRLMF. Dual network integrated logistic matrix factorization~\cite{hao2017predicting,li2019dnilmflda} uses a concept similar to NRLMF, but merging the similarity matrices with the interaction matrix before factorization.
 

@@ -199,7 +199,8 @@
 	\renewcommand{\epigraphname}{Epigraph}
 	\renewcommand{\dedicatorianame}{Dedication}
 	\renewcommand{\errataname}{Errata}
-	\renewcommand{\agradecimentosname}{Acknowledgements}
+	% \renewcommand{\agradecimentosname}{Acknowledgements}
+	\renewcommand{\agradecimentosname}{Agradecimentos}  % HACK XXX (Pedro)
 	\renewcommand{\indexname}{INDEX}
 	\renewcommand{\anexoname}{ANNEX}
 	\renewcommand{\anexosname}{ANNEX}
@@ -569,8 +570,8 @@
 		\DeclareCaptionFont{ABNTEXfontereduzida}{\ABNTEXfontereduzida}
 		\captionsetup{format=hang,
 			labelseparator=barr,
-			%labelfont=ABNTEXfontereduzida,
-			%font=ABNTEXfontereduzida
+			labelfont=ABNTEXfontereduzida,  % Pedro: descomentado.
+			font=ABNTEXfontereduzida  % Pedro: descomentado.
 		}
 		\renewcommand{\configurecaptions}{%
 			\captionsetup{justification=justified,%
