@@ -163,7 +163,7 @@ Since each sample in $X_1$ refers to a \emph{row} of $Y$ and each sample in $X_2
 
 \begin{figure}[tb]
     \centering
-    \includegraphics[width=.7\textwidth]{figures/bipartite_dataset.pdf}
+    \includegraphics[width=.5\textwidth]{figures/bipartite_dataset.pdf}
     \caption{Representation of a bipartite network and its corresponding dataset.\newline Source: By the author.}
     \label{fig:bipartite dataset}
 \end{figure}
@@ -453,7 +453,8 @@ Consider now executing the prediction process of a decision tree for each traini
 From the resulting partitions, we can evaluate the decision tree:
 a "good" decision tree would be one in which the prototype value of each leaf is a good estimate of the labels in the leaf's partition.
 %
-The training algorithm then approaches the problem from the other direction: what would be a good tree according to our training data?
+%The training algorithm then approaches the problem from the other direction: what would be a good tree according to our training data?
+The training algorithm uses such evaluation to search for an effective tree.
 A greedy top-down procedure is usually followed, that we introduce bellow.
 %This evaluation is used by the training procedure to evaluate each candidate splitting rule. The best rules are selected 
 %The training procedure uses such evaluation to determine the best possible splitting rules. The tree is built 
@@ -701,11 +702,11 @@ If we then define
 \end{equation}
 %
 the exact same SGSO-adapted decision tree, with its node structure and split rules, can be grown by applying the bipartite procedure (\autoref{alg:find_bipartite_split}) with the $I_\text{GMSE}$ impurity instead of the original $I_\text{MSE}$. This again follows from the generality of the split rules defined in \autoref{eq:datasplit}, invariant under the SGSO data rearrangement (\autoref{eq:gsodata}).
-
+%
 %Notice how the divergence in \ref{eq:mse_gmo} is computed relative to the average of each $Y$ column, while in \ref{eq:gso_mse} the inner average is computed over the whole $Y$ matrix.
-
+%
 %Using this new impurity poses a simple yet sound advantage over the original. 
-Notice how the squared divergences in \ref{eq:mse} is computed relative to the average of each $Y$ column, while in \ref{eq:gso_mse} the inner average is computed over the whole $Y$ matrix.  % TODO ?
+Notice how the squared divergences in \ref{eq:mse} are computed relative to the average of each $Y$ column, while in \ref{eq:gso_mse} the inner average is computed over the whole $Y$ matrix.  % TODO ?
 %This highlights the key difference between GSO and GMO impurities: GSO considers all elements of $Y$ as different values for the same output.
 
 We can explore this property of the GSO impurity to iterate more efficiently over candidate splits.
@@ -996,9 +997,9 @@ The resulting complexities are presented by \autoref{tab:O_comparison}. We see t
 In this work we propose a different prototyping strategy to determine the output value of each leaf in a global multi-output (GMO) decision tree, taking the similarity matrices of our use cases into consideration.
 
 When a leaf is reached during the prediction step of a decision tree, the \KwPrototype function is called to determine the output value to be returned (\autoref{ln:prototype bipartite} of \autoref{alg:bipartite tree predict}).
-
+%
 \algBipartiteTreePredict
-
+%
 With traditional datasets, the \KwPrototype function
 %of traditional decision trees
 most often returns the average label of the leaf's partition (\autoref{eq:prototype1})~\cite{breiman1984classification}.
@@ -1269,15 +1270,15 @@ While single decision trees are valuable tools for comprehending the learning pr
 Their most significant impact on machine learning applications is observed when committees of such models are utilized, in which the final output values
 %are the combination 
 are, for example, the average predictions of all trees.
-
+%
 These compositions of estimators are usually referred to as \emph{ensembles}~\cite{dietterich2000ensemble,breiman2001random,polikar2006ensemble}.
-Being studied in the context of machine learning since the 1970s, they reflect the intuitive idea that combining multiple opinions from a diverse set of experts frequently results in better decision taking. % TODO elaborate, jury theorem
+Being studied in the context of machine learning since the 1970s~\cite{dietterich2000ensemble,polikar2006ensemble}, they reflect the intuitive idea that combining multiple opinions from a diverse set of experts frequently results in better decision taking. % TODO elaborate, jury theorem
 
 %A longstanding idea is that combining predictions of multiple estimators yields better results, much like averaging opinions of several people aids in decision taking \cite{}.
 
 In fact, it has been extensively demonstrated both empirically and theoretically that the predictive perfomance a group of learners always surpasses that of its individual components if and only if the individual estimators are sufficiently accurate and diverse~\cite{dietterich2000ensemble,breiman2001random,polikar2006ensemble,zhou2019deep}. % TODO cite specific
 Importantly, requiring diversity means that the individual estimators must ideally commit errors on different instances for the composition to succeed~\cite{polikar2006ensemble}.
-
+%
 \citeonline{dietterich2000ensemble,polikar2006ensemble} describe three ways in which combining diverse estimators could benefit the ensemble's performance:
 
 \begin{enumerate}
@@ -1343,7 +1344,7 @@ Regarding interaction problems, \citeonline{schrynemackers2015classifying} explo
 The same tree-diversification and forest building techniques discussed in this section can also be applied to bipartite decision trees, with very small modifications regarding the data sampling procedures: instance sampling and feature sampling must now occurr on both domains of the interaction dataset.
 %Under this assumption, the adptation to bipartite problems can thus occur at the tree level, not at the ensemble level as would be the case with SLMO and SGSO strategies.
 %
-\cite{pliakos2019network} explores these ideas, using bipartite global multi-output decision trees to build both Random Forests and Extra-Trees ensembles. We hereafter refer to these forests as Bipartite Random Forests (BRF) and Bipartite Extra-Trees (BXT), respectively. Their study suggests superior performance of BXT in comparison to SLMO- and SGSO-adapted forests, as well as in comparison to previously proposed algorithms~\cite{pliakos2019network}. %, although no significance level or test statistic is used to describe the comparisons.
+\citeonline{pliakos2019network} explores these ideas, using bipartite global multi-output decision trees to build both Random Forests and Extra-Trees ensembles. We hereafter refer to these forests as Bipartite Random Forests (BRF) and Bipartite Extra-Trees (BXT), respectively. Their study suggests superior performance of BXT in comparison to SLMO- and SGSO-adapted forests, as well as in comparison to previously proposed algorithms~\cite{pliakos2019network}. %, although no significance level or test statistic is used to describe the comparisons.
 %
 %The authors later extended their work to include a self-learning step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their GMO BXT model is not directly built upon the bipartite dataset but rather on a reconstructed version of the interaction matrix obtained through applying the Neighborhood-Regularized Logistic Matrix Factorization technique (NRLMF, \citeonline{liu2016neighborhood}).
 The authors later extend their work to include a label imputation step for predicting drug-target interactions~\cite{pliakos2020drugtarget}. In that study, their model is built on a reconstructed version of the interaction matrix obtained through Neighborhood-Regularized Logistic Matrix Factorization (NRLMF)~\cite{liu2016neighborhood}. The NRLMF algorithm is described in detail in \autoref{sec:nrlmf}.
@@ -1515,10 +1516,10 @@ We divide each term by the corresponding impurities on the root node, thus calcu
 The parameter $\sigma \in [0, 1]$, that we call supervision balance,  % TODO consider alternative names: supervision fraction, ratio, importance, 
 weights the relative importance given to each objective, with $\sigma = 0$ corresponding to a fully unsupervised tree and $\sigma = 1$ to a fully supervised tree. Strategies for adjusting $\sigma$ are discussed in \autoref{sec:sigma heuristics}.
 
-For semi-supervised tasks in general, where we have confirmed positive and confirmed negative annotations alongside missing entries, notice how $I_s$ can only be calculated over the non-missing annotations, while $I_u$ can always utilize both labeled and unlabeled instances.
+For semi-supervised tasks in general, we usually have confirmed positive and confirmed negative annotations alongside missing entries. In this case, notice how $I_s$ can only be calculated over the non-missing annotations, while $I_u$ can always utilize both labeled and unlabeled instances.
 %
-Nevertheless, please notice that all confirmed annotations are positive in our present scenario of positive-unlabeled learning. Thus, we must still consider the missing labels as zero entries for the calculation of $I_s$. Even so, we argue 
-that decreasing the relative importance of the supervised objective can compensate the label uncertainty and improve generalization. The idea is to encourage the tree to appreciate the structures in the feature space. For example, it should select splits that isolate very compact groups of instances, even if the labels in a given group are not satisfactorily homogeneous.
+Nevertheless, all confirmed annotations are positive in our present scenario of positive-unlabeled learning. Thus, we must still consider the missing labels as zero entries for the calculation of $I_s$. Even so, we argue 
+that decreasing the relative importance of the supervised objective can compensate the label uncertainty and improve generalization. The idea is to encourage the tree to appreciate the structures in the feature space. For example, it should select splits that delineate very compact groups of instances, even if the labels in a given group are not satisfactorily homogeneous.
 
 A caveat of using a semi-supervised impurity as in \autoref{eq:I ss} is that trees could continue to find splits even if all instances in a given node have the same label. This is because we could keep reducing the unsupervised impurity by further splitting even if the supervised impurity is already zero.
 However, the output value of each node is still calculated over $Y_\text{node}$ alone, so all nodes descending from a homogeneous node would yield the same output. We avoid such redundant splits by forcefully stopping the split search for a node when $I_s(Y_\text{node})=0$.
@@ -1539,11 +1540,12 @@ The strategy, however, does not scale well with the number of features.
 %main concern with this strategy is that it considerably slows down the training procedure of bipartite trees.
 This results from each node having to always consider the same number of features, even though the number of instances decrease.
 The scalability is especially a concern in the scenarios under study, in which the feature matrices are square similarity matrices.
-
+%
 % % TODO andre solves this by...
 %To remedy this issue, \citet{alves2023semisupervised} proposes to calculate the unsupervised impurity only twice in each node, as a way to choose between the best split axis 
-
-Notice that, in the learning tasks under study, the $X$ matrix already represents similarities between samples, and an additional metric such as the variance of each feature is not necessary to capture how close the samples are to each other. 
+%
+%Notice that, in the learning tasks under study, the $X$ matrix already represents similarities between samples, and an additional metric such as the variance of each feature is not necessary to capture how close the samples are to each other. 
+Because $X$ already represents similarities between samples, an additional metric such as the variance of each feature is not necessary to capture how close the samples are to each other. 
 %
 Exploring this property, we propose a more efficient unsupervised impurity function based on the average similarity between the samples in the tree node (equation \ref{eq:mean distance impurity}).
 %  adiyeke2022semisupervised proposes a similar similarity
@@ -1644,13 +1646,6 @@ Finally, we present and theoretically compare the two evaluation metrics utilize
 
 To evaluate machine learning models, the standard procedure consists of separating a subset of data samples not to be used in the training process. These samples are subsequently inputted to the trained model and its known labels are compared to the model's predictions in order to estimate the algorithm performance. The held-out samples are collectively called the \emph{test set} while the ones used for model building are called the \emph{training set}.
 
-\begin{wrapfigure}{R}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.4\textwidth]{figures/train_test_split.pdf}
-    \caption{Different split configurations for validating models with bipartite datasets.\newline Source: By the author.}
-    \label{fig:bipartite test sets}
-\end{wrapfigure}
-
 Having two distinct sample groups in bipartite learning settings makes the concept of a held-out set more nuanced. We list five reasonable test configurations we encounter in the literature. Given two samples $\x_1$ and $\x_2$ from each respective domain, a "test set" could refer to:
 %
 \begin{enumerate}
@@ -1675,6 +1670,13 @@ The LL-U test set is most frequently used when building SGSO models~\cite{pahikk
 %\cite{huang2020moltrans} also reports TL and LT scores.
 Using LL-M is more common for matrix factorization methods~\cite{liu2016neighborhood,hao2017predicting,li2019dnilmflda}.
 
+\begin{wrapfigure}{R}{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.4\textwidth]{figures/train_test_split.pdf}
+    \caption{Different split configurations for validating models with bipartite datasets.\newline Source: By the author.}
+    \label{fig:bipartite test sets}
+\end{wrapfigure}
+
 Note that a model that performs well on TT is likely to also perform reasonably well on the other test sets, but the opposite is not necessarily true.
 %
 For instance, performing well on the TL or LT sets does not mean a model has learned information about both domains. As an example, consider a drug-protein scenario where the model is tested with new drugs and known proteins. Given a specific known protein, a model might correctly infer interactions based on its knowledge that similar drugs have interacted with that protein, or that a specific drug trait correlates well with the protein's interactome. No knowledge about the protein's features is required for the model to make such predictions.
@@ -1687,7 +1689,9 @@ On the other hand, the TT test sets are the most informative in terms of general
 %the underlying $(\mathbf{x}_1, \mathbf{x}_2) \mapsto y$.
 TT is therefore especially useful when one is interested in gaining insight about the underlying process that generates the interactions. However, they are also the most challenging to predict, and the model's performance on them is expected to be lower than on the other test sets.
 
-In summary, TT should be preferred when the main interest is modeling how input features determine the interaction. TL and LT are useful if generalization is only interesting for one of the domains. LL-U and LL-M are useful when the main goal is to obtain predictions for a defined set of instances, regardless of modeling the function $(\mathbf{x}_1, \mathbf{x}_2) \mapsto y$ or not.
+In summary, TT should be preferred when the main interest is modeling how input features determine the interaction (called \emph{inductive} learning~\cite{chapelle2006semisupervised}). TL and LT are useful if generalization is only interesting for one of the domains. LL-U and LL-M are useful when the main goal is to obtain predictions for a defined set of instances, regardless of modeling the function $(\mathbf{x}_1, \mathbf{x}_2) \mapsto y$ or not. This is called \emph{transductive} learning~\cite{chapelle2006semisupervised}.
+%In summary, TT should be preferred when the main interest is modeling how input features determine the interaction. TL and LT are useful if generalization is only interesting for one of the domains. LL-U and LL-M are useful when the main goal is to obtain predictions for a defined set of instances, regardless of modeling the function $(\mathbf{x}_1, \mathbf{x}_2) \mapsto y$ or not.
+
 
 %The TL and LT datasets are useful in more pragmatic scenarios, for example, when searching for a drug molecule to interact with a defined set of targets. In  correctly predicting their interactions is more  
 
@@ -1779,14 +1783,14 @@ where \(\mathbb{I}(A)\) is the indicator function that equals 1 if statement \(A
     \label{eq:indicator}
 \end{equation}
 %
-Notice that the sum of TP, TN, FP and FN is equal to the total number of instances $T$, and we also define $\text{P}=TP+FN$, the total number of \textit{a priori} positive labels in the test set, and $\text{N}=TN+FP$, the total number of \textit{a priori} negative labels. The total number of predicted positives is termed $\text{PP}=TP+FP$ and the remaining predicted negatives are called $\text{PN}=TN+FN$.%TODO cite
+Notice that the sum of TP, TN, FP and FN is equal to the total number of instances $T$, and we also define $\text{P}=TP+FN$, the total number of \textit{a priori} positive labels in the test set, and $\text{N}=TN+FP$, the total number of \textit{a priori} negative labels. The total number of predicted positives is termed $\text{PP}=TP+FP$ and the remaining predicted negatives are called $\text{PN}=TN+FN$. %TODO cite
 %- \(n\) is the total number of instances.
 %- \(Y_i\) represents the ground-truth label for instance \(i\).
 %- \(\hat{Y}_i\) represents the predicted label for instance \(i\).
-
+%
 % TODO: we use micro version of the metrics. should we use other forms?
-
-Those quantities can be organized in the so-called \emph{confusion matrix}, illustrated by \autoref{fig:scoring}.
+%
+%Those quantities can be organized in the so-called \emph{confusion matrix}, illustrated by \autoref{fig:scoring}.  % TODO
 %
 Naturally, one wants their estimator to maximize TP and TN while minimizing FP and FN.
 
@@ -1820,7 +1824,7 @@ Most commonly, we do not use these metrics directly, but instead normalize them 
     \end{equation}
 \end{itemize}
 %
-These metrics are better visualized in \autoref{fig:scoring}.
+% These metrics are better visualized in \autoref{fig:scoring}.  % TODO
 
 An optimal binary classifier will thus present high TPR, TNR and precision while minimizing FPR and FNR.
 % TODO note that recall is not affected by PU, point for AUROC
@@ -1861,7 +1865,7 @@ A common practice is then to consider TPR and TNR for all $t$, avoiding the infl
 %Otherwise, the score comparisons could be compromised.
 
 % TODO especially important for our test sets with diffenent density than the training sets
-Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible classification results of a model. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and TNR are each indicated by an axis. Conventionally, the TPR is plotted in the $y$ axis while the FPR values (representing the TNR, $FPR=1-TNR$) are presented as $x$ coordinates, which results in the traditional \emph{receiver operating characteristic} (ROC) curve~\cite{davis2006relationship,hand2009measuring,he2009learning,ezzat2019computational}, exemplified by \autoref{fig:roc}.
+Notice that, since a finite set of outputs is considered for evaluation (the test set), a finite set of thresholds will cover all possible classification results of a model. These results can be easily displayed in a two-dimensional plot, using a point for each considered threshold so that its corresponding TPR and TNR are each indicated by an axis. Conventionally, the TPR is plotted in the $y$ axis while the FPR values (representing the TNR, $FPR=1-TNR$) are presented as $x$ coordinates, which results in the traditional \emph{receiver operating characteristic} (ROC) curve~\cite{davis2006relationship,hand2009measuring,he2009learning,ezzat2019computational}. %, exemplified by \autoref{fig:roc}.  %TODO
 %
 An ideal threshold of an ideal estimator would then be close to the top-left corner of the plot, where TPR and TNR are both 1.
 On the other hand, consider a completely random classifier outputting uniformly random values $\hat Y_\text{proba}\el{ij}$ in the 0-1 interval. We would have $\hat Y\el{ij} = \mathbb{I}(\hat Y_\text{proba}\el{ij} > t)$ for a given threshold $t$. This implies that the number of correctly guessed positive labels is $1-t$ (the probability of yielding 1) times the total number of positive labels: $TP = (1-t) (TP+FN)$, which results in $TPR = 1-t$ from the definition. Similarly, $FPR = TPR = 1-t$, so that the ROC curve of a random classifier is a diagonal line from the bottom-left to the top-right corners.
@@ -1980,42 +1984,43 @@ We explore these claims in further detail in the following section, formally def
 
 Consider a general estimator outputting a decision value $s \in \mathbb{R}$ for each input instance. The final predicted class $\hat y$ is still to be defined by a threshold $s^*$ so that $\hat y = \mathbb{I}(s > s^*)$. For the ideal case of an infinite number of test samples, the possible scoring results of the estimator would be fully determined by the two theoretical distributions of $s$ given the true label $y$, i.e. the probability density functions $P(s \mid y = 1)$ and $P(s \mid y = 0)$. Similar to \citeonline{hand2009measuring}, we thus define the probability density functions $f_k$ and their corresponding cumulative distribution functions $F_k$ for each of the two classes $k \in \{0, 1\}$:
 %
-\begin{gather}
-    f_0(s) = P(s \mid y = 0) \\
-    f_1(s) = P(s \mid y = 1) \\
-    F_0(s) = \int_{-\infty}^s f_0(u)\;du \\
-    F_1(s) = \int_{-\infty}^s f_1(u)\;du
+\begin{align}
+    f_0(s) &= P(s \mid y = 0) \\
+    f_1(s) &= P(s \mid y = 1) \\
+    F_0(s) &= \int_{-\infty}^s f_0(u)\;du \\
+    F_1(s) &= \int_{-\infty}^s f_1(u)\;du
     \label{eq:ideal_confusion_matrix}
-\end{gather}
+\end{align}
 %
 We further define $p=\frac{P}{T}=P(y_\text{test}=1)$ and $n=\frac{N}{T}=P(y_\text{test}=0)$, the fractions of positive and negative labels in the test set, respectively. We can then express the expected values of the confusion matrix as functions of a given threshold $s^*$ for the decision value $s$:
 %
-\begin{gather}
-    \text{TP}(s^*) = p (1 - F_1(s^*)) \\
-    \text{TN}(s^*) = n F_0(s^*) \\
-    \text{FP}(s^*) = n (1 - F_0(s^*)) \\
-    \text{FN}(s^*) = p F_1(s^*)
-\end{gather}
+\begin{align}
+    \text{TP}(s^*) &= p (1 - F_1(s^*)) \\
+    \text{TN}(s^*) &= n F_0(s^*) \\
+    \text{FP}(s^*) &= n (1 - F_0(s^*)) \\
+    \text{FN}(s^*) &= p F_1(s^*)
+\end{align}
 %
 which, in turn, yields
 %
-\begin{gather}
-    \text{TPR}(s^*) = 1 - F_1(s^*) \\
-    \text{TNR}(s^*) = F_0(s^*) \\
-    \text{FPR}(s^*) = 1 - F_0(s^*) \\
-    \text{FNR}(s^*) = F_1(s^*) \\
-    \text{Pr}(s^*) = \frac{p (1 - F_1(s^*))}{p (1 - F_1(s^*)) + n (1 - F_0(s^*))}
-\end{gather}
+\begin{align}
+    \text{TPR}(s^*) &= 1 - F_1(s^*) \\
+    \text{TNR}(s^*) &= F_0(s^*) \\
+    \text{FPR}(s^*) &= 1 - F_0(s^*) \\
+    \text{FNR}(s^*) &= F_1(s^*) \\
+    \text{Pr}(s^*) &= \frac{p (1 - F_1(s^*))}{p (1 - F_1(s^*)) + n (1 - F_0(s^*))}
+\end{align}
 
 The AUROC can now be expressed as
 %
-\begin{equation}
+\begin{multline}
     \text{AUROC}
     = \int_{0}^{1} \text{TPR}(\text{FPR}) \;d\text{FPR}
     = \int_{\infty}^{-\infty} \text{TPR}(s) \frac{d\text{FPR}(s)}{ds} \;ds
+    =\\
     = \int_{-\infty}^{\infty} (1 - F_1(s)) f_0(s) \;ds
     \label{eq:auroc0}
-\end{equation}
+\end{multline}
 %
 The integration limits arise from the fact that FPR is maximal when all instances are classified as positives
 %i.e. the decision threshold is as low as possible ($s^* \to -\infty$),
@@ -2024,6 +2029,12 @@ and minimal when all instances are classified as negatives, which respective cor
 The first factor ($1- F(s^*)$), represents the fraction of positive instances that are ranked higher than the threshold $s^*$, alternatively expressed as $\int_{s^*}^{\infty}f_1(s)\; ds$. $f_0$, as defined by \autoref{eq:ideal_confusion_matrix}, represents the probability of finding a negative instance within $s^*$ and $s^* + ds$. Hence, the product of both factors represents the joint probability of having a negative instance between $s^*$ and $s^* + ds$ while also finding a positive instance with $s > s^\ast$. 
 %
 After integration over all possible thresholds, we conclude that the AUROC score represents the overall probability of randomly selecting a positive instance ranked higher than a randomly selected negative instance.
+% TODO
+% \begin{equation}
+%     \text{AUROC}
+%     = P()
+%     \label{eq:auroc0}
+% \end{equation}
 
 The baseline score $0.5$ can be derived as follows. A random classifier is defined as an estimator incapable of distinguishing between the true label distributions of each class. That is, a classifier is a random classifier if and only if $f_0(s) = f_1(s) \forall s$. As a consequence,
 %
@@ -2128,29 +2139,29 @@ Formally, we have
 %    f(s) = P(s) = pf_1(s) + nf_0(s)
 %\end{equation}
 %
-\begin{gather}
-    r(s) = pF_1(s) + nF_0(s)\\
-    dr = [pf_1(s) + nf_0(s)] \; ds
-\end{gather}
+\begin{align}
+    r(s) &= pF_1(s) + nF_0(s)\\
+    dr &= [pf_1(s) + nf_0(s)] \; ds
+\end{align}
 
 We also take the liberty to represent $g(r) = g(s(r))$, so that
 %Therefore, %$\frac{d F_1(r)}{dr} = \frac{f_1(r)}{pf_1(s) + nf_0(s)}$.
-\begin{gather}
-    F_1(r) = \int_0^r \frac{f_1(r)}{pf_1(r) + nf_0(r)} \; dr\\
-    \frac{d F_1(r)}{dr} = \frac{f_1(r)}{pf_1(r) + nf_0(r)}
-\end{gather}
+\begin{align}
+    F_1(r) &= \int_0^r \frac{f_1(r)}{pf_1(r) + nf_0(r)} \; dr\\
+    \frac{d F_1(r)}{dr} &= \frac{f_1(r)}{pf_1(r) + nf_0(r)}
+\end{align}
 %
 %so that a change $dr$ represents a change in the number of instances between $s$ and $s+ds$. 
 AUPR as defined in \autoref{eq:auprc0} can now be written as
 %
-\begin{multline}
+\begin{align}
     \text{AUPR}
-    = p \int_{0}^{1}
+    &= p \int_{0}^{1}
         %\frac{1 - \int \frac{f_1(r)}{f(r)} \;dr}{(p+n) - [pF_1(r) + nF_0(r)]}
         \frac{1 - F_1(r)}{(p+n) - [pF_1(r) + nF_0(r)]}
         \; \frac{f_1(r)}{[pf_1(s) + nf_0(s)]}
     \;dr
-    =\\
+    =\nonumber\\ &
     = p \int_{0}^{1}
         \frac{[1 - F_1(r)]}{[1 - r]}\frac{d F_1(r)}{dr}
     \;dr
@@ -2159,7 +2170,7 @@ AUPR as defined in \autoref{eq:auprc0} can now be written as
         \frac{1}{1 - r}
         \; \frac{d [1 - F_1(r)]^2}{dr}
     \;dr
-    =\\
+    =\nonumber\\ &
     =
     - \frac{p}{2}
     \left|
@@ -2176,19 +2187,20 @@ AUPR as defined in \autoref{eq:auprc0} can now be written as
     %         \left[\frac{1 - F_1(r)}{1 - r}\right]^2
     %     dr
     % \right\}
-    =\\
+    =\nonumber\\ &
     =
     \frac{p}{2}
     \left\{
         1 + \int_0^1 \left[\frac{1 - F_1(r)}{1 - r}\right]^2 dr
     \right\}
+    =\nonumber\\ &
     =
     \frac{p}{2}
     \left\{
         1 + \int_0^1 [\text{Pr}(r)]^2 dr
     \right\}
     \label{eq:aupr ranks}
-\end{multline}
+\end{align}
 %
 % where we define
 % %
@@ -2328,44 +2340,44 @@ $\frac{d F_1(r)}{dr} \le \frac{1}{p}$.
 
 We can also express the AUROC in terms of the percentile ranks:
 %
-\begin{multline*}
+\begin{align}
     \text{AUROC}
-    = \frac{1}{n} \int_{0}^{1}
+    &= \frac{1}{n} \int_{0}^{1}
         (1 - F_1(r)) \left(\frac{n f_0(r)}{nf_0(r) + pf_1(r)}\right) \;dr
-    =\\
+    =\nonumber\\ &
     =  \frac{p}{n} \int_{0}^{1}
         (1 - F_1(r)) \left(1 - \frac{pf_1(r)}{nf_0(r) + pf_1(r)}\right) \;dr
-    =\\
+    =\nonumber\\ &
         = \frac{1}{n} \int_{0}^{1} (1 - F_1(r)) \left(1 - p \frac{dF_1(r)}{dr}\right) \;dr
-    =\\
+    =\nonumber\\ &
     =
         \frac{1}{n} \int_{0}^{1} (1 - F_1(r)) \;dr
         - \frac{p}{n} \int_{0}^{1}
             (1 - F_1(r)) \;d(F_1(r))
-    =\\
+    =\nonumber\\ &
     =
         \frac{1}{n} \int_{0}^{1} (1 - F_1(r)) \;dr
         + \frac{p}{n} \left[
             \frac{(1 - F_1(r))^2}{2}
         \right]^1_0
-    =\\
+    =\nonumber\\ &
     =
         \frac{1}{n} \left\{
             \int_{0}^{1} (1 - F_1(r)) \;dr - \frac{p}{2}
         \right\}
     \label{eq:auroc ranks}
-\end{multline*}
+\end{align}
 
 Equations \ref{eq:aupr ranks} and \ref{eq:auroc ranks} put AUPR and AUROC in a similar format, better delineating the differences between the two metrics. Consider expressing both now in terms of the precision.
 %
-\begin{gather}
-    \text{AUROC} = \frac{1}{n} \left\{
+\begin{align}
+    \text{AUROC} &= \frac{1}{n} \left\{
         \frac{1}{p}\int_{0}^{1} (1 - r)\text{Pr}(r) \;dr - \frac{p}{2}
     \right\}\\
-    \text{AUPR} = \frac{1}{2} \left\{
+    \text{AUPR} &= \frac{1}{2} \left\{
         p + \frac{1}{p}\int_0^1 \text{Pr}(r)^2 dr
     \right\}
-\end{gather}
+\end{align}
 %
 %\begin{gather}
 %    A_\text{ROC} = \frac{1}{n} \left\{
@@ -2484,12 +2496,12 @@ In fact, we show in the next section that AUROC is closely related to the Mean P
 From \autoref{eq:auroc ranks}, we can express AUROC as
 % Defining $C(r) = \int c(r) \; dr$, we can write
 %
-\begin{multline}
+\begin{align}
     \text{AUROC}
-        = \frac{1}{n} \left\{
+        &= \frac{1}{n} \left\{
             \int_{0}^{1} (1 - F_1(r)) \;dr - \frac{p}{2}
         \right\}
-    =\\
+    =\nonumber\\ &
         = \frac{1}{n} \left\{
             1 - \int_{0}^{1} F_1(r) \;dr - \frac{p}{2}
         \right\}
@@ -2497,18 +2509,19 @@ From \autoref{eq:auroc ranks}, we can express AUROC as
         = \frac{1}{n} \left\{
             1 - \int_{0}^{1} \frac{d(r)}{dr}F_1(r) \;dr - \frac{p}{2}
         \right\}
-    =\\
+    =\nonumber\\ &
         = \frac{1}{n} \left\{
             1 - \left[rF_1(r)\right]_0^1 + \int_{0}^{1} r \frac{d F_1(r)}{dr} \;dr - \frac{p}{2}
         \right\}
     %=\\
+    =\nonumber\\ &
         = \frac{1}{n} \left[
             \int_{0}^{1} r \;d F_1 - \frac{p}{2}
             %\int_{0}^{1} r \frac{d F_1(r)}{dr} \;dr - \frac{p}{2}
             %\int_{0}^{1} r \tilde f_1 \;dr - \frac{p}{2}
         \right]
     \label{eq:auroc mpr}
-\end{multline}
+\end{align}
 %
 \autoref{eq:auroc mpr} offers another perspective on AUROC. The term $\int_{0}^{1} r\,d F_1(r)$ represents the expected percentile rank of the positive samples:
 %
@@ -2533,12 +2546,12 @@ This quantity is sometimes referred to as the \emph{mean percentile ranking} (MP
 
 Consider now the maximum and minimum values of MPR, achieved, respectively, for the ideal $f_1(r)$ distributions:
 %
-\begin{gather}
-    f_{1, \text{max}}(r) = \frac{1}{p}\mathbb{I}(r > n)\\
+\begin{align}
+    f_{1, \text{max}}(r) = \frac{1}{p}\mathbb{I}(r > n) &&
     f_{0, \text{max}}(r) = \frac{1}{n}\mathbb{I}(r < n)\\
-    f_{1, \text{min}}(r) = \frac{1}{p}\mathbb{I}(r < p)\\
+    f_{1, \text{min}}(r) = \frac{1}{p}\mathbb{I}(r < p) &&
     f_{0, \text{min}}(r) = \frac{1}{n}\mathbb{I}(r > p)
-\end{gather}
+\end{align}
 %
 Applying these definitions to determine $\frac{dF_1(r)}{dr}$ and using the results in \autoref{eq:mpr}, we obtain
 %
@@ -2570,14 +2583,14 @@ Applying these definitions to determine $\frac{dF_1(r)}{dr}$ and using the resul
 %
 % If we then try to remedy this issue by normalizing MPR to the $[0, 1]$ interval, we obtain
 %
-\begin{gather}
+\begin{align}
     \text{MPR}_\text{max}
-        = \frac{1}{p} \int_n^1 r\;dr
+        &= \frac{1}{p} \int_n^1 r\;dr
         = \frac{1 - n^2}{2p}
         = \frac{1 + n}{2}
     \\
-    \text{MPR}_\text{min} = \frac{1}{p} \int_0^p r\;dr = \frac{p}{2}
-\end{gather}
+    \text{MPR}_\text{min} &= \frac{1}{p} \int_0^p r\;dr = \frac{p}{2}
+\end{align}
 %
 from which is straightforward to show that
 %
@@ -2615,7 +2628,7 @@ Furthermore, the normalization enables the comparison across different tasks, en
 
 \begin{mdframed}[frametitle={Related experiments}]
     \begin{itemize}
-        \item \textbf{\autoref{sec:comparing auroc aupr} -- \refname{sec:comparing auroc aupr}}
+        \item \textbf{\autoref{sec:comparing auroc aupr} -- \nameref{sec:comparing auroc aupr}}
 
         Empirically assesses the relative dependence on different ranks of AUPR and AUROC, and discusses the specific usecases of each metric.
     \end{itemize}
@@ -2737,14 +2750,14 @@ Folowing \citeonline{wang2020learning}, we call the dropout fractions the \emph{
 \section{Experiments}
 \label{sec:experiments}
 
-PADRONIZAR NOMES DE ESTIMADORES  %TODO
-
 This section describes the experiments performed in this work, designed to explore the proposed research questions (\autoref{sec:research questions}), assess the effectiveness of the developed methods, and to validate predictions made in the theoretical analyses.
 
 
 
 \subsection{What are the differences between AUROC and AUPR?}
 \label{sec:comparing auroc aupr}
+
+This experiment was designed to evaluate the hypotheses raised in \autoref{sec:metrics from ranks}, comparing the AUROC and AUPR metrics in terms of their dependence on the percentile ranks of the predictions. We aim to elucidate the differences between the two metrics and to provide insights on when to use each of them.
 
 \begin{mdframed}[frametitle={Key findings}]
     \begin{itemize}
@@ -2755,9 +2768,12 @@ This section describes the experiments performed in this work, designed to explo
     \end{itemize}
 \end{mdframed}
 
-This experiment was designed to evaluate the hypotheses raised in \autoref{sec:metrics from ranks}. Our main objective is to elucidate how much importance each metric assigns to each percentile rank. To do so, we perform a Monte Carlo simulation. First, we select $R$ equally spaced rank values between $0$ and $1$ (excluding $0$ and $1$). For each rank, we generate $N$ random binary values to be used as labels. Therefore, each of the $N$ iterations of the simulation will produce a random set of $R$ binary labels, corresponding to each percentile rank. In each iteration, we use the $R$ labels and $R$ percentile ranks to calculate AUROC and AUPR, resulting in $N$ values for each metric. Finally, for each of the $R$ ranks, we calculate the point biserial correlation~\cite{kornbrot2014point} between the $N$ random labels and the $N$ AUROC and AUPR values. The result is displayed in \autoref{fig:correlation ranks}.
+\subsubsection{Setup}
 
+Our main objective is to elucidate how much importance each metric assigns to each percentile rank. To do so, we perform a Monte Carlo simulation. First, we select $R$ equally spaced rank values between $0$ and $1$ (excluding $0$ and $1$). For each rank, we generate $N$ random binary values to be used as labels. Therefore, each of the $N$ iterations of the simulation will produce a random set of $R$ binary labels, corresponding to each percentile rank. In each iteration, we use the $R$ labels and $R$ percentile ranks to calculate AUROC and AUPR, resulting in $N$ values for each metric. Finally, for each of the $R$ ranks, we calculate the point biserial correlation~\cite{kornbrot2014point} between the $N$ random labels and the $N$ AUROC and AUPR values.
 % TODO p-values
+
+\subsubsection{Discussion}
 
 \begin{figure}[tb]
     \includegraphics[width=\textwidth]{
@@ -2770,6 +2786,8 @@ This experiment was designed to evaluate the hypotheses raised in \autoref{sec:m
     \label{fig:correlation ranks}
 \end{figure}
 
+The results are displayed in \autoref{fig:correlation ranks}.
+%
 The plot shows that AUPR is highly sensitive to a small set of highest ranks, while ranks closer to $0$ have little influence on the metric. On the other hand, the correlations with the AUROC score are more distributed across ranks. Also, for AUROC, both higher and lower ranks have a higher impact, but in opposite directions.
 This behaviour in agreement with the theoretical analyses from \autoref{sec:metrics from ranks}.
 The correlation with AUROC is also symmetrical around the median ($r=0.5$), linearly increasing from arround $-0.05$ at $r=0$ to around $0.05$ in $r=1$. This demonstrates the class symmetry of the AUROC metric described in \autoref{sec:metrics from ranks}, meaning that negative and positive labels could be swapped without affecting the final results.
@@ -2788,6 +2806,8 @@ We also argue that AUROC could be preferable for comparing models under the PU a
 %\subsection{Empirical time complexity analysis}
 \label{sec:empirical_complexity}
 
+This experiment empirically measures the training time complexity of the tree models under study. Our main goal is to validate the theoretical complexity analysis presented in \autoref{sec:complexity_analysis} and to compare the training times of the proposed BGSO models with the GMO models.
+
 \begin{mdframed}[frametitle={Key findings}]
     \begin{itemize}
         \item The GMO complexity is measured to be $O(n^3\log n)$, while the BGSO complexity is measured to be $O(n^3)$.
@@ -2798,15 +2818,21 @@ We also argue that AUROC could be preferable for comparing models under the PU a
     \end{itemize}
 \end{mdframed}
 
-This experiment empirically measures the training time complexity of the tree models under study. We artificially generate a series of bipartite datasets by filling three $n$ by $n$ matrices with pseudo-random values, representing the two $X$ matrices and the $Y$ matrix on each interaction. Values were taken uniformly from the interval $[0, 1]$ for the feature matrices and from the interval $[0, 100]$ for the target matrix.
+\subsubsection{Setup}
+
+We artificially generate a series of bipartite datasets by filling three $n$ by $n$ matrices with pseudo-random values, representing the two $X$ matrices and the $Y$ matrix on each interaction. Values were taken uniformly from the interval $[0, 1]$ for the feature matrices and from the interval $[0, 100]$ for the target matrix.
 %We thus represent interactions between $n$ drugs and $n$ proteins, each being described by $n$ features.
+%
+We then train the GMO and the BGSO versions of a single bipartite decision tree (BDT) and a single bipartite Extra-Tree (BXT) on each of the generated datasets, measuring their training duration in seconds.
 
-We then train the GMO and the BGSO versions of a single bipartite decision tree (BDT) and a single bipartite Extra-Tree (BXT) on each of the generated datasets, measuring their training duration in seconds. The results are shown in \autoref{fig:empirical_complexity}. From the least squares linear regression on the log-log plot, we see that the estimated training time complexities closely follow the theoretical expectations developed under Section \ref{sec:complexity_analysis}, with slopes referring to the BGSO models (predicted to be $O(n^3)$) approaching 3 while the GMO models (predicted to be $O(n^3\log(n))$) produce slope between 3 and 4.
+\subsubsection{Discussion}
 
-Statistical testing further shows that the empirical time complexity of the proposed BGSO algorithms are indeed significantly lower than that of their GMO counterparts (see the caption for \autoref{fig:empirical_complexity}).
+The results are shown in \autoref{fig:empirical_complexity}. From the least squares linear regression on the log-log plot, we see that the estimated training time complexities closely follow the theoretical expectations developed under \autoref{sec:complexity_analysis}, with slopes referring to the BGSO models (predicted to be $O(n^3)$) approaching 3 while the GMO models (predicted to be $O(n^3\log(n))$) produce slope between 3 and 4.
 
+Statistical testing further shows that the empirical time complexity of the proposed BGSO algorithms are indeed significantly lower than that of their GMO counterparts (\autoref{fig:empirical_complexity}).
+%
 % The value slighly above 3 for bdt\_gso also do not defy expectations, since the theoretical analises were based on the assumption of balanced trees and a small increase in tree depth is expected in real scenarios.
-
+%
 We also notice slightly lower slopes for the Extra-Trees in comparison with the BDTs. In fact, they seem to be closer to the theoretical expectations for the BGSO models. This is expected,
 since the randomized split search performs far less operations than the exhaustive search (\autoref{sec:split search}). Notwithstanding, both algorithms have the same order of complexity.
 %since the bottleneck calculation for these models in the asymptotic regime is the search for the minimum and maximum values of each feature in each node (lines \ref{}), which can be done much faster than the search for the best split employed by the greedy decision trees (\autoref{alg:find_best_split}), even though both procedures have the same order of asymptotic complexity.
@@ -2830,7 +2856,7 @@ In spite of that, the empirical complexity of \model{bdt-bgso} is still observed
     \caption{
         Empirical time complexity estimation of the proposed bipartite global single-output (BGSO) and the global multi-output (GMO)~\cite{pliakos2018global}
         algorithms. Bipartite versions of both extremely randomized trees~\cite{geurts2006extremely} (BXT) and greedy decision trees~\cite{breiman1984classification} (BDT) were built under the BGSO and GMO scheme and trained over artificial datasets of varying numbers of samples (as described in \autoref{sec:complexity_analysis}). The training time versus the number of samples is presented on the left. On the right, we present the same plot on a logarithmic scale. The slopes and respective standard deviations are obtained by applying least-squares linear regression.
-        Independent two-sample t-tests comparing the slope estimates reveal that the time complexity of \model{bdt-bgso} is highly significantly lower than \model{bdt-gmo} ($p < 10^{-64}$) and even \model{bxt-sq} ($p < 10^{-20}$), and also that \model{bxt-gso} significantly exhibits lower complexity than \model{bxt-sq} ($p < 10^{-22}$).
+        Independent two-sample t-tests comparing the slope estimates reveal that the time complexity of \model{bdt-bgso} is highly significantly lower than \model{bdt-gmo} ($p < 10^{-64}$) and even \model{bxt-gmo} ($p < 10^{-20}$), and also that \model{bxt-gso} significantly exhibits lower complexity than \model{bxt-gmo} ($p < 10^{-22}$).
         % Those values corroborate the theoretical estimates from \autoref{sec:complexity_analysis}.
         \newline Source: By the author.
     }
@@ -2873,6 +2899,10 @@ In spite of that, the empirical complexity of \model{bdt-bgso} is still observed
 \label{sec:prototype_comparison}
 %TODO: why we did not use BGSO here?
 
+In this work we propose a different prototyping strategy to determine the output value of each leaf in a GMO decision tree, taking the similarity matrices of our use cases into consideration (\autoref{sec:prototype}).
+%
+In this experiment we compare their predictive performances, building BXT and BRF models for every option.
+
 \begin{mdframed}[frametitle={Key findings}]
     \begin{itemize}
         \item The \texttt{square} strategy is the best for both BXT and BRF models, except for the LT+TL AUPR score, for which the fully-grown trees are the best.
@@ -2880,9 +2910,7 @@ In spite of that, the empirical complexity of \model{bdt-bgso} is still observed
     \end{itemize}
 \end{mdframed}
 
-In this work we propose a different prototyping strategy to determine the output value of each leaf in a GMO decision tree, taking the similarity matrices of our use cases into consideration (\autoref{sec:prototype}).
-%
-In this experiment we compare such strategies, building BXT and BRF models for every option.
+\subsubsection{Setup}
 
 The minimum rows per leaf and minimum columns per leaf were both set to 5, ensuring that at least 5 samples of each domain are considered when calculating the prototype values.
 %in a weighted-neighbors fashion during evaluation (Section \ref{}).
@@ -2899,6 +2927,8 @@ To observe the effect of this early-stopping criterion by itself, we also includ
     \item \textbf{\texttt{softmax}:} also a weighting approach, but using the exponential of the similarities (\autoref{eq:prototype3}).
     \item \textbf{\texttt{full}:} the trees are grown until a single interaction remains in each leaf. %, so that the prediction for each pair is the label of the single learned sample in the leaf.
 \end{itemize}
+
+\subsubsection{Discussion}
 
 %As shown by \autoref{fig:pred_weights_brf} and Table \ref{}, BXT models show an overall superior performance in comparison to BRF models, with each BXT model scoring significantly higher than its BRF counterpart with the same prediction weights. Furthermore, the weighted GMO predictions seem to prevail relative to the leaf-wise prototype GMOSA (Section \ref{}). Specifically, bxt\_square significantly outperforms all other bipartite forests except for bxt\_precomputed, both in terms of AUROC and average precision (AUPR) in the TT sets (Figure \ref{}).
 
@@ -3016,6 +3046,7 @@ We select the squared weighting strategy and the fully grown trees to be further
 
 \subsection{Which adaptation strategy is the best for decision forests?}
 \label{sec:adaptation_comparison}
+We now compare each of the described approaches for adapting decision forests to bipartite data, including data-centric adaptations (\autoref{sec:standard adaptations}) and the natively bipartite forests (\autoref{sec:bipartite_trees} and \autoref{sec:bgso_trees}).
 
 \begin{mdframed}[frametitle={Key findings}]
     \begin{itemize}
@@ -3025,7 +3056,9 @@ We select the squared weighting strategy and the fully grown trees to be further
     \end{itemize}
 \end{mdframed}
 
-We now compare each of the described approaches for adapting decision forests to bipartite data, including data-centric adaptations (\autoref{sec:standard adaptations}) and the natively bipartite forests (\autoref{sec:bipartite_trees} and \autoref{sec:bgso_trees}). We briefly describe below the suffixes in the model names of this section, indicating the employed bipartite adaptations.
+\subsubsection{Setup}
+
+We briefly describe below the suffixes in the model names of this section, indicating the employed bipartite adaptations.
 
 % TODO: contribution: ensembles of gmo (not gmo) were nevel built!
 
@@ -3039,6 +3072,8 @@ We now compare each of the described approaches for adapting decision forests to
 \end{itemize}
 
 All the global models were built with 100 trees. For SLMO, each of the four forests used 50 trees, while for SLSO 50 trees were used for each row or column of the interaction matrix.
+
+\subsubsection{Discussion}
 
 In the LT+TL AUPR evaluation setting, the pattern observed in \autoref{sec:prototype_comparison} again emerges: the label averaging strategy employed by SQ performs considerably worse in comparison to forests that separately consider each known instance. In particular, the SLMO and SLSO adaptations yield the clear best BRF models in terms of LT+TL AUPR, and these adaptations interpret each instance as a separate output to be predicted. Among the local adaptations, SLMO significantly ouperforms SLSO. SLSO treats each training instance as a completely independent task, building a separate forest for each row and column of the interaction matrix. As such, the previous result shows that this complete independence is not desirable for the learning problems under study, and exploring label correlations between instances of the same domain is beneficial (as demonstrated by SLMO). This result could partially be a consequence of the very sparse nature of our problems: if the interaction information of each instance is limited, it becomes advantageus to aggregate information from other instances with correlated interactomes. We then speculate that the advantage of SLMO over SLSO could become less prominent once the number of known interactions per instance increases and more data are available for training.
 
@@ -3155,16 +3190,20 @@ This behaviour is expected. Notice that SGSO US models are trained in a balanced
 \subsection{Can label imputation assist bipartite forests?}
 \label{sec:y_reconstruction}
 
+In this section, we compare bipartite forests with and without label imputation by matrix factorization, to investigate its impact as a countermeasure to the high label sparsity in the datasets.
+
 \begin{mdframed}[frametitle={Key findings}]
     \begin{itemize}
         \item Imputing positive annotations with NRLMF improves the performance of bipartite forests in the majority of cases.
         \item For LT+TL AUPR, the best BRF is \model{BRF-SLMO} and the best BXT is \model{BXT-gmo-yr}.
         % \item For LT+TL AUROC, the best BRF is \model{BRF-SLMO-yr}
-        \item sq NRLMF is the overall best model for TT.
+        \item SQ-NRLMF is the overall best model for TT.
     \end{itemize}
 \end{mdframed}
 
-In this section, we compare bipartite forests with and without label imputation by matrix factorization. We investigate the adaptations SLMO, BGSO, GMO and SQ (which is GMO our squared similarities prototype). See \autoref{sec:adaptation_comparison} for a more detailed description of each model.
+\subsubsection{Setup}
+
+We employ the adaptations SLMO, BGSO, GMO and SQ (which is GMO our squared similarities prototype). See \autoref{sec:adaptation_comparison} for a more detailed description of each model.
 
 It was previously suggested that creating a dense representation of the interaction matrix improves the performance of BXT in drug-target interaction tasks~\cite{pliakos2020drugtarget}.
 To test this result on our datasets, we compare the bipartite forests scores with and without the interaction matrix reconstruction step. As \cite{pliakos2020drugtarget}, the reconstruction step was performed using neighborhood-regularized logistic matrix factorization (NRLMF)~\cite{liu2016neighborhood}.
@@ -3178,8 +3217,11 @@ The best combination of parameters according to the inner CV loop was then used 
 The hyperparameters $\lambda_1$, $\lambda_2$, $\beta_1$, $\beta_2$, and $\eta$ were all independently sampled from a log-uniform distribution bounded by $\frac{1}{4}$ and $2$ (\autoref{alg:nrlmf_train}).
 The number of latent vector components was set to be equal for both axes, and chosen between 50 and 100. The number of neighbors was randomly selected as 3, 5 or 10 in each iteration, and the maximum number of optimization steps was always set to 100. The parameter $\alpha$ (\autoref{alg:nrlmf_train}), as in the original paper~\cite{liu2016neighborhood}, was set to $5$. This parameter specifies the emphasis on positive annotations, so each positive annotation contributes $5$ times more to the loss function in our settings, as if 5 copies of each positive interaction were present in the training set.
 %
-%
+
 The results for BRF and BXT are shown by figures \ref{fig:brf_y_reconstruction} and \ref{fig:bxt_y_reconstruction}, respectively. The \texttt{yr} suffix to a model indicates that it was trained after $Y$ reconstruction, that is, on the output of NRLMF.
+
+
+\subsubsection{Discussion}
 
 The interaction matrix reconstruction step is shown to be especially beneficial in terms of AUROC scores, improving this score for almost all forest algorithms investigated. The only exceptions were \model{bxt-sq} and \model{brf-sq} in LT+TL ROC AUC, where the improvement is still observed but not statistically significant.
 %
@@ -3192,7 +3234,7 @@ Even without assistance from NRLMF, the \model{bxt-sq} and \model{brf-sq} models
 \model{brf-sq} was also the top performing BRF model in terms of TT AUPR, significantly surpassing all but \model{brf-sq-yr} and \model{brf-SLMO-yr}.
 Similarly, \model{bxt-sq} was the top performing BXT model under the same metric, significantly surpassing all estimators but \model{bxt-sq-yr}, \model{bxt-SLMO-yr} and \model{BXT-gmo-yr}.
 
-Regarding TT AUPR, NRLMF still provides a significant improvement for all models except \model{brf-sq}, \model{bxt-sq} and \model{bxt-SLMO}. While both BRF sq and BXT sq resulted in the highest average ranks for TT AUPR, the top position could not be statistically resolved between the BRFs using sq, sq NRLMF, and SLMO NRLMF, nor between the BXTs using sq, sq NRLMF, SLMO NRLMF, and gmo NRLMF.
+Regarding TT AUPR, NRLMF still provides a significant improvement for all models except \model{brf-sq}, \model{bxt-sq} and \model{bxt-SLMO}. While both \model{BRF-sq} and \model{BXT-sq} resulted in the highest average ranks for TT AUPR, the top position could not be statistically resolved between the BRFs using SQ, SQ-NRLMF, and SLMO-NRLMF, nor between the BXTs using SQ, SQ-NRLMF, SLMO-NRLMF, and GMO-NRLMF.
 
 In the LT+TL AUPR setting for BXT ensembles, NRLMF is shown to significantly degrade the performance of \model{bxt-sq}. Therefore, the combination of the squared neighbors prototype and NRLMF likely results in more high-rank false positives under LT+TL, especially since such degradation is not observed under LT+TL AUROC.  % TODO name prototype
 %
@@ -3336,6 +3378,8 @@ In summary, interaction matrix reconstruction by NRLMF seems to consistently imp
 \subsection{What is the best way of building semi-supervised forests?}
 \label{sec:ss_comparison}
 
+In this experiment, we compare the performances of semi-supervised bipartite forests, as presented by \autoref{sec:ss trees}.
+
 \begin{mdframed}[frametitle={Key findings}]
     \begin{itemize}
         \item The MD unsupervised impurity is the best option for LT+TL.
@@ -3344,7 +3388,9 @@ In summary, interaction matrix reconstruction by NRLMF seems to consistently imp
     \end{itemize}
 \end{mdframed}
 
-In this experiment, we compare the performances of semi-supervised bipartite forests \autoref{sec:ss trees}. All forests in this section are based on the BXT BGSO, as presented by \autoref{sec:bipartite_trees} and used in \autoref{sec:adaptation_comparison}. We evaluate all combinations of the three strategies for calculating the unsupervised impurity and the four strategies for determining the supervision balance at each node.
+\subsubsection{Setup}
+
+All forests in this section are based on the BXT BGSO, as presented by \autoref{sec:bipartite_trees} and used in \autoref{sec:adaptation_comparison}. We evaluate all combinations of the three strategies for calculating the unsupervised impurity and the four strategies for determining the supervision balance at each node.
 
 \paragraph*{Strategies for determining the unsupervised impurity:}
 \begin{itemize}
@@ -3360,6 +3406,8 @@ In this experiment, we compare the performances of semi-supervised bipartite for
     \item \textbf{\texttt{size}:} $\sigma$ is determined by the total number of interactions current in the tree node (\autoref{eq:sigma size}).
     \item \textbf{\texttt{random}:} $\sigma$ is set to a random value between $0$ and $1$ drawn at each tree node (\autoref{eq:sigma random}).
 \end{itemize}
+
+\subsubsection{Discussion}
 
 The comparison results are displayed by \autoref{fig:ss_comparison}.
 %
@@ -3499,8 +3547,10 @@ In conclusion, the best unsupervised impurity under LT+TL seems to be the mean d
 
 
 % \subsection{Label imputation or semi-supervised impurities?}
-\subsection{Which forests are the most promising?}
+\subsection{Which strategies are the most promising?}
 \label{sec:best_forests}
+
+In this experiment, we compare the performances of various forests from the previous sections, including BXT and BRF, forests using semi-supervised impurities, and forests using label imputation by NRLMF.
 
 \begin{mdframed}[frametitle={Key findings}]
     \begin{itemize}
@@ -3510,8 +3560,8 @@ In conclusion, the best unsupervised impurity under LT+TL seems to be the mean d
     \end{itemize}
 \end{mdframed}
 
-In this experiment, we compare the performances of various forests from the previous sections.
-%, including those employing label impuation by NRLMF and those grown with semi-supervised impurities.
+\subsubsection{Setup}
+
 For more information on each model see the corresponding section in the list bellow.
 
 \begin{itemize}
@@ -3538,6 +3588,8 @@ For more information on each model see the corresponding section in the list bel
 % is sq ss as well?
 % using nrlmf makes trees deeper -> diversity / ovefitting
 % time to train is complicated with NRLMF
+
+\subsubsection{Discussion}
 
 The comparisons are presented by \autoref{fig:best_forests}. The results reveal a clear superiority of forests employing the NRLMF as a label imputation strategy, in comparison to those using semi-supervised impurities. The four models employing NRLMF were the four highest ranked estimators in almost all evaluation settings, the two exceptions being LT+TL AUPR with ILR = 0\% and ILR = 50\%. In the first exception (LT+TL AUPR 0\%), \model{BRF-sq-yr} and \model{BXT-sq-yr} are the two worst-performing models, whereas \model{BXT-gmo-yr} and \model{BXT-bgSO-yr} are the first and second best, respectively. In the second exception (LT+TL AUPR 50\%), the two best models are the same, and \model{BRF-sq-yr} is still one the worst performers. However, \model{BXT-sq-yr} jumps to the third best position. 
 
@@ -3683,6 +3735,8 @@ When comapring the BXT against the BRF models, we notice that \model{BXT-sq-yr} 
 \subsection{Can bipartite forests compete with other proposals?}
 \label{sec:comparison literature}
 
+In this section we compare the two most promising methods we developed (\model{BXT-sq-yr} and \model{BXT-bgSO-yr}) with several prominent models from the literature. 
+
 \begin{mdframed}[frametitle={Key findings}]
     \begin{itemize}
         \item Forests with NRLMF surpass NRLMF alone.
@@ -3692,8 +3746,8 @@ When comapring the BXT against the BRF models, we notice that \model{BXT-sq-yr} 
     \end{itemize}
 \end{mdframed}
 
-In this section we compare the two most promising methods we developed (\model{BXT-sq-yr} and \model{BXT-bgSO-yr}) with several prominent models from the literature. 
-%
+\subsubsection{Setup}
+
 The algorithms being considered in this section are listed below, and their scoring results are shown by \autoref{fig:comparison literature}.
 
 \begin{itemize}
@@ -3728,6 +3782,8 @@ The algorithms being considered in this section are listed below, and their scor
     The architecture was selected at each fold between four options: 5 hidden layers of 100 neurons; 10 hidden layers of 50 neurons; 5 hidden layers with [200, 100, 100, 100, 50] neurons; and 6 hidden layers of [1024, 512, 256, 128, 64, 32] neurons. The architecture selection in each fold was performed by an internal 5 by 5 bipartite diagonal CV procedure (\autoref{sec:cross_validation}).
     The activation function was always the rectified linear unit, and ADAM~\cite{kingma2017adam} was the chosen optimizer. Other parameters were kept as the defaults from the Scikit-learn library~\cite{pedregosa2011scikitlearn}.
 \end{itemize}
+
+\subsubsection{Discussion}
 
 \model{BXT-sq-yr} was the best ranked model in 11 out of the 16 test settings analysed. The exceptions were the four LT+TL AUPR configurations and TT AUPR 0\%. In TT AUPR 0\%, \model{BXT-sq-yr} was only behind SLMO rls, and among the three models that could not be statistically distinguished from SLMO rls (the others being RLS-Kron and \model{bxt-gmo-yr}). In LT+TL AUROC 0\%, the comparison between \model{BXT-sq-yr} and the second best model, \model{bxt-gmo-yr}, was also not statistically significant. In the remaining 10 cases where \model{BXT-sq-yr} prevails, it was significantly better than all other learning algorithms analysed.
 

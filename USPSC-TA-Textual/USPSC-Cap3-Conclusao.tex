@@ -93,7 +93,7 @@ We now list our final answers to the research questions proposed in \autoref{sec
 
 \section{Future work}
 
-The present study opens several paths for future research. We list some of the most promising ones below.
+The present study opens several paths for future research. We enumerate some of them below.
 
 \begin{enumerate}
     \item \textbf{Adding noise to the impurity}
@@ -110,7 +110,7 @@ The present study opens several paths for future research. We list some of the m
     For instance, several works use a single feature column to determine an unsupervised impurity~\cite{loyola-gonzalez2020explainable}.  % TODO cite more
     Their reasoning is that the most significant change in impurity will result from the feature being used to select the split points. This feature is previously ordered by the algorithm. Therefore, other feature columns can be disregarded.
     
-    Other unsupervised impurities~\cite{loyola-gonzalez2020explainable} leverage not only the smoothness assumption but also the \emph{cluster assumption}, which tells us to stablish decision functions preferably in low-density regions of the feature space~\cite{chapelle2006semisupervised,vanengelen2020survey}. These impurities then prioritize split points separating groups that are far from each other in the feature space, and not only compact (low variance)~\cite{loyola-gonzalez2020explainable}.
+    Other unsupervised impurities~\cite{loyola-gonzalez2020explainable} leverage not only the smoothness assumption but also the \emph{cluster assumption}, which tells us to stablish decision borders preferably in low-density regions of the feature space~\cite{chapelle2006semisupervised,vanengelen2020survey}. These impurities then prioritize split points separating groups that are far from each other in the feature space, and not only compact (low variance)~\cite{loyola-gonzalez2020explainable}.
 
     Other approaches~\cite{adiyeke2022semisupervised} also use the structure of random trees to determine similarity values~\cite{liu2008isolation}, obtaining a similarity matrix to various types of data.
 
@@ -167,5 +167,7 @@ The present study opens several paths for future research. We list some of the m
     % TODO trees that modify Y as it grows
 \end{enumerate}
 
+%\section{Code and data availability}
 
-COMPLEMENTAR  %TODO
+
+%COMPLEMENTAR  %TODO

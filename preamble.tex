@@ -7,11 +7,20 @@
 \usepackage{wrapfig}
 \usepackage{layouts}
 \usepackage[framemethod=TikZ]{mdframed}
+% \usepackage{mdframed}
 \mdfsetup{  % Pretty frame titles config
-    frametitle={\colorbox{white}{\space#1\space}},
-    innertopmargin=10pt,
+    % frametitle={\colorbox{white}{\space#1\space}},
+    frametitlerule=true,
+    roundcorner=5pt,
+    skipabove=1cm,
+    skipbelow=1cm,
+    % frametitleaboveskip=1cm,
+    %skipabove=1cm,
+    % frametitlefont=\normalfont\bfseries\scshape,
+    % innertopmargin=10pt,
+    % frametitleaboveskip=\strutbox,
     %frametitleaboveskip=-\ht\strutbox,
-    %frametitlealignment=\center
+    frametitlealignment=\center
 }
 %\usepackage{biblatex}
 %\usepackage{natbib}

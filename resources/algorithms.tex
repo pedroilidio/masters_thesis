@@ -156,7 +156,7 @@
     \BlankLine
     \Return $\Delta I^*$, $f^*$, $t^*$
     \label{alg:find_random_split}
-    \caption{FindSplit$_\text{random}$($X$, $Y$)}
+    \caption{FindSplitRandom($X$, $Y$)}
 \end{function}}
 
 
@@ -247,7 +247,7 @@ Node $\gets$ RootNode\;
         with its corresponding feature column $f^*$ and threshold value $t^*$.}
     \SetKwData{adapter}{adapterStrategy}
     \BlankLine
-    \eIf{\adapter is GSO (\autoref{sec:bgso_trees})}{
+    \eIf{\adapter is BGSO (\autoref{sec:bgso_trees})}{
         \tcp{Build $Y$ proxies $\tilde Y_1$ and $\tilde Y_2$ (\autoref{eq:y_proxies})}
         $\tilde Y_1 \gets Y\el{\cdot}\mel j$\;
         $\tilde Y_2 \gets Y\mel i\el \cdot$\;

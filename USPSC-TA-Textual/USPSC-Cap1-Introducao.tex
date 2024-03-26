@@ -405,12 +405,12 @@ This section provides a brief overview of previous investigations related to bip
 
 \citeonline{schrynemackers2015classifying} stablishes the idea of the global single output, local single output, and local multi-output adaptations of traditional machine learning algorithms. In their study, they analyse the performance of random forests (RF)~\cite{breiman2001random} and ensembles of randomized trees (ERT)~\cite{geurts2006extremely} adapted in both ways and applied to biological interaction prediction. They consider not only bipartite but also homogeneous networks, such as protein-protein interactions or gene-gene interactions~\cite{schrynemackers2015classifying}.
 
-In \citeyear{pliakos2018global}, \citeauthor{pliakos2018global} presents a global multi-output decision tree for interaction prediction, named the predictive bi-clustering tree (PBCT) algorithm.
+In \citeyear{pliakos2018global}, \citeauthor{pliakos2018global} present a global multi-output decision tree for interaction prediction, named the predictive bi-clustering tree (PBCT) algorithm.
 The method adapts decision trees on a more fundamental level to interaction scenarios, resulting in improved results over the previous adaptations~\cite{pliakos2018global}.
 However, the training complexity of the proposed trees is still the same as that of the previous adaptations~\cite{pliakos2018global}, and the authors do not explore the use of semi-supervised techniques.
 % Although directly considering the bipartite data format, with separate design matrices for each domain, their proposal is still limited by the same asymptotic complexity of GSO-adapted trees.
 
-The authors in \citeyear{pliakos2019network} extend the PBCT algorithm to ensembles, building bipartite versions of RF and ERT~\cite{pliakos2019network}. They demonstrate superior performance against the other models in the comparison.
+The authors, in \citeyear{pliakos2019network}, extend the PBCT algorithm to ensembles, building bipartite versions of RF and ERT~\cite{pliakos2019network}. They demonstrate superior performance against the other models in the comparison.
 %
 Later, in \citeyear{pliakos2020drugtarget}, they explore the use of neighborhood-regularized logistic matrix factorization (NRLMF)~\cite{liu2016neighborhood} as a pre-training step to the bipartite ERT~\cite{pliakos2020drugtarget}. NRLMF is used to generate continuous pseudo-labels for negative interactions, that are imputed in the interaction matrix before training the forest estimator. They demonstrate significant improvements in prediction scores resulting from this procedure~\cite{pliakos2020drugtarget}, sugesting that label imputation and other semi-supervised techniques could be beneficial.
 
