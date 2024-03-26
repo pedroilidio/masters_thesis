@@ -1077,7 +1077,8 @@ FUNCTION {format.in.ed.booktitle}
 { editor empty$
     {organization empty$ not author empty$ not and    %if one of two not empty
       % {word.in organization "u" change.case$ * output  % XXX: commented out
-      {word.in organization * output  %XXX
+      % We will set uppercase mannualy to allow using the number and place of the conference after it (e.g. COOL CONFERECE, 18, 2020, Paris)
+      {word.in organization * output
        format.conference.info
        booktitle empty$ {""} {new.sentence format.booktitle} if$}
       {word.in

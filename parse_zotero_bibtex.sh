@@ -17,6 +17,8 @@ convert_date () {
         echo $output_line
     elif [[ $input_line == *"organization= "* ]] ; then
         echo $input_line | sed "s/.*organization= \(.*\)}/organization = {\\1}/"
+    elif [[ $input_line == "  title ="* ]] ; then
+        echo $input_line | sed "s/title = {\(.*\): \(.*\)},/title = {\\1},\nsubtitle = {\\2},/"
     else
         echo $input_line
     fi
