@@ -726,7 +726,8 @@ FUNCTION {format.title}
   {title format.title.as.author}
   {title  duplicate$ empty$ {pop$ ""} {"t" change.case$} if$}
  if$
- subtitle  empty$ 'skip$ {subtitle ": " swap$ * "t" change.case$ *} if$
+ %subtitle  empty$ 'skip$ {subtitle ": " swap$ * "t" change.case$ *} if$  %XXX
+ subtitle  empty$ 'skip$ {subtitle ": " swap$ * "l" change.case$ *} if$
  apply.title.command
  compare.title
 }
@@ -780,9 +781,12 @@ FUNCTION {format.date}
 FUNCTION {format.btitle}
 {author empty$ editor empty$ and organization empty$ and
     {title format.title.as.author "title" bibinfo.check duplicate$ empty$ 'skip$ {} if$
-    subtitle  empty$ 'skip$ {subtitle ": " swap$ * "t" change.case$ *} if$}
-    {title "title" bibinfo.check emphasize duplicate$ empty$ 'skip$ {} if$
-    subtitle  empty$ 'skip$ {subtitle ": " swap$ * "t" change.case$ *} if$}
+    % subtitle  empty$ 'skip$ {subtitle ": " swap$ * "t" change.case$ *} if$}  % XXX
+    subtitle  empty$ 'skip$ {subtitle ": " swap$ * "l" change.case$ *} if$}
+    % {title "title" bibinfo.check emphasize duplicate$ empty$ 'skip$ {} if$
+    % subtitle  empty$ 'skip$ {subtitle ": " swap$ * "t" change.case$ *} if$}  % XXX
+    {title "t" change.case$ "title" bibinfo.check emphasize duplicate$ empty$ 'skip$ {} if$  %
+    subtitle  empty$ 'skip$ {subtitle ": " swap$ * "l" change.case$ *} if$}
 if$
 apply.title.command
 compare.title
@@ -820,7 +824,8 @@ FUNCTION {format.bvolume}
     { "" }
     { format.volume
       number empty$ 'skip$ {output format.number} if$
-      series "series" bibinfo.check
+      % series "series" bibinfo.check  %XXX
+      series "t" change.case$ "series" bibinfo.check  %
       duplicate$ empty$ 'pop$
         { swap$ bbl.of space.word * swap$
           emphasize * }
@@ -853,11 +858,13 @@ FUNCTION {format.volume.number.series}
 { number empty$ volume empty$ and
   { series empty$
     { "" }
-    {" (" series "series" bibinfo.check * ")" *}
+    % {" (" series "series" bibinfo.check * ")" *}  %XXX
+    {" (" series "t" change.case$ "series" bibinfo.check * ")" *}  %XXX
     if$}
   { series empty$
     {""} %{ format.number.or.volume }
-    { " ("  series "series" bibinfo.check * ", " *
+    % { " ("  series "series" bibinfo.check * ", " *  % XXX
+    { " ("  series "t" change.case$ "series" bibinfo.check * ", " *  % XXX
      format.number.or.volume * ")" *  }
      if$ }
   if$
@@ -1050,10 +1057,12 @@ FUNCTION {format.chapter.pages}
 FUNCTION {format.booktitle}
 {author empty$ editor empty$ and organization empty$ and
     {booktitle format.title.as.author "booktitle" bibinfo.check duplicate$ empty$ 'skip$ {} if$
-    booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "t" change.case$ *
+    %booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "t" change.case$ *
+    booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "l" change.case$ *  %XXX
     apply.title.command} if$}
     {booktitle "booktitle" bibinfo.check emphasize duplicate$ empty$ 'skip$ {} if$
-    booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "t" change.case$ *
+    %booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "t" change.case$ *
+    booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "l" change.case$ *  %XXX
     apply.title.command} if$}
 if$
 }
