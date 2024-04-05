@@ -318,7 +318,7 @@ MACRO {may} {"May"}
 MACRO {jun} {"Jun."}
 MACRO {jul} {"Jul."}
 MACRO {aug} {"Aug."}
-MACRO {sep} {"Sep."}
+MACRO {sep} {"Sept."}
 MACRO {oct} {"Oct."}
 MACRO {nov} {"Nov."}
 MACRO {dec} {"Dec."}
@@ -891,7 +891,8 @@ FUNCTION {format.edition}
 { edition duplicate$ empty$ 'skip$
     {output.state mid.sentence = { "l" } { "t" } if$ change.case$
       "edition" bibinfo.check
-    edition #1 #1 substring$ is.num {". " * bbl.edition * } 'skip$ if$}
+    % edition #1 #1 substring$ is.num {". " * bbl.edition * } 'skip$ if$}
+    edition #1 #1 substring$ is.num {" " * bbl.edition * } 'skip$ if$} %XXX
   if$
 }
 INTEGERS { multiresult }
@@ -1060,7 +1061,8 @@ FUNCTION {format.booktitle}
     %booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "t" change.case$ *
     booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "l" change.case$ *  %XXX
     apply.title.command} if$}
-    {booktitle "booktitle" bibinfo.check emphasize duplicate$ empty$ 'skip$ {} if$
+    % {booktitle "booktitle" bibinfo.check emphasize duplicate$ empty$ 'skip$ {} if$
+    {booktitle "t" change.case$ "booktitle" bibinfo.check emphasize duplicate$ empty$ 'skip$ {} if$
     %booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "t" change.case$ *
     booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "l" change.case$ *  %XXX
     apply.title.command} if$}
@@ -1087,7 +1089,7 @@ FUNCTION {format.in.ed.booktitle}
     {organization empty$ not author empty$ not and    %if one of two not empty
       % {word.in organization "u" change.case$ * output  % XXX: commented out
       % We will set uppercase mannualy to allow using the number and place of the conference after it (e.g. COOL CONFERECE, 18, 2020, Paris)
-      {word.in organization * output
+      {word.in organization * output  % XXX
        format.conference.info
        booktitle empty$ {""} {new.sentence format.booktitle} if$}
       {word.in
@@ -1234,6 +1236,9 @@ FUNCTION {format.journal}
 {
   format.reprint
   journal emphasize *
+  % PEDRO: use booksubtitle as journal subtitle 
+  booksubtitle  empty$ 'skip$ {booksubtitle ": " swap$ * "l" change.case$ *  } if$  %XXX
+  % apply.title.command if$}
 }
 
 
@@ -1690,7 +1695,8 @@ FUNCTION {book}
   format.publisher.address output
   iso.date.place {abnt.alf 'skip$ {format.year output new.sentence} if$}
                  {format.year output new.sentence} if$
-  format.volume output new.sentence
+  %% format.volume output new.sentence
+  series empty$ {format.volume output new.sentence} {} if$  % XXX already written with series
   format.book.pages output
   format.illustrated
   format.dimensions  new.sentence
@@ -1780,7 +1786,6 @@ FUNCTION {inproceedings}
   format.bvolume.if.no.series output
   format.volume.number.series output
   format.pages output
-  % format.isbn output  % XXX
   format.isbn output
   format.issn output new.sentence
   format.note output new.sentence

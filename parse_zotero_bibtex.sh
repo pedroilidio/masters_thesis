@@ -21,6 +21,8 @@ convert_date () {
         echo $input_line | sed "s/title = {\(.*\): \(.*\)},/title = {\\1},\nsubtitle = {\\2},/"
     elif [[ $input_line == "  booktitle ="* ]] ; then
         echo $input_line | sed "s/booktitle = {\(.*\): \(.*\)},/booktitle = {\\1},\nbooksubtitle = {\\2},/"
+    elif [[ $input_line == "  journal ="* ]] ; then
+        echo $input_line | sed "s/journal = {\(.*\): \(.*\)},/journal = {\\1},\nbooksubtitle = {\\2},/"
     else
         echo $input_line
     fi
